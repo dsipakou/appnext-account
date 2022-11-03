@@ -1,8 +1,11 @@
-import React, { FC, ReactElement } from 'react';
+import React, { FC, ReactElement, ReactNode } from 'react';
+import { useTheme } from '@mui/material/styles';
+import Link from 'next/link';
 import { styled, Theme, CSSObject } from '@mui/material/styles';
-import Drawer from '@mui/material/Drawer';
+import { Drawer, Toolbar, Container } from '@mui/material';
 import AppBar, { AppBarProps } from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -17,7 +20,7 @@ import ShowChartIcon from '@mui/icons-material/ShowChart';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 
-const drawerWidth = 320;
+const drawerWidth = 250;
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
@@ -57,32 +60,33 @@ const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'ope
   }),
 );
 
-const StyledAppBar = styled(AppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})<AppBarProps>(({ theme, open }) => ({
+const AppBarStyled = styled(AppBar, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
   transition: theme.transitions.create(['width', 'margin'], {
     easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
+    duration: theme.transitions.duration.leavingScreen
   }),
   ...(open && {
     marginLeft: drawerWidth,
     width: `calc(100% - ${drawerWidth}px)`,
     transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
+      duration: theme.transitions.duration.enteringScreen
+    })
+  })
 }));
 
 const StyledList = styled(List)(({ theme }) => ({
-  padding: theme.spacing(9, 0),
+  padding: theme.spacing(1, 0),
 }));
 
 
-type Props = {};
+type Props = {
+  children: ReactNode,
+};
 
-const Layout: FC<Props> = (props) => {
+const Layout: FC<Props> = ({children}) => {
+  const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
   const handleDrawerOpen = () => {
@@ -97,82 +101,105 @@ const Layout: FC<Props> = (props) => {
     {
       name: 'Accounts',
       icon: <CreditCardIcon />,
+      link: '/accounts/'
     },
     {
       name: 'Transactions',
       icon: <ReceiptLongIcon />,
+      link: '/transactions/'
     },
     {
       name: 'Categories',
       icon: <CategoryIcon />,
+      link: '/categories/'
     },
     {
       name: 'Budget',
       icon: <OnlinePredictionIcon />,
+      link: '/budget/',
     },
     {
       name: 'Currencies',
       icon: <CurrencyExchangeIcon />,
+      link: '/currencies/'
     },
     {
       name: 'Reports',
       icon: <ShowChartIcon />,
+      link: '/reports/'
     },
   ];
 
-  const menuComponent = (name: string, icon: ReactElement): ReactElement => (
+  const menuComponent = (name: string, icon: ReactElement, link: string): ReactElement => (
     <ListItem key={name} disablePadding sx={{ display: 'block' }}>
-      <ListItemButton
-        sx={{
-          minHeight: 48,
-          justifyContent: 'initial',
-          px: 2.5,
-        }}
-      >
-        <ListItemIcon
+      <Link href={link}>
+        <ListItemButton
           sx={{
-          minWidth: 0,
-          mr: 3,
-          justifyContent: 'center',
+            minHeight: 48,
+            justifyContent: 'initial',
+            px: 2.5,
           }}
         >
-          { icon }
-        </ListItemIcon>
-        <ListItemText primary={name} sx={{ opacity: 1 }} />
-      </ListItemButton>
-    </ListItem>
-  )
-
-  return (
-    <>
-      <StyledAppBar>
-        <Toolbar position="fixed" open={open}>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={ open ? handleDrawerClose : handleDrawerOpen }
-            edge="start"
+          <ListItemIcon
             sx={{
-              marginRight: 5,
+            minWidth: 0,
+            mr: 3,
+            justifyContent: 'center',
             }}
           >
-            <MenuIcon />
-          </IconButton>
-        </Toolbar>
-      </StyledAppBar>
-      <StyledDrawer
-        variant="permanent"
-        open={open}
-      >
-        <StyledList>
-          { menuItems.map(({ name, icon }) => (
-            <>
-              { menuComponent(name, icon) }
-            </>
-          ))}
-          </StyledList>
-      </StyledDrawer>
-    </>
+            { icon }
+          </ListItemIcon>
+          <ListItemText primary={name} sx={{ opacity: 1 }} />
+        </ListItemButton>
+      </Link>
+    </ListItem>
+  )
+  const appBar = {
+    position: 'fixed',
+    elevation: 0,
+    sx: {
+        borderBottom: `1px solid ${theme.palette.divider}`,
+    }
+  };
+
+  return (
+  <>
+    <AppBarStyled {...appBar}>
+      <Toolbar>
+        <IconButton
+          color="inherit"
+          aria-label="open drawer"
+          onClick={ open ? handleDrawerClose : handleDrawerOpen }
+          edge="start"
+          sx={{
+            marginRight: 5,
+          }}
+        >
+          <MenuIcon />
+        </IconButton>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          Flying Budget
+        </Typography>
+        <Button color="inherit">Login</Button>
+      </Toolbar>
+    </AppBarStyled>
+    <StyledDrawer
+      variant="permanent"
+      open={open}
+    >
+      <Toolbar />
+      <StyledList>
+        { menuItems.map(({ name, icon, link }) => (
+          <>
+            { menuComponent(name, icon, link) }
+          </>
+        ))}
+      </StyledList>
+    </StyledDrawer>
+    <Container fixed maxWidth="lg">
+      {children}
+    </Container>
+  </>
   )
 };
 
