@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { selectChangeEvent, ChangeEvent, useEffect, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -9,6 +9,8 @@ import {
   Select,
   MenuItem,
   Button,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import { useCategories } from '../../../hooks/categories';
 
@@ -21,43 +23,71 @@ interface Props {
 const EditForm = ({ uuid, open = false, handleClose }: Props) => {
   const { categories, isLoading, isError } = useCategories();
 
-  const [category, setCategory] = useState();
-  const [childrenCategories, setChildrenCategories] = useState([]);
-  const [allParentCategories, setAllParentCategories] = useState([]);
+  const [ category, setCategory ] = useState<Category>('');
+  const [ name, setName ] = useState<string>('');
+  const [ parent, setParent ] = useState<Category>('');
+  const [ childrenCategories, setChildrenCategories ] = useState<Category[]>([]);
+  const [ parentList, setParentList ] = useState<Category[]>([]);
 
   useEffect(() => {
     if (isLoading) return;
 
-    const category = categories.find((item: any) => item.uuid === uuid);
-    const childrenCategories = categories.filter((item: any) => item.parent === category?.uuid);
-    const parentCategories = categories.filter((item: any) => item.parent === null);
+    const _category = categories.find((item: any) => item.uuid === uuid);
+    
+    if (!_category) return;
 
-    setCategory(category);
-    setChildrenCategories(childrenCategories);
-    setAllParentCategories(parentCategories);
+    const _childrenCategories = categories.filter(
+      (item: any) => item.parent === _category.uuid,
+    );
+    const _parentCategories = categories.filter(
+      (item: any) => item.parent === null && item.type === _category.type,
+    );
+
+    setCategory(_category);
+    setName(_category.name);
+    setChildrenCategories(_childrenCategories);
+    setParentList(_parentCategories);
+    setParent(_category.parent);
   }, [categories, uuid, isLoading]);
 
-  const handleChange = (event: SelectChangeEvent) => {
-    console.log('here');
-    setEditParent(event.target.value);
+  const handleParentSelect = (e: SelectChangeEvent) => {
+    setParent(e.target.value);
+  }
+
+  const handleNameTextbox = (e: ChangeEvent) => {
+    setName(e.target.value);
+  }
+
+  const onClose = () => {
+    handleClose();
+    setName(category?.name);
+    setParent(category?.parent);
   }
 
   return (
-    <Dialog open={open} maxWidth="sm" fullWidth={true} onClose={handleClose}>
+    <Dialog open={open} maxWidth="sm" fullWidth={true} onClose={onClose}>
       <DialogTitle>Edit category</DialogTitle>
       <DialogContent>
         <Grid container spacing={4}>
-          <Grid item xs={6}>
-            <Select
-              label="Parent"
-              fullWidth
-              onChange={handleChange}
-            >
-              {allParentCategories.map((item: any) => (
-                <MenuItem value={item.uuid} key={item.uuid}>{item.name}</MenuItem>
-              ))}
-            </Select>
-          </Grid>
+            <Grid item xs={12}>
+              { category?.parent !== null && (
+                <FormControl fullWidth sx={{mt: 1}}>
+                  <InputLabel id="parent-select-label">Parent category</InputLabel>
+                  <Select
+                    labelId="parent-select-label"
+                    label="Parent category"
+                    value={parent}
+                    fullWidth
+                    defaultValue=""
+                    onChange={handleParentSelect}
+                  >
+                    { parentList?.map((category: Category) => (
+                      <MenuItem key={category.uuid} value={category.uuid}>{category.name}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
+            </Grid>
           <Grid item xs={12}>
             <TextField
               autoFocus
@@ -66,7 +96,8 @@ const EditForm = ({ uuid, open = false, handleClose }: Props) => {
               label="Category name"
               type="text"
               fullWidth
-              value={category?.name}
+              value={name}
+              onChange={handleNameTextbox}
             />
           </Grid>
         </Grid>

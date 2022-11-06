@@ -73,7 +73,6 @@ const ConfirmDeleteForm = ({ open = false, uuid, handleClose }: Props) => {
       <DialogContent>
         { errors.length > 0 && (
           <Box>
-            <Typography color="red">Cannot delete category:</Typography>
             { errors.map((message: string) => (
               <Typography key={message} color="red">{message}</Typography>
             ))}

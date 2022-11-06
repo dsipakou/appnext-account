@@ -7,12 +7,13 @@ import {
   Grid,
   TextField,
   FormControlLabel,
-  Checkbox,
+  Switch,
   Select,
   InputLabel,
   FormControl,
   MenuItem,
   Button,
+  Typography,
 } from '@mui/material';
 import { Category, CategoryType, CategoryCreateRequest } from '../types';
 import { useCategories } from '../../../hooks/categories';
@@ -33,6 +34,7 @@ const AddForm = ({ open = false, handleClose }: Props) => {
   const [ name, setName ] = useState<string>('');
   const [ parentList, setParentList ] = useState<Category[]>([]);
   const [ parent, setParent ] = useState<Category>('');
+  const [ errors, setErrors ] = useState<string[]>([]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -40,10 +42,13 @@ const AddForm = ({ open = false, handleClose }: Props) => {
     const parents = categories.filter(
       (category: Category) => category.parent === null && category.type === type,
     );
-    setParentList(parents)
+    setParentList(parents);
+
+    return () => setErrors([]);
   }, [isLoading, categories, type]);
 
-  const save = async () => {
+  const handleSave = async () => {
+    setErrors([]);
     const payload: CategoryCreateRequest = {
       name,
       type,
@@ -55,33 +60,36 @@ const AddForm = ({ open = false, handleClose }: Props) => {
       res => {
         if (res.status === 201) {
           mutate('categories/');
+          handleClose();
         } else {
           // TODO: handle errors
         }
       }
     ).catch(
-      (error) => { console.log(error) }
+      (error) => {
+        const errRes = error.response.data;
+        for (const prop in errRes) {
+          setErrors(errRes[prop]);
+        }
+      }
     ).finally(() => {console.log('stopLoading')})
   }
 
   const handleTypeChange = (e: SelectChangeEvent) => {
-    e.preventDefault();
     setType(e.target.value);
   }
 
-  const handleParentCheckbox = (e: ChangeEvent) => {
+  const handleParentSwitch = (e: ChangeEvent) => {
     // TODO: disable parent select box
-    e.preventDefault();
     setIsParent(e.target.checked);
+    setParent('');
   }
 
   const handleParentSelect = (e: SelectChangeEvent) => {
-    e.preventDefault();
     setParent(e.target.value);
   }
 
   const handleNameInput = (e: ChangeEvent) => {
-    e.preventDefault();
     setName(e.target.value);
   }
 
@@ -90,6 +98,11 @@ const AddForm = ({ open = false, handleClose }: Props) => {
       <DialogTitle>Add category</DialogTitle>
       <DialogContent>
         <Grid container spacing={3}>
+          <Grid item xs={12}>
+            { errors.map((message: string) => (
+              <Typography key={message} color="red">{message}</Typography>
+            ))}
+          </Grid>
           <Grid item xs={12}>
             <TextField
               autoFocus
@@ -118,11 +131,11 @@ const AddForm = ({ open = false, handleClose }: Props) => {
           </Grid>
           <Grid item xs={6}>
             <FormControlLabel control={
-              <Checkbox checked={isParent} onChange={handleParentCheckbox} />
-            } label="Parent category" />
+              <Switch checked={isParent} onChange={handleParentSwitch} />
+            } label="This is parent category" />
           </Grid>
           <Grid item xs={12}>
-            <FormControl fullWidth>
+            <FormControl fullWidth disabled={isParent}>
               <InputLabel id="parent-select-label">Parent category</InputLabel>
               <Select
                 labelId="parent-select-label"
@@ -142,7 +155,7 @@ const AddForm = ({ open = false, handleClose }: Props) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button variant="contained" onClick={save}>Save</Button>
+        <Button variant="contained" onClick={handleSave}>Save</Button>
       </DialogActions>
     </Dialog>
   )
