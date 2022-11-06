@@ -17,22 +17,22 @@ import { useCategories } from '../../hooks/categories';
 import AddForm from './forms/AddForm';
 
 const Index = () => {
-  const [openAddCategory, setOpenAddCategory] = useState(false);
+  const [ isOpenAddCategory, setIsOpenAddCategory ] = useState<boolean>(false);
   const { categories, isLoading, isError } = useCategories();
-
-  const handleOpenAddCategory = () => {
-    setOpenAddCategory(true);
-  };
-
-  const handleCloseAddCategory = () => {
-    setOpenAddCategory(false);
-  };
 
   if (isError) {
     return <div>Error</div>
   }
 
   let content: Category[] = [];
+
+  const openAddCategoryForm = () => {
+    setIsOpenAddCategory(true);
+  };
+
+  const closeAddCategoryForm = () => {
+    setIsOpenAddCategory(false);
+  };
 
   const parentCategories = (): Category[] => {
     const output = categories.filter((item: Category) => item.parent === null && item.type !== 'INC')
@@ -52,7 +52,7 @@ const Index = () => {
           startIcon={<AddIcon />}
           variant="contained"
           sx={{ textTransform: 'none' }}
-          onClick={handleOpenAddCategory}
+          onClick={openAddCategoryForm}
         >
             Add category
         </Button>
@@ -65,9 +65,9 @@ const Index = () => {
               <Link href={`/categories/${item.uuid}`}>
                 <Paper
                   variant="outlined"
-                  sx={{ maxWidth: 345, minHeight: 200, maxHeight: 200, overflow: 'hidden', padding: 1 }}
+                  sx={{ maxWidth: 345, minHeight: 200, maxHeight: 200, overflow: 'hidden', padding: 2 }}
                 >
-                    <Typography component="div" variant="h4">{item.name}</Typography>
+                    <Typography noWrap component="div" variant="h4">{item.name}</Typography>
                     {
                       categoriesByParent(item.uuid).map((category: Category) => (
                         <Typography key={category.uuid} noWrap component="div" variant="body1">
@@ -82,7 +82,7 @@ const Index = () => {
           }
         </Grid>
       </Box>
-      <AddForm onOpen={openAddCategory} onClose={handleCloseAddCategory} />
+      <AddForm open={isOpenAddCategory} handleClose={closeAddCategoryForm} />
     </>
   );
 };

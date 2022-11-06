@@ -1,3 +1,3 @@
-import Index from '../../components/categoies';
+import Index from '../../components/categories';
 
 export default Index;

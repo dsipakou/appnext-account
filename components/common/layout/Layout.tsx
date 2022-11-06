@@ -2,7 +2,7 @@ import React, { FC, ReactElement, ReactNode } from 'react';
 import { useTheme } from '@mui/material/styles';
 import Link from 'next/link';
 import { styled, Theme, CSSObject } from '@mui/material/styles';
-import { Drawer, Toolbar, Container } from '@mui/material';
+import { Drawer, Box, Toolbar, Container } from '@mui/material';
 import AppBar, { AppBarProps } from '@mui/material/AppBar';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -190,9 +190,9 @@ const Layout: FC<Props> = ({children}) => {
       <Toolbar />
       <StyledList>
         { menuItems.map(({ name, icon, link }) => (
-          <>
+          <Box key={name}>
             { menuComponent(name, icon, link) }
-          </>
+          </Box>
         ))}
       </StyledList>
     </StyledDrawer>

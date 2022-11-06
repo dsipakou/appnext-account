@@ -6,10 +6,9 @@ import typography from '../theme/typography';
 import { Provider } from 'react-redux';
 import { CssBaseline, Toolbar } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import '../plugins/axios';
 
 const Layout = lazy(() => import('../components/common/layout/Layout'));
-
-
 
 const App = ({ Component, pageProps }: AppProps) => {
   const themeOptions = {
