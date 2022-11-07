@@ -10,7 +10,7 @@ export interface Category {
   type: CategoryType,
 }
 
-export interface CreateCategoryRequest {
+export interface CategoryRequest {
   name: string,
   type: string,
   parent?: string,

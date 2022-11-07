@@ -15,7 +15,7 @@ import {
   Button,
   Typography,
 } from '@mui/material';
-import { Category, CategoryType, CategoryCreateRequest } from '../types';
+import { Category, CategoryType, CreateRequest } from '../types';
 import { useCategories } from '../../../hooks/categories';
 import { useSWRConfig } from 'swr';
 import axios from 'axios';
@@ -49,7 +49,7 @@ const AddForm = ({ open = false, handleClose }: Props) => {
 
   const handleSave = async () => {
     setErrors([]);
-    const payload: CategoryCreateRequest = {
+    const payload: CreateRequest = {
       name,
       type,
       parent,

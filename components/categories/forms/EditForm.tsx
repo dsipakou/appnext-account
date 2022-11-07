@@ -11,8 +11,12 @@ import {
   Button,
   FormControl,
   InputLabel,
+  Typography,
 } from '@mui/material';
+import axios from 'axios';
+import { useSWRConfig } from 'swr';
 import { useCategories } from '../../../hooks/categories';
+import { CategoryRequest } from '../types';
 
 interface Props {
   uuid: string,
@@ -21,6 +25,7 @@ interface Props {
 }
 
 const EditForm = ({ uuid, open = false, handleClose }: Props) => {
+  const { mutate } = useSWRConfig();
   const { categories, isLoading, isError } = useCategories();
 
   const [ category, setCategory ] = useState<Category>('');
@@ -28,6 +33,7 @@ const EditForm = ({ uuid, open = false, handleClose }: Props) => {
   const [ parent, setParent ] = useState<Category>('');
   const [ childrenCategories, setChildrenCategories ] = useState<Category[]>([]);
   const [ parentList, setParentList ] = useState<Category[]>([]);
+  const [ errors, setErrors ] = useState<string[]>([]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -49,6 +55,35 @@ const EditForm = ({ uuid, open = false, handleClose }: Props) => {
     setParentList(_parentCategories);
     setParent(_category.parent);
   }, [categories, uuid, isLoading]);
+  
+  const handleEdit = async () => {
+    // TODO: start loading
+    setErrors([]);
+    const payload: CategoryRequest = {
+      name,
+      type: category.type,
+      parent,
+    };
+    axios
+      .patch(`categories/${uuid}/`, payload)
+      .then((res) => {
+        if (res.status === 200) {
+          mutate('categories/');
+          handleClose();
+        } else {
+          // TODO: handle errors
+        }
+      })
+      .catch((error) => {
+        const errRes = error.response.data;
+        for (const prop in errRes) {
+          setErrors(errRes[prop]);
+        }
+      })
+      .finally(() => {
+        // TODO: stop-loading
+      })
+  }
 
   const handleParentSelect = (e: SelectChangeEvent) => {
     setParent(e.target.value);
@@ -62,6 +97,7 @@ const EditForm = ({ uuid, open = false, handleClose }: Props) => {
     handleClose();
     setName(category?.name);
     setParent(category?.parent);
+    setErrors([]);
   }
 
   return (
@@ -69,6 +105,13 @@ const EditForm = ({ uuid, open = false, handleClose }: Props) => {
       <DialogTitle>Edit category</DialogTitle>
       <DialogContent>
         <Grid container spacing={4}>
+            { errors.length > 0 && (
+              <Grid item xs={12}>
+                { errors.map((message: string) => (
+                  <Typography key={message} color="red">{message}</Typography>
+                ))}
+              </Grid>
+            )}
             <Grid item xs={12}>
               { category?.parent !== null && (
                 <FormControl fullWidth sx={{mt: 1}}>
@@ -103,8 +146,8 @@ const EditForm = ({ uuid, open = false, handleClose }: Props) => {
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button variant="contained" onClick={handleClose}>Save</Button>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button variant="contained" disabled={name === category?.name} onClick={handleEdit}>Update</Button>
       </DialogActions>
     </Dialog>
   )
