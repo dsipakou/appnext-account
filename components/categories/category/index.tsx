@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import {
   Box,
   Button,
+  Chip,
   Grid,
   Stack,
   Paper,
@@ -59,13 +60,17 @@ const Category = () => {
     const isParent = category.parent === null;
 
     return (
-      <Paper elevation={isParent ? 3 : 0} variant={!isParent ? 'outlined' : 'elevation'}>
-        <Grid container>
-          <Grid item xs={2}></Grid>
-          <Grid item xs={8} alignSelf="center">
+      <Paper
+        elevation={isParent ? 3 : 0}
+        sx={ isParent && { backgroundColor: 'primary.light', color: 'white' }}
+        variant={!isParent ? 'outlined' : 'elevation'}
+      >
+        <Grid container alignItems="center">
+          <Grid item xs={2}>
+          </Grid>
+          <Grid item xs={8}>
             { isParent ? (
               <>
-                <Typography align="center" variant="subtitle1">Parent category</Typography>
                 <Typography align="center" variant="h3">{category.name}</Typography>
               </>
             ) : (
@@ -76,8 +81,18 @@ const Category = () => {
           </Grid>
           <Grid item xs={2}>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'end' }}>
-              <Button onClick={() => editCategoryClick(category)}>Edit</Button>
-              <Button onClick={() => handleDelete(category)}>Delete</Button>
+              <Button
+                sx={ isParent && { color: 'white' }}
+                onClick={() => editCategoryClick(category)}
+              >
+                Edit
+              </Button>
+              <Button
+                sx={ isParent && { color: 'white' }}
+                onClick={() => handleDelete(category)}
+              >
+                Delete
+              </Button>
             </Box>
           </Grid>
         </Grid>

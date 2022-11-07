@@ -1,21 +1,21 @@
 import '../styles/globals.css'
-import { lazy } from 'react';
+import { lazy } from 'react'
 import type { AppProps } from 'next/app'
-import { store } from '../app/store';
-import typography from '../theme/typography';
-import { Provider } from 'react-redux';
-import { CssBaseline, Toolbar } from '@mui/material';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import '../plugins/axios';
+import { store } from '../app/store'
+import typography from '../theme/typography'
+import { Provider } from 'react-redux'
+import { CssBaseline, Toolbar } from '@mui/material'
+import { ThemeProvider, createTheme } from '@mui/material/styles'
+import '../plugins/axios'
 
-const Layout = lazy(() => import('../components/common/layout/Layout'));
+const Layout = lazy(async () => await import('../components/common/layout/Layout'))
 
 const App = ({ Component, pageProps }: AppProps) => {
   const themeOptions = {
-    typography,
-  };
+    typography
+  }
 
-  const theme = createTheme({ ...themeOptions });
+  const theme = createTheme({ ...themeOptions })
 
   return (
     <Provider store={store}>
@@ -30,4 +30,4 @@ const App = ({ Component, pageProps }: AppProps) => {
   )
 }
 
-export default App;
+export default App

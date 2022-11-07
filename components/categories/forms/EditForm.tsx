@@ -147,7 +147,13 @@ const EditForm = ({ uuid, open = false, handleClose }: Props) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" disabled={name === category?.name} onClick={handleEdit}>Update</Button>
+        <Button
+          variant="contained"
+          disabled={name === category?.name}
+          onClick={handleEdit}
+        >
+          Update
+        </Button>
       </DialogActions>
     </Dialog>
   )
