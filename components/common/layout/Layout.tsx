@@ -180,7 +180,7 @@ const Layout: FC<Props> = ({children}) => {
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           Flying Budget
         </Typography>
-        <Button color="inherit">Login</Button>
+        <Link href="/login" color="inherit">Login</Link>
       </Toolbar>
     </AppBarStyled>
     <StyledDrawer
