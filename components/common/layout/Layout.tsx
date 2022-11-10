@@ -19,6 +19,7 @@ import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
+import { useAuth } from '@/context/auth';
 
 const drawerWidth = 250;
 
@@ -85,8 +86,9 @@ type Props = {
   children: ReactNode,
 };
 
-const Layout: FC<Props> = ({children}) => {
+const Layout: FC<Props> = ({ children }) => {
   const theme = useTheme();
+  const { isAuthenticated, user } = useAuth();
   const [open, setOpen] = React.useState(false);
 
   const handleDrawerOpen = () => {
@@ -142,12 +144,12 @@ const Layout: FC<Props> = ({children}) => {
         >
           <ListItemIcon
             sx={{
-            minWidth: 0,
-            mr: 3,
-            justifyContent: 'center',
+              minWidth: 0,
+              mr: 3,
+              justifyContent: 'center',
             }}
           >
-            { icon }
+            {icon}
           </ListItemIcon>
           <ListItemText primary={name} sx={{ opacity: 1 }} />
         </ListItemButton>
@@ -158,48 +160,50 @@ const Layout: FC<Props> = ({children}) => {
     position: 'fixed',
     elevation: 0,
     sx: {
-        borderBottom: `1px solid ${theme.palette.divider}`,
+      borderBottom: `1px solid ${theme.palette.divider}`,
     }
   };
 
   return (
-  <>
-    <AppBarStyled {...appBar}>
-      <Toolbar>
-        <IconButton
-          color="inherit"
-          aria-label="open drawer"
-          onClick={ open ? handleDrawerClose : handleDrawerOpen }
-          edge="start"
-          sx={{
-            marginRight: 5,
-          }}
-        >
-          <MenuIcon />
-        </IconButton>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Flying Budget
-        </Typography>
-        <Link href="/login" color="inherit">Login</Link>
-      </Toolbar>
-    </AppBarStyled>
-    <StyledDrawer
-      variant="permanent"
-      open={open}
-    >
-      <Toolbar />
-      <StyledList>
-        { menuItems.map(({ name, icon, link }) => (
-          <Box key={name}>
-            { menuComponent(name, icon, link) }
-          </Box>
-        ))}
-      </StyledList>
-    </StyledDrawer>
-    <Container fixed maxWidth="lg">
-      {children}
-    </Container>
-  </>
+    <>
+      <AppBarStyled {...appBar}>
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={open ? handleDrawerClose : handleDrawerOpen}
+            edge="start"
+            sx={{
+              marginRight: 5,
+            }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Flying Budget
+          </Typography>
+          {isAuthenticated ?? 'logged in'}
+          <Link href="/login" color="inherit">Login</Link>
+          <Button>Logout</Button>
+        </Toolbar>
+      </AppBarStyled>
+      <StyledDrawer
+        variant="permanent"
+        open={open}
+      >
+        <Toolbar />
+        <StyledList>
+          {menuItems.map(({ name, icon, link }) => (
+            <Box key={name}>
+              {menuComponent(name, icon, link)}
+            </Box>
+          ))}
+        </StyledList>
+      </StyledDrawer>
+      <Container fixed maxWidth="lg">
+        {children}
+      </Container>
+    </>
   )
 };
 

@@ -62,7 +62,7 @@ const Category = () => {
     return (
       <Paper
         elevation={isParent ? 3 : 0}
-        sx={ isParent && { backgroundColor: 'primary.light', color: 'white' }}
+        sx={ isParent ? { backgroundColor: 'primary.light', color: 'white' } : {}}
         variant={!isParent ? 'outlined' : 'elevation'}
       >
         <Grid container alignItems="center">
@@ -82,13 +82,13 @@ const Category = () => {
           <Grid item xs={2}>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'end' }}>
               <Button
-                sx={ isParent && { color: 'white' }}
+                sx={ isParent ? { color: 'white' } : {}}
                 onClick={() => editCategoryClick(category)}
               >
                 Edit
               </Button>
               <Button
-                sx={ isParent && { color: 'white' }}
+                sx={ isParent ? { color: 'white' } : {}}
                 onClick={() => handleDelete(category)}
               >
                 Delete

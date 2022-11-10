@@ -6,7 +6,8 @@ import typography from '../theme/typography'
 import { Provider } from 'react-redux'
 import { CssBaseline, Toolbar } from '@mui/material'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
-import '../plugins/axios'
+import { AuthProvider, useAuth } from '@/context/auth';
+import '@/plugins/axios'
 
 const Layout = lazy(async () => await import('../components/common/layout/Layout'))
 
@@ -20,11 +21,13 @@ const App = ({ Component, pageProps }: AppProps) => {
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Layout>
-          <Toolbar />
-          <Component {...pageProps} />
-        </Layout>
+        <AuthProvider>
+          <CssBaseline />
+          <Layout>
+            <Toolbar />
+            <Component {...pageProps} />
+          </Layout>
+        </AuthProvider>
       </ThemeProvider>
     </Provider>
   )
