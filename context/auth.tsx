@@ -20,10 +20,12 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    console.log('loading user');
     const loadUserFromIndexedDB = async (): Promise<void> => {
-      const user: UserState = await userTable.toArray()[0];
-      const tmp: any = await userTable.toArray();
+      const userList: Array<UserState> = await userTable.toArray();
+      const user = userList[0];
       if (user) {
+        console.log('found user in indexedDB');
         axios.defaults.headers.Authorization = `Bearer ${user.token}`;
         setUser(user);
       }
@@ -53,7 +55,8 @@ export const AuthProvider = ({ children }) => {
             token: data.token,
           };
           storeUserData(userData);
-          axios.defaults.headers.Authorization = `Bearer ${userData.token}`
+          axios.defaults.headers.Authorization = `Bearer ${userData.token}`;
+          window.location.pathname = '/';
         } else {
           // TODO: handle error
         }

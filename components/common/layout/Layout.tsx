@@ -19,6 +19,7 @@ import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
+import { Link as MuiLink } from '@mui/material';
 import { useAuth } from '@/context/auth';
 
 const drawerWidth = 250;
@@ -88,7 +89,8 @@ type Props = {
 
 const Layout: FC<Props> = ({ children }) => {
   const theme = useTheme();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
+  console.log(useAuth());
   const [open, setOpen] = React.useState(false);
 
   const handleDrawerOpen = () => {
@@ -182,9 +184,11 @@ const Layout: FC<Props> = ({ children }) => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Flying Budget
           </Typography>
-          {isAuthenticated ?? 'logged in'}
-          <Link href="/login" color="inherit">Login</Link>
-          <Button>Logout</Button>
+          {isAuthenticated && <div>{user.username}</div>}
+          {!loading && !isAuthenticated
+            ? <Link href="/login" color="inherit">Login</Link>
+            : <Link href="/logout">Logout</Link>
+          }
         </Toolbar>
       </AppBarStyled>
       <StyledDrawer
