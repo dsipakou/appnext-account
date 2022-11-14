@@ -1,8 +1,13 @@
-import { FC } from 'react';
-import { Box, Button, Toolbar, Typography } from '@mui/material';
+import { FC, useEffect } from 'react';
+import { Box, Button, Grid, Toolbar, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import CurrencyCard from './CurrencyCard';
+import { useCurrencies } from '@/hooks/currencies';
+import { Currency } from './types';
 
 const Index: FC = () => {
+  const { currencies, isLoading, isError } = useCurrencies();
+
   return (
     <>
       <Toolbar sx={{ pb: 4 }}>
@@ -17,6 +22,23 @@ const Index: FC = () => {
           Add currency
         </Button>
       </Toolbar>
+      <Box>
+        <Grid container spacing={2} wrap="nowrap" sx={{ overflowX: 'scroll', pb: 2 }}>
+          {!isLoading && currencies.map((item: Currency) => (
+            <Grid item>
+              {!item.isBase &&
+                <CurrencyCard
+                  title={item.verbalName}
+                  sign={item.sign}
+                  code={item.code}
+                  amount="2.59"
+                  percentage="-4"
+                />
+              }
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
     </>
   )
 }
