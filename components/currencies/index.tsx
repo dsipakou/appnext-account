@@ -8,6 +8,19 @@ import { Currency } from './types';
 const Index: FC = () => {
   const { currencies, isLoading, isError } = useCurrencies();
 
+  const currencyCard = (item: Currency) => (
+    <Grid item>
+      <CurrencyCard
+        title={item.verbalName}
+        sign={item.sign}
+        code={item.code}
+        amount="2.59"
+        percentage="-4"
+        selected={true}
+      />
+    </Grid>
+  )
+
   return (
     <>
       <Toolbar sx={{ pb: 4 }}>
@@ -25,17 +38,7 @@ const Index: FC = () => {
       <Box>
         <Grid container spacing={2} wrap="nowrap" sx={{ overflowX: 'scroll', pb: 2 }}>
           {!isLoading && currencies.map((item: Currency) => (
-            <Grid item>
-              {!item.isBase &&
-                <CurrencyCard
-                  title={item.verbalName}
-                  sign={item.sign}
-                  code={item.code}
-                  amount="2.59"
-                  percentage="-4"
-                />
-              }
-            </Grid>
+            !item.isBase && currencyCard(item)
           ))}
         </Grid>
       </Box>

@@ -21,9 +21,9 @@ interface Types {
   percentage: number,
 }
 
-const CardWrapper = styled(Card)(({ theme }) => ({
-  backgroundColor: 'white',
-  color: 'black',
+const CardWrapper = styled(Card)(({ theme, selected }) => ({
+  backgroundColor: selected ? theme.palette.primary.dark : 'white',
+  color: selected ? 'white' : 'black',
   borderRadius: 15,
   overflow: 'hidden',
   position: 'relative',
@@ -65,9 +65,10 @@ const CurrencyCard: FC<Types> = ({ title, sign, code, amount, percentage }) => {
   const theme = useTheme();
 
   const [anchorEl, setAnchorEl] = useState(null);
+  const [selected, setSelected] = useState(false);
 
   const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
+    setSelected(!selected);
   };
 
   const handleClose = () => {
@@ -76,7 +77,7 @@ const CurrencyCard: FC<Types> = ({ title, sign, code, amount, percentage }) => {
 
   return (
     <>
-      <CardWrapper border={false} content={false}>
+      <CardWrapper border={false} content={false} selected={selected} raised={!selected} onClick={handleClick}>
         <Box sx={{ p: 2.25 }}>
           <Grid container direction="column">
             <Grid item>
