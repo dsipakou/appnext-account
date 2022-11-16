@@ -28,18 +28,18 @@ const EditForm = ({ uuid, open = false, handleClose }: Props) => {
   const { mutate } = useSWRConfig();
   const { categories, isLoading, isError } = useCategories();
 
-  const [ category, setCategory ] = useState<Category>('');
-  const [ name, setName ] = useState<string>('');
-  const [ parent, setParent ] = useState<Category>('');
-  const [ childrenCategories, setChildrenCategories ] = useState<Category[]>([]);
-  const [ parentList, setParentList ] = useState<Category[]>([]);
-  const [ errors, setErrors ] = useState<string[]>([]);
+  const [category, setCategory] = useState<Category>('');
+  const [name, setName] = useState<string>('');
+  const [parent, setParent] = useState<Category>('');
+  const [childrenCategories, setChildrenCategories] = useState<Category[]>([]);
+  const [parentList, setParentList] = useState<Category[]>([]);
+  const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
     if (isLoading) return;
 
     const _category = categories.find((item: any) => item.uuid === uuid);
-    
+
     if (!_category) return;
 
     const _childrenCategories = categories.filter(
@@ -55,7 +55,7 @@ const EditForm = ({ uuid, open = false, handleClose }: Props) => {
     setParentList(_parentCategories);
     setParent(_category.parent);
   }, [categories, uuid, isLoading]);
-  
+
   const handleEdit = async () => {
     // TODO: start loading
     setErrors([]);
@@ -105,32 +105,32 @@ const EditForm = ({ uuid, open = false, handleClose }: Props) => {
       <DialogTitle>Edit category</DialogTitle>
       <DialogContent>
         <Grid container spacing={4}>
-            { errors.length > 0 && (
-              <Grid item xs={12}>
-                { errors.map((message: string) => (
-                  <Typography key={message} color="red">{message}</Typography>
-                ))}
-              </Grid>
-            )}
+          {errors.length > 0 && (
             <Grid item xs={12}>
-              { category?.parent !== null && (
-                <FormControl fullWidth sx={{mt: 1}}>
-                  <InputLabel id="parent-select-label">Parent category</InputLabel>
-                  <Select
-                    labelId="parent-select-label"
-                    label="Parent category"
-                    value={parent}
-                    fullWidth
-                    defaultValue=""
-                    onChange={handleParentSelect}
-                  >
-                    { parentList?.map((category: Category) => (
-                      <MenuItem key={category.uuid} value={category.uuid}>{category.name}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
+              {errors.map((message: string) => (
+                <Typography key={message} color="red">{message}</Typography>
+              ))}
             </Grid>
+          )}
+          <Grid item xs={12}>
+            {category?.parent !== null && (
+              <FormControl fullWidth sx={{ mt: 1 }}>
+                <InputLabel id="parent-select-label">Parent category</InputLabel>
+                <Select
+                  labelId="parent-select-label"
+                  label="Parent category"
+                  value={parent}
+                  fullWidth
+                  defaultValue=""
+                  onChange={handleParentSelect}
+                >
+                  {parentList?.map((category: Category) => (
+                    <MenuItem key={category.uuid} value={category.uuid}>{category.name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+          </Grid>
           <Grid item xs={12}>
             <TextField
               autoFocus

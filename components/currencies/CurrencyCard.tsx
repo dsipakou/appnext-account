@@ -14,11 +14,12 @@ import PictureAsPdfTwoToneIcon from '@mui/icons-material/PictureAsPdfOutlined';
 import ArchiveTwoToneIcon from '@mui/icons-material/ArchiveOutlined';
 
 interface Types {
-  title: string,
-  sign: string
-  code: string,
+  currency: Currency,
   amount: number,
   percentage: number,
+  selected: boolean,
+  selectCurrency: (code: string) => void;
+  unselectCurrency: (code: string) => void;
 }
 
 const CardWrapper = styled(Card)(({ theme, selected }) => ({
@@ -61,30 +62,35 @@ const CardWrapper = styled(Card)(({ theme, selected }) => ({
 }));
 
 
-const CurrencyCard: FC<Types> = ({ title, sign, code, amount, percentage }) => {
+const CurrencyCard: FC<Types> = ({ currency, amount, percentage, selectCurrency, unselectCurrency }) => {
   const theme = useTheme();
 
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selected, setSelected] = useState(false);
+  const [selected, setSelected] = useState<boolean>(false);
 
-  const handleClick = (event) => {
+  const handleClick = (): void => {
     setSelected(!selected);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
+    if (selected) {
+      unselectCurrency(currency.code);
+    } else {
+      console.log('select');
+      selectCurrency(currency.code)
+    }
   };
 
   return (
     <>
-      <CardWrapper border={false} content={false} selected={selected} raised={!selected} onClick={handleClick}>
+      <CardWrapper
+        selected={selected}
+        raised={!selected}
+        onClick={handleClick}
+      >
         <Box sx={{ p: 2.25 }}>
           <Grid container direction="column">
             <Grid item>
               <Grid container justifyContent="space-between">
                 <Grid item>
                   <Typography sx={{ fontSize: '1.5rem' }}>
-                    {code}
+                    {currency.code}
                   </Typography>
                 </Grid>
               </Grid>
@@ -109,7 +115,7 @@ const CurrencyCard: FC<Types> = ({ title, sign, code, amount, percentage }) => {
                   color: theme.palette.secondary[200]
                 }}
               >
-                {title}
+                {currency.title}
               </Typography>
             </Grid>
           </Grid>
