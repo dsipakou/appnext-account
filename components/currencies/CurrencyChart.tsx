@@ -45,6 +45,10 @@ const CurrencyChart: FC<Types> = ({ data: chartData, currencies, period, changeP
       xaxis: {
         categories: chartData[0].data.map((item: ChartRate) => item.rateDate).reverse(),
         type: "datetime",
+        labels: {
+          rotateAlways: false,
+          rotate: -30
+        }
       },
       noData: {
         text: "Please, select at least one currency",
