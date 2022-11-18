@@ -12,3 +12,13 @@ export const useRatesChart: void = (period: number = 30) => {
     isError: error,
   };
 };
+
+export const useRates: void = (limit: number = 5) => {
+  const { data, error, isValidating } = useSWR(`rates?limit=${limit}`, fetcher);
+
+  return {
+    rates: data,
+    isLoading: !data && !error,
+    isError: error,
+  };
+}

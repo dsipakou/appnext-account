@@ -13,13 +13,13 @@ import FileCopyTwoToneIcon from '@mui/icons-material/FileCopyOutlined';
 import PictureAsPdfTwoToneIcon from '@mui/icons-material/PictureAsPdfOutlined';
 import ArchiveTwoToneIcon from '@mui/icons-material/ArchiveOutlined';
 
+import { Rates } from './types';
+
 interface Types {
   currency: Currency,
-  amount: number,
-  percentage: number,
-  selected: boolean,
-  selectCurrency: (code: string) => void;
-  unselectCurrency: (code: string) => void;
+  rates: Rates[],
+  selectCurrency: (code: string) => void,
+  unselectCurrency: (code: string) => void,
 }
 
 const CardWrapper = styled(Card)(({ theme, selected }) => ({
@@ -62,17 +62,23 @@ const CardWrapper = styled(Card)(({ theme, selected }) => ({
 }));
 
 
-const CurrencyCard: FC<Types> = ({ currency, amount, percentage, selectCurrency, unselectCurrency }) => {
+const CurrencyCard: FC<Types> = ({ currency, rates, selectCurrency, unselectCurrency }) => {
   const theme = useTheme();
 
   const [selected, setSelected] = useState<boolean>(false);
+
+  const getRate = (uuid: string): Rate => {
+    const latestRate: Rate = rates?.filter(
+      (rate: Rate) => rate.currency === uuid
+    )[0];
+    return latestRate;
+  }
 
   const handleClick = (): void => {
     setSelected(!selected);
     if (selected) {
       unselectCurrency(currency.code);
     } else {
-      console.log('select');
       selectCurrency(currency.code)
     }
   };
@@ -99,11 +105,11 @@ const CurrencyCard: FC<Types> = ({ currency, amount, percentage, selectCurrency,
               <Grid container alignItems="center">
                 <Grid item>
                   <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1, mt: 1.75 }}>
-                    {amount}
+                    {getRate(currency.uuid)?.rate}
                   </Typography>
                 </Grid>
               </Grid>
-              <Typography>{percentage}</Typography>
+              <Typography>1.2%</Typography>
             </Grid>
             <Grid item>
             </Grid>
@@ -115,7 +121,7 @@ const CurrencyCard: FC<Types> = ({ currency, amount, percentage, selectCurrency,
                   color: theme.palette.secondary[200]
                 }}
               >
-                {currency.title}
+                {getRate(currency.uuid).rateDate}
               </Typography>
             </Grid>
           </Grid>

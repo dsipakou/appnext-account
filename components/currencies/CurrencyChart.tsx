@@ -47,6 +47,7 @@ const CurrencyChart: FC<Types> = ({ data: chartData, currencies, period, changeP
         type: "datetime",
         labels: {
           rotateAlways: false,
+          hideOverlappingLabels: true,
           rotate: -30
         }
       },

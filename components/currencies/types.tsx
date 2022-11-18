@@ -10,6 +10,17 @@ export interface Currency {
   modifiedAt: string
 }
 
+export interface Rate {
+  uuid: string,
+  currency: string,
+  baseCurrency: string,
+  rate: number,
+  rateDate: string,
+  description: string,
+  createdAt: string,
+  modifiedAt: string,
+}
+
 export interface ChartRate {
   rate: string
   rateDate: string

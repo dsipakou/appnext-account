@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from 'react';
 import { Box, Button, Grid, Toolbar, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { useRatesChart } from '@/hooks/rates';
+import { useRates, useRatesChart } from '@/hooks/rates';
 import CurrencyCard from './CurrencyCard';
 import { useCurrencies } from '@/hooks/currencies';
 import { Currency, ChartPeriod, ChartPeriodMap } from './types';
@@ -12,6 +12,7 @@ const Index: FC = () => {
   const [period, setPeriod] = useState<ChartPeriod>("month")
   const { currencies, isLoading, isError } = useCurrencies();
   const { chartRates, isLoading: isChartLoading, isError: isChartError } = useRatesChart(ChartPeriodMap[period]);
+  const { rates, isLoading: isRatesLoading, isError: isRatesError } = useRates(2);
 
   const selectCurrency = (code: string): void => {
     if (!selectedCurrencies.find((item: Currency) => item.code === code)) {
@@ -36,8 +37,7 @@ const Index: FC = () => {
     <Grid item key={index}>
       <CurrencyCard
         currency={item}
-        amount="2.59"
-        percentage="-4"
+        rates={rates}
         selectCurrency={selectCurrency}
         unselectCurrency={unselectCurrency}
       />
