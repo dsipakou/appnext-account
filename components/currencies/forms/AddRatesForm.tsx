@@ -4,6 +4,7 @@ import {
   DialogTitle,
   DialogContent,
   Grid,
+  TextField,
 } from '@mui/material';
 
 interface Types {
@@ -17,6 +18,9 @@ const AddRatesForm: FC<Types> = ({ open, handleClose }) => {
       <DialogTitle>Add rates</DialogTitle>
       <DialogContent>
         <Grid container>
+          <Grid item>
+            <TextField />
+          </Grid>
         </Grid>
       </DialogContent>
     </Dialog>
