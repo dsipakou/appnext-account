@@ -9,12 +9,14 @@ import CurrencyChart from './CurrencyChart';
 import AddForm from './forms/AddForm';
 import EditForm from './forms/EditForm';
 import ConfirmDeleteForm from './forms/ConfirmDeleteForm';
+import AddRatesForm from './forms/AddRatesForm';
 
 const Index: FC = () => {
   const [selectedCurrencies, setSelectedCurrencies] = useState<Currency[]>([]);
   const [isAddCurrencyOpen, setIsAddCurrencyOpen] = useState<boolean>(false);
   const [isEditCurrencyOpen, setIsEditCurrencyOpen] = useState<boolean>(false);
   const [isDeleteCurrencyOpen, setIsDeleteCurrencyOpen] = useState<boolean>(false);
+  const [isRatesFormOpen, setIsRatesFormOpen] = useState<boolean>(false);
   const [period, setPeriod] = useState<ChartPeriod>("month")
   const [activeCurrency, setActiveCurrency] = useState<Currency>();
   const { currencies, isLoading, isError } = useCurrencies();
@@ -54,6 +56,10 @@ const Index: FC = () => {
     setIsEditCurrencyOpen(true);
   }
 
+  const openAddRatesForm = (): void => {
+    setIsRatesFormOpen(true);
+  }
+
   const closeAddCurrencyForm = (): void => {
     setIsAddCurrencyOpen(false);
   };
@@ -61,6 +67,7 @@ const Index: FC = () => {
   const handleCloseModals = (): void => {
     setIsEditCurrencyOpen(false);
     setIsDeleteCurrencyOpen(false);
+    setIsRatesFormOpen(false);
   }
 
   const currencyCard = (item: Currency, index: number) => (
@@ -119,7 +126,7 @@ const Index: FC = () => {
                 startIcon={<AddIcon />}
                 variant="contained"
                 sx={{ textTransform: 'none' }}
-                onClick={() => { }}
+                onClick={openAddRatesForm}
               >
                 Add rates
               </Button>
@@ -138,6 +145,7 @@ const Index: FC = () => {
       <AddForm open={isAddCurrencyOpen} handleClose={closeAddCurrencyForm} />
       <EditForm open={isEditCurrencyOpen} uuid={activeCurrency} handleClose={handleCloseModals} />
       <ConfirmDeleteForm open={isDeleteCurrencyOpen} uuid={activeCurrency} handleClose={handleCloseModals} />
+      <AddRatesForm open={isRatesFormOpen} handleClose={handleCloseModals} />
     </>
   )
 }
