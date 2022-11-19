@@ -1,3 +1,4 @@
+import { FC } from 'react';
 import { selectChangeEvent, ChangeEvent, useEffect, useState } from 'react';
 import {
   Dialog,
@@ -20,12 +21,12 @@ import { useCategories } from '../../../hooks/categories';
 import { useSWRConfig } from 'swr';
 import axios from 'axios';
 
-interface Props {
+interface Types {
   open: boolean,
   handleClose: () => void;
 }
 
-const AddForm = ({ open = false, handleClose }: Props) => {
+const AddForm: FC<Types> = ({ open = false, handleClose }) => {
   const { mutate } = useSWRConfig();
   const { categories, isLoading, isError } = useCategories();
 

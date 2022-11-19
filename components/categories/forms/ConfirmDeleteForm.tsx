@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -14,13 +14,13 @@ import { useRouter } from 'next/router';
 import { useCategories } from '../../../hooks/categories';
 import { Category } from '../types';
 
-interface Props {
+interface Types {
   open: boolean,
   uuid: string,
   handleClose: () => void;
 }
 
-const ConfirmDeleteForm = ({ open = false, uuid, handleClose }: Props) => {
+const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose }) => {
   const [ category, setCategory ] = useState('');
   const [ errors, setErrors ] = useState([]);
   const { categories, isLoading, isError } = useCategories();

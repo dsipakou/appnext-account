@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -13,13 +13,13 @@ import { useSWRConfig } from 'swr';
 import { useCurrencies } from '@/hooks/currencies';
 import { Currency } from '../types';
 
-interface Props {
+interface Types {
   open: boolean,
   uuid: string,
   handleClose: () => void;
 }
 
-const ConfirmDeleteForm = ({ open = false, uuid, handleClose }: Props) => {
+const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose }) => {
   const [currency, setCurrency] = useState('');
   const [errors, setErrors] = useState([]);
   const { currencies, isLoading, isError } = useCurrencies();

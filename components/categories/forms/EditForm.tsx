@@ -1,3 +1,4 @@
+import { FC } from 'react';
 import { selectChangeEvent, ChangeEvent, useEffect, useState } from 'react';
 import {
   Dialog,
@@ -24,7 +25,7 @@ interface Props {
   handleClose: () => void,
 }
 
-const EditForm = ({ uuid, open = false, handleClose }: Props) => {
+const EditForm: FC<Types> = ({ uuid, open = false, handleClose }) => {
   const { mutate } = useSWRConfig();
   const { categories, isLoading, isError } = useCategories();
 
