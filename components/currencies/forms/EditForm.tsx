@@ -1,4 +1,5 @@
-import { FC, useState } from 'react';
+
+import { FC, useEffect, useState } from 'react';
 import {
   Button,
   Dialog,
@@ -14,21 +15,42 @@ import {
 import axios from 'axios';
 import { useSWRConfig } from 'swr';
 
-import { CurrencyRequest } from '../types';
+import { useCurrencies } from '@/hooks/currencies';
+
+import { Currency, CurrencyRequest } from '../types';
 
 interface Types {
+  uuid: string
   open: boolean,
   handleClose: () => void,
 }
 
-const AddForm: FC<Types> = ({ open, handleClose }) => {
+const EditForm: FC<Types> = ({ uuid, open, handleClose }) => {
   const { mutate } = useSWRConfig();
+  const [currency, setCurrency] = useState<Currency>();
   const [verbalName, setVerbalName] = useState<string>('');
   const [code, setCode] = useState<string>('');
   const [sign, setSign] = useState<string>('');
   const [isDefault, setIsDefault] = useState<boolean>(false);
   const [comments, setComments] = useState<string>('');
   const [errors, setErrors] = useState<string[]>([]);
+  const { currencies, isLoading, isError } = useCurrencies();
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    const _currency = currencies.find((item: Currency) => item.uuid === uuid);
+    if (!_currency) return;
+
+    setCurrency(_currency);
+    setVerbalName(_currency.verbalName);
+    setCode(_currency.code);
+    setSign(_currency.sign);
+    setIsDefault(_currency.isDefault);
+    setComments(_currency.comments);
+
+    return () => setErrors([]);
+  }, [isLoading, currencies, uuid])
 
   const handleIsDefaultSwitch = (e: ChangeEvent) => {
     setIsDefault(e.target.checked);
@@ -50,7 +72,7 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
     setComments(e.target.value);
   }
 
-  const handleSave = async () => {
+  const handleUpdate = async (): void => {
     setErrors([]);
     const payload: CurrencyRequest = {
       verbalName,
@@ -59,11 +81,11 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
       isDefault,
       comments,
     };
-    axios.post('currencies/', {
+    axios.patch(`currencies/${currency.uuid}/`, {
       ...payload,
     }).then(
       res => {
-        if (res.status === 201) {
+        if (res.status === 200) {
           mutate('currencies/');
           handleClose();
         } else {
@@ -82,7 +104,7 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
 
   return (
     <Dialog maxWidth="sm" fullWidth={true} open={open} onClose={handleClose}>
-      <DialogTitle>Add category</DialogTitle>
+      <DialogTitle>Edit category</DialogTitle>
       <DialogContent>
         <Grid container spacing={3}>
           <Grid item xs={8}>
@@ -99,6 +121,7 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
               type="text"
               fullWidth
               autoFocus
+              value={verbalName}
               onChange={handleVerbalNameInput}
             />
           </Grid>
@@ -110,6 +133,7 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
               placeholder="USD"
               type="text"
               fullWidth
+              value={code}
               onChange={handleCodeInput}
             />
           </Grid>
@@ -121,6 +145,7 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
               placeholder="$"
               type="text"
               fullWidth
+              value={sign}
               onChange={handleSignInput}
             />
           </Grid>
@@ -136,6 +161,7 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
               rows={3}
               id="comments"
               label="Comments"
+              value={comments}
               onChange={handleCommentsInput}
             />
           </Grid>
@@ -143,10 +169,10 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button variant="contained" onClick={handleSave}>Save</Button>
+        <Button variant="contained" onClick={handleUpdate}>Update</Button>
       </DialogActions>
     </Dialog>
   )
 }
 
-export default AddForm;
+export default EditForm;

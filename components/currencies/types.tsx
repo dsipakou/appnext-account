@@ -1,21 +1,16 @@
-export interface Currency {
-  uuid: string
-  verbalName: string
-  sign: string
-  code: string
-  isBase: boolean
-  isDefault: boolean
-  comments: string
-  createdAt: string
-  modifiedAt: string
-}
-
 export interface CurrencyRequest {
   verbalName: string
   code: string
   sign: string
   isDefault: boolean
-  description: string
+  comments: string
+}
+
+export interface Currency extends CurrencyRequest {
+  uuid: string
+  isBase: boolean
+  createdAt: string
+  modifiedAt: string
 }
 
 export interface Rate {

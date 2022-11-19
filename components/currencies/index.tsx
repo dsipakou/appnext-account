@@ -7,12 +7,14 @@ import { useCurrencies } from '@/hooks/currencies';
 import { Currency, ChartPeriod, ChartPeriodMap } from './types';
 import CurrencyChart from './CurrencyChart';
 import AddForm from './forms/AddForm';
+import EditForm from './forms/EditForm';
 import ConfirmDeleteForm from './forms/ConfirmDeleteForm';
 
 const Index: FC = () => {
   const [selectedCurrencies, setSelectedCurrencies] = useState<Currency[]>([]);
-  const [isOpenAddCurrency, setIsOpenAddCurrency] = useState<boolean>(false);
-  const [isOpenDeleteCurrency, setIsOpenDeleteCurrency] = useState<boolean>(false);
+  const [isAddCurrencyOpen, setIsAddCurrencyOpen] = useState<boolean>(false);
+  const [isEditCurrencyOpen, setIsEditCurrencyOpen] = useState<boolean>(false);
+  const [isDeleteCurrencyOpen, setIsDeleteCurrencyOpen] = useState<boolean>(false);
   const [period, setPeriod] = useState<ChartPeriod>("month")
   const [activeCurrency, setActiveCurrency] = useState<Currency>();
   const { currencies, isLoading, isError } = useCurrencies();
@@ -39,20 +41,26 @@ const Index: FC = () => {
   }
 
   const openAddCurrencyForm = (): void => {
-    setIsOpenAddCurrency(true);
+    setIsAddCurrencyOpen(true);
   };
 
   const openDeleteCurrencyForm = (uuid: string): void => {
     setActiveCurrency(uuid);
-    setIsOpenDeleteCurrency(true);
+    setIsDeleteCurrencyOpen(true);
+  }
+
+  const openEditCurrencyForm = (uuid: string): void => {
+    setActiveCurrency(uuid);
+    setIsEditCurrencyOpen(true);
   }
 
   const closeAddCurrencyForm = (): void => {
-    setIsOpenAddCurrency(false);
+    setIsAddCurrencyOpen(false);
   };
 
-  const closeDeleteCurrencyForm = (): void => {
-    setIsOpenDeleteCurrency(false);
+  const handleCloseModals = (): void => {
+    setIsEditCurrencyOpen(false);
+    setIsDeleteCurrencyOpen(false);
   }
 
   const currencyCard = (item: Currency, index: number) => (
@@ -63,6 +71,7 @@ const Index: FC = () => {
         selectCurrency={selectCurrency}
         unselectCurrency={unselectCurrency}
         handleDeleteClick={openDeleteCurrencyForm}
+        handleEditClick={openEditCurrencyForm}
       />
     </Grid>
   )
@@ -126,8 +135,9 @@ const Index: FC = () => {
           </Grid>
         </Grid>
       </Box>
-      <AddForm open={isOpenAddCurrency} handleClose={closeAddCurrencyForm} />
-      <ConfirmDeleteForm open={isOpenDeleteCurrency} uuid={activeCurrency} handleClose={closeDeleteCurrencyForm} />
+      <AddForm open={isAddCurrencyOpen} handleClose={closeAddCurrencyForm} />
+      <EditForm open={isEditCurrencyOpen} uuid={activeCurrency} handleClose={handleCloseModals} />
+      <ConfirmDeleteForm open={isDeleteCurrencyOpen} uuid={activeCurrency} handleClose={handleCloseModals} />
     </>
   )
 }

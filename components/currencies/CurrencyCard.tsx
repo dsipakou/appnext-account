@@ -20,6 +20,7 @@ interface Types {
   selectCurrency: (code: string) => void,
   unselectCurrency: (code: string) => void,
   handleDeleteClick: () => void,
+  handleEditClick: () => void,
 }
 
 const CardWrapper = styled(Card)(({ theme, selected }) => ({
@@ -63,7 +64,14 @@ const CardWrapper = styled(Card)(({ theme, selected }) => ({
 }));
 
 
-const CurrencyCard: FC<Types> = ({ currency, rates, selectCurrency, unselectCurrency, handleDeleteClick }) => {
+const CurrencyCard: FC<Types> = ({
+  currency,
+  rates,
+  selectCurrency,
+  unselectCurrency,
+  handleDeleteClick,
+  handleEditClick,
+}) => {
   const theme = useTheme();
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -110,6 +118,11 @@ const CurrencyCard: FC<Types> = ({ currency, rates, selectCurrency, unselectCurr
   const handleDelete = (e: MouseEvent): void => {
     handleCloseMenu(e);
     handleDeleteClick(currency.uuid);
+  }
+
+  const handleEdit = (e: MouseEvent): void => {
+    handleCloseMenu(e);
+    handleEditClick(currency.uuid);
   }
 
   const handleClick = (): void => {
@@ -171,7 +184,7 @@ const CurrencyCard: FC<Types> = ({ currency, rates, selectCurrency, unselectCurr
                       horizontal: 'right'
                     }}
                   >
-                    <MenuItem onClick={handleCloseMenu}>
+                    <MenuItem onClick={handleEdit}>
                       <EditIcon sx={{ mr: 1.75 }} /> Edit
                     </MenuItem>
                     <MenuItem onClick={handleDelete}>

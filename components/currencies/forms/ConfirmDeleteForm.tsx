@@ -10,7 +10,6 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import { useSWRConfig } from 'swr';
-import { useRouter } from 'next/router';
 import { useCurrencies } from '@/hooks/currencies';
 import { Currency } from '../types';
 
@@ -25,14 +24,12 @@ const ConfirmDeleteForm = ({ open = false, uuid, handleClose }: Props) => {
   const [errors, setErrors] = useState([]);
   const { currencies, isLoading, isError } = useCurrencies();
   const { mutate } = useSWRConfig();
-  const router = useRouter();
-  const { uuid: queryUuid } = router.query;
 
   useEffect(() => {
     if (isLoading) return;
 
-    const currency = currencies.find((currency: Currency) => currency.uuid === uuid);
-    setCurrency(currency);
+    const _currency = currencies.find((item: Currency) => item.uuid === uuid);
+    setCurrency(_currency);
 
     return () => setErrors([]);
   }, [isLoading, currencies, uuid])
