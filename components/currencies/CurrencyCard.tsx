@@ -3,11 +3,14 @@ import { FC, useState } from 'react';
 
 // material-ui
 import { styled, useTheme } from '@mui/material/styles';
-import { Avatar, Box, Card, Grid, Menu, MenuItem, Typography } from '@mui/material';
+import { Avatar, Button, Box, Card, Grid, Menu, MenuItem, Typography } from '@mui/material';
 
 // assets
 import NorthEastIcon from '@mui/icons-material/NorthEast';
 import SouthEastIcon from '@mui/icons-material/SouthEast';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import { Rate } from './types';
 
@@ -16,6 +19,7 @@ interface Types {
   rates: Rates[],
   selectCurrency: (code: string) => void,
   unselectCurrency: (code: string) => void,
+  handleDeleteClick: () => void,
 }
 
 const CardWrapper = styled(Card)(({ theme, selected }) => ({
@@ -25,6 +29,7 @@ const CardWrapper = styled(Card)(({ theme, selected }) => ({
   overflow: 'hidden',
   position: 'relative',
   width: 270,
+  height: 190,
   '&:after': {
     content: '""',
     position: 'absolute',
@@ -58,9 +63,10 @@ const CardWrapper = styled(Card)(({ theme, selected }) => ({
 }));
 
 
-const CurrencyCard: FC<Types> = ({ currency, rates, selectCurrency, unselectCurrency }) => {
+const CurrencyCard: FC<Types> = ({ currency, rates, selectCurrency, unselectCurrency, handleDeleteClick }) => {
   const theme = useTheme();
 
+  const [anchorEl, setAnchorEl] = useState(null);
   const [selected, setSelected] = useState<boolean>(false);
 
   const getRate = (uuid: string, seqNumber: number = 0): Rate | undefined => {
@@ -83,12 +89,27 @@ const CurrencyCard: FC<Types> = ({ currency, rates, selectCurrency, unselectCurr
       return 0;
     }
 
-    const _rates = rates.filter((rate: Rate) => rate.currency === uuid);
+    const _rates: Rate[] = rates.filter((rate: Rate) => rate.currency === uuid);
     if (_rates.length < 2) {
       return 0;
     }
 
     return (1 - (_rates[1].rate / _rates[0].rate)) * 100;
+  }
+
+  const handleOpenMenu = (e: MouseEvent): void => {
+    setAnchorEl(e.currentTarget);
+    e.stopPropagation();
+  }
+
+  const handleCloseMenu = (e: MouseEvent): void => {
+    setAnchorEl(null);
+    e.stopPropagation();
+  }
+
+  const handleDelete = (e: MouseEvent): void => {
+    handleCloseMenu(e);
+    handleDeleteClick(currency.uuid);
   }
 
   const handleClick = (): void => {
@@ -101,6 +122,10 @@ const CurrencyCard: FC<Types> = ({ currency, rates, selectCurrency, unselectCurr
     }
   };
 
+  const test = () => {
+    console.log('click')
+  }
+
   return (
     <>
       <CardWrapper
@@ -112,10 +137,47 @@ const CurrencyCard: FC<Types> = ({ currency, rates, selectCurrency, unselectCurr
           <Grid container direction="column">
             <Grid item>
               <Grid container justifyContent="space-between">
-                <Grid item>
+                <Grid item xs={10}>
                   <Typography sx={{ fontSize: '1.5rem' }}>
                     {currency.code}
                   </Typography>
+                </Grid>
+                <Grid item xs={2}>
+                  <Avatar
+                    sx={{
+                      backgroundColor: 'white',
+                      color: theme.palette.primary.light,
+                      zIndex: 1
+                    }}
+                    aria-controls="menu-earning-card"
+                    aria-haspopup="true"
+                    onClick={handleOpenMenu}
+                  >
+                    <MoreHorizIcon fontSize="inherit" />
+                  </Avatar>
+                  <Menu
+                    id="menu-earning-card"
+                    anchorEl={anchorEl}
+                    keepMounted
+                    open={Boolean(anchorEl)}
+                    onClose={handleCloseMenu}
+                    variant="selectedMenu"
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'right'
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right'
+                    }}
+                  >
+                    <MenuItem onClick={handleCloseMenu}>
+                      <EditIcon sx={{ mr: 1.75 }} /> Edit
+                    </MenuItem>
+                    <MenuItem onClick={handleDelete}>
+                      <DeleteIcon sx={{ mr: 1.75 }} /> Delete
+                    </MenuItem>
+                  </Menu>
                 </Grid>
               </Grid>
             </Grid>

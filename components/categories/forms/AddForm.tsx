@@ -15,7 +15,7 @@ import {
   Button,
   Typography,
 } from '@mui/material';
-import { Category, CategoryType, CreateRequest } from '../types';
+import { Category, CategoryType, CategoryRequest } from '../types';
 import { useCategories } from '../../../hooks/categories';
 import { useSWRConfig } from 'swr';
 import axios from 'axios';
@@ -29,12 +29,12 @@ const AddForm = ({ open = false, handleClose }: Props) => {
   const { mutate } = useSWRConfig();
   const { categories, isLoading, isError } = useCategories();
 
-  const [ isParent, setIsParent ] = useState<boolean>(false);
-  const [ type, setType ] = useState<CategoryType>(CategoryType.Expense);
-  const [ name, setName ] = useState<string>('');
-  const [ parentList, setParentList ] = useState<Category[]>([]);
-  const [ parent, setParent ] = useState<Category>('');
-  const [ errors, setErrors ] = useState<string[]>([]);
+  const [isParent, setIsParent] = useState<boolean>(false);
+  const [type, setType] = useState<CategoryType>(CategoryType.Expense);
+  const [name, setName] = useState<string>('');
+  const [parentList, setParentList] = useState<Category[]>([]);
+  const [parent, setParent] = useState<Category>('');
+  const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -49,7 +49,7 @@ const AddForm = ({ open = false, handleClose }: Props) => {
 
   const handleSave = async () => {
     setErrors([]);
-    const payload: CreateRequest = {
+    const payload: CategoryRequest = {
       name,
       type,
       parent,
@@ -72,7 +72,7 @@ const AddForm = ({ open = false, handleClose }: Props) => {
           setErrors(errRes[prop]);
         }
       }
-    ).finally(() => {console.log('stopLoading')})
+    ).finally(() => { console.log('stopLoading') })
   }
 
   const handleTypeChange = (e: SelectChangeEvent) => {
@@ -99,13 +99,13 @@ const AddForm = ({ open = false, handleClose }: Props) => {
       <DialogContent>
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            { errors.map((message: string) => (
+            {errors.map((message: string) => (
               <Typography key={message} color="red">{message}</Typography>
             ))}
           </Grid>
           <Grid item xs={12}>
             <TextField
-              autoFocus
+              autoFocus={true}
               margin="dense"
               id="name"
               label="Category name"
@@ -145,7 +145,7 @@ const AddForm = ({ open = false, handleClose }: Props) => {
                 defaultValue=""
                 onChange={handleParentSelect}
               >
-                { parentList.map((category: Category) => (
+                {parentList.map((category: Category) => (
                   <MenuItem key={category.uuid} value={category.uuid}>{category.name}</MenuItem>
                 ))}
               </Select>

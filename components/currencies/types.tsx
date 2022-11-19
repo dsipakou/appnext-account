@@ -10,6 +10,14 @@ export interface Currency {
   modifiedAt: string
 }
 
+export interface CurrencyRequest {
+  verbalName: string
+  code: string
+  sign: string
+  isDefault: boolean
+  description: string
+}
+
 export interface Rate {
   uuid: string,
   currency: string,
