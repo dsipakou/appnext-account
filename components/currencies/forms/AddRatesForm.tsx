@@ -30,11 +30,11 @@ const AddRatesForm: FC<Types> = ({ open, handleClose, currencies = [] }) => {
   }
 
   return (
-    <Dialog maxWidth="md" fullWidth={true} open={open} onClose={handleClose}>
+    <Dialog maxWidth="sm" fullWidth={true} open={open} onClose={handleClose}>
       <DialogTitle>Add rates</DialogTitle>
       <DialogContent>
         <Grid container spacing={2}>
-          <Grid item xs={6}>
+          <Grid item xs={4}>
             <Stack gap={1}>
               {currencies.map((item: Currency) => (
                 <Box key={item.uuid}>
@@ -48,7 +48,7 @@ const AddRatesForm: FC<Types> = ({ open, handleClose, currencies = [] }) => {
               ))}
             </Stack>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={8}>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <StaticDatePicker
                 displayStaticWrapperAs="desktop"
@@ -63,8 +63,8 @@ const AddRatesForm: FC<Types> = ({ open, handleClose, currencies = [] }) => {
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button>Close</Button>
-        <Button>Save</Button>
+        <Button onClick={handleClose}>Close</Button>
+        <Button variant="contained">Save</Button>
       </DialogActions>
     </Dialog>
   )

@@ -20,8 +20,8 @@ const Index: FC = () => {
   const [period, setPeriod] = useState<ChartPeriod>("month")
   const [activeCurrency, setActiveCurrency] = useState<Currency>();
   const { currencies, isLoading, isError } = useCurrencies();
-  const { chartRates, isLoading: isChartLoading, isError: isChartError } = useRatesChart(ChartPeriodMap[period]);
-  const { rates, isLoading: isRatesLoading, isError: isRatesError } = useRates(2);
+  const { data: chartRates, isLoading: isChartLoading, isError: isChartError } = useRatesChart(ChartPeriodMap[period]);
+  const { data: rates, isLoading: isRatesLoading, isError: isRatesError } = useRates(2);
 
   const selectCurrency = (code: string): void => {
     if (!selectedCurrencies.find((item: Currency) => item.code === code)) {

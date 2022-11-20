@@ -18,7 +18,7 @@ import AddForm from './forms/AddForm';
 
 const Index = () => {
   const [isOpenAddCategory, setIsOpenAddCategory] = useState<boolean>(false);
-  const { categories, isLoading, isError } = useCategories();
+  const { data: categories, isLoading, isError } = useCategories();
 
   if (isError) {
     return <div>Error</div>

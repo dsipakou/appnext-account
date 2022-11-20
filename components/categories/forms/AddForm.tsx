@@ -28,7 +28,7 @@ interface Types {
 
 const AddForm: FC<Types> = ({ open = false, handleClose }) => {
   const { mutate } = useSWRConfig();
-  const { categories, isLoading, isError } = useCategories();
+  const { data: categories, isLoading, isError } = useCategories();
 
   const [isParent, setIsParent] = useState<boolean>(false);
   const [type, setType] = useState<CategoryType>(CategoryType.Expense);

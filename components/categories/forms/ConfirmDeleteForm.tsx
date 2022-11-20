@@ -21,9 +21,9 @@ interface Types {
 }
 
 const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose }) => {
-  const [ category, setCategory ] = useState('');
-  const [ errors, setErrors ] = useState([]);
-  const { categories, isLoading, isError } = useCategories();
+  const [category, setCategory] = useState('');
+  const [errors, setErrors] = useState([]);
+  const { data: categories, isLoading, isError } = useCategories();
   const { mutate } = useSWRConfig();
   const router = useRouter();
   const { uuid: queryUuid } = router.query;
@@ -71,9 +71,9 @@ const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose }) => {
     <Dialog maxWidth="sm" fullWidth={true} open={open} onClose={handleClose}>
       <DialogTitle>Please, confirm deletion</DialogTitle>
       <DialogContent>
-        { errors.length > 0 && (
+        {errors.length > 0 && (
           <Box>
-            { errors.map((message: string) => (
+            {errors.map((message: string) => (
               <Typography key={message} color="red">{message}</Typography>
             ))}
           </Box>

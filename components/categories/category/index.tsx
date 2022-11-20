@@ -26,7 +26,7 @@ const Category = () => {
   const [childrenCategories, setChildrenCategories] = useState<Category[]>([]);
   const [activeCategory, setActiveCategory] = useState<Category>();
 
-  const { categories, isLoading, isError } = useCategories();
+  const { data: categories, isLoading, isError } = useCategories();
   const router = useRouter();
   const { uuid: parentUuid } = router.query;
 

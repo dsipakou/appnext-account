@@ -17,9 +17,9 @@ import {
 import axios from 'axios';
 import { useSWRConfig } from 'swr';
 import { useCategories } from '../../../hooks/categories';
-import { CategoryRequest } from '../types';
+import { Category, CategoryRequest } from '../types';
 
-interface Props {
+interface Types {
   uuid: string,
   open: boolean,
   handleClose: () => void,
@@ -27,11 +27,11 @@ interface Props {
 
 const EditForm: FC<Types> = ({ uuid, open = false, handleClose }) => {
   const { mutate } = useSWRConfig();
-  const { categories, isLoading, isError } = useCategories();
+  const { data: categories, isLoading, isError } = useCategories();
 
-  const [category, setCategory] = useState<Category>('');
+  const [category, setCategory] = useState<Category>();
   const [name, setName] = useState<string>('');
-  const [parent, setParent] = useState<Category>('');
+  const [parent, setParent] = useState<Category | string>('');
   const [childrenCategories, setChildrenCategories] = useState<Category[]>([]);
   const [parentList, setParentList] = useState<Category[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
