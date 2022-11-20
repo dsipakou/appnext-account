@@ -13,7 +13,11 @@ interface Types {
 }
 
 
-const CurrencyChart: FC<Types> = ({ data: chartData, currencies, period }) => {
+const CurrencyChart: FC<Types> = ({
+  data: chartData = [{ data: [] }],
+  currencies,
+  period,
+}) => {
   const [options, setOptions] = useState({});
   const [series, setSeries] = useState([]);
 
