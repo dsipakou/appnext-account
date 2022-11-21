@@ -135,6 +135,7 @@ const Index: FC = () => {
           <Grid item>
             <CurrencyChart
               data={chartRates}
+              isLoading={isChartLoading}
               currencies={selectedCurrencies}
               period={period}
               changePeriod={changeChartPeriod}
@@ -145,7 +146,7 @@ const Index: FC = () => {
       <AddForm open={isAddCurrencyOpen} handleClose={closeAddCurrencyForm} />
       <EditForm open={isEditCurrencyOpen} uuid={activeCurrency} handleClose={handleCloseModals} />
       <ConfirmDeleteForm open={isDeleteCurrencyOpen} uuid={activeCurrency} handleClose={handleCloseModals} />
-      <AddRatesForm open={isRatesFormOpen} handleClose={handleCloseModals} currencies={currencies} />
+      <AddRatesForm open={isRatesFormOpen} onClose={handleCloseModals} currencies={currencies} />
     </>
   )
 }

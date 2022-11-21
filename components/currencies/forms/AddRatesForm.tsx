@@ -21,7 +21,7 @@ import { Currency } from '../types';
 
 interface Types {
   open: boolean
-  handleClose: () => void
+  onClose: () => void
   currencies: Currency[]
 }
 
@@ -29,23 +29,46 @@ interface RatesMap {
   [key: string]: number
 }
 
-const AddRatesForm: FC<Types> = ({ open, handleClose, currencies = [] }) => {
+const AddRatesForm: FC<Types> = ({ open, onClose, currencies = [] }) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date);
+  const [ratesInputMap, setRatesInputMap] = useState({});
   const { data: ratesOnDate, isLoading, isError } = useRatesOnDate(getFormattedDate(selectedDate));
 
   useEffect(() => {
-    if (!ratesOnDate) return;
-  }, [ratesOnDate]);
+    if (!ratesOnDate || isLoading || !open) return;
+
+    let ratesValues = {}
+
+    ratesOnDate.forEach(
+      (item: RateResponse) => {
+        ratesValues = {
+          ...ratesValues,
+          [item.currency]: item.rate,
+        }
+      }
+    )
+    setRatesInputMap(ratesValues);
+  }, [isLoading, selectedDate, open]);
 
   const handleDateChange = (date: Date | null): void => {
     if (date !== null) setSelectedDate(date);
   }
 
-  const getRate = (currency: string): number | string => {
-    if (!ratesOnDate) return;
-    return ratesOnDate.find(
-      (item: RateResponse) => item.currency === currency
-    )?.rate || '';
+  const handleRateChange = (uuid: string, e: ChangeEvent): void => {
+    const ratesValues = {
+      ...ratesInputMap,
+      [uuid]: e.target.value,
+    }
+    setRatesInputMap(ratesValues);
+  }
+
+  const handleSave = async (): void => {
+    console.log(ratesInputMap);
+  }
+
+  const handleClose = (): void => {
+    setRatesInputMap({});
+    onClose();
   }
 
   return (
@@ -59,7 +82,8 @@ const AddRatesForm: FC<Types> = ({ open, handleClose, currencies = [] }) => {
                 <Box key={item.uuid}>
                   <TextField
                     fullWidth
-                    value={getRate(item.uuid)}
+                    value={ratesInputMap[item.uuid] || ''}
+                    onChange={(e: ChangeEvent) => handleRateChange(item.uuid, e)}
                     InputProps={{
                       startAdornment: <InputAdornment position="start">{item.sign}</InputAdornment>
                     }}
@@ -85,7 +109,7 @@ const AddRatesForm: FC<Types> = ({ open, handleClose, currencies = [] }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Close</Button>
-        <Button variant="contained" disabled={isLoading}>Save</Button>
+        <Button variant="contained" disabled={isLoading} onClick={handleSave}>Save</Button>
       </DialogActions>
     </Dialog>
   )

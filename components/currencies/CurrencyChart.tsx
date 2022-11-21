@@ -8,6 +8,7 @@ const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 interface Types {
   data: ChartRates[]
+  isLoading: boolean,
   currencies: Currency[],
   period: ChartPeriod,
 }
@@ -15,6 +16,7 @@ interface Types {
 
 const CurrencyChart: FC<Types> = ({
   data: chartData = [{ data: [] }],
+  isLoading,
   currencies,
   period,
 }) => {
@@ -22,7 +24,7 @@ const CurrencyChart: FC<Types> = ({
   const [series, setSeries] = useState([]);
 
   useEffect(() => {
-    if (!chartData) return;
+    if (!chartData || isLoading) return;
 
     setOptions({
       chart: {
@@ -70,8 +72,7 @@ const CurrencyChart: FC<Types> = ({
         )
       )
     )
-
-  }, [chartData, currencies]);
+  }, [currencies, period, isLoading]);
 
   return (
     <Chart
