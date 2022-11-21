@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -14,6 +14,9 @@ import {
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { StaticDatePicker } from '@mui/x-date-pickers';
+import { useRatesOnDate } from '@/hooks/rates';
+import { getFormattedDate } from '@/utils/dateUtils';
+import { RateResponse } from '@/hooks/rates';
 import { Currency } from '../types';
 
 interface Types {
@@ -22,11 +25,27 @@ interface Types {
   currencies: Currency[]
 }
 
-const AddRatesForm: FC<Types> = ({ open, handleClose, currencies = [] }) => {
-  const [selectedDate, setSelectedDate] = useState<string>(new Date());
+interface RatesMap {
+  [key: string]: number
+}
 
-  const handleDateChange = (date: string): void => {
-    setSelectedDate(date);
+const AddRatesForm: FC<Types> = ({ open, handleClose, currencies = [] }) => {
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date);
+  const { data: ratesOnDate, isLoading, isError } = useRatesOnDate(getFormattedDate(selectedDate));
+
+  useEffect(() => {
+    if (!ratesOnDate) return;
+  }, [ratesOnDate]);
+
+  const handleDateChange = (date: Date | null): void => {
+    if (date !== null) setSelectedDate(date);
+  }
+
+  const getRate = (currency: string): number | string => {
+    if (!ratesOnDate) return;
+    return ratesOnDate.find(
+      (item: RateResponse) => item.currency === currency
+    )?.rate || '';
   }
 
   return (
@@ -40,6 +59,7 @@ const AddRatesForm: FC<Types> = ({ open, handleClose, currencies = [] }) => {
                 <Box key={item.uuid}>
                   <TextField
                     fullWidth
+                    value={getRate(item.uuid)}
                     InputProps={{
                       startAdornment: <InputAdornment position="start">{item.sign}</InputAdornment>
                     }}
@@ -52,9 +72,10 @@ const AddRatesForm: FC<Types> = ({ open, handleClose, currencies = [] }) => {
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <StaticDatePicker
                 displayStaticWrapperAs="desktop"
+                disabled={isLoading}
                 openTo="day"
-                onChange={handleDateChange}
                 value={selectedDate}
+                onChange={handleDateChange}
                 renderInput={(params) => <TextField {...params} />}
               >
               </StaticDatePicker>
@@ -64,7 +85,7 @@ const AddRatesForm: FC<Types> = ({ open, handleClose, currencies = [] }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Close</Button>
-        <Button variant="contained">Save</Button>
+        <Button variant="contained" disabled={isLoading}>Save</Button>
       </DialogActions>
     </Dialog>
   )

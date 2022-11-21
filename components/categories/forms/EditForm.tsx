@@ -31,7 +31,7 @@ const EditForm: FC<Types> = ({ uuid, open = false, handleClose }) => {
 
   const [category, setCategory] = useState<Category>();
   const [name, setName] = useState<string>('');
-  const [parent, setParent] = useState<Category | string>('');
+  const [parent, setParent] = useState<string | null>('');
   const [childrenCategories, setChildrenCategories] = useState<Category[]>([]);
   const [parentList, setParentList] = useState<Category[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
@@ -60,6 +60,9 @@ const EditForm: FC<Types> = ({ uuid, open = false, handleClose }) => {
   const handleEdit = async () => {
     // TODO: start loading
     setErrors([]);
+
+    if (!category || !parent) return;
+
     const payload: CategoryRequest = {
       name,
       type: category.type,
@@ -96,8 +99,8 @@ const EditForm: FC<Types> = ({ uuid, open = false, handleClose }) => {
 
   const onClose = () => {
     handleClose();
-    setName(category?.name);
-    setParent(category?.parent);
+    setName(category?.name || '');
+    setParent(category?.parent || null);
     setErrors([]);
   }
 

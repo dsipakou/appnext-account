@@ -12,6 +12,8 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
+import { getRelativeDate } from '@/utils/dateUtils';
+
 import { Rate } from './types';
 
 interface Types {
@@ -103,6 +105,13 @@ const CurrencyCard: FC<Types> = ({
     }
 
     return (1 - (_rates[1].rate / _rates[0].rate)) * 100;
+  }
+
+  const getDate = (currencyUuid: string | undefined): string => {
+    const date = getRate(currencyUuid)?.rateDate;
+    if (date === undefined) return '';
+
+    return getRelativeDate(date);
   }
 
   const handleOpenMenu = (e: MouseEvent): void => {
@@ -234,7 +243,7 @@ const CurrencyCard: FC<Types> = ({
                   justifyContent: 'flex-end'
                 }}
               >
-                {getRate(currency.uuid)?.rateDate}
+                {getDate(currency.uuid)}
               </Typography>
             </Grid>
           </Grid>
