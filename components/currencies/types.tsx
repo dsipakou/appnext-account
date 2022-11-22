@@ -13,6 +13,17 @@ export interface Currency extends CurrencyRequest {
   modifiedAt: string
 }
 
+export interface RateItemPostRequest {
+  code: string
+  rate: string
+}
+
+export interface RatePostRequest {
+  baseCurrency: string
+  items: RateItemPostRequest[]
+  rateDate: string
+}
+
 export interface Rate {
   uuid: string,
   currency: string,

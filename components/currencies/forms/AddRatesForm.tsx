@@ -11,13 +11,14 @@ import {
   Stack,
   TextField,
 } from '@mui/material';
+import axios from 'axios';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { StaticDatePicker } from '@mui/x-date-pickers';
 import { useRatesOnDate } from '@/hooks/rates';
 import { getFormattedDate } from '@/utils/dateUtils';
 import { RateResponse } from '@/hooks/rates';
-import { Currency } from '../types';
+import { Currency, RatePostRequest, RateItemPostRequest } from '../types';
 
 interface Types {
   open: boolean
@@ -32,6 +33,7 @@ interface RatesMap {
 const AddRatesForm: FC<Types> = ({ open, onClose, currencies = [] }) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date);
   const [ratesInputMap, setRatesInputMap] = useState({});
+  const [errors, setErrors] = useState<string[]>([]);
   const { data: ratesOnDate, isLoading, isError } = useRatesOnDate(getFormattedDate(selectedDate));
 
   useEffect(() => {
@@ -50,6 +52,10 @@ const AddRatesForm: FC<Types> = ({ open, onClose, currencies = [] }) => {
     setRatesInputMap(ratesValues);
   }, [isLoading, selectedDate, open]);
 
+  const getBaseCurrency = (): Currency => {
+    return currencies.find((item: Currency) => item.isBase)!
+  }
+
   const handleDateChange = (date: Date | null): void => {
     if (date !== null) setSelectedDate(date);
   }
@@ -63,7 +69,26 @@ const AddRatesForm: FC<Types> = ({ open, onClose, currencies = [] }) => {
   }
 
   const handleSave = async (): void => {
-    console.log(ratesInputMap);
+    setErrors([]);
+
+    const request: RatePostRequest = {
+      baseCurrency: getBaseCurrency().code,
+      items: [],
+      rateDate: getFormattedDate(selectedDate),
+    }
+
+    Object.keys(ratesInputMap).forEach((_uuid: string) => {
+      const code = currencies.find(
+        (_currency: Currency) => _currency.uuid === _uuid
+      )!.code
+      const rateItem: RateItemPostRequest = {
+        code,
+        rate: ratesInputMap[_uuid]
+      }
+      request.items.push(rateItem);
+    });
+
+    console.log(request);
   }
 
   const handleClose = (): void => {
@@ -78,7 +103,7 @@ const AddRatesForm: FC<Types> = ({ open, onClose, currencies = [] }) => {
         <Grid container spacing={2}>
           <Grid item xs={4}>
             <Stack gap={1}>
-              {currencies.map((item: Currency) => (
+              {currencies.map((item: Currency) => (!item.isBase &&
                 <Box key={item.uuid}>
                   <TextField
                     fullWidth
