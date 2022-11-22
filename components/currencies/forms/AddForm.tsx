@@ -77,7 +77,9 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
           setErrors(errRes[prop]);
         }
       }
-    ).finally(() => { console.log('stopLoading') })
+    ).finally(() => {
+      // TODO: stop loading
+    })
   }
 
   return (

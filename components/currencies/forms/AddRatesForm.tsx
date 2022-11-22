@@ -12,6 +12,7 @@ import {
   TextField,
 } from '@mui/material';
 import axios from 'axios';
+import { useSWRConfig } from 'swr';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { StaticDatePicker } from '@mui/x-date-pickers';
@@ -23,6 +24,7 @@ import { Currency, RatePostRequest, RateItemPostRequest } from '../types';
 interface Types {
   open: boolean
   onClose: () => void
+  onSave: () => void
   currencies: Currency[]
 }
 
@@ -30,7 +32,8 @@ interface RatesMap {
   [key: string]: number
 }
 
-const AddRatesForm: FC<Types> = ({ open, onClose, currencies = [] }) => {
+const AddRatesForm: FC<Types> = ({ open, onSave, onClose, currencies = [] }) => {
+  const { mutate } = useSWRConfig();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date);
   const [ratesInputMap, setRatesInputMap] = useState({});
   const [errors, setErrors] = useState<string[]>([]);
@@ -68,10 +71,8 @@ const AddRatesForm: FC<Types> = ({ open, onClose, currencies = [] }) => {
     setRatesInputMap(ratesValues);
   }
 
-  const handleSave = async (): void => {
-    setErrors([]);
-
-    const request: RatePostRequest = {
+  const prepareSaveRequest = (): RatePostRequest => {
+    const requestPayload: RatePostRequest = {
       baseCurrency: getBaseCurrency().code,
       items: [],
       rateDate: getFormattedDate(selectedDate),
@@ -85,10 +86,38 @@ const AddRatesForm: FC<Types> = ({ open, onClose, currencies = [] }) => {
         code,
         rate: ratesInputMap[_uuid]
       }
-      request.items.push(rateItem);
+      requestPayload.items.push(rateItem);
     });
 
-    console.log(request);
+    return requestPayload;
+  }
+
+  const handleSave = async (): void => {
+    setErrors([]);
+
+    const payload = prepareSaveRequest();
+
+    axios.post('rates/batched/', {
+      ...payload,
+    }).then(
+      res => {
+        if (res.status === 200) {
+          onSave();
+          handleClose();
+        } else {
+          // TODO: handle errors
+        }
+      }
+    ).catch(
+      (error) => {
+        const errRes = error.response.data;
+        for (const prop in errRes) {
+          setErrors(errRes[prop]);
+        }
+      }
+    ).finally(() => {
+      // TODO: stop loading
+    })
   }
 
   const handleClose = (): void => {
@@ -107,6 +136,7 @@ const AddRatesForm: FC<Types> = ({ open, onClose, currencies = [] }) => {
                 <Box key={item.uuid}>
                   <TextField
                     fullWidth
+                    type="number"
                     value={ratesInputMap[item.uuid] || ''}
                     onChange={(e: ChangeEvent) => handleRateChange(item.uuid, e)}
                     InputProps={{

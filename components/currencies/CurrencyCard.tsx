@@ -14,11 +14,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 import { getRelativeDate } from '@/utils/dateUtils';
 
-import { Rate } from './types';
+import { Currency, Rate } from './types';
 
 interface Types {
   currency: Currency,
-  rates: Rates[],
+  rates: Rate[],
   selectCurrency: (code: string) => void,
   unselectCurrency: (code: string) => void,
   handleDeleteClick: () => void,

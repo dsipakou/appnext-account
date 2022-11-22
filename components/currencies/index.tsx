@@ -1,4 +1,5 @@
 import { FC, useEffect, useState } from 'react';
+import { useSWRConfig } from 'swr';
 import { Box, Button, Grid, FormControl, InputLabel, MenuItem, Select, Toolbar, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useRates, useRatesChart } from '@/hooks/rates';
@@ -12,6 +13,7 @@ import ConfirmDeleteForm from './forms/ConfirmDeleteForm';
 import AddRatesForm from './forms/AddRatesForm';
 
 const Index: FC = () => {
+  const { mutate } = useSWRConfig();
   const [selectedCurrencies, setSelectedCurrencies] = useState<Currency[]>([]);
   const [isAddCurrencyOpen, setIsAddCurrencyOpen] = useState<boolean>(false);
   const [isEditCurrencyOpen, setIsEditCurrencyOpen] = useState<boolean>(false);
@@ -20,8 +22,18 @@ const Index: FC = () => {
   const [period, setPeriod] = useState<ChartPeriod>("month")
   const [activeCurrency, setActiveCurrency] = useState<Currency>();
   const { currencies, isLoading, isError } = useCurrencies();
-  const { data: chartRates, isLoading: isChartLoading, isError: isChartError } = useRatesChart(ChartPeriodMap[period]);
-  const { data: rates, isLoading: isRatesLoading, isError: isRatesError } = useRates(2);
+  const {
+    data: chartRates,
+    isLoading: isChartLoading,
+    isError: isChartError,
+    url: chartRatesUrl,
+  } = useRatesChart(ChartPeriodMap[period]);
+  const {
+    data: rates,
+    isLoading: isRatesLoading,
+    isError: isRatesError,
+    url: ratesUrl,
+  } = useRates(2);
 
   const selectCurrency = (code: string): void => {
     if (!selectedCurrencies.find((item: Currency) => item.code === code)) {
@@ -58,6 +70,11 @@ const Index: FC = () => {
 
   const openAddRatesForm = (): void => {
     setIsRatesFormOpen(true);
+  }
+
+  const handleRateSave = (): void => {
+    mutate(chartRatesUrl)
+    mutate(ratesUrl)
   }
 
   const closeAddCurrencyForm = (): void => {
@@ -146,7 +163,7 @@ const Index: FC = () => {
       <AddForm open={isAddCurrencyOpen} handleClose={closeAddCurrencyForm} />
       <EditForm open={isEditCurrencyOpen} uuid={activeCurrency} handleClose={handleCloseModals} />
       <ConfirmDeleteForm open={isDeleteCurrencyOpen} uuid={activeCurrency} handleClose={handleCloseModals} />
-      <AddRatesForm open={isRatesFormOpen} onClose={handleCloseModals} currencies={currencies} />
+      <AddRatesForm open={isRatesFormOpen} onClose={handleCloseModals} onSave={handleRateSave} currencies={currencies} />
     </>
   )
 }

@@ -26,22 +26,26 @@ export interface ChartResponse {
 const fetcher = (url: string) => axios.get(url).then(res => res.data);
 
 export const useRatesChart = (period: number = 30): Response<ChartResponse[]> => {
-  const { data, error, isValidating } = useSWR(`rates/chart/?range=${period}`, fetcher);
+  const url = `rates/chart/?range=${period}`;
+  const { data, error, isValidating } = useSWR(url, fetcher);
 
   return {
     data,
     isLoading: !data && !error,
     isError: error,
+    url,
   } as Response<ChartResponse[]>;
 };
 
 export const useRates = (limit: number = 5): Response<RateResponse[]> => {
-  const { data, error, isValidating } = useSWR(`rates?limit=${limit}`, fetcher);
+  const url: string = `rates?limit=${limit}`;
+  const { data, error, isValidating } = useSWR(url, fetcher);
 
   return {
     data,
     isLoading: !data && !error,
     isError: error,
+    url,
   } as Response<RateResponse[]>;
 }
 
