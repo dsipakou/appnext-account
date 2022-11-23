@@ -1,4 +1,5 @@
-import { FC, useEffect, useState } from 'react';
+import { ChangeEvent, FC, forwardRef, useEffect, useState } from 'react';
+import InputMask from 'react-input-mask';
 import {
   Box,
   Button,
@@ -134,15 +135,20 @@ const AddRatesForm: FC<Types> = ({ open, onSave, onClose, currencies = [] }) => 
             <Stack gap={1}>
               {currencies.map((item: Currency) => (!item.isBase &&
                 <Box key={item.uuid}>
-                  <TextField
-                    fullWidth
-                    type="number"
+                  <InputMask
+                    mask='9.9999'
                     value={ratesInputMap[item.uuid] || ''}
                     onChange={(e: ChangeEvent) => handleRateChange(item.uuid, e)}
-                    InputProps={{
-                      startAdornment: <InputAdornment position="start">{item.sign}</InputAdornment>
-                    }}
-                  />
+                  >
+                    {() => (
+                      <TextField
+                        fullWidth
+                        InputProps={{
+                          startAdornment: <InputAdornment position="start">{item.sign}</InputAdornment>,
+                        }}
+                      />
+                    )}
+                  </InputMask>
                 </Box>
               ))}
             </Stack>
