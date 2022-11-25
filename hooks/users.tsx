@@ -1,7 +1,5 @@
 import axios from 'axios';
 import useSWR from 'swr';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import MonthPicker from '@mui/x-date-pickers/MonthPicker';
 import { Response } from './types';
 
 export interface UserResponse {
