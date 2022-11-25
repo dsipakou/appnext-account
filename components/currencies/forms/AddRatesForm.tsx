@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, forwardRef, useEffect, useState } from 'react';
+import { ChangeEvent, FC, useEffect, useState } from 'react';
 import InputMask from 'react-input-mask';
 import {
   Box,
@@ -50,7 +50,7 @@ const AddRatesForm: FC<Types> = ({ open, onSave, onClose, currencies = [] }) => 
         ratesValues = {
           ...ratesValues,
           [item.currency]: item.rate,
-        }
+        } as RatesMap
       }
     )
     setRatesInputMap(ratesValues);
