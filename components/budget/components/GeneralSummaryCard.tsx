@@ -15,7 +15,7 @@ const GeneralSummaryCard: FC = () => {
     >
       <Grid container>
         <Grid item xs={12}>
-          <Typography sx={{ display: "flex", justifyContent: "center", fontWeight: "bold" }}>
+          <Typography align="center" sx={{ fontWeight: "bold" }}>
             Month Summary
           </Typography>
         </Grid>
@@ -27,10 +27,10 @@ const GeneralSummaryCard: FC = () => {
             <Grid container spacing={1}>
               <Grid item xs={10}>
                 <Stack>
-                  <Typography sx={{ fontSize: '1.3em', display: "flex", justifyContent: "end" }}>
+                  <Typography align="end" sx={{ fontSize: "1.3em" }}>
                     30000
                   </Typography>
-                  <Typography sx={{ fontSize: '0.8em', display: "flex", justifyContent: "end" }}>
+                  <Typography align="end" sx={{ fontSize: "0.8em" }}>
                     Planned
                   </Typography>
                 </Stack>
@@ -59,10 +59,10 @@ const GeneralSummaryCard: FC = () => {
               </Grid>
               <Grid item xs={10}>
                 <Stack>
-                  <Typography sx={{ fontSize: '1.3em', display: "flex", justifyContent: "start" }}>
+                  <Typography align="start" sx={{ fontSize: "1.3em" }}>
                     40000
                   </Typography>
-                  <Typography sx={{ fontSize: '0.8em', display: "flex", justifyContent: "start" }}>
+                  <Typography align="start" sx={{ fontSize: "0.8em" }}>
                     Actual
                   </Typography>
                 </Stack>

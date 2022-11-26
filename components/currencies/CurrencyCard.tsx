@@ -235,12 +235,11 @@ const CurrencyCard: FC<Types> = ({
             </Grid>
             <Grid item sx={{ mb: 1.25, selfAlign: "flex-end" }}>
               <Typography
+                align="end"
                 sx={{
                   fontSize: '.8rem',
                   fontWeight: 500,
                   color: theme.palette.secondary[200],
-                  display: 'flex',
-                  justifyContent: 'flex-end'
                 }}
               >
                 {getDate(currency.uuid)}

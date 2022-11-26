@@ -24,6 +24,7 @@ import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import { useUsers } from '@/hooks/users';
 import { User } from '@/component/users/types';
 import { GeneralSummaryCard, CategorySummaryButton } from './components';
+import DetailsPanel from './components/month/DetailsPanel';
 import { useBudgetMonth, GroupedByCategoryBudget } from '@/hooks/budget';
 
 type BudgetType = 'month' | 'week'
@@ -179,6 +180,9 @@ const Index = () => {
                   />
                 ))}
               </Stack>
+            </Grid>
+            <Grid item xs={8}>
+              <DetailsPanel />
             </Grid>
           </Grid>
         </Grid>
