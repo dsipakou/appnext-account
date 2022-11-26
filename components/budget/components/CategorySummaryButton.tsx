@@ -26,7 +26,7 @@ const CategorySummaryButton: FC<Types> = ({ title }) => {
             <Grid container spacing={1}>
               <Grid item xs={11}>
                 <Stack>
-                  <Typography align="end" sx={{ fontSize: "1.3em" }}>
+                  <Typography align="right" sx={{ fontSize: "1.3em" }}>
                     1500
                   </Typography>
                 </Stack>
@@ -55,7 +55,7 @@ const CategorySummaryButton: FC<Types> = ({ title }) => {
               </Grid>
               <Grid item xs={11}>
                 <Stack>
-                  <Typography align="start" sx={{ fontSize: "1.3em" }}>
+                  <Typography align="left" sx={{ fontSize: "1.3em" }}>
                     2000
                   </Typography>
                 </Stack>

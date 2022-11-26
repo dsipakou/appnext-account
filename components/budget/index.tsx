@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { add } from 'date-fns';
 import {
   Box,
@@ -26,10 +26,12 @@ import { User } from '@/component/users/types';
 import { GeneralSummaryCard, CategorySummaryButton } from './components';
 import DetailsPanel from './components/month/DetailsPanel';
 import { useBudgetMonth, GroupedByCategoryBudget } from '@/hooks/budget';
+import { useAuth } from '@/context/auth';
 
 type BudgetType = 'month' | 'week'
 
 const Index = () => {
+  const { user: userConfig } = useAuth();
   const [user, setUser] = useState<string>('all');
   const [date, setDate] = useState<Date>(new Date());
   const [activeType, setActiveType] = useState<BudgetType>('month');
@@ -42,6 +44,10 @@ const Index = () => {
     data: budgetMonth,
     isLoading: isMonthBudgetLoading
   } = useBudgetMonth({ dateFrom: "2022-11-01", dateTo: "2022-11-30" });
+
+  useEffect(() => {
+    console.log(userConfig);
+  }, [userConfig]);
 
   const maxDate = add(new Date(), { years: 2 });
 

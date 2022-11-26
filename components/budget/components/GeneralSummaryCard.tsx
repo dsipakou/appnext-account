@@ -27,10 +27,10 @@ const GeneralSummaryCard: FC = () => {
             <Grid container spacing={1}>
               <Grid item xs={10}>
                 <Stack>
-                  <Typography align="end" sx={{ fontSize: "1.3em" }}>
+                  <Typography align="right" sx={{ fontSize: "1.3em" }}>
                     30000
                   </Typography>
-                  <Typography align="end" sx={{ fontSize: "0.8em" }}>
+                  <Typography align="right" sx={{ fontSize: "0.8em" }}>
                     Planned
                   </Typography>
                 </Stack>
@@ -59,10 +59,10 @@ const GeneralSummaryCard: FC = () => {
               </Grid>
               <Grid item xs={10}>
                 <Stack>
-                  <Typography align="start" sx={{ fontSize: "1.3em" }}>
+                  <Typography align="left" sx={{ fontSize: "1.3em" }}>
                     40000
                   </Typography>
-                  <Typography align="start" sx={{ fontSize: "0.8em" }}>
+                  <Typography align="left" sx={{ fontSize: "0.8em" }}>
                     Actual
                   </Typography>
                 </Stack>
