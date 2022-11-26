@@ -24,6 +24,7 @@ import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import { useUsers } from '@/hooks/users';
 import { User } from '@/component/users/types';
 import { GeneralSummaryCard, CategorySummaryButton } from './components';
+import { useBudgetMonth, GroupedByCategoryBudget } from '@/hooks/budget';
 
 type BudgetType = 'month' | 'week'
 
@@ -36,6 +37,10 @@ const Index = () => {
     isLoading: isUsersLoading,
     isError: isUsersError,
   } = useUsers();
+  const {
+    data: budgetMonth,
+    isLoading: isMonthBudgetLoading
+  } = useBudgetMonth({ dateFrom: "2022-11-01", dateTo: "2022-11-30" });
 
   const maxDate = add(new Date(), { years: 2 });
 
@@ -167,11 +172,12 @@ const Index = () => {
           <Grid container spacing={3}>
             <Grid item xs={4}>
               <Stack spacing={2}>
-                <CategorySummaryButton />
-                <CategorySummaryButton />
-                <CategorySummaryButton />
-                <CategorySummaryButton />
-                <CategorySummaryButton />
+                {!isMonthBudgetLoading && budgetMonth.map((item: GroupedByCategoryBudget) => (
+                  <CategorySummaryButton
+                    key={item.uuid}
+                    title={item.categoryName}
+                  />
+                ))}
               </Stack>
             </Grid>
           </Grid>

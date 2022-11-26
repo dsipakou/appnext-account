@@ -7,7 +7,11 @@ import {
   Typography,
 } from '@mui/material';
 
-const CategorySummaryButton: FC = () => {
+interface Types {
+  title: string
+}
+
+const CategorySummaryButton: FC<Types> = ({ title }) => {
   return (
     <Paper
       sx={{ height: 80, width: "90%", borderRadius: 5 }}
@@ -61,7 +65,7 @@ const CategorySummaryButton: FC = () => {
         </Grid>
         <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
           <Typography sx={{ fontSize: "1.2em" }}>
-            Денис
+            {title}
           </Typography>
         </Grid>
       </Grid>
