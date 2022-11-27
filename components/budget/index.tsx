@@ -22,11 +22,12 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import { useUsers } from '@/hooks/users';
+import { useAuth } from '@/context/auth';
+import { useBudgetMonth, GroupedByCategoryBudget } from '@/hooks/budget';
 import { User } from '@/component/users/types';
 import { GeneralSummaryCard, CategorySummaryButton } from './components';
 import DetailsPanel from './components/month/DetailsPanel';
-import { useBudgetMonth, GroupedByCategoryBudget } from '@/hooks/budget';
-import { useAuth } from '@/context/auth';
+import WeekCalendar from '@/components/budget/components/week/WeekCalendar';
 
 type BudgetType = 'month' | 'week'
 
@@ -43,7 +44,7 @@ const Index = () => {
   const {
     data: budgetMonth,
     isLoading: isMonthBudgetLoading
-  } = useBudgetMonth({ dateFrom: "2022-11-01", dateTo: "2022-11-30" });
+  } = useBudgetMonth("2022-11-01", "2022-11-30");
 
   useEffect(() => {
     console.log(userConfig);
@@ -154,15 +155,18 @@ const Index = () => {
       </Grid>
       <Grid item xs={3}>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <DatePicker
-            views={['year', 'month']}
-            label="Budget month"
-            openTo="month"
-            date={date}
-            maxDate={maxDate}
-            onChange={(newDate: Date) => { onDateChange(newDate) }}
-            renderInput={(params) => <TextField fullWidth {...params} helperText={null} />}
-          />
+          {activeType === "month" ?
+            <DatePicker
+              views={['year', 'month']}
+              label="Budget month"
+              openTo="month"
+              date={date}
+              maxDate={maxDate}
+              onChange={(newDate: Date) => { onDateChange(newDate) }}
+              renderInput={(params) => <TextField fullWidth {...params} helperText={null} />}
+            /> :
+            <WeekCalendar />
+          }
         </LocalizationProvider>
       </Grid>
     </Grid>
