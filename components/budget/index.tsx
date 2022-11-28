@@ -9,34 +9,27 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  Stack,
-  TextField,
   Toolbar,
   Typography,
 } from '@mui/material';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import AddIcon from '@mui/icons-material/Add';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
-import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import { useUsers } from '@/hooks/users';
 import { useAuth } from '@/context/auth';
 import { useBudgetMonth, GroupedByCategoryBudget } from '@/hooks/budget';
 import { User } from '@/component/users/types';
-import { GeneralSummaryCard, CategorySummaryButton } from './components';
-import DetailsPanel from './components/month/DetailsPanel';
+import { GeneralSummaryCard } from './components';
 import WeekCalendar from '@/components/budget/components/week/WeekCalendar';
 import MonthCalendar from '@/components/budget/components/month/MonthCalendar';
+import { default as MonthContainer } from './components/month/Container';
 
 type BudgetType = 'month' | 'week'
 
 const Index = () => {
   const { user: userConfig } = useAuth();
-  const [user, setUser] = useState<string>('all');
-  const [date, setDate] = useState<Date>(new Date());
-  const [activeType, setActiveType] = useState<BudgetType>('month');
+  const [user, setUser] = useState<string>('all')
+  const [date, setDate] = useState<Date>(new Date())
+  const [activeType, setActiveType] = useState<BudgetType>('month')
+  const [activeCategory, setActiveCategory] = useState<string>()
   const {
     data: users,
     isLoading: isUsersLoading,
@@ -48,8 +41,8 @@ const Index = () => {
   } = useBudgetMonth("2022-11-01", "2022-11-30");
 
   useEffect(() => {
-    console.log(userConfig);
-  }, [userConfig]);
+    console.log(activeCategory);
+  }, [activeCategory]);
 
   const maxDate = add(new Date(), { years: 2 });
 
@@ -171,21 +164,7 @@ const Index = () => {
           {header}
         </Grid>
         <Grid item xs={12}>
-          <Grid container spacing={3}>
-            <Grid item xs={4}>
-              <Stack spacing={2}>
-                {!isMonthBudgetLoading && budgetMonth.map((item: GroupedByCategoryBudget) => (
-                  <CategorySummaryButton
-                    key={item.uuid}
-                    title={item.categoryName}
-                  />
-                ))}
-              </Stack>
-            </Grid>
-            <Grid item xs={8}>
-              <DetailsPanel />
-            </Grid>
-          </Grid>
+          <MonthContainer />
         </Grid>
       </Grid>
     </>

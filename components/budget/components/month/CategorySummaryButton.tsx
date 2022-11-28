@@ -1,17 +1,18 @@
-import { FC } from 'react';
+import { FC } from 'react'
 import {
   Divider,
   Grid,
   Paper,
   Stack,
-  Typography,
-} from '@mui/material';
+  Typography
+} from '@mui/material'
 
 interface Types {
   title: string
+  activeCategory: string
 }
 
-const CategorySummaryButton: FC<Types> = ({ title }) => {
+const CategorySummaryButton: FC<Types> = ({ title, activeCategory }) => {
   return (
     <Paper
       sx={{ height: 80, width: "90%", borderRadius: 5 }}
