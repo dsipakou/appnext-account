@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { SelectChangeEvent, useEffect, useState } from 'react';
 import { add } from 'date-fns';
 import {
   Box,
@@ -33,7 +33,6 @@ const Index = () => {
   const {
     data: users,
     isLoading: isUsersLoading,
-    isError: isUsersError,
   } = useUsers();
   const {
     data: budgetMonth,

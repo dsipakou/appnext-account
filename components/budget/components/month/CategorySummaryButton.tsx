@@ -6,16 +6,32 @@ import {
   Stack,
   Typography
 } from '@mui/material'
+import { teal } from '@mui/material/colors'
+import { formatMoney } from '@/utils/numberUtils'
 
 interface Types {
   title: string
-  activeCategory: string
+  isActive: boolean
+  planned: number
+  spent: number
+  currencyCode: string
 }
 
-const CategorySummaryButton: FC<Types> = ({ title, activeCategory }) => {
+const CategorySummaryButton: FC<Types> = ({ title, isActive, planned, spent, currencyCode }) => {
   return (
     <Paper
-      sx={{ height: 80, width: "90%", borderRadius: 5 }}
+      sx={
+        {
+          height: 80,
+          width: isActive ? "91%" : "90%",
+          borderRadius: 3,
+          border: isActive ? "2px solid rgba(0, 0, 0, 0.2)" : "",
+          backgroundColor: isActive ? teal[50] : ""
+        }
+      }
+      elevation={
+        isActive ? 0 : 3
+      }
     >
       <Grid container justifyContent="center">
         <Grid item xs={12} sx={{ height: 40, mt: 1 }}>
@@ -28,7 +44,7 @@ const CategorySummaryButton: FC<Types> = ({ title, activeCategory }) => {
               <Grid item xs={11}>
                 <Stack>
                   <Typography align="right" sx={{ fontSize: "1.3em" }}>
-                    1500
+                    {formatMoney(planned, currencyCode)}
                   </Typography>
                 </Stack>
               </Grid>
@@ -57,7 +73,7 @@ const CategorySummaryButton: FC<Types> = ({ title, activeCategory }) => {
               <Grid item xs={11}>
                 <Stack>
                   <Typography align="left" sx={{ fontSize: "1.3em" }}>
-                    2000
+                    {formatMoney(spent, currencyCode)}
                   </Typography>
                 </Stack>
               </Grid>

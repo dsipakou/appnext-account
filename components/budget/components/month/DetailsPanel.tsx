@@ -1,17 +1,41 @@
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react'
 import {
   Grid,
   Paper,
   Stack,
-  Typography,
-} from '@mui/material';
-import SubCategorySummaryButton from './SubCategorySummaryButton';
+  Typography
+} from '@mui/material'
+import SubCategorySummaryButton from './SubCategorySummaryButton'
+import { useBudgetMonth } from '@/hooks/budget'
+import {
+  GroupedByCategoryBudget,
+  MonthOverallBudgetItem,
+  MonthBudgetItem
+} from '@/components/budget/types'
 
 interface Types {
-  title: string
+  activeCategoryUuid: string
 }
 
-const DetailsPanel: FC<Types> = ({ title = "Choose category" }) => {
+const DetailsPanel: FC<Types> = ({ activeCategoryUuid }) => {
+  const [title, setTitle] = useState<string>('Choose category')
+  const [categoryBudgets, setCategoryBudgets] = useState<MonthOverallBudgetItem[]>([])
+  const {
+    data: budget,
+    isLoading: isBudgetLoading
+  } = useBudgetMonth("2022-11-01", "2022-11-30");
+
+  useEffect(() => {
+    if (!activeCategoryUuid) return;
+
+    const _category = budget.find(
+      (item: GroupedByCategoryBudget) => item.uuid === activeCategoryUuid
+    )!
+
+    setCategoryBudgets(_category.budgets)
+    setTitle(_category.categoryName)
+  })
+
   return (
     <Paper
       elevation={0}
@@ -21,19 +45,15 @@ const DetailsPanel: FC<Types> = ({ title = "Choose category" }) => {
       }}
     >
       <Stack justifyContent="center" sx={{ p: 2 }}>
-        <Typography align="center" variant="h3">
+        <Typography align="center" variant="h3" mb={2}>
           {title}
         </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <SubCategorySummaryButton />
-          </Grid>
-          <Grid item xs={6}>
-            <SubCategorySummaryButton />
-          </Grid>
-          <Grid item xs={6}>
-            <SubCategorySummaryButton />
-          </Grid>
+          {categoryBudgets.map((item: MonthBudgetItem) => (
+            <Grid item xs={6} key={item.uuid}>
+              <SubCategorySummaryButton />
+            </Grid>
+          ))}
         </Grid>
       </Stack>
     </Paper>
