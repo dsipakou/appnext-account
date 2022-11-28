@@ -25,14 +25,14 @@ export interface RatePostRequest {
 }
 
 export interface Rate {
-  uuid: string,
-  currency: string,
-  baseCurrency: string,
-  rate: number,
-  rateDate: string,
-  description: string,
-  createdAt: string,
-  modifiedAt: string,
+  uuid: string
+  currency: string
+  baseCurrency: string
+  rate: number
+  rateDate: string
+  description: string
+  createdAt: string
+  modifiedAt: string
 }
 
 export interface ChartRate {
@@ -45,11 +45,11 @@ export interface ChartRates {
   data: ChartRate[]
 }
 
-export type ChartPeriod = "month" | "quarter" | "biannual" | "annual"
+export type ChartPeriod = 'month' | 'quarter' | 'biannual' | 'annual'
 
 export const ChartPeriodMap = {
   month: 30,
   quarter: 90,
   biannual: 180,
-  annual: 365,
+  annual: 365
 }

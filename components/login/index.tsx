@@ -1,4 +1,4 @@
-import { FC, ChangeEvent, useContext, useState } from 'react';
+import { FC, ChangeEvent, useState } from 'react'
 import {
   Box,
   Grid,
@@ -6,43 +6,25 @@ import {
   Stack,
   TextField,
   Typography,
-  Button,
-} from '@mui/material';
-import axios from 'axios';
-import { userTable } from '@/models/indexedDb.config';
-import { LoginResponse } from '@/components/login/types';
-import { useAuth } from '@/context/auth';
-
-interface UserState {
-  isAuthenticated: boolean,
-  username: string,
-  email: string,
-  defaultCurrency: string,
-}
-
-const defaultState: UserState = {
-  isAuthenticated: false,
-  username: '',
-  email: '',
-  defaultCurrency: '',
-};
-
+  Button
+} from '@mui/material'
+import { useAuth } from '@/context/auth'
 
 const Index: FC = () => {
-  const { login, loading } = useAuth();
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const { login } = useAuth()
+  const [email, setEmail] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
 
-  const handleEmailInput = (e: ChangeEvent) => {
-    setEmail(e.target.value);
+  const handleEmailInput = (e: ChangeEvent): void => {
+    setEmail(e.target.value)
   }
 
-  const handlePasswordInput = (e: ChangeEvent) => {
-    setPassword(e.target.value);
+  const handlePasswordInput = (e: ChangeEvent): void => {
+    setPassword(e.target.value)
   }
 
-  const handleLogin = async () => {
-    await login(email, password);
+  const handleLogin = async (): void => {
+    await login(email, password)
   }
 
   return (
@@ -78,4 +60,4 @@ const Index: FC = () => {
   )
 }
 
-export default Index;
+export default Index
