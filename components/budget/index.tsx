@@ -28,6 +28,7 @@ import { User } from '@/component/users/types';
 import { GeneralSummaryCard, CategorySummaryButton } from './components';
 import DetailsPanel from './components/month/DetailsPanel';
 import WeekCalendar from '@/components/budget/components/week/WeekCalendar';
+import MonthCalendar from '@/components/budget/components/month/MonthCalendar';
 
 type BudgetType = 'month' | 'week'
 
@@ -154,20 +155,10 @@ const Index = () => {
         </FormControl>
       </Grid>
       <Grid item xs={3}>
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          {activeType === "month" ?
-            <DatePicker
-              views={['year', 'month']}
-              label="Budget month"
-              openTo="month"
-              date={date}
-              maxDate={maxDate}
-              onChange={(newDate: Date) => { onDateChange(newDate) }}
-              renderInput={(params) => <TextField fullWidth {...params} helperText={null} />}
-            /> :
-            <WeekCalendar />
-          }
-        </LocalizationProvider>
+        {activeType === "month" ?
+          <MonthCalendar /> :
+          <WeekCalendar />
+        }
       </Grid>
     </Grid>
   );

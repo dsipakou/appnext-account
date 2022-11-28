@@ -32,17 +32,17 @@ const CustomPickersDay = styled(PickersDay, {
     },
   }),
   ...(isFirstDay && {
-    borderTopLeftRadius: '50%',
-    borderBottomLeftRadius: '50%',
+    borderTopLeftRadius: '30%',
+    borderBottomLeftRadius: '30%',
   }),
   ...(isLastDay && {
-    borderTopRightRadius: '50%',
-    borderBottomRightRadius: '50%',
+    borderTopRightRadius: '30%',
+    borderBottomRightRadius: '30%',
   }),
 })) as React.ComponentType<CustomPickerDayProps>;
 
 const WeekCalendar = () => {
-  const [value, setValue] = React.useState<Date>(new Date());
+  const [value, setValue] = React.useState<Date | null>(new Date());
 
   const renderWeekPickerDay = (
     date: Date,
@@ -56,9 +56,13 @@ const WeekCalendar = () => {
     const start = startOfWeek(value);
     const end = endOfWeek(value);
 
-    const dayIsBetween = isAfter(value, start) && isBefore(value, end);
-    const isFirstDay = isSameDay(start, value);
-    const isLastDay = isSameDay(end, value);
+    const isFirstDay = isSameDay(date, start);
+    const isLastDay = isSameDay(date, end);
+    const dayIsBetween = (
+      isFirstDay ||
+      isLastDay ||
+      (isAfter(date, start) && isBefore(date, end))
+    );
 
     return (
       <CustomPickersDay
@@ -74,14 +78,14 @@ const WeekCalendar = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <DatePicker
-        displayStaticWrapperAs="desktop"
-        label="Week picker"
+        label="Week budget"
         value={value}
         onChange={(newValue) => {
           setValue(newValue);
         }}
+        disableMaskedInput
         renderDay={renderWeekPickerDay}
-        renderInput={(params) => <TextField {...params} />}
+        renderInput={(params) => <TextField fullWidth {...params} />}
         inputFormat="'Week of' MMM d"
       />
     </LocalizationProvider>
