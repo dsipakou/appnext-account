@@ -17,6 +17,7 @@ import { useUsers } from '@/hooks/users'
 import { useAuth } from '@/context/auth'
 import { useBudgetMonth, GroupedByCategoryBudget } from '@/hooks/budget'
 import { User } from '@/components/users/types'
+import { getStartOfMonth, getEndOfMonth } from '@/utils/dateUtils'
 import { GeneralSummaryCard } from './components'
 import WeekCalendar from '@/components/budget/components/week/WeekCalendar'
 import MonthCalendar from '@/components/budget/components/month/MonthCalendar'
@@ -28,7 +29,9 @@ type BudgetType = 'month' | 'week'
 const Index = () => {
   const { user: userConfig } = useAuth();
   const [user, setUser] = useState<string>('all')
-  const [date, setDate] = useState<Date>(new Date())
+  const [monthDate, setMonthDate] = useState<Date>(new Date())
+  const [startOfMonth, setStartOfMonth] = useState<string>(getStartOfMonth(monthDate))
+  const [endOfMonth, setEndOfMonth] = useState<string>(getEndOfMonth(monthDate))
   const [activeType, setActiveType] = useState<BudgetType>('month')
   const [activeCategory, setActiveCategory] = useState<string>()
   const {
@@ -38,7 +41,12 @@ const Index = () => {
   const {
     data: budgetMonth,
     isLoading: isMonthBudgetLoading
-  } = useBudgetMonth("2022-11-01", "2022-11-30");
+  } = useBudgetMonth(startOfMonth, endOfMonth);
+
+  useEffect(() => {
+    setStartOfMonth(getStartOfMonth(monthDate))
+    setEndOfMonth(getEndOfMonth(monthDate))
+  }, [monthDate])
 
   useEffect(() => {
     console.log(activeCategory);
@@ -152,7 +160,7 @@ const Index = () => {
       </Grid>
       <Grid item xs={3}>
         {activeType === "month" ?
-          <MonthCalendar /> :
+          <MonthCalendar date={monthDate} setMonthDate={setMonthDate} /> :
           <WeekCalendar />
         }
       </Grid>
@@ -167,7 +175,7 @@ const Index = () => {
           {header}
         </Grid>
         <Grid item xs={12}>
-          <MonthContainer />
+          <MonthContainer startDate={startOfMonth} endDate={endOfMonth} />
         </Grid>
       </Grid>
     </>

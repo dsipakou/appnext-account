@@ -15,26 +15,33 @@ import {
 
 interface Types {
   activeCategoryUuid: string
+  startDate: string
+  endDate: string
 }
 
-const DetailsPanel: FC<Types> = ({ activeCategoryUuid }) => {
+const DetailsPanel: FC<Types> = ({ activeCategoryUuid, startDate, endDate }) => {
   const [title, setTitle] = useState<string>('Choose category')
   const [categoryBudgets, setCategoryBudgets] = useState<MonthOverallBudgetItem[]>([])
   const {
     data: budget,
     isLoading: isBudgetLoading
-  } = useBudgetMonth("2022-11-01", "2022-11-30");
+  } = useBudgetMonth(startDate, endDate);
 
   useEffect(() => {
-    if (!activeCategoryUuid) return;
+    if (!activeCategoryUuid || isBudgetLoading) return;
 
     const _category = budget.find(
       (item: GroupedByCategoryBudget) => item.uuid === activeCategoryUuid
-    )!
+    )
 
-    setCategoryBudgets(_category.budgets)
-    setTitle(_category.categoryName)
-  })
+    if (_category) {
+      setCategoryBudgets(_category.budgets)
+      setTitle(_category.categoryName)
+    } else {
+      setCategoryBudgets([])
+      setTitle('Choose category')
+    }
+  }, [activeCategoryUuid, startDate, endDate, isBudgetLoading])
 
   return (
     <Paper

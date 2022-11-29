@@ -10,13 +10,18 @@ import CategorySummaryButton from './CategorySummaryButton'
 import DetailsPanel from './DetailsPanel'
 import { useAuth } from '@/context/auth'
 
-const Container: FC = () => {
+interface Types {
+  startDate: string
+  endDate: string
+}
+
+const Container: FC<Types> = ({ startDate, endDate }) => {
   const { user } = useAuth();
   const [activeCategoryUuid, setActiveCategoryUuid] = useState<string>('')
   const {
     data: budget,
     isLoading: isBudgetLoading
-  } = useBudgetMonth("2022-11-01", "2022-11-30");
+  } = useBudgetMonth(startDate, endDate);
 
   return (
     <Grid container>
@@ -39,7 +44,11 @@ const Container: FC = () => {
         </Stack>
       </Grid>
       <Grid item xs={8}>
-        <DetailsPanel activeCategoryUuid={activeCategoryUuid} />
+        <DetailsPanel
+          activeCategoryUuid={activeCategoryUuid}
+          startDate={startDate}
+          endDate={endDate}
+        />
       </Grid>
     </Grid>
   )

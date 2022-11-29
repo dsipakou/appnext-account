@@ -8,9 +8,12 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { add } from 'date-fns';
 
-const MonthCalendar: FC = () => {
-  const [date, setDate] = useState<Date>(new Date());
+interface Types {
+  date: Date,
+  setMonthDate: () => void
+}
 
+const MonthCalendar: FC<Types> = ({ date, setMonthDate }) => {
   const maxDate = add(new Date(), { years: 2 });
 
   return (
@@ -19,10 +22,11 @@ const MonthCalendar: FC = () => {
         views={['year', 'month']}
         label="Month budget"
         openTo="month"
-        date={date}
+        value={date}
         maxDate={maxDate}
-        onChange={(newDate: Date): void => { setDate(newDate) }}
+        onChange={(newDate: Date): void => { setMonthDate(newDate) }}
         renderInput={(params) => <TextField fullWidth {...params} />}
+        inputFormat="MMMM yyyy"
       />
     </LocalizationProvider>
   )

@@ -1,4 +1,10 @@
-import { format, parse, formatRelative } from 'date-fns';
+import {
+  format,
+  parse,
+  formatRelative,
+  startOfMonth,
+  endOfMonth
+} from 'date-fns';
 import { enUS } from 'date-fns/esm/locale';
 
 const DATE_FORMAT = "yyyy-MM-dd";
@@ -15,7 +21,15 @@ export const getRelativeDate = (date: string): string => {
   return formatRelative(parseDate(date), new Date());
 }
 
-const formatRelativeLocale = {
+export const getStartOfMonth = (date: Date): string => {
+  return getFormattedDate(startOfMonth(date))
+}
+
+export const getEndOfMonth = (date: Date): string => {
+  return getFormattedDate(endOfMonth(date))
+}
+
+export const formatRelativeLocale = {
   lastWeek: "'Last' dddd",
   yesterday: "'Yesterday'",
   today: "'Today'",
