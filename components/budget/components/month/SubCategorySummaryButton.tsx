@@ -2,6 +2,7 @@ import { FC } from 'react'
 import {
   Badge,
   Box,
+  Chip,
   Grid,
   LinearProgress,
   Paper,
@@ -9,9 +10,10 @@ import {
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { MonthOverallBudgetItem } from '@/components/budget/types'
+import { teal, green } from '@mui/material/colors'
 import { formatMoney } from '@/utils/numberUtils'
 import { useAuth } from '@/context/auth'
-import EventRepeatIcon from '@mui/icons-material/EventRepeat';
+import LoopIcon from '@mui/icons-material/Loop'
 
 interface Types {
   item: MonthOverallBudgetItem
@@ -34,19 +36,20 @@ const SubCategorySummaryButton: FC<Types> = ({ item }) => {
   const planned = item.plannedInCurrencies[user?.currency]
   const spent = item.spentInCurrencies[user?.currency] || 0
   const percentage: number = Math.floor(spent * 100 / planned)
+  const isCompleted: boolean = item.items.every((_item: MonthBudgetItem) => _item.isCompleted)
 
   const progressColor: string = planned === 0 ?
     "secondary" :
     Math.floor(percentage) > 100 ?
       "error" :
-      "success"
+      "primary"
 
   console.log(item)
 
   return (
     <Paper elevation={0}
       sx={{
-        height: 162,
+        height: 172,
         backgroundColor: '#F4F6F8',
         border: "1px solid rgba(0, 0, 0, 0.2)",
         p: 2,
@@ -92,7 +95,7 @@ const SubCategorySummaryButton: FC<Types> = ({ item }) => {
               sx={{
                 height: 35,
                 mx: 2,
-                mt: 1,
+                my: 1,
               }}
             />
             <Box
@@ -114,14 +117,32 @@ const SubCategorySummaryButton: FC<Types> = ({ item }) => {
           </Box>
         </Grid>
         <Grid item xs={6}>
-          {item.items[0].recurrent &&
-            <Typography mt={1} sx={{ display: 'flex', alignItems: 'center' }}>
-              <EventRepeatIcon sx={{ fontSize: '1.4em', pr: 1 }} />
-              <span>{item.items[0].recurrent}</span>
-            </Typography>
+          {isCompleted &&
+            <Chip
+              size="small"
+              label="Completed"
+              sx={{
+                backgroundColor: green[500],
+                color: "white",
+                fontWeight: "bold"
+              }}
+            />
           }
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={6} align="right">
+          {item.items[0].recurrent &&
+            <Chip
+              icon={<LoopIcon fontSize="small" variant="outlined" />}
+              label={item.items[0].recurrent}
+              size="small"
+              sx={{
+                backgroundColor: teal[50],
+                px: 1,
+                border: '2px solid rgba(0, 0, 0, 0.2)'
+              }}
+            >
+            </Chip>
+          }
         </Grid>
       </Grid>
     </Paper >
