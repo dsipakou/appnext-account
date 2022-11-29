@@ -1,6 +1,5 @@
-export const formatMoney = (value: number, currencyCode: string) => {
+export const formatMoney = (value: number) => {
   if (!value) return 0;
-  console.log(value)
   return value.toLocaleString('en-IN', {
     maximumFractionDigits: 2,
     minimumFractionDigits: 2,

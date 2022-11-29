@@ -1,21 +1,33 @@
-import { FC } from 'react';
+import { FC } from 'react'
 import {
   Divider,
   Grid,
   Paper,
   Stack,
-  Typography,
-} from '@mui/material';
+  Typography
+} from '@mui/material'
+import { blue, yellow, grey } from '@mui/material/colors'
+import { formatMoney } from '@/utils/numberUtils'
 
-const GeneralSummaryCard: FC = () => {
+interface Types {
+  planned: number
+  spent: number
+}
+
+const GeneralSummaryCard: FC<Types> = ({ planned, spent }) => {
+  const maxValue: number = Math.max(planned, spent)
+
+  const spentPercent = spent * 100 / maxValue
+
+  const plannedPercent = planned * 100 / maxValue
   return (
     <Paper
       elevation={0}
-      sx={{ height: 80, border: '1px solid' }}
+      sx={{ height: 80, border: '1px solid', backgroundColor: grey[700], color: "white" }}
     >
       <Grid container>
         <Grid item xs={12}>
-          <Typography align="center" sx={{ fontWeight: "bold" }}>
+          <Typography align="center" sx={{ color: yellow[500] }}>
             Month Summary
           </Typography>
         </Grid>
@@ -27,8 +39,8 @@ const GeneralSummaryCard: FC = () => {
             <Grid container spacing={1}>
               <Grid item xs={10}>
                 <Stack>
-                  <Typography align="right" sx={{ fontSize: "1.3em" }}>
-                    30000
+                  <Typography align="right" sx={{ fontSize: "1.3em", fontWeight: "bold" }}>
+                    {formatMoney(planned)}
                   </Typography>
                   <Typography align="right" sx={{ fontSize: "0.8em" }}>
                     Planned
@@ -39,9 +51,9 @@ const GeneralSummaryCard: FC = () => {
                 <Paper
                   elevation={0}
                   sx={{
-                    backgroundColor: "warning.light",
+                    backgroundColor: yellow[700],
                     width: "100%",
-                    height: "80%",
+                    height: `${plannedPercent}%`,
                   }}
                 ></Paper>
               </Grid>
@@ -51,16 +63,17 @@ const GeneralSummaryCard: FC = () => {
                 <Paper
                   elevation={0}
                   sx={{
-                    backgroundColor: "warning.light",
+                    backgroundColor: yellow[700],
                     width: "100%",
-                    height: "100%",
+                    width: "100%",
+                    height: `${spentPercent}%`,
                   }}
                 ></Paper>
               </Grid>
               <Grid item xs={10}>
                 <Stack>
-                  <Typography align="left" sx={{ fontSize: "1.3em" }}>
-                    40000
+                  <Typography align="left" sx={{ fontSize: "1.3em", fontWeight: "bold" }}>
+                    {formatMoney(spent)}
                   </Typography>
                   <Typography align="left" sx={{ fontSize: "0.8em" }}>
                     Actual

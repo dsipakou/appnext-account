@@ -45,6 +45,14 @@ const Index = () => {
 
   const maxDate = add(new Date(), { years: 2 });
 
+  const plannedSum: number = budgetMonth?.reduce(
+    (acc: number, item) => acc + item.plannedInCurrencies[userConfig?.currency], 0
+  )
+
+  const spentSum: number = budgetMonth?.reduce(
+    (acc: number, item) => acc + item.spentInCurrencies[userConfig?.currency], 0
+  )
+
   const changeUser = (e: SelectChangeEvent): void => {
     setUser(e.target.value);
   }
@@ -125,7 +133,7 @@ const Index = () => {
   const header = (
     <Grid container spacing={3} alignItems="center">
       <Grid item xs={4}>
-        <GeneralSummaryCard />
+        <GeneralSummaryCard planned={plannedSum} spent={spentSum} />
       </Grid>
       <Grid item xs={2}>
       </Grid>

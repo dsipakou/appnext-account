@@ -6,7 +6,7 @@ import {
   Stack,
   Typography
 } from '@mui/material'
-import { teal } from '@mui/material/colors'
+import { grey, teal, green, red } from '@mui/material/colors'
 import { formatMoney } from '@/utils/numberUtils'
 
 interface Types {
@@ -18,6 +18,12 @@ interface Types {
 }
 
 const CategorySummaryButton: FC<Types> = ({ title, isActive, planned, spent, currencyCode }) => {
+  const maxValue: number = Math.max(planned, spent)
+
+  const spentPercent: number = spent * 100 / maxValue
+
+  const plannedPercent: number = planned * 100 / maxValue
+
   return (
     <Paper
       sx={
@@ -50,11 +56,12 @@ const CategorySummaryButton: FC<Types> = ({ title, isActive, planned, spent, cur
               </Grid>
               <Grid item xs={1} sx={{ display: "flex", alignItems: "end" }}>
                 <Paper
+                  square
                   elevation={0}
                   sx={{
-                    backgroundColor: "warning.light",
+                    backgroundColor: grey[400],
                     width: "100%",
-                    height: "80%",
+                    height: `${plannedPercent}%`,
                   }}
                 ></Paper>
               </Grid>
@@ -62,11 +69,12 @@ const CategorySummaryButton: FC<Types> = ({ title, isActive, planned, spent, cur
             <Grid container spacing={1}>
               <Grid item xs={1} sx={{ display: "flex", alignItems: "end" }}>
                 <Paper
+                  square
                   elevation={0}
                   sx={{
-                    backgroundColor: "warning.light",
+                    backgroundColor: spentPercent > plannedPercent ? red[500] : green[500],
                     width: "100%",
-                    height: "100%",
+                    height: `${spentPercent}%`,
                   }}
                 ></Paper>
               </Grid>
