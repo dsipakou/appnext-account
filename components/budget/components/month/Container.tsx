@@ -32,7 +32,7 @@ const Container: FC = () => {
                 isActive={activeCategoryUuid === item.uuid}
                 planned={item.plannedInCurrencies[user?.currency]}
                 spent={item.spentInCurrencies[user?.currency]}
-                currencyCode={user.currency}
+                currencyCode={user?.currency}
               />
             </Box>
           ))}

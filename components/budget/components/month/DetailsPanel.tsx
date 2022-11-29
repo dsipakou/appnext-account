@@ -51,7 +51,7 @@ const DetailsPanel: FC<Types> = ({ activeCategoryUuid }) => {
         <Grid container spacing={2}>
           {categoryBudgets.map((item: MonthBudgetItem) => (
             <Grid item xs={6} key={item.uuid}>
-              <SubCategorySummaryButton />
+              <SubCategorySummaryButton item={item} />
             </Grid>
           ))}
         </Grid>

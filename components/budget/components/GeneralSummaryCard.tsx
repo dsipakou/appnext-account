@@ -65,7 +65,6 @@ const GeneralSummaryCard: FC<Types> = ({ planned, spent }) => {
                   sx={{
                     backgroundColor: yellow[700],
                     width: "100%",
-                    width: "100%",
                     height: `${spentPercent}%`,
                   }}
                 ></Paper>

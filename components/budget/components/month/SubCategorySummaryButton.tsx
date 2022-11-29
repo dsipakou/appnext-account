@@ -1,13 +1,48 @@
-import { FC } from 'react';
+import { FC } from 'react'
 import {
+  Badge,
   Box,
   Grid,
   LinearProgress,
   Paper,
-  Typography,
-} from '@mui/material';
+  Typography
+} from '@mui/material'
+import { styled } from '@mui/material/styles'
+import { MonthOverallBudgetItem } from '@/components/budget/types'
+import { formatMoney } from '@/utils/numberUtils'
+import { useAuth } from '@/context/auth'
+import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 
-const SubCategorySummaryButton: FC = () => {
+interface Types {
+  item: MonthOverallBudgetItem
+}
+
+const StyledBadge = styled(Badge)<BadgeProps>(({ theme }) => ({
+  '& .MuiBadge-badge': {
+    right: -10,
+    top: 3,
+    border: `2px solid ${theme.palette.background.paper}`,
+    padding: '0 7px',
+  },
+}));
+
+const SubCategorySummaryButton: FC<Types> = ({ item }) => {
+  const { user } = useAuth()
+
+  const repeatedFor: number = item.items.length
+
+  const planned = item.plannedInCurrencies[user?.currency]
+  const spent = item.spentInCurrencies[user?.currency] || 0
+  const percentage: number = Math.floor(spent * 100 / planned)
+
+  const progressColor: string = planned === 0 ?
+    "secondary" :
+    Math.floor(percentage) > 100 ?
+      "error" :
+      "success"
+
+  console.log(item)
+
   return (
     <Paper elevation={0}
       sx={{
@@ -18,29 +53,46 @@ const SubCategorySummaryButton: FC = () => {
       }}
     >
       <Grid container>
-        <Grid item xs={6}>
-          <Typography>1 password</Typography>
-        </Grid>
-        <Grid item xs={6}>
-          <Typography align="right">weekly</Typography>
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', gap: '10px' }}>
+            {repeatedFor > 1 ? (
+              <StyledBadge color="secondary" badgeContent={`x${repeatedFor}`}>
+                <Typography sx={{ fontSize: '1.2em' }}>{item.title}</Typography>
+              </StyledBadge>
+            ) : (
+              <Typography sx={{ fontSize: '1.2em' }}>{item.title}</Typography>
+            )}
+          </Box>
         </Grid>
         <Grid item xs={12}>
-          <Typography align="center">123 spent</Typography>
-        </Grid>
-        <Grid item xs={6}>
-          <Typography>2x</Typography>
-        </Grid>
-        <Grid item xs={6}>
-          <Typography></Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Typography
+              align="center"
+              sx={{ fontSize: "1.5em", fontWeight: 'bold' }}
+            >
+              {formatMoney(spent)}
+            </Typography>
+            {planned !== 0 && (
+              <>
+                <Typography sx={{ mx: 1 }}>of</Typography>
+                <Typography>
+                  {formatMoney(planned)}
+                </Typography>
+              </>
+            )
+            }
+          </Box>
         </Grid>
         <Grid item xs={12}>
           <Box sx={{ position: "relative" }}>
             <LinearProgress
               variant="determinate"
-              value={50}
+              color={progressColor}
+              value={percentage > 100 ? percentage % 100 : percentage}
               sx={{
-                height: 40,
+                height: 35,
                 mx: 2,
+                mt: 1,
               }}
             />
             <Box
@@ -57,18 +109,22 @@ const SubCategorySummaryButton: FC = () => {
                 height: "100%",
                 alignItems: "center",
                 justifyContent: "center",
-              }}>50%</Typography>
+              }}>{planned === 0 ? 'Not planned' : `${percentage}%`}</Typography>
             </Box>
           </Box>
         </Grid>
         <Grid item xs={6}>
-          <Typography>12 left</Typography>
+          {item.items[0].recurrent &&
+            <Typography mt={1} sx={{ display: 'flex', alignItems: 'center' }}>
+              <EventRepeatIcon sx={{ fontSize: '1.4em', pr: 1 }} />
+              <span>{item.items[0].recurrent}</span>
+            </Typography>
+          }
         </Grid>
         <Grid item xs={6}>
-          <Typography align="right">of 25</Typography>
         </Grid>
       </Grid>
-    </Paper>
+    </Paper >
   )
 }
 

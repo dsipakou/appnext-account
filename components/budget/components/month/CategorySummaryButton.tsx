@@ -80,7 +80,7 @@ const CategorySummaryButton: FC<Types> = ({ title, isActive, planned, spent, cur
               </Grid>
               <Grid item xs={11}>
                 <Stack>
-                  <Typography align="left" sx={{ fontSize: "1.3em" }}>
+                  <Typography align="left" sx={{ fontSize: "1.3em", fontWeight: "bold" }}>
                     {formatMoney(spent, currencyCode)}
                   </Typography>
                 </Stack>

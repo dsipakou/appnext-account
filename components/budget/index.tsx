@@ -1,5 +1,5 @@
-import { SelectChangeEvent, useEffect, useState } from 'react';
-import { add } from 'date-fns';
+import { SelectChangeEvent, useEffect, useState } from 'react'
+import { add } from 'date-fns'
 import {
   Box,
   Button,
@@ -10,17 +10,18 @@ import {
   MenuItem,
   Select,
   Toolbar,
-  Typography,
-} from '@mui/material';
+  Typography
+} from '@mui/material'
 import AddIcon from '@mui/icons-material/Add';
-import { useUsers } from '@/hooks/users';
-import { useAuth } from '@/context/auth';
-import { useBudgetMonth, GroupedByCategoryBudget } from '@/hooks/budget';
-import { User } from '@/component/users/types';
-import { GeneralSummaryCard } from './components';
-import WeekCalendar from '@/components/budget/components/week/WeekCalendar';
-import MonthCalendar from '@/components/budget/components/month/MonthCalendar';
-import { default as MonthContainer } from './components/month/Container';
+import { useUsers } from '@/hooks/users'
+import { useAuth } from '@/context/auth'
+import { useBudgetMonth, GroupedByCategoryBudget } from '@/hooks/budget'
+import { User } from '@/components/users/types'
+import { GeneralSummaryCard } from './components'
+import WeekCalendar from '@/components/budget/components/week/WeekCalendar'
+import MonthCalendar from '@/components/budget/components/month/MonthCalendar'
+import { default as MonthContainer } from './components/month/Container'
+import { MonthBudgetItem, MonthOverallBudgetItem } from './types';
 
 type BudgetType = 'month' | 'week'
 
@@ -43,22 +44,16 @@ const Index = () => {
     console.log(activeCategory);
   }, [activeCategory]);
 
-  const maxDate = add(new Date(), { years: 2 });
-
   const plannedSum: number = budgetMonth?.reduce(
-    (acc: number, item) => acc + item.plannedInCurrencies[userConfig?.currency], 0
+    (acc: number, item: MonthOverallBudgetItem) => acc + item.plannedInCurrencies[userConfig?.currency], 0
   )
 
   const spentSum: number = budgetMonth?.reduce(
-    (acc: number, item) => acc + item.spentInCurrencies[userConfig?.currency], 0
+    (acc: number, item: MonthOverallBudgetItem) => acc + item.spentInCurrencies[userConfig?.currency], 0
   )
 
   const changeUser = (e: SelectChangeEvent): void => {
     setUser(e.target.value);
-  }
-
-  const onDateChange = (date: Date): void => {
-    setDate(date);
   }
 
   const toolbar = (
@@ -69,20 +64,20 @@ const Index = () => {
         disableElevation
         size="large"
         aria-label="outlined primary button group"
-        sx={{ backgroundColor: "primary.main" }}
+        sx={{ backgroundColor: "info.dark" }}
       >
         <Button
           disabled={activeType === 'month'}
           variant={activeType === 'month' ? "text" : "contained"}
           onClick={() => setActiveType('month')}
-          sx={{ width: 180, p: 0 }}
+          sx={{ width: 180, p: 0, backgroundColor: "info.dark" }}
         >
           <Typography
             variant="h5"
             sx={activeType === "month" ? {
               display: 'flex',
               justifyContent: 'center',
-              color: "primary.main",
+              color: "info.dark",
               backgroundColor: "white",
               border: 4,
               borderRadius: 2,
@@ -96,16 +91,17 @@ const Index = () => {
         </Button>
         <Button
           disabled={activeType === 'week'}
+          color="info"
           variant={activeType === 'week' ? "text" : "contained"}
           onClick={() => setActiveType('week')}
-          sx={{ width: 180, p: 0 }}
+          sx={{ width: 180, p: 0, backgroundColor: "info.dark" }}
         >
           <Typography
             variant="h5"
             sx={activeType === "week" ? {
               display: 'flex',
               justifyContent: 'center',
-              color: "primary.main",
+              color: 'info.dark',
               backgroundColor: "white",
               border: 4,
               borderRadius: 2,
