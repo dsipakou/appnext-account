@@ -33,8 +33,8 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
 
   const repeatedFor: number = item.items.length
 
-  const planned = item.plannedInCurrencies[user?.currency]
-  const spent = item.spentInCurrencies[user?.currency] || 0
+  const planned: number = item.plannedInCurrencies[user?.currency]
+  const spent: number = item.spentInCurrencies[user?.currency] || 0
   const percentage: number = Math.floor(spent * 100 / planned)
   const isCompleted: boolean = item.items.every((_item: MonthBudgetItem) => _item.isCompleted)
 
@@ -43,8 +43,6 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
     Math.floor(percentage) > 100 ?
       "error" :
       "primary"
-
-  console.log(item)
 
   return (
     <Paper elevation={0}

@@ -51,9 +51,15 @@ const DetailsPanel: FC<Types> = ({ activeCategoryUuid, startDate, endDate }) => 
   }, [activeCategoryUuid, startDate, endDate, isBudgetLoading])
 
   useEffect(() => {
-    const _budget = categoryBudgets.find((item: MonthBudgetItem) => item.uuid === activeBudgetUuid)
-    setBudgetTitle(_budget?.title)
-  }, [activeBudgetUuid])
+    if (!categoryBudgets || isBudgetLoading || !activeBudgetUuid) return;
+
+    const _budget = categoryBudgets.find(
+      (item: MonthBudgetItem) => item.uuid === activeBudgetUuid
+    )
+
+    setBudgetTitle(_budget!.title)
+    setBudgetItems(_budget!.items)
+  }, [activeBudgetUuid, categoryBudgets, isBudgetLoading])
 
   const handleCloseBudgetDetails = (): void => {
     setActiveBudgetUuid(null)
@@ -74,6 +80,7 @@ const DetailsPanel: FC<Types> = ({ activeCategoryUuid, startDate, endDate }) => 
         {activeBudgetUuid ?
           <GroupedBudgetDetails
             title={budgetTitle}
+            items={budgetItems}
             startDate={startDate}
             handleClose={handleCloseBudgetDetails}
           /> :

@@ -19,15 +19,24 @@ export interface WeekOfMonth {
   endDate: string
 }
 
-const DATE_FORMAT = "yyyy-MM-dd"
-const MONTH_DAY_FORMAT = "MMM dd"
+export const DATE_FORMAT = "yyyy-MM-dd"
+export const MONTH_DAY_FORMAT = "MMM dd"
 
 export const getFormattedDate = (date: Date, dateFormat: string = DATE_FORMAT): string => {
   return format(date, dateFormat);
 }
 
-export const parseDate = (date: string): Date => {
-  return parse(date, DATE_FORMAT, new Date());
+export const parseDate = (date: string, dateFormat: string = DATE_FORMAT): Date => {
+  return parse(date, dateFormat, new Date());
+}
+
+export const parseAndFormatDate = (
+  date: string,
+  outputFormat: string,
+  inputFormat: string = DATE_FORMAT
+): string => {
+  const _date = parseDate(date, inputFormat)
+  return getFormattedDate(_date, outputFormat)
 }
 
 export const getRelativeDate = (date: string): string => {
@@ -38,12 +47,12 @@ export const getStartOfMonth = (date: Date, dateFormat: string = DATE_FORMAT): s
   return getFormattedDate(startOfMonth(date), dateFormat)
 }
 
-export const getStartOfWeekOrMonth = (date: Date, dateFormat: string = DATE_FORMAT): string => {
-  return getFormattedDate(max([startOfWeek(date), startOfMonth(date)]), dateFormat)
+export const getStartOfWeekOrMonth = (date: Date): Date => {
+  return max([startOfWeek(date, { weekStartsOn: 1 }), startOfMonth(date)])
 }
 
-export const getEndOfWeekOrMonth = (date: Date, dateFormat: string = DATE_FORMAT): string => {
-  return getFormattedDate(min([endOfWeek(date), endOfMonth(date)]), dateFormat)
+export const getEndOfWeekOrMonth = (date: Date): Date => {
+  return min([endOfWeek(date, { weekStartsOn: 1 }), endOfMonth(date)])
 }
 
 export const getEndOfMonth = (date: Date): string => {
@@ -55,14 +64,15 @@ export const getMonthWeeksWithDates = (
   dateFormat: string = MONTH_DAY_FORMAT
 ): WeekOfMonth[] => {
   const start = parseDate(firstDayOfMonth)
-  const weeksAmount = getWeeksInMonth(start)
+  const weeksAmount = getWeeksInMonth(start, { weekStartsOn: 1 })
   const weekOfMonth: WeekOfMonth[] = []
   for (let i: number = 0; i < weeksAmount; i += 1) {
     let currentDate = addWeeks(start, i)
+    if (i > 0) currentDate = startOfWeek(currentDate, { weekStartsOn: 1 })
     weekOfMonth.push({
       week: i + 1,
-      startDate: getStartOfWeekOrMonth(currentDate, dateFormat),
-      endDate: getEndOfWeekOrMonth(currentDate, dateFormat)
+      startDate: getFormattedDate(getStartOfWeekOrMonth(currentDate), dateFormat),
+      endDate: getFormattedDate(getEndOfWeekOrMonth(currentDate), dateFormat)
     } as WeekOfMonth)
   }
   return weekOfMonth

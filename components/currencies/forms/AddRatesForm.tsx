@@ -83,11 +83,14 @@ const AddRatesForm: FC<Types> = ({ open, onSave, onClose, currencies = [] }) => 
       const code = currencies.find(
         (_currency: Currency) => _currency.uuid === _uuid
       )!.code
+      const normalizedRate: number = typeof ratesInputMap[_uuid] === 'number' ?
+        ratesInputMap[_uuid] :
+        Number(ratesInputMap[_uuid].replace(/[^0-9.]/g, ''))
       const rateItem: RateItemPostRequest = {
         code,
-        rate: ratesInputMap[_uuid]
+        rate: normalizedRate
       }
-      requestPayload.items.push(rateItem);
+      if (normalizedRate !== 0) requestPayload.items.push(rateItem);
     });
 
     return requestPayload;

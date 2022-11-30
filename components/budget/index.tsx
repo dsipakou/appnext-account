@@ -7,6 +7,7 @@ import {
   FormControl,
   Grid,
   InputLabel,
+  LinearProgress,
   MenuItem,
   Select,
   Toolbar,
@@ -170,6 +171,17 @@ const Index = () => {
   return (
     <>
       {toolbar}
+      {(isMonthBudgetLoading) && (
+        <Box sx={{ position: 'relative', width: '100%' }}>
+          <LinearProgress color="primary" sx={{
+            position: 'absolute',
+            width: '100%',
+            top: -5,
+            left: 0,
+            zIndex: 2
+          }} />
+        </Box>
+      )}
       <Grid container spacing={3}>
         <Grid item xs={12}>
           {header}

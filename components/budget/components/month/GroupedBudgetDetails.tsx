@@ -1,9 +1,13 @@
 import { FC, useEffect } from 'react'
-import { getWeeksInMonth } from 'date-fns'
+import { getWeekOfMonth } from 'date-fns'
 import {
+  Box,
+  Chip,
   IconButton,
+  LinearProgress,
   Grid,
   Paper,
+  Stack,
   Typography
 } from '@mui/material'
 import {
@@ -18,24 +22,60 @@ import TimelineOppositeContent, {
   timelineOppositeContentClasses,
 } from '@mui/lab/TimelineOppositeContent';
 import CloseIcon from '@mui/icons-material/Close'
+import { teal } from '@mui/material/colors'
 import {
   parseDate,
-  getStartOfWeekOrMonth,
+  parseAndFormatDate,
   getMonthWeeksWithDates,
-  WeekOfMonth
+  WeekOfMonth,
+  MONTH_DAY_FORMAT
 } from '@/utils/dateUtils'
+import { formatMoney } from '@/utils/numberUtils'
+import { MonthBudgetItem } from '@/components/budget/types'
+import { useAuth } from '@/context/auth'
+import TimelineBudgetItem from './TimelineBudgetItem'
 
 interface Types {
   title: string
+  items: MonthBudgetItem[],
   startDate: string
   handleClose: () => void
 }
 
-const GroupedBudgetDetails: FC<Types> = ({ title, startDate, handleClose }) => {
-  const startMonth = parseDate(startDate)
-  const numberOfWeeks: number[] = new Array(getWeeksInMonth(startMonth)).fill(0)
-  getMonthWeeksWithDates(startDate)
+interface WeekGroup {
+  [key: number]: WeekItemDetails[]
+}
+
+interface WeekItemDetails {
+  planned: number
+  spent: number
+  date: string
+}
+
+const GroupedBudgetDetails: FC<Types> = ({ title, items, startDate, handleClose }) => {
   const weeks: WeekOfMonth[] = getMonthWeeksWithDates(startDate)
+  const { user } = useAuth()
+
+  const groupedByWeek = (): WeekGroup => {
+    const group: WeekGroup = {}
+    items.forEach((item: MonthBudgetItem) => {
+      const weekNumber: number = getWeekOfMonth(parseDate(item.budgetDate))
+      const planned: number = item.plannedInCurrencies[user?.currency]
+      const spent: number = item.spentInCurrencies[user?.currency] || 0
+      const date: string = parseAndFormatDate(item.budgetDate, MONTH_DAY_FORMAT)
+
+      const items = group[weekNumber] || []
+      items.push(
+        {
+          planned,
+          spent,
+          date,
+        }
+      )
+      group[weekNumber] = items
+    })
+    return group
+  }
 
   return (
     <Paper
@@ -60,8 +100,9 @@ const GroupedBudgetDetails: FC<Types> = ({ title, startDate, handleClose }) => {
           <IconButton
             aria-label="close"
             size="large"
+            onClick={handleClose}
           >
-            <CloseIcon onClick={handleClose} />
+            <CloseIcon />
           </IconButton>
         </Grid>
         <Grid item xs={12}>
@@ -81,15 +122,28 @@ const GroupedBudgetDetails: FC<Types> = ({ title, startDate, handleClose }) => {
                 </TimelineOppositeContent>
                 <TimelineSeparator>
                   <TimelineDot />
-                  <TimelineConnector />
+                  {!!groupedByWeek()[item.week] && <TimelineConnector />}
                 </TimelineSeparator>
                 <TimelineContent>
-                  <Typography>
-                    {item.startDate} - {item.endDate}
+                  <Typography fontSize="0.9em">
+                    {item.startDate}
+                    {item.startDate !== item.endDate &&
+                      <> - {item.endDate}</>
+                    }
                   </Typography>
-                  <Paper>
-                    Hello
-                  </Paper>
+                  {
+                    groupedByWeek()[item.week]?.map(
+                      (item: WeekItemDetails) => (
+                        <Box sx={{ my: 1 }}>
+                          <TimelineBudgetItem
+                            planned={item.planned}
+                            spent={item.spent}
+                            date={item.date}
+                          />
+                        </Box>
+                      )
+                    )
+                  }
                 </TimelineContent>
               </TimelineItem>
             ))}
