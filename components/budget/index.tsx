@@ -22,7 +22,7 @@ import { GeneralSummaryCard } from './components'
 import WeekCalendar from '@/components/budget/components/week/WeekCalendar'
 import MonthCalendar from '@/components/budget/components/month/MonthCalendar'
 import { default as MonthContainer } from './components/month/Container'
-import { MonthBudgetItem, MonthOverallBudgetItem } from './types';
+import { MonthBudgetItem, MonthGroupedBudgetItem } from './types'
 
 type BudgetType = 'month' | 'week'
 
@@ -53,11 +53,11 @@ const Index = () => {
   }, [activeCategory]);
 
   const plannedSum: number = budgetMonth?.reduce(
-    (acc: number, item: MonthOverallBudgetItem) => acc + item.plannedInCurrencies[userConfig?.currency], 0
+    (acc: number, item: MonthGroupedBudgetItem) => acc + item.plannedInCurrencies[userConfig?.currency], 0
   )
 
   const spentSum: number = budgetMonth?.reduce(
-    (acc: number, item: MonthOverallBudgetItem) => acc + item.spentInCurrencies[userConfig?.currency], 0
+    (acc: number, item: MonthGroupedBudgetItem) => acc + item.spentInCurrencies[userConfig?.currency], 0
   )
 
   const changeUser = (e: SelectChangeEvent): void => {

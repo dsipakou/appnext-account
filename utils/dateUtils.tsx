@@ -1,16 +1,29 @@
 import {
+  addWeeks,
   format,
   parse,
   formatRelative,
+  max,
+  min,
+  getWeeksInMonth,
   startOfMonth,
-  endOfMonth
-} from 'date-fns';
-import { enUS } from 'date-fns/esm/locale';
+  startOfWeek,
+  endOfMonth,
+  endOfWeek
+} from 'date-fns'
+import { enUS } from 'date-fns/esm/locale'
 
-const DATE_FORMAT = "yyyy-MM-dd";
+export interface WeekOfMonth {
+  week: number
+  startDate: string
+  endDate: string
+}
 
-export const getFormattedDate = (date: Date): string => {
-  return format(date, DATE_FORMAT);
+const DATE_FORMAT = "yyyy-MM-dd"
+const MONTH_DAY_FORMAT = "MMM dd"
+
+export const getFormattedDate = (date: Date, dateFormat: string = DATE_FORMAT): string => {
+  return format(date, dateFormat);
 }
 
 export const parseDate = (date: string): Date => {
@@ -21,12 +34,38 @@ export const getRelativeDate = (date: string): string => {
   return formatRelative(parseDate(date), new Date());
 }
 
-export const getStartOfMonth = (date: Date): string => {
-  return getFormattedDate(startOfMonth(date))
+export const getStartOfMonth = (date: Date, dateFormat: string = DATE_FORMAT): string => {
+  return getFormattedDate(startOfMonth(date), dateFormat)
+}
+
+export const getStartOfWeekOrMonth = (date: Date, dateFormat: string = DATE_FORMAT): string => {
+  return getFormattedDate(max([startOfWeek(date), startOfMonth(date)]), dateFormat)
+}
+
+export const getEndOfWeekOrMonth = (date: Date, dateFormat: string = DATE_FORMAT): string => {
+  return getFormattedDate(min([endOfWeek(date), endOfMonth(date)]), dateFormat)
 }
 
 export const getEndOfMonth = (date: Date): string => {
   return getFormattedDate(endOfMonth(date))
+}
+
+export const getMonthWeeksWithDates = (
+  firstDayOfMonth: string,
+  dateFormat: string = MONTH_DAY_FORMAT
+): WeekOfMonth[] => {
+  const start = parseDate(firstDayOfMonth)
+  const weeksAmount = getWeeksInMonth(start)
+  const weekOfMonth: WeekOfMonth[] = []
+  for (let i: number = 0; i < weeksAmount; i += 1) {
+    let currentDate = addWeeks(start, i)
+    weekOfMonth.push({
+      week: i + 1,
+      startDate: getStartOfWeekOrMonth(currentDate, dateFormat),
+      endDate: getEndOfWeekOrMonth(currentDate, dateFormat)
+    } as WeekOfMonth)
+  }
+  return weekOfMonth
 }
 
 export const formatRelativeLocale = {

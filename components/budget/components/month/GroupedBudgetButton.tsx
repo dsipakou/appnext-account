@@ -9,14 +9,14 @@ import {
   Typography
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
-import { MonthOverallBudgetItem } from '@/components/budget/types'
+import { MonthGroupedBudgetItem } from '@/components/budget/types'
 import { teal, green } from '@mui/material/colors'
 import { formatMoney } from '@/utils/numberUtils'
 import { useAuth } from '@/context/auth'
 import LoopIcon from '@mui/icons-material/Loop'
 
 interface Types {
-  item: MonthOverallBudgetItem
+  item: MonthGroupedBudgetItem
 }
 
 const StyledBadge = styled(Badge)<BadgeProps>(({ theme }) => ({
@@ -28,7 +28,7 @@ const StyledBadge = styled(Badge)<BadgeProps>(({ theme }) => ({
   },
 }));
 
-const SubCategorySummaryButton: FC<Types> = ({ item }) => {
+const GroupedBudgetButton: FC<Types> = ({ item }) => {
   const { user } = useAuth()
 
   const repeatedFor: number = item.items.length
@@ -149,4 +149,4 @@ const SubCategorySummaryButton: FC<Types> = ({ item }) => {
   )
 }
 
-export default SubCategorySummaryButton;
+export default GroupedBudgetButton;

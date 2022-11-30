@@ -19,10 +19,10 @@ export interface SpentMap {
 export interface GroupedByCategoryBudget extends PlannedMap, SpentMap {
   uuid: string
   categoryName: string
-  budgets: MonthOverallBudgetItem[]
+  budgets: MonthGroupedBudgetItem[]
 }
 
-export interface MonthOverallBudgetItem extends PlannedMap, SpentMap {
+export interface MonthGroupedBudgetItem extends PlannedMap, SpentMap {
   uuid: string
   title: string
   items: MonthBudgetItem[]
