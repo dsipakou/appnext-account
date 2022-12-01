@@ -19,7 +19,6 @@ interface Types {
 }
 
 const TimelineBudgetItem: FC<Types> = ({ spent, planned, date }) => {
-  console.log(date)
   const percentage: number = Math.floor(spent * 100 / planned)
   const progressColor: string = planned === 0 ?
     "secondary" :

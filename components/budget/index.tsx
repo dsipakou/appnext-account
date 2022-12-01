@@ -29,6 +29,7 @@ type BudgetType = 'month' | 'week'
 
 const Index = () => {
   const { user: userConfig } = useAuth();
+  const [budgetForMonth, setBudgetForMonth] = useState<GroupedByCategoryBudget[]>([])
   const [user, setUser] = useState<string>('all')
   const [monthDate, setMonthDate] = useState<Date>(new Date())
   const [startOfMonth, setStartOfMonth] = useState<string>(getStartOfMonth(monthDate))

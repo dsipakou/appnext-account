@@ -32,7 +32,8 @@ const CategorySummaryButton: FC<Types> = ({ title, isActive, planned, spent, cur
           width: isActive ? "91%" : "90%",
           borderRadius: 3,
           border: isActive ? "2px solid rgba(0, 0, 0, 0.2)" : "",
-          backgroundColor: isActive ? teal[50] : ""
+          backgroundColor: isActive ? teal[50] : "",
+          cursor: 'pointer'
         }
       }
       elevation={

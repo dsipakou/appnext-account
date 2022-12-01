@@ -51,6 +51,7 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
         backgroundColor: '#F4F6F8',
         border: "1px solid rgba(0, 0, 0, 0.2)",
         p: 2,
+        cursor: 'pointer'
       }}
     >
       <Grid container>

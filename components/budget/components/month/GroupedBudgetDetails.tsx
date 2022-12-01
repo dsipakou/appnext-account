@@ -59,7 +59,7 @@ const GroupedBudgetDetails: FC<Types> = ({ title, items, startDate, handleClose 
   const groupedByWeek = (): WeekGroup => {
     const group: WeekGroup = {}
     items.forEach((item: MonthBudgetItem) => {
-      const weekNumber: number = getWeekOfMonth(parseDate(item.budgetDate))
+      const weekNumber: number = getWeekOfMonth(parseDate(item.budgetDate), { weekStartsOn: 1 })
       const planned: number = item.plannedInCurrencies[user?.currency]
       const spent: number = item.spentInCurrencies[user?.currency] || 0
       const date: string = parseAndFormatDate(item.budgetDate, MONTH_DAY_FORMAT)

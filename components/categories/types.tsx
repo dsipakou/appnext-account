@@ -4,14 +4,14 @@ export enum CategoryType {
 }
 
 export interface Category {
-  uuid: string,
-  name: string,
-  parent: string | null,
-  type: CategoryType,
+  uuid: string
+  name: string
+  parent: string | null
+  type: CategoryType
 }
 
 export interface CategoryRequest {
-  name: string,
-  type: string,
-  parent?: string,
+  name: string
+  type: string
+  parent?: string
 }

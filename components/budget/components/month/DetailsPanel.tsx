@@ -14,6 +14,8 @@ import {
   MonthBudgetItem
 } from '@/components/budget/types'
 import GroupedBudgetDetails from './GroupedBudgetDetails'
+import CategorySummaryCard from './CategorySummaryCard'
+import { useAuth } from '@/context/auth'
 
 interface Types {
   activeCategoryUuid: string
@@ -22,9 +24,11 @@ interface Types {
 }
 
 const DetailsPanel: FC<Types> = ({ activeCategoryUuid, startDate, endDate }) => {
+  const { user } = useAuth()
   const [title, setTitle] = useState<string>('Choose category')
   const [budgetTitle, setBudgetTitle] = useState<string | undefined>()
   const [categoryBudgets, setCategoryBudgets] = useState<MonthGroupedBudgetItem[]>([])
+  const [category, setCategory] = useState<GroupedByCategoryBudget | null>(null)
   const [budgetItems, setBudgetItems] = useState<MonthBudgetItem[]>([])
   const [activeBudgetUuid, setActiveBudgetUuid] = useState<string | null>(null)
   const {
@@ -44,9 +48,11 @@ const DetailsPanel: FC<Types> = ({ activeCategoryUuid, startDate, endDate }) => 
     if (_category) {
       setCategoryBudgets(_category.budgets)
       setTitle(_category.categoryName)
+      setCategory(_category)
     } else {
       setCategoryBudgets([])
       setTitle('Choose category')
+      setCategory(null)
     }
   }, [activeCategoryUuid, startDate, endDate, isBudgetLoading])
 
@@ -85,6 +91,9 @@ const DetailsPanel: FC<Types> = ({ activeCategoryUuid, startDate, endDate }) => 
             handleClose={handleCloseBudgetDetails}
           /> :
           <Grid container spacing={2}>
+            <Grid item xs={6}>
+              { category && <CategorySummaryCard item={category} /> }
+            </Grid>
             {categoryBudgets.map((item: MonthBudgetItem) => (
               <Grid item xs={6} key={item.uuid}>
                 <Box key={item.uuid} onClick={() => setActiveBudgetUuid(item.uuid)}>
