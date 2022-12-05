@@ -47,12 +47,20 @@ export const getStartOfMonth = (date: Date, dateFormat: string = DATE_FORMAT): s
   return getFormattedDate(startOfMonth(date), dateFormat)
 }
 
+export const getStartOfWeek = (date: Date): string => {
+  return getFormattedDate(startOfWeek(date, { weekStartsOn: 1 }))
+}
+
 export const getStartOfWeekOrMonth = (date: Date): Date => {
   return max([startOfWeek(date, { weekStartsOn: 1 }), startOfMonth(date)])
 }
 
 export const getEndOfWeekOrMonth = (date: Date): Date => {
   return min([endOfWeek(date, { weekStartsOn: 1 }), endOfMonth(date)])
+}
+
+export const getEndOfWeek = (date: Date): string => {
+  return getFormattedDate(endOfWeek(date, { weekStartsOn: 1 }))
 }
 
 export const getEndOfMonth = (date: Date): string => {

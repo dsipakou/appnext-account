@@ -15,6 +15,7 @@ import {
 } from '@/components/budget/types'
 import GroupedBudgetDetails from './GroupedBudgetDetails'
 import CategorySummaryCard from './CategorySummaryCard'
+import PreviousMonthsCard from './PreviousMonthsCard'
 import { useAuth } from '@/context/auth'
 
 interface Types {
@@ -90,18 +91,23 @@ const DetailsPanel: FC<Types> = ({ activeCategoryUuid, startDate, endDate }) => 
             startDate={startDate}
             handleClose={handleCloseBudgetDetails}
           /> :
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
-              { category && <CategorySummaryCard item={category} /> }
-            </Grid>
-            {categoryBudgets.map((item: MonthBudgetItem) => (
-              <Grid item xs={6} key={item.uuid}>
-                <Box key={item.uuid} onClick={() => setActiveBudgetUuid(item.uuid)}>
-                  <GroupedBudgetButton item={item} />
-                </Box>
+          category && (
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <CategorySummaryCard item={category} />
               </Grid>
-            ))}
-          </Grid>
+              <Grid item xs={6}>
+                <PreviousMonthsCard />
+              </Grid>
+              {categoryBudgets.map((item: MonthGroupedBudgetItem) => (
+                <Grid item xs={6} key={item.uuid}>
+                  <Box key={item.uuid} onClick={() => setActiveBudgetUuid(item.uuid)}>
+                    <GroupedBudgetButton item={item} />
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
+          )
         }
       </Stack>
     </Paper>

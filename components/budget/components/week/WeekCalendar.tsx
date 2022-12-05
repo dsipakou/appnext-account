@@ -19,10 +19,16 @@ interface CustomPickerDayProps extends PickersDayProps<Date> {
   isLastDay: boolean;
 }
 
+interface Types {
+  date: Date,
+  setWeekDate: () => void
+}
+
 const CustomPickersDay = styled(PickersDay, {
   shouldForwardProp: (prop) =>
     prop !== 'dayIsBetween' && prop !== 'isFirstDay' && prop !== 'isLastDay',
-})<CustomPickerDayProps>(({ theme, dayIsBetween, isFirstDay, isLastDay }) => ({
+})<CustomPickerDayProps>(({ theme, dayIsBetween, isFirstDay, isLastDay }) => (
+  {
   ...(dayIsBetween && {
     borderRadius: 0,
     backgroundColor: theme.palette.primary.main,
@@ -41,20 +47,18 @@ const CustomPickersDay = styled(PickersDay, {
   }),
 })) as React.ComponentType<CustomPickerDayProps>;
 
-const WeekCalendar = () => {
-  const [value, setValue] = React.useState<Date | null>(new Date());
-
+const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
   const renderWeekPickerDay = (
     date: Date,
     selectedDates: Array<Date | null>,
     pickersDayProps: PickersDayProps<Date>,
   ) => {
-    if (!value) {
+    if (!date) {
       return <PickersDay {...pickersDayProps} />;
     }
 
-    const start = startOfWeek(value);
-    const end = endOfWeek(value);
+    const start = startOfWeek(weekDate, { weekStartsOn: 1 });
+    const end = endOfWeek(weekDate, { weekStartsOn: 1 });
 
     const isFirstDay = isSameDay(date, start);
     const isLastDay = isSameDay(date, end);
@@ -79,9 +83,9 @@ const WeekCalendar = () => {
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <DatePicker
         label="Week budget"
-        value={value}
-        onChange={(newValue) => {
-          setValue(newValue);
+        value={weekDate}
+        onChange={(newValue: Date) => {
+          setWeekDate(newValue)
         }}
         disableMaskedInput
         renderDay={renderWeekPickerDay}

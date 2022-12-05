@@ -1,6 +1,6 @@
 import axios from 'axios';
 import useSWR from 'swr';
-import { GroupedByCategoryBudget } from '@/components/budget/types';
+import { GroupedByCategoryBudget, WeekBudgetItem } from '@/components/budget/types';
 import { Response } from './types';
 
 const fetcher = (url: string) => axios.get(url).then(res => res.data);
@@ -10,7 +10,7 @@ export const useBudgetMonth = (
   dateTo: string,
 ): Response<GroupedByCategoryBudget[]> => {
   const url = `budget/usage/?dateFrom=${dateFrom}&dateTo=${dateTo}`;
-  const { data, error, isValidating } = useSWR(url, fetcher);
+  const { data, error } = useSWR(url, fetcher);
 
   return {
     data,
@@ -18,4 +18,19 @@ export const useBudgetMonth = (
     isError: error,
     url,
   } as Response<GroupedByCategoryBudget[]>;
+} 
+
+export const useBudgetWeek = (
+  dateFrom: string,
+  dateTo: string,
+): Response<WeekBudgetItem[]> => {
+  const url = `budget/weekly-usage/?dateFrom=${dateFrom}&dateTo=${dateTo}`;
+  const { data, error } = useSWR(url, fetcher);
+
+  return {
+    data,
+    isLoading: !data && !error,
+    isError: error,
+    url,
+  } as Response<WeekBudgetItem[]>;
 } 

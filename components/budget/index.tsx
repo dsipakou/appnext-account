@@ -1,5 +1,4 @@
 import { SelectChangeEvent, useEffect, useState } from 'react'
-import { add } from 'date-fns'
 import {
   Box,
   Button,
@@ -16,14 +15,23 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import { useUsers } from '@/hooks/users'
 import { useAuth } from '@/context/auth'
-import { useBudgetMonth, GroupedByCategoryBudget } from '@/hooks/budget'
+import { useBudgetMonth } from '@/hooks/budget'
 import { User } from '@/components/users/types'
-import { getStartOfMonth, getEndOfMonth } from '@/utils/dateUtils'
+import { 
+  getStartOfMonth,
+  getEndOfMonth,
+  getStartOfWeek,
+  getEndOfWeek
+} from '@/utils/dateUtils'
 import { GeneralSummaryCard } from './components'
 import WeekCalendar from '@/components/budget/components/week/WeekCalendar'
 import MonthCalendar from '@/components/budget/components/month/MonthCalendar'
 import { default as MonthContainer } from './components/month/Container'
-import { MonthBudgetItem, MonthGroupedBudgetItem } from './types'
+import { default as WeekContainer } from './components/week/Container'
+import {
+  MonthGroupedBudgetItem,
+  GroupedByCategoryBudget
+} from './types'
 
 type BudgetType = 'month' | 'week'
 
@@ -32,8 +40,11 @@ const Index = () => {
   const [budgetForMonth, setBudgetForMonth] = useState<GroupedByCategoryBudget[]>([])
   const [user, setUser] = useState<string>('all')
   const [monthDate, setMonthDate] = useState<Date>(new Date())
+  const [weekDate, setWeekDate] = useState<Date>(new Date())
   const [startOfMonth, setStartOfMonth] = useState<string>(getStartOfMonth(monthDate))
+  const [startOfWeek, setStartOfWeek] = useState<string>(getStartOfWeek(weekDate))
   const [endOfMonth, setEndOfMonth] = useState<string>(getEndOfMonth(monthDate))
+  const [endOfWeek, setEndOfWeek] = useState<string>(getEndOfWeek(weekDate))
   const [activeType, setActiveType] = useState<BudgetType>('month')
   const [activeCategory, setActiveCategory] = useState<string>()
   const {
@@ -51,15 +62,20 @@ const Index = () => {
   }, [monthDate])
 
   useEffect(() => {
+    setStartOfWeek(getStartOfWeek(weekDate))
+    setEndOfWeek(getEndOfWeek(weekDate))
+  }, [weekDate])
+
+  useEffect(() => {
     console.log(activeCategory);
   }, [activeCategory]);
 
   const plannedSum: number = budgetMonth?.reduce(
-    (acc: number, item: MonthGroupedBudgetItem) => acc + item.plannedInCurrencies[userConfig?.currency], 0
+    (acc: number, item: MonthGroupedBudgetItem) => acc + item.plannedInCurrencies[userConfig?.currency] || 0, 0
   )
 
   const spentSum: number = budgetMonth?.reduce(
-    (acc: number, item: MonthGroupedBudgetItem) => acc + item.spentInCurrencies[userConfig?.currency], 0
+    (acc: number, item: MonthGroupedBudgetItem) => acc + item.spentInCurrencies[userConfig?.currency] || 0, 0
   )
 
   const changeUser = (e: SelectChangeEvent): void => {
@@ -163,7 +179,7 @@ const Index = () => {
       <Grid item xs={3}>
         {activeType === "month" ?
           <MonthCalendar date={monthDate} setMonthDate={setMonthDate} /> :
-          <WeekCalendar />
+          <WeekCalendar date={weekDate} setWeekDate={setWeekDate} />
         }
       </Grid>
     </Grid>
@@ -188,7 +204,11 @@ const Index = () => {
           {header}
         </Grid>
         <Grid item xs={12}>
-          <MonthContainer startDate={startOfMonth} endDate={endOfMonth} />
+          {
+            activeType === 'month'
+              ? <MonthContainer startDate={startOfMonth} endDate={endOfMonth} />
+              : <WeekContainer startDate={startOfWeek} endDate={endOfWeek} />
+          }
         </Grid>
       </Grid>
     </>

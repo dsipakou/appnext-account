@@ -65,6 +65,7 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
       res => {
         if (res.status === 201) {
           mutate('currencies/');
+          // TODO: mutate concrete day
           handleClose();
         } else {
           // TODO: handle errors

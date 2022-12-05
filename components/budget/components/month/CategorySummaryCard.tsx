@@ -38,7 +38,7 @@ const CategorySummaryCard: FC<Types> = ({ item }) => {
         sx={{ height: '100%' }}
       >
         <Grid item xs={12}>
-          <Typography variant="h4">
+          <Typography variant="h5">
             Month summary
           </Typography>
         </Grid>
@@ -62,7 +62,7 @@ const CategorySummaryCard: FC<Types> = ({ item }) => {
           </Box>
         </Grid>
         <Grid item xs={12}>
-          <Box sx={{ position: 'relative' }}>
+          <Box sx={{ position: 'relative', mb: 1 }}>
             <LinearProgress
               variant="determinate"
               color={progressColor}

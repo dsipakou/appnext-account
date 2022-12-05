@@ -43,6 +43,21 @@ export interface MonthBudgetItem extends PlannedMap, SpentMap {
   modifiedAt: string
 }
 
+export interface WeekBudgetItem extends PlannedMap, SpentMap {
+  uuid: string
+  title: string
+  user: string
+  category: string
+  currency: string
+  transactions: TransactionItem[]
+  recurrent: RecurrentTypes
+  description: string
+  isCompleted: boolean
+  budgetDate: string
+  createdAt: string
+  modifiedAt: string
+}
+
 export interface TransactionItem extends SpentMap {
   uuid: string
   currency: string
