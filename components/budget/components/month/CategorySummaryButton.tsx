@@ -99,4 +99,4 @@ const CategorySummaryButton: FC<Types> = ({ title, isActive, planned, spent, cur
   )
 }
 
-export default CategorySummaryButton;
+export default CategorySummaryButton

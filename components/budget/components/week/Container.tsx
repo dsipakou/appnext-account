@@ -7,7 +7,7 @@ import {
 } from '@mui/material'
 import { useBudgetWeek } from '@/hooks/budget'
 import { WeekBudgetItem } from '@/components/budget/types'
-import { parseDate } from '@/utils/dateUtils'
+import { parseDate, parseAndFormatDate, MONTH_DAY_FORMAT } from '@/utils/dateUtils'
 import { useAuth } from '@/context/auth'
 import BudgetItem from './BudgetItem'
 import HeaderItem from './HeaderItem'
@@ -96,7 +96,7 @@ const Container: FC<Types> = ({ startDate, endDate }) => {
   return (
     <Stack spacing={1}>
       <Typography align="center" variant="h4">
-        11-Nov - 18-Nov
+        { parseAndFormatDate(startDate, MONTH_DAY_FORMAT) } - { parseAndFormatDate(endDate, MONTH_DAY_FORMAT) }
       </Typography>
       {header}
       <Grid container spacing={1}>

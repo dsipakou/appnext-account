@@ -32,6 +32,7 @@ import {
   MonthGroupedBudgetItem,
   GroupedByCategoryBudget
 } from './types'
+import AddForm from './components/forms/AddForm'
 
 type BudgetType = 'month' | 'week'
 
@@ -47,6 +48,7 @@ const Index = () => {
   const [endOfWeek, setEndOfWeek] = useState<string>(getEndOfWeek(weekDate))
   const [activeType, setActiveType] = useState<BudgetType>('month')
   const [activeCategory, setActiveCategory] = useState<string>()
+  const [isOpenAddBudget, setIsOpenAddBudget] = useState<boolean>(false)
   const {
     data: users,
     isLoading: isUsersLoading,
@@ -80,6 +82,10 @@ const Index = () => {
 
   const changeUser = (e: SelectChangeEvent): void => {
     setUser(e.target.value);
+  }
+
+  const closeAddBudgetForm = () => {
+    setIsOpenAddBudget(false)
   }
 
   const toolbar = (
@@ -145,7 +151,7 @@ const Index = () => {
         startIcon={<AddIcon />}
         variant="contained"
         sx={{ textTransform: 'none' }}
-        onClick={() => { }}
+        onClick={() => setIsOpenAddBudget(true)}
       >
         Add budget
       </Button>
@@ -211,6 +217,7 @@ const Index = () => {
           }
         </Grid>
       </Grid>
+      <AddForm open={isOpenAddBudget} handleClose={closeAddBudgetForm} />
     </>
   )
 }

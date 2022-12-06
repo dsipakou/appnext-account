@@ -17,7 +17,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Category, CategoryType, CategoryRequest } from '../types';
-import { useCategories } from '../../../hooks/categories';
+import { useCategories } from '@/hooks/categories';
 import { useSWRConfig } from 'swr';
 import axios from 'axios';
 
