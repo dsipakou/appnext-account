@@ -235,7 +235,7 @@ const CurrencyCard: FC<Types> = ({
             </Grid>
             <Grid item sx={{ mb: 1.25, selfAlign: "flex-end" }}>
               <Typography
-                align="end"
+                align="right"
                 sx={{
                   fontSize: '.8rem',
                   fontWeight: 500,

@@ -19,10 +19,12 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { CalendarPicker } from '@mui/x-date-pickers/CalendarPicker';
 import { useUsers } from '@/hooks/users'
 import { useCategories } from '@/hooks/categories'
+import { useCurrencies } from '@/hooks/currencies'
 import { User } from '@/components/users/types'
 import { CategoryResponse } from '@/hooks/categories'
 import { RecurrentTypes } from '@/components/budget/types'
 import { Category, CategoryType } from '@/components/categories/types'
+import { Currency } from '@/components/currencies/types'
 
 interface Types {
   open: boolean,
@@ -38,16 +40,23 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
   const [amount, setAmount] = useState<string>('')
   const [currency, setCurrency] = useState<string>('')
   const [budgetDate, setBudgetDate] = useState<Date>(new Date())
+  const [description, setDescription] = useState<string>('')
   const [errors, setErrors] = useState<string[]>([]);
 
   const {
     data: users,
     isLoading: isUsersLoading
   } = useUsers()
+
   const {
     data: categories,
     isLoading: isCategoriesLoading
   } = useCategories()
+
+  const {
+    data: currencies,
+    isLoading: isCurrenciesLoading
+  } = useCurrencies()
 
   useEffect(() => {
     if (isCategoriesLoading) return;
@@ -83,11 +92,15 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
   }
 
   const handleCurrencyChange = (e) => {
-    setCurrencyType(e.target.value)
+    setCurrency(e.target.value)
+  }
+  
+  const handleDescriptionInput = (e) => {
+    setDescription(e.target.value)
   }
 
   const handleSave = () => {
-      
+    console.log()  
   }
 
   return (
@@ -131,7 +144,9 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
                     value={currency}
                     onChange={handleCurrencyChange}
                   >
-                    <MenuItem value="">Do not repeat</MenuItem>
+                    { currencies && currencies.map((item: Currency) => (
+                      <MenuItem key={item.uuid} value={item.uuid}>{item.verbalName}</MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
               </Grid>
@@ -191,6 +206,20 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <CalendarPicker date={budgetDate} onChange={(newDate) => setBudgetDate(newDate)} />
             </LocalizationProvider>
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              margin="dense"
+              id="description"
+              label="Description"
+              value={description}
+              placeholder="Description"
+              multiline
+              rows={2}
+              fullWidth
+              autoFocus
+              onChange={handleDescriptionInput}
+            />
           </Grid>
         </Grid>
       </DialogContent>

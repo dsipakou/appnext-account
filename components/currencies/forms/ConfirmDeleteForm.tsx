@@ -22,7 +22,7 @@ interface Types {
 const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose }) => {
   const [currency, setCurrency] = useState('');
   const [errors, setErrors] = useState([]);
-  const { currencies, isLoading, isError } = useCurrencies();
+  const { data: currencies, isLoading, isError } = useCurrencies();
   const { mutate } = useSWRConfig();
 
   useEffect(() => {

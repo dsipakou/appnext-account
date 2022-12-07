@@ -34,7 +34,7 @@ const EditForm: FC<Types> = ({ uuid, open, handleClose }) => {
   const [isDefault, setIsDefault] = useState<boolean>(false);
   const [comments, setComments] = useState<string>('');
   const [errors, setErrors] = useState<string[]>([]);
-  const { currencies, isLoading, isError } = useCurrencies();
+  const { data: currencies, isLoading, isError } = useCurrencies();
 
   useEffect(() => {
     if (isLoading) return;

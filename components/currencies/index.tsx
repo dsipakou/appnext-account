@@ -21,7 +21,7 @@ const Index: FC = () => {
   const [isRatesFormOpen, setIsRatesFormOpen] = useState<boolean>(false);
   const [period, setPeriod] = useState<ChartPeriod>("month")
   const [activeCurrency, setActiveCurrency] = useState<Currency>();
-  const { currencies, isLoading, isError } = useCurrencies();
+  const { data: currencies, isLoading, isError } = useCurrencies();
   const {
     data: chartRates,
     isLoading: isChartLoading,

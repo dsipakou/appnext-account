@@ -7,7 +7,7 @@ export const useCurrencies = () => {
   const { data, error, isValidating } = useSWR('currencies/', fetcher);
 
   return {
-    currencies: data,
+    data,
     isLoading: !data && !error,
     isError: error,
   };
