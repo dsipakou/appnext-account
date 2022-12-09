@@ -133,8 +133,8 @@ const GroupedBudgetDetails: FC<Types> = ({ title, items, startDate, handleClose 
                   </Typography>
                   {
                     groupedByWeek()[item.week]?.map(
-                      (item: WeekItemDetails) => (
-                        <Box sx={{ my: 1 }}>
+                      (item: WeekItemDetails, index: number) => (
+                        <Box sx={{ my: 1 }} key={index}>
                           <TimelineBudgetItem
                             planned={item.planned}
                             spent={item.spent}

@@ -1,6 +1,5 @@
-
 import { ComponentType, useEffect, useState } from 'react'
-import Link from 'next/link'
+import { useRouter } from 'next/router'
 import {
   Box,
   Button,
@@ -17,7 +16,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import { useUsers } from '@/hooks/users'
 import { useAuth } from '@/context/auth'
-import { useBudgetMonth } from '@/hooks/budget'
+import { useBudgetMonth, useBudgetWeek } from '@/hooks/budget'
 import { User } from '@/components/users/types'
 import { 
   getStartOfMonth,
@@ -25,23 +24,24 @@ import {
   getStartOfWeek,
   getEndOfWeek
 } from '@/utils/dateUtils'
-import { GeneralSummaryCard } from './components'
+import { GeneralSummaryCard } from '@/components/budget/components'
 import WeekCalendar from '@/components/budget/components/week/WeekCalendar'
 import MonthCalendar from '@/components/budget/components/month/MonthCalendar'
-import { default as MonthContainer } from './components/month/Container'
-import { default as WeekContainer } from './components/week/Container'
 import {
   MonthGroupedBudgetItem,
-  GroupedByCategoryBudget
-} from './types'
-import AddForm from './components/forms/AddForm'
+  GroupedByCategoryBudget,
+  PlannedMap,
+  SpentMap
+} from '@/components/budget/types'
+import AddForm from '@/components/budget/components/forms/AddForm'
 
 type BudgetType = 'month' | 'week'
 
 function withBudgetTemplate<T>(Component: ComponentType<T>) {
-  return (hocProps: T) => {
+  return (hocProps: Omit<T, "activeType">) => {
+    const activeType = hocProps.activeType || 'month'
+    const router = useRouter()
     const { user: userConfig } = useAuth();
-    const [budgetForMonth, setBudgetForMonth] = useState<GroupedByCategoryBudget[]>([])
     const [user, setUser] = useState<string>('all')
     const [monthDate, setMonthDate] = useState<Date>(new Date())
     const [weekDate, setWeekDate] = useState<Date>(new Date())
@@ -49,17 +49,24 @@ function withBudgetTemplate<T>(Component: ComponentType<T>) {
     const [startOfWeek, setStartOfWeek] = useState<string>(getStartOfWeek(weekDate))
     const [endOfMonth, setEndOfMonth] = useState<string>(getEndOfMonth(monthDate))
     const [endOfWeek, setEndOfWeek] = useState<string>(getEndOfWeek(weekDate))
-    const [activeType, setActiveType] = useState<BudgetType>('month')
-    const [activeCategory, setActiveCategory] = useState<string>()
+    const [plannedSum, setPlannedSum] = useState<number>(0)
+    const [spentSum, setSpentSum] = useState<number>(0)
     const [isOpenAddBudget, setIsOpenAddBudget] = useState<boolean>(false)
+    
     const {
       data: users,
       isLoading: isUsersLoading,
     } = useUsers();
+
     const {
       data: budgetMonth,
       isLoading: isMonthBudgetLoading
     } = useBudgetMonth(startOfMonth, endOfMonth);
+
+    const {
+      data: budgetWeek,
+      isLoading: isWeekBudgetLoading
+    } = useBudgetWeek(startOfWeek, endOfWeek)
 
     useEffect(() => {
       setStartOfMonth(getStartOfMonth(monthDate))
@@ -72,16 +79,42 @@ function withBudgetTemplate<T>(Component: ComponentType<T>) {
     }, [weekDate])
 
     useEffect(() => {
-      console.log(activeCategory);
-    }, [activeCategory]);
+      let _planned = 0
+      let _spent = 0
+      if (activeType === 'month') {
+        if (isMonthBudgetLoading) return
 
-    const plannedSum: number = budgetMonth?.reduce(
-      (acc: number, item: MonthGroupedBudgetItem) => acc + item.plannedInCurrencies[userConfig?.currency] || 0, 0
-    )
+        _planned = budgetMonth.reduce(
+          (acc: number, { plannedInCurrencies }: PlannedMap) => {
+            return acc + plannedInCurrencies[userConfig.currency]
+          }, 0
+        )
+        _spent = budgetMonth.reduce(
+          (acc: number, { spentInCurrencies }: SpentMap) => {
+            return acc + (spentInCurrencies[userConfig.currency] || 0)
+          }, 0
+        )
+      } else {
+        if (isWeekBudgetLoading) return
 
-    const spentSum: number = budgetMonth?.reduce(
-      (acc: number, item: MonthGroupedBudgetItem) => acc + item.spentInCurrencies[userConfig?.currency] || 0, 0
-    )
+        _planned = budgetWeek.reduce(
+          (acc: number, { plannedInCurrencies }: PlannedMap) => {
+            return acc + plannedInCurrencies[userConfig.currency]
+          }, 0
+        )
+        _spent = budgetWeek.reduce(
+          (acc: number, { spentInCurrencies }: SpentMap) => {
+            return acc + (spentInCurrencies[userConfig.currency] || 0)
+          }, 0
+        )
+      }
+      setPlannedSum(_planned)
+      setSpentSum(_spent)
+    }, [isMonthBudgetLoading, isWeekBudgetLoading, budgetMonth, budgetWeek])
+
+    const handleTypeButtonClick = (type: BudgetType) => {
+      router.push(`/budget/${type}`)
+    }
 
     const changeUser = (e: SelectChangeEvent): void => {
       setUser(e.target.value);
@@ -104,10 +137,9 @@ function withBudgetTemplate<T>(Component: ComponentType<T>) {
           <Button
             disabled={activeType === 'month'}
             variant={activeType === 'month' ? "text" : "contained"}
-            onClick={() => setActiveType('month')}
+            onClick={() => handleTypeButtonClick('month')}
             sx={{ width: 180, p: 0, backgroundColor: "info.dark" }}
           >
-            <Link href="/budget/month">
               <Typography
                 variant="h5"
                 sx={activeType === "month" ? {
@@ -124,14 +156,12 @@ function withBudgetTemplate<T>(Component: ComponentType<T>) {
               >
                 Monthly
               </Typography>
-            </Link>
           </Button>
-            <Link href="/budget/week">
           <Button
             disabled={activeType === 'week'}
             color="info"
             variant={activeType === 'week' ? "text" : "contained"}
-            onClick={() => setActiveType('week')}
+            onClick={() => handleTypeButtonClick('week')}
             sx={{ width: 180, p: 0, backgroundColor: "info.dark" }}
           >
               <Typography
@@ -151,7 +181,6 @@ function withBudgetTemplate<T>(Component: ComponentType<T>) {
                 Weekly
               </Typography>
           </Button>
-            </Link>
         </ButtonGroup>
         <Box sx={{ flexGrow: 1 }} />
         <Button
@@ -168,7 +197,7 @@ function withBudgetTemplate<T>(Component: ComponentType<T>) {
     const header = (
       <Grid container spacing={3} alignItems="center">
         <Grid item xs={4}>
-          <GeneralSummaryCard planned={plannedSum} spent={spentSum} />
+          <GeneralSummaryCard planned={plannedSum} spent={spentSum} title={activeType} />
         </Grid>
         <Grid item xs={2}>
         </Grid>
@@ -217,7 +246,10 @@ function withBudgetTemplate<T>(Component: ComponentType<T>) {
             {header}
           </Grid>
           <Grid item xs={12}>
-            <Component startDate={startOfWeek} endDate={endOfWeek} />
+            { activeType === 'month'
+              ? <Component startDate={startOfMonth} endDate={endOfMonth} />
+              : <Component startDate={startOfWeek} endDate={endOfWeek} />
+            }
           </Grid>
         </Grid>
         <AddForm open={isOpenAddBudget} handleClose={closeAddBudgetForm} />

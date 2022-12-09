@@ -10,11 +10,12 @@ import { blue, yellow, grey } from '@mui/material/colors'
 import { formatMoney } from '@/utils/numberUtils'
 
 interface Types {
+  title: string
   planned: number
   spent: number
 }
 
-const GeneralSummaryCard: FC<Types> = ({ planned, spent }) => {
+const GeneralSummaryCard: FC<Types> = ({ title, planned, spent }) => {
   const maxValue: number = Math.max(planned, spent)
 
   const spentPercent = spent * 100 / maxValue
@@ -28,7 +29,7 @@ const GeneralSummaryCard: FC<Types> = ({ planned, spent }) => {
       <Grid container>
         <Grid item xs={12}>
           <Typography align="center" sx={{ color: yellow[500] }}>
-            Month Summary
+            {title.charAt(0).toUpperCase() + title.slice(1)} Summary
           </Typography>
         </Grid>
         <Grid item xs={12}>

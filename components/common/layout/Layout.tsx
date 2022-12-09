@@ -125,7 +125,7 @@ const Layout: FC<Props> = ({ children }) => {
     {
       name: 'Budget',
       icon: <OnlinePredictionIcon />,
-      link: '/budget/',
+      link: '/budget/month',
     },
     {
       name: 'Currencies',

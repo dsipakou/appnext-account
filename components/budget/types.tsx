@@ -64,3 +64,14 @@ export interface TransactionItem extends SpentMap {
   currencyCode: string
   transactionDate: string
 }
+
+export interface BudgetRequest {
+  title: string
+  amount: number
+  currency: string
+  user: string
+  category: string
+  recurrent: string
+  budgetDate: string
+  description: string
+}

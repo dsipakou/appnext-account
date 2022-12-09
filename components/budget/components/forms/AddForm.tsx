@@ -1,4 +1,6 @@
 import { FC, useEffect, useState } from 'react'
+import axios from 'axios'
+import { useSWRConfig } from 'swr';
 import {
   Button,
   Dialog,
@@ -7,6 +9,7 @@ import {
   DialogActions,
   FormControl,
   Grid,
+  InputAdornment,
   InputLabel,
   MenuItem,
   Select,
@@ -25,6 +28,9 @@ import { CategoryResponse } from '@/hooks/categories'
 import { RecurrentTypes } from '@/components/budget/types'
 import { Category, CategoryType } from '@/components/categories/types'
 import { Currency } from '@/components/currencies/types'
+import { useAuth } from '@/context/auth'
+import { getFormattedDate } from '@/utils/dateUtils'
+import { BudgetRequest } from '../../types'
 
 interface Types {
   open: boolean,
@@ -32,16 +38,19 @@ interface Types {
 }
 
 const AddForm: FC<Types> = ({ open, handleClose }) => {
+  const { mutate } = useSWRConfig()
   const [title, setTitle] = useState<string>('')
-  const [user, setUser] = useState<User>('')
-  const [category, setCategory] = useState<CategoryResponse>('')
-  const [repeatType, setRepeatType] = useState<RecurrentTypes>('')
+  const [user, setUser] = useState<string>('')
+  const [category, setCategory] = useState<string>('')
+  const [repeatType, setRepeatType] = useState<RecurrentTypes | ''>('')
   const [parentList, setParentList] = useState<Category[]>([]);
   const [amount, setAmount] = useState<string>('')
   const [currency, setCurrency] = useState<string>('')
   const [budgetDate, setBudgetDate] = useState<Date>(new Date())
   const [description, setDescription] = useState<string>('')
   const [errors, setErrors] = useState<string[]>([]);
+
+  const { user: authUser, isLoading: isAuthLoading } = useAuth()
 
   const {
     data: users,
@@ -70,6 +79,24 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
 
     return () => setErrors([]);
   }, [isCategoriesLoading, categories]);
+
+  useEffect(() => {
+    if (isCurrenciesLoading) return
+
+    setCurrency(currencies.find((item: Currency) => item.isDefault)!.uuid) 
+  }, [isCurrenciesLoading, currencies])
+
+  useEffect(() => {
+    if (!authUser || !users) return
+
+    const _user = users.find((item: User) => item.username === authUser.username)
+    setUser(_user.uuid)
+  }, [authUser, users])
+
+
+  const getCurrencySign = (uuid: string): string => {
+    return currencies.find((item: Currency) => item.uuid === currency)?.sign
+  }
 
   const handleTitleInput = (e) => {
     setTitle(e.target.value)
@@ -100,7 +127,39 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
   }
 
   const handleSave = () => {
-    console.log()  
+    setErrors([])
+    const payload: BudgetRequest = {
+      title,
+      amount,
+      currency,
+      user,
+      category,
+      recurrent: repeatType,
+      budgetDate: getFormattedDate(budgetDate),
+      description
+    }
+    axios.post('budget/', {
+      ...payload,
+    }).then(
+      res => {
+        if (res.status === 201) {
+          mutate('budget/');
+          // TODO: mutate week and month
+          handleClose();
+        } else {
+          // TODO: handle errors
+        }
+      }
+    ).catch(
+      (error) => {
+        const errRes = error.response.data;
+        for (const prop in errRes) {
+          setErrors(errRes[prop]);
+        }
+      }
+    ).finally(() => {
+      // TODO: stop loading
+    })
   }
 
   return (
@@ -125,10 +184,11 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
               margin="dense"
               id="amount"
               label="Amount"
-              placeholder="How much"
               type="text"
               fullWidth
-              autoFocus
+              InputProps={{
+                startAdornment: <InputAdornment position="start">{!isCurrenciesLoading && getCurrencySign(currency.uuid)}</InputAdornment>
+              }}
               onChange={handleAmountInput}
             />
           </Grid>

@@ -11,6 +11,14 @@ interface UserState {
   token: string,
 }
 
+interface Auth {
+  isAuthenticated: boolean
+  user: ActiveUser
+  login: () => void
+  logout: () => void
+  loading: boolean
+}
+
 type ActiveUser = UserState | null;
 
 const AuthContext = createContext({});
