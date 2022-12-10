@@ -1,4 +1,5 @@
-import { ComponentType, useEffect, useState } from 'react'
+import * as React from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import {
   Box,
@@ -28,16 +29,15 @@ import { GeneralSummaryCard } from '@/components/budget/components'
 import WeekCalendar from '@/components/budget/components/week/WeekCalendar'
 import MonthCalendar from '@/components/budget/components/month/MonthCalendar'
 import {
-  MonthGroupedBudgetItem,
-  GroupedByCategoryBudget,
   PlannedMap,
   SpentMap
 } from '@/components/budget/types'
-import AddForm from '@/components/budget/components/forms/AddForm'
+import AddForm from '@/components/budget/forms/AddForm'
+import ConfirmDeleteForm from '@/components/budget/forms/ConfirmDeleteForm'
 
 type BudgetType = 'month' | 'week'
 
-function withBudgetTemplate<T>(Component: ComponentType<T>) {
+function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
   return (hocProps: Omit<T, "activeType">) => {
     const activeType = hocProps.activeType || 'month'
     const router = useRouter()
@@ -52,6 +52,10 @@ function withBudgetTemplate<T>(Component: ComponentType<T>) {
     const [plannedSum, setPlannedSum] = useState<number>(0)
     const [spentSum, setSpentSum] = useState<number>(0)
     const [isOpenAddBudget, setIsOpenAddBudget] = useState<boolean>(false)
+    const [isOpenConfirmDeleteForm, setIsOpenConfirmDeleteForm] = useState<boolean>(false)
+    const [activeBudgetUuid, setActiveBudgetUuid] = useState<string>('')
+    const startDate = activeType === 'month' ? startOfMonth : startOfWeek
+    const endDate = activeType === 'month' ? endOfMonth : endOfWeek
     
     const {
       data: users,
@@ -60,13 +64,20 @@ function withBudgetTemplate<T>(Component: ComponentType<T>) {
 
     const {
       data: budgetMonth,
-      isLoading: isMonthBudgetLoading
+      isLoading: isMonthBudgetLoading,
+      url: monthUrl
     } = useBudgetMonth(startOfMonth, endOfMonth);
 
     const {
       data: budgetWeek,
-      isLoading: isWeekBudgetLoading
+      isLoading: isWeekBudgetLoading,
+      url: weekUrl
     } = useBudgetWeek(startOfWeek, endOfWeek)
+
+    const handleClickDelete = (uuid: string): void => {
+      setActiveBudgetUuid(uuid)
+      setIsOpenConfirmDeleteForm(true)
+    }
 
     useEffect(() => {
       setStartOfMonth(getStartOfMonth(monthDate))
@@ -120,8 +131,9 @@ function withBudgetTemplate<T>(Component: ComponentType<T>) {
       setUser(e.target.value);
     }
 
-    const closeAddBudgetForm = () => {
+    const handleCloseModal = () => {
       setIsOpenAddBudget(false)
+      setIsOpenConfirmDeleteForm(false)
     }
 
     const toolbar = (
@@ -246,13 +258,22 @@ function withBudgetTemplate<T>(Component: ComponentType<T>) {
             {header}
           </Grid>
           <Grid item xs={12}>
-            { activeType === 'month'
-              ? <Component startDate={startOfMonth} endDate={endOfMonth} />
-              : <Component startDate={startOfWeek} endDate={endOfWeek} />
-            }
+            <Component startDate={startDate} endDate={endDate} clickDelete={handleClickDelete} />
           </Grid>
         </Grid>
-        <AddForm open={isOpenAddBudget} handleClose={closeAddBudgetForm} />
+        <AddForm
+          open={isOpenAddBudget}
+          handleClose={handleCloseModal}
+          monthUrl={monthUrl}
+          weekUrl={weekUrl}
+        />
+        <ConfirmDeleteForm
+          open={isOpenConfirmDeleteForm}
+          uuid={activeBudgetUuid}
+          handleClose={handleCloseModal}
+          monthUrl={monthUrl}
+          weekUrl={weekUrl}
+        />
       </>
     )
   }

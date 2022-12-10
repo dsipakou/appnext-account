@@ -1,28 +1,35 @@
-import { FC, useState } from 'react'
+import * as React from 'react'
 import { formatMoney } from '@/utils/numberUtils'
 import { 
   Box,
+  Button,
   LinearProgress,
+  Menu,
+  MenuItem,
   Paper,
   Typography
 } from '@mui/material'
 
 interface Types {
+  uuid: string
   title: string
   planned: number
   spent: number
   isCompleted: boolean
+  clickDelete: () => void
 }
 
-const BudgetItem: FC<Types> = ({ title, planned, spent, isCompleted }) => {
-  const [showDetails, setShowDetails] = useState<boolean>(false)
+const BudgetItem: React.FC<Types> = ({ uuid, title, planned, spent, isCompleted, clickDelete }) => {
+  const [showDetails, setShowDetails] = React.useState<boolean>(false)
   const percentage: number = Math.floor(spent * 100 / planned)
+
   const onMouseEnterHandler = () => {
     setShowDetails(true)
   }
   const onMouseLeaveHandler = () => {
     setShowDetails(false)
   }
+
   return (
     <Paper
       elevation={0}
@@ -136,7 +143,16 @@ const BudgetItem: FC<Types> = ({ title, planned, spent, isCompleted }) => {
       >
         {isCompleted && 'Completed'}
       </Typography>
-
+      { showDetails && (
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'flex-end'
+        }}>
+          <Button size="small">Edit</Button>
+          <Button size="small" onClick={() => clickDelete(uuid)}>Delete</Button>
+        </Box>
+        )
+      }
     </Paper>
   )
 }

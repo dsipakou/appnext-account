@@ -33,11 +33,13 @@ import { getFormattedDate } from '@/utils/dateUtils'
 import { BudgetRequest } from '../../types'
 
 interface Types {
-  open: boolean,
-  handleClose: () => void;
+  open: boolean
+  handleClose: () => void
+  monthUrl: string
+  weekUrl: string
 }
 
-const AddForm: FC<Types> = ({ open, handleClose }) => {
+const AddForm: FC<Types> = ({ open, handleClose, monthUrl, weekUrl }) => {
   const { mutate } = useSWRConfig()
   const [title, setTitle] = useState<string>('')
   const [user, setUser] = useState<string>('')
@@ -143,7 +145,8 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
     }).then(
       res => {
         if (res.status === 201) {
-          mutate('budget/');
+          mutate(monthUrl)
+          mutate(weekUrl)
           // TODO: mutate week and month
           handleClose();
         } else {

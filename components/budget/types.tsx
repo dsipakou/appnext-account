@@ -67,7 +67,7 @@ export interface TransactionItem extends SpentMap {
 
 export interface BudgetRequest {
   title: string
-  amount: number
+  amount: string
   currency: string
   user: string
   category: string

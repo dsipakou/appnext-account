@@ -1,3 +1,4 @@
+
 import { FC, useEffect, useState } from 'react';
 import {
   Dialog,
@@ -10,39 +11,30 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import { useSWRConfig } from 'swr';
-import { useCurrencies } from '@/hooks/currencies';
-import { Currency } from '../types';
 
 interface Types {
-  open: boolean,
-  uuid: string,
-  handleClose: () => void;
+  open: boolean
+  uuid: string
+  handleClose: () => void
+  monthUrl: string
+  weekUrl: string
 }
 
-const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose }) => {
-  const [currency, setCurrency] = useState('');
+const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose, monthUrl, weekUrl }) => {
+  const [budget, setBudget] = useState('');
   const [errors, setErrors] = useState([]);
-  const { data: currencies, isLoading, isError } = useCurrencies();
   const { mutate } = useSWRConfig();
-
-  useEffect(() => {
-    if (isLoading) return;
-
-    const _currency = currencies.find((item: Currency) => item.uuid === uuid);
-    setCurrency(_currency);
-
-    return () => setErrors([]);
-  }, [isLoading, currencies, uuid])
 
   const handleDelete = () => {
     // TODO: start loading
     setErrors([]);
     axios
-      .delete(`currencies/${currency.uuid}`)
+      .delete(`budget/${uuid}`)
       .then(
         res => {
           if (res.status === 204) {
-            mutate('currencies/');
+            mutate(monthUrl)
+            mutate(weekUrl)
             handleClose();
           } else {
             // TODO: handle errors [non-empty parent,]
@@ -74,7 +66,7 @@ const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose }) => {
         )}
         <Box>
           <Typography variant="body1">
-            You are about to delete {currency?.code} currency
+            You are about to delete a budget
           </Typography>
         </Box>
       </DialogContent>
