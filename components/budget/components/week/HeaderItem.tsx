@@ -15,6 +15,7 @@ const HeaderItem: FC<Types> = ({ title }) => {
         height: 50,
         width: '100%',
         borderRadius: 3,
+        border: '1px solid rgba(0, 0, 0, 0.4)',
         backgroundColor: 'lightGrey'
       }}
     >
@@ -22,7 +23,9 @@ const HeaderItem: FC<Types> = ({ title }) => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        height: '100%'
+        height: '100%',
+        fontSize: '1.2em',
+        fontWeight: 'bold'
       }}>
         {title}
       </Typography>

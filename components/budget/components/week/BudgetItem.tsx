@@ -4,8 +4,6 @@ import {
   Box,
   Button,
   LinearProgress,
-  Menu,
-  MenuItem,
   Paper,
   Typography
 } from '@mui/material'
@@ -16,18 +14,36 @@ interface Types {
   planned: number
   spent: number
   isCompleted: boolean
-  clickDelete: () => void
+  clickEdit: (uuid: string) => void
+  clickDelete: (uuid: string) => void
 }
 
-const BudgetItem: React.FC<Types> = ({ uuid, title, planned, spent, isCompleted, clickDelete }) => {
+const BudgetItem: React.FC<Types> = ({
+  uuid,
+  title,
+  planned,
+  spent,
+  isCompleted,
+  clickEdit,
+  clickDelete
+}) => {
   const [showDetails, setShowDetails] = React.useState<boolean>(false)
   const percentage: number = Math.floor(spent * 100 / planned)
 
-  const onMouseEnterHandler = () => {
+  const onMouseEnterHandler = (): void => {
     setShowDetails(true)
   }
-  const onMouseLeaveHandler = () => {
+
+  const onMouseLeaveHandler = (): void => {
     setShowDetails(false)
+  }
+
+  const handleClickEdit = (): void => {
+    clickEdit(uuid)
+  }
+
+  const handleClickDelete = (): void => {
+    clickDelete(uuid)
   }
 
   return (
@@ -54,7 +70,7 @@ const BudgetItem: React.FC<Types> = ({ uuid, title, planned, spent, isCompleted,
         align="center"
         noWrap
         sx={{
-          fontSize: '0.9em',
+          fontSize: showDetails ? '1em' : '0.9em',
           fontWeight: 'bold'
         }}
       >
@@ -148,8 +164,8 @@ const BudgetItem: React.FC<Types> = ({ uuid, title, planned, spent, isCompleted,
           display: 'flex',
           justifyContent: 'flex-end'
         }}>
-          <Button size="small">Edit</Button>
-          <Button size="small" onClick={() => clickDelete(uuid)}>Delete</Button>
+          <Button size="small" onClick={handleClickEdit}>Edit</Button>
+          <Button size="small" onClick={handleClickDelete}>Delete</Button>
         </Box>
         )
       }

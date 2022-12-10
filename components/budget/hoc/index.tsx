@@ -32,8 +32,11 @@ import {
   PlannedMap,
   SpentMap
 } from '@/components/budget/types'
-import AddForm from '@/components/budget/forms/AddForm'
-import ConfirmDeleteForm from '@/components/budget/forms/ConfirmDeleteForm'
+import {
+  AddForm,
+  EditForm,
+  ConfirmDeleteForm
+} from '@/components/budget/forms'
 
 type BudgetType = 'month' | 'week'
 
@@ -52,6 +55,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const [plannedSum, setPlannedSum] = useState<number>(0)
     const [spentSum, setSpentSum] = useState<number>(0)
     const [isOpenAddBudget, setIsOpenAddBudget] = useState<boolean>(false)
+    const [isOpenEditForm, setIsOpenEditForm] = useState<boolean>(false)
     const [isOpenConfirmDeleteForm, setIsOpenConfirmDeleteForm] = useState<boolean>(false)
     const [activeBudgetUuid, setActiveBudgetUuid] = useState<string>('')
     const startDate = activeType === 'month' ? startOfMonth : startOfWeek
@@ -77,6 +81,11 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const handleClickDelete = (uuid: string): void => {
       setActiveBudgetUuid(uuid)
       setIsOpenConfirmDeleteForm(true)
+    }
+
+    const handleClickEdit = (uuid: string): void => {
+      setActiveBudgetUuid(uuid)
+      setIsOpenEditForm(true)
     }
 
     useEffect(() => {
@@ -134,6 +143,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const handleCloseModal = () => {
       setIsOpenAddBudget(false)
       setIsOpenConfirmDeleteForm(false)
+      setIsOpenEditForm(false)
     }
 
     const toolbar = (
@@ -258,7 +268,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             {header}
           </Grid>
           <Grid item xs={12}>
-            <Component startDate={startDate} endDate={endDate} clickDelete={handleClickDelete} />
+            <Component startDate={startDate} endDate={endDate} clickEdit={handleClickEdit} clickDelete={handleClickDelete} />
           </Grid>
         </Grid>
         <AddForm
@@ -267,13 +277,25 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           monthUrl={monthUrl}
           weekUrl={weekUrl}
         />
-        <ConfirmDeleteForm
-          open={isOpenConfirmDeleteForm}
-          uuid={activeBudgetUuid}
-          handleClose={handleCloseModal}
-          monthUrl={monthUrl}
-          weekUrl={weekUrl}
-        />
+        {activeBudgetUuid && (
+          <>
+            <ConfirmDeleteForm
+              open={isOpenConfirmDeleteForm}
+              uuid={activeBudgetUuid}
+              handleClose={handleCloseModal}
+              monthUrl={monthUrl}
+              weekUrl={weekUrl}
+            />
+            <EditForm
+              open={isOpenEditForm}
+              uuid={activeBudgetUuid}
+              handleClose={handleCloseModal}
+              monthUrl={monthUrl}
+              weekUrl={weekUrl}
+            />
+          </>
+        )
+      }
       </>
     )
   }

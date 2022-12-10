@@ -1,70 +1,71 @@
-import { FC, useEffect, useState } from "react";
-import { getDay } from "date-fns";
-import { Grid, Stack, Typography } from "@mui/material";
-import { useBudgetWeek } from "@/hooks/budget";
-import { WeekBudgetItem } from "@/components/budget/types";
-import ConfirmDeleteForm from "@/components/budget/components/forms";
+import { FC, useEffect, useState } from 'react'
+import { getDay } from 'date-fns'
+import { Grid, Stack, Typography } from '@mui/material'
+import { useBudgetWeek } from '@/hooks/budget'
+import { WeekBudgetItem } from '@/components/budget/types'
+import { ConfirmDeleteForm } from '@/components/budget/forms'
 import {
   parseDate,
   parseAndFormatDate,
   MONTH_DAY_FORMAT,
-} from "@/utils/dateUtils";
-import { useAuth } from "@/context/auth";
-import BudgetItem from "./BudgetItem";
-import HeaderItem from "./HeaderItem";
+} from '@/utils/dateUtils'
+import { useAuth } from '@/context/auth'
+import BudgetItem from './BudgetItem'
+import HeaderItem from './HeaderItem'
 
 interface Types {
-  startDate: string;
-  endDate: string;
-  clickDelete: () => void;
+  startDate: string
+  endDate: string
+  clickEdit: () => void
+  clickDelete: () => void
 }
 
 interface WeekBudgetResponse {
-  data: WeekBudgetItem[];
-  isLoading: boolean;
+  data: WeekBudgetItem[]
+  isLoading: boolean
 }
 
 interface CompactWeekItem {
-  uuid: string;
-  title: string;
-  planned: number;
-  spent: number;
-  isCompleted: boolean;
+  uuid: string
+  title: string
+  planned: number
+  spent: number
+  isCompleted: boolean
 }
 
 interface GroupedByWeek {
-  [key: string]: CompactWeekItem[];
+  [key: string]: CompactWeekItem[]
 }
 
 const header = (
   <Grid container spacing={1}>
     <Grid item xs={2}></Grid>
     <Grid item xs={1}>
-      <HeaderItem title="Monday" />
+      <HeaderItem title="Mon" />
     </Grid>
     <Grid item xs={1}>
-      <HeaderItem title="Tuesday" />
+      <HeaderItem title="Tue" />
     </Grid>
     <Grid item xs={1}>
-      <HeaderItem title="Wednesday" />
+      <HeaderItem title="Wed" />
     </Grid>
     <Grid item xs={1}>
-      <HeaderItem title="Thursday" />
+      <HeaderItem title="Thu" />
     </Grid>
     <Grid item xs={1}>
-      <HeaderItem title="Friday" />
+      <HeaderItem title="Fri" />
     </Grid>
     <Grid item xs={1}>
-      <HeaderItem title="Saturday" />
+      <HeaderItem title="Sat" />
     </Grid>
     <Grid item xs={1}>
-      <HeaderItem title="Sunday" />
+      <HeaderItem title="Sun" />
     </Grid>
     <Grid item></Grid>
   </Grid>
 );
 
-const Container: FC<Types> = ({ startDate, endDate, clickDelete }) => {
+const Container: FC<Types> = ({ startDate, endDate, clickEdit, clickDelete }) => {
   const [weekGroup, setWeekGroup] = useState<GroupedByWeek>({});
   const { data: budget, isLoading }: WeekBudgetResponse = useBudgetWeek(
     startDate,
@@ -114,6 +115,7 @@ const Container: FC<Types> = ({ startDate, endDate, clickDelete }) => {
                     planned={item.planned}
                     spent={item.spent}
                     isCompleted={item.isCompleted}
+                    clickEdit={clickEdit}
                     clickDelete={clickDelete}
                   />
                 ))}
