@@ -297,7 +297,10 @@ const EditForm: FC<Types> = ({ open, uuid, handleClose, monthUrl, weekUrl }) => 
           </Grid>
           <Grid item xs={7}>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <CalendarPicker date={budgetDate} onChange={(newDate) => setBudgetDate(newDate)} />
+              <CalendarPicker
+                date={budgetDate}
+                onChange={(newDate) => setBudgetDate(newDate)}
+              />
             </LocalizationProvider>
           </Grid>
           <Grid item xs={12}>

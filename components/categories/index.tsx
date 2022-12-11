@@ -1,18 +1,17 @@
 
 import { useState } from 'react';
-import Button from '@mui/material/Button';
+import Link from 'next/link';
 import {
-  TextField,
-  Toolbar,
   Box,
-  Typography,
-  Paper,
+  Button,
   Grid,
-  Skeleton
+  Paper,
+  Skeleton,
+  Toolbar,
+  Typography
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { Category } from './types';
-import Link from 'next/link';
 import { useCategories } from '../../hooks/categories';
 import AddForm from './forms/AddForm';
 
