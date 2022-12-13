@@ -1,3 +1,4 @@
+
 import { FC, useEffect, useState } from 'react'
 import {
   Dialog,
@@ -10,8 +11,8 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import { useSWRConfig } from 'swr';
-import { useCurrencies } from '@/hooks/currencies';
-import { Currency } from '../types';
+import { useAccounts } from '@/hooks/accounts';
+import { AccountResponse } from '../types';
 
 interface Types {
   open: boolean,
@@ -20,29 +21,29 @@ interface Types {
 }
 
 const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose }) => {
-  const [currency, setCurrency] = useState('');
+  const [account, setAccount] = useState<AccountResponse | undefined>();
   const [errors, setErrors] = useState([]);
-  const { data: currencies, isLoading, isError } = useCurrencies();
+  const { data: accounts, isLoading, isError } = useAccounts();
   const { mutate } = useSWRConfig();
 
   useEffect(() => {
     if (isLoading) return;
 
-    const _currency = currencies.find((item: Currency) => item.uuid === uuid);
-    setCurrency(_currency);
+    const _account = accounts.find((item: AccountResponse) => item.uuid === uuid);
+    setAccount(_account);
 
     return () => setErrors([]);
-  }, [isLoading, currencies, uuid])
+  }, [isLoading, accounts, uuid])
 
   const handleDelete = () => {
     // TODO: start loading
     setErrors([]);
     axios
-      .delete(`currencies/${currency.uuid}`)
+      .delete(`accounts/${account.uuid}`)
       .then(
         res => {
           if (res.status === 204) {
-            mutate('currencies/');
+            mutate('accounts/');
             handleClose();
           } else {
             // TODO: handle errors [non-empty parent,]
@@ -74,7 +75,7 @@ const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose }) => {
         )}
         <Box>
           <Typography variant="body1">
-            You are about to delete {currency?.code} currency
+            You are about to delete {account?.title} account
           </Typography>
         </Box>
       </DialogContent>

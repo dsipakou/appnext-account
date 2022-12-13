@@ -130,7 +130,7 @@ const AddForm: FC<Types> = ({ open, handleClose }) => {
           <Grid item xs={12}>
             <FormControlLabel control={
               <Switch checked={isDefault} onChange={handleIsDefaultSwitch} />
-            } label="This is default currency" />
+            } label="Active" />
           </Grid>
           <Grid item xs={12}>
             <TextField
