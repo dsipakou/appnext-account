@@ -183,7 +183,7 @@ const BudgetComponent: React.FC<BudgetComponentTypes> = (params) => {
     <FormControl fullWidth>
       <Select
         fullWidth
-        value={value}
+        value={!!items.length ? value : ''}
         onChange={handleChange}
       >
         { !!user ? items.map((item: WeekBudgetItem) => (
