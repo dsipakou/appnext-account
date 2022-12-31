@@ -1,4 +1,6 @@
 import * as React from 'react'
+import axios from 'axios'
+import { useSWRConfig } from 'swr'
 import {
   Button,
   Dialog,
@@ -32,15 +34,18 @@ import {
   useGridApiContext
 } from '@mui/x-data-grid'
 import { randomId } from '@mui/x-data-grid-generator'
+import { useAuth } from '@/context/auth'
 import { useAccounts } from '@/hooks/accounts'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
 import { useAvailableRates } from '@/hooks/rates'
 import { useBudgetWeek, useBudgetDetails } from '@/hooks/budget'
+import { useUsers } from '@/hooks/users'
 import { AccountResponse } from '@/components/accounts/types'
 import { WeekBudgetItem } from '@/components/budget/types'
 import { Category, CategoryType } from '@/components/categories/types'
 import { Currency } from '@/components/currencies/types'
+import { User } from '@/components/users/types'
 import { getStartOfWeek, getEndOfWeek, getFormattedDate, MONTH_DAY_FORMAT } from '@/utils/dateUtils'
 
 interface Types {
@@ -81,7 +86,22 @@ interface SelectedItem {
 }
 
 const EditToolbar: React.FC<EditToolbarProps> = (props) => {
+  const [user, setUser] = React.useState('')
   const { rows, setRows, rowModesModel, setRowModesModel } = props;
+  const { mutate } = useSWRConfig()
+  const { user: authUser, isLoading: isAuthLoading } = useAuth()
+
+  const {
+    data: users,
+    isLoading: isUsersLoading
+  } = useUsers()
+
+  React.useEffect(() => {
+    if (!authUser || !users) return
+
+    const _user = users.find((item: User) => item.username === authUser.username)
+    setUser(_user.uuid)
+  }, [authUser, users])
 
   const id = randomId()
 
@@ -105,7 +125,38 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   }
 
   const handleSaveClick = (): void => {
-    console.log(rows)
+    rows.forEach((row: any) => {
+      const payload = {
+        account: row.account.uuid,
+        amount: row.amount,
+        budget: row.budget.uuid,
+        category: row.category.uuid,
+        currency: row.currency.uuid,
+        description: row.description,
+        transactionDate: getFormattedDate(row.transactionDate),
+        type: "outcome",
+        user: user
+      }
+
+      axios.post('transactions/', {
+        ...payload,
+      }).then(
+        res => {
+          if (res.status === 201) {
+            mutate('transactions/')
+          }
+        }
+      ).catch(
+          (error) => {
+            const errRes = error.response.data
+            for (const prop in errRes) {
+              // TODO: Set errors
+            }
+          }
+        ).finally(() => {
+          // TODO: stop loading
+        })
+    })
   }
 
   const isEditMode: boolean = Object.values(rowModesModel).some(
@@ -186,14 +237,16 @@ const BudgetComponent: React.FC<BudgetComponentTypes> = (params) => {
         value={!!items.length ? value : ''}
         onChange={handleChange}
       >
-        { !!user ? items.map((item: WeekBudgetItem) => (
-          <MenuItem
-            key={item.uuid}
-            value={item}
-          >
-            {item.title}
-          </MenuItem>
-          )) : <MenuItem value="">Please select account first</MenuItem> 
+        { !!user 
+            ? items.map((item: WeekBudgetItem) => (
+              <MenuItem
+                key={item.uuid}
+                value={item}
+              >
+                {item.title}
+              </MenuItem>
+            )) 
+            : <MenuItem value="">Please select account first</MenuItem> 
         }
       </Select>
     </FormControl>
@@ -228,7 +281,7 @@ const CategoryComponent: React.FC<CategoryComponentTypes> = (params) => {
         onChange={handleChange}
       >
         {parents.map((item: Category) => { return getChildren(item.uuid).map((subitem: Category) => (
-          <MenuItem key={subitem.uuid} value={subitem.uuid}>{item.name} - {subitem.name}</MenuItem>
+          <MenuItem key={subitem.uuid} value={subitem}>{item.name} - {subitem.name}</MenuItem>
         ))})}
       </Select>
     </FormControl>
@@ -355,7 +408,7 @@ const AddForm: React.FC<Types> = ({ open, handleClose }) => {
       headerName: 'Category',
       width: 250,
       editable: true,
-      renderCell: ({ value }) => getCategoryName(value),
+      renderCell: (params) => params.formattedValue.name,
       renderEditCell: (params) => <CategoryComponent {...params} categories={categories} />
     },
     {
@@ -385,11 +438,6 @@ const AddForm: React.FC<Types> = ({ open, handleClose }) => {
 
   const handleAccountChange = (id: GridRowId, e) => {
     setAccount({...account, [id]: e.target.value})
-  }
-
-  const getCategoryName = (uuid: string): string => {
-    const category = categories.find((item: Category) => item.uuid === uuid)
-    return category?.name || ''
   }
 
   const handleCategoryChange = (e) => {
