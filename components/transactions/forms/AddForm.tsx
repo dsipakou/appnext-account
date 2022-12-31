@@ -14,6 +14,7 @@ import {
 } from '@mui/material'
 import { SelectChangeEvent } from '@mui/material/Select'
 import AddIcon from '@mui/icons-material/Add'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import locale from 'date-fns/locale/ru'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -49,6 +50,7 @@ import { User } from '@/components/users/types'
 import { getStartOfWeek, getEndOfWeek, getFormattedDate, MONTH_DAY_FORMAT } from '@/utils/dateUtils'
 
 interface Types {
+  url: string
   open: boolean
   handleClose: () => void }
 
@@ -87,7 +89,7 @@ interface SelectedItem {
 
 const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   const [user, setUser] = React.useState('')
-  const { rows, setRows, rowModesModel, setRowModesModel } = props;
+  const { rows, setRows, rowModesModel, setRowModesModel, url } = props;
   const { mutate } = useSWRConfig()
   const { user: authUser, isLoading: isAuthLoading } = useAuth()
 
@@ -114,10 +116,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   }
 
   const handleDuplicateClick = () => {
-    setRows((oldRows) => oldRows.length > 0 
-        ? [...oldRows, {...oldRows.slice(-1)[0], id}]
-        : [...oldRows, {...emptyRow, id}]
-    )
+    setRows((oldRows) => [...oldRows, {...oldRows.slice(-1)[0], id, saved: false}])
     setRowModesModel((oldModel) => ({
       ...oldModel,
       [id]: { mode: GridRowModes.Edit, fieldToFocus: 'amount' },
@@ -126,6 +125,10 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
 
   const handleSaveClick = (): void => {
     rows.forEach((row: any) => {
+      if (row.saved) {
+        return
+      }
+
       const payload = {
         account: row.account.uuid,
         amount: row.amount,
@@ -138,24 +141,30 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
         user: user
       }
 
+
       axios.post('transactions/', {
         ...payload,
       }).then(
         res => {
           if (res.status === 201) {
-            mutate('transactions/')
+            setRows((oldRows) => oldRows.map(
+              (item) => item.id === row.id 
+                ? {...item, saved: true} 
+                : item
+            ))
+            mutate(url)
           }
         }
       ).catch(
-          (error) => {
-            const errRes = error.response.data
-            for (const prop in errRes) {
-              // TODO: Set errors
-            }
+        (error) => {
+          const errRes = error.response.data
+          for (const prop in errRes) {
+            // TODO: Set errors
           }
-        ).finally(() => {
-          // TODO: stop loading
-        })
+        }
+      ).finally(() => {
+        // TODO: stop loading
+      })
     })
   }
 
@@ -170,7 +179,12 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
           <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
             Add transaction
           </Button>
-          <Button color="primary" startIcon={<AddIcon />} onClick={handleDuplicateClick}>
+          <Button
+            color="primary"
+            disabled={rows.length === 0 || isEditMode}
+            startIcon={<AddIcon />}
+            onClick={handleDuplicateClick}
+          >
             Duplicate last transaction
           </Button>
         </Grid>
@@ -370,10 +384,11 @@ const emptyRow = {
   description: '',
   transactionDate: '',
   type: '',
-  user: ''
+  user: '',
+  saved: false
 }
 
-const AddForm: React.FC<Types> = ({ open, handleClose }) => {
+const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
   const {
     data: accounts = [],
     isLoading: isAccountsLoading
@@ -429,6 +444,13 @@ const AddForm: React.FC<Types> = ({ open, handleClose }) => {
       renderEditCell: (params) => <CurrencyComponent {...params} />
     },
     { field: 'description', headerName: 'Description', width: 100, editable: true },
+    {
+      field: 'saved',
+      headerName: 'Saved',
+      width: 20,
+      editable: false,
+      renderCell: (params) => params.formattedValue && <CheckCircleIcon />
+    }
   ];
 
   const [rows, setRows] = React.useState<[]>([])
@@ -471,7 +493,7 @@ const AddForm: React.FC<Types> = ({ open, handleClose }) => {
                 Toolbar: EditToolbar
               }}
               componentsProps={{
-                toolbar: { rows, setRows, rowModesModel, setRowModesModel }
+                toolbar: { rows, setRows, rowModesModel, setRowModesModel, url }
               }}
               experimentalFeatures={{ newEditingApi: true }}
             />

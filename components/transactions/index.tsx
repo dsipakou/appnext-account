@@ -21,7 +21,8 @@ const Index: React.FC = () => {
   const [isOpenAddTransactions, setIsOpenAddTransactions] = React.useState<boolean>(false)
 
   const {
-    data: transactions
+    data: transactions,
+    url: transactionUrl
   } = useTransactions({
     sorting: 'added',
     limit: 50,
@@ -66,7 +67,7 @@ const Index: React.FC = () => {
           </Stack>
         </Grid>
       </Grid>
-      <AddForm open={isOpenAddTransactions} handleClose={handleCloseModal}/>
+      <AddForm url={transactionUrl} open={isOpenAddTransactions} handleClose={handleCloseModal}/>
     </>
   )
 }
