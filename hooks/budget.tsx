@@ -7,7 +7,7 @@ const fetcher = (url: string) => axios.get(url).then(res => res.data);
 
 export const useBudgetDetails = (
   uuid: string
-): Response => {
+): Response<any> => {
   const url = `budget/${uuid}/`
   const { data, error } = useSWR(url, fetcher)
 
