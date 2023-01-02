@@ -48,6 +48,7 @@ import { Category, CategoryType } from '@/components/categories/types'
 import { Currency } from '@/components/currencies/types'
 import { User } from '@/components/users/types'
 import { getStartOfWeek, getEndOfWeek, getFormattedDate, MONTH_DAY_FORMAT } from '@/utils/dateUtils'
+import { formatMoney } from '@/utils/numberUtils'
 
 interface Types {
   url: string
@@ -116,7 +117,12 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   }
 
   const handleDuplicateClick = () => {
-    setRows((oldRows) => [...oldRows, {...oldRows.slice(-1)[0], id, saved: false}])
+    setRows((oldRows) => [...oldRows, {
+      ...oldRows.slice(-1)[0],
+      id,
+      saved: false,
+      baseAmount: ''
+    }])
     setRowModesModel((oldModel) => ({
       ...oldModel,
       [id]: { mode: GridRowModes.Edit, fieldToFocus: 'amount' },
@@ -147,9 +153,14 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
       }).then(
         res => {
           if (res.status === 201) {
+            console.log(res)
             setRows((oldRows) => oldRows.map(
               (item) => item.id === row.id 
-                ? {...item, saved: true} 
+                ? {
+                    ...item,
+                    saved: true,
+                    baseAmount: formatMoney(res.data.spentInBaseCurrency)
+                  } 
                 : item
             ))
             mutate(url)
@@ -361,7 +372,7 @@ const DateComponent: React.FC<DateComponentTypes> = (params) => {
   }
 
   React.useEffect(() => {
-    apiRef.current.setEditCellValue({ id, field, value: new Date()})
+    apiRef.current.setEditCellValue({ id, field, value: value || new Date()})
   }, [])
 
   return(
@@ -385,6 +396,7 @@ const emptyRow = {
   transactionDate: '',
   type: '',
   user: '',
+  baseAmount: '',
   saved: false
 }
 
@@ -445,8 +457,14 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
     },
     { field: 'description', headerName: 'Description', width: 100, editable: true },
     {
+      field: 'baseAmount',
+      headerName: 'Base Amount',
+      width: 80,
+      editable: false,
+    },
+    {
       field: 'saved',
-      headerName: 'Saved',
+      headerName: '',
       width: 20,
       editable: false,
       renderCell: (params) => params.formattedValue && <CheckCircleIcon />
@@ -474,10 +492,15 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
 
   const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
     event.defaultMuiPrevented = true
-  };
+  }
+
+  const onClose = () => {
+    handleClose()
+    setRows([])
+  }
 
   return (
-    <Dialog maxWidth="lg" fullWidth={true} open={open} onClose={handleClose}>
+    <Dialog maxWidth="lg" fullWidth={true} open={open} onClose={onClose}>
       <DialogTitle>Add transactions</DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ height: 700}}>
