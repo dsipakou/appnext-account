@@ -18,6 +18,7 @@ interface Types {
   endDate: string
   clickEdit: () => void
   clickDelete: () => void
+  mutateBudget: () => void
 }
 
 interface WeekBudgetResponse {
@@ -65,7 +66,13 @@ const header = (
   </Grid>
 );
 
-const Container: FC<Types> = ({ startDate, endDate, clickEdit, clickDelete }) => {
+const Container: FC<Types> = ({
+  startDate,
+  endDate,
+  clickEdit,
+  clickDelete,
+  mutateBudget
+}) => {
   const [weekGroup, setWeekGroup] = useState<GroupedByWeek>({});
   const { data: budget, isLoading }: WeekBudgetResponse = useBudgetWeek(
     startDate,
@@ -117,6 +124,7 @@ const Container: FC<Types> = ({ startDate, endDate, clickEdit, clickDelete }) =>
                     isCompleted={item.isCompleted}
                     clickEdit={clickEdit}
                     clickDelete={clickDelete}
+                    mutateBudget={mutateBudget}
                   />
                 ))}
             </Stack>

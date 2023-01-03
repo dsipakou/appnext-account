@@ -1,4 +1,6 @@
 import * as React from 'react'
+import axios from 'axios'
+import { useSWRConfig } from 'swr'
 import { formatMoney } from '@/utils/numberUtils'
 import { 
   Box,
@@ -7,6 +9,8 @@ import {
   Paper,
   Typography
 } from '@mui/material'
+import { useBudgetDetails } from '@/hooks/budget'
+import { BudgetRequest } from '@/components/budget/types'
 
 interface Types {
   uuid: string
@@ -16,6 +20,7 @@ interface Types {
   isCompleted: boolean
   clickEdit: (uuid: string) => void
   clickDelete: (uuid: string) => void
+  mutateBudget: () => void
 }
 
 const BudgetItem: React.FC<Types> = ({
@@ -25,9 +30,16 @@ const BudgetItem: React.FC<Types> = ({
   spent,
   isCompleted,
   clickEdit,
-  clickDelete
+  clickDelete,
+  mutateBudget
 }) => {
+  const {
+    data: budgetDetails,
+    url
+  } = useBudgetDetails(uuid)
+  const { mutate } = useSWRConfig()
   const [showDetails, setShowDetails] = React.useState<boolean>(false)
+  const [errors, setErrors] = React.useState<string>([])
   const percentage: number = Math.floor(spent * 100 / planned)
 
   const onMouseEnterHandler = (): void => {
@@ -44,6 +56,32 @@ const BudgetItem: React.FC<Types> = ({
 
   const handleClickDelete = (): void => {
     clickDelete(uuid)
+  }
+
+  const handleClickComplete = (): void => {
+    axios.patch(`budget/${uuid}/`, {
+      isCompleted: !budgetDetails.isCompleted,
+      category: budgetDetails.category
+    }).then(
+      res => {
+        if (res.status === 200) {
+          mutate(url)
+          mutateBudget()
+        } else {
+          // TODO: handle errors
+        }
+      }
+    ).catch(
+      (error) => {
+        const errRes = error.response.data;
+        for (const prop in errRes) {
+          setErrors(errRes[prop]);
+          // TODO: Show errors somewhere
+        }
+      }
+    ).finally(() => {
+      // TODO: stop loading
+    })
   }
 
   return (
@@ -150,20 +188,30 @@ const BudgetItem: React.FC<Types> = ({
           )
         }
       </Box>
-      <Typography
-        sx={{
-          fontSize: '0.8em',
-          color: 'green',
-          fontWeight: 'bold'
-        }}
-      >
-        {isCompleted && 'Completed'}
-      </Typography>
+      { !showDetails && (
+        <Typography
+          sx={{
+            fontSize: '0.8em',
+            color: 'green',
+            fontWeight: 'bold'
+          }}
+        >
+          {isCompleted && 'Completed'}
+        </Typography>
+      )}
       { showDetails && (
         <Box sx={{
           display: 'flex',
-          justifyContent: 'flex-end'
+          justifyContent: 'center'
         }}>
+          <Button
+            size="small"
+            variant="contained"
+            color={budgetDetails.isCompleted ? 'warning' : 'success'}
+            disableElevation
+            onClick={handleClickComplete}>
+            { budgetDetails.isCompleted ? 'Un-complete' : 'Complete' }
+          </Button>
           <Button size="small" onClick={handleClickEdit}>Edit</Button>
           <Button size="small" onClick={handleClickDelete}>Delete</Button>
         </Box>

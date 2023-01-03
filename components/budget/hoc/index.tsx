@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
+import { useSWRConfig } from 'swr'
 import {
   Box,
   Button,
@@ -44,6 +45,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
   return (hocProps: Omit<T, "activeType">) => {
     const activeType = hocProps.activeType || 'month'
     const router = useRouter()
+    const { mutate } = useSWRConfig()
     const { user: userConfig } = useAuth();
     const [user, setUser] = useState<string>('all')
     const [monthDate, setMonthDate] = useState<Date>(new Date())
@@ -144,6 +146,11 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
       setIsOpenAddBudget(false)
       setIsOpenConfirmDeleteForm(false)
       setIsOpenEditForm(false)
+    }
+
+    const mutateBudget = (): void => {
+      mutate(weekUrl)
+      mutate(monthUrl)
     }
 
     const toolbar = (
@@ -268,7 +275,13 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             {header}
           </Grid>
           <Grid item xs={12}>
-            <Component startDate={startDate} endDate={endDate} clickEdit={handleClickEdit} clickDelete={handleClickDelete} />
+            <Component
+              startDate={startDate}
+              endDate={endDate}
+              clickEdit={handleClickEdit}
+              clickDelete={handleClickDelete}
+              mutateBudget={mutateBudget}
+            />
           </Grid>
         </Grid>
         <AddForm
