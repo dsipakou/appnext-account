@@ -159,6 +159,7 @@ const BudgetItem: React.FC<Types> = ({
             <>
               <LinearProgress
                 variant="determinate"
+                color={ percentage > 100 ? 'error' : 'success' }
                 value={percentage > 100 ? percentage % 100 : percentage}
                 sx={{
                   mx: 1,
@@ -191,10 +192,11 @@ const BudgetItem: React.FC<Types> = ({
       { !showDetails && (
         <Typography
           sx={{
-            fontSize: '0.8em',
-            color: 'green',
+            fontSize: '0.7em',
+            color: 'blue',
             fontWeight: 'bold'
           }}
+          align="center"
         >
           {isCompleted && 'Completed'}
         </Typography>
