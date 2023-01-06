@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useSWRConfig } from 'swr'
 import {
   Box,
   Button,
@@ -14,11 +15,18 @@ import { CalendarPicker } from '@mui/x-date-pickers/CalendarPicker';
 import TransactionTable from './components/TransactionTable'
 import { useTransactions } from '@/hooks/transactions'
 import { getFormattedDate } from '@/utils/dateUtils'
-import { AddForm } from '@/components/transactions/forms'
+import { AddForm, ConfirmDeleteForm } from '@/components/transactions/forms'
+import { useAuth } from '@/context/auth'
+import { TransactionResponse } from '@/components/transactions/types'
+import { formatMoney } from '@/utils/numberUtils'
 
 const Index: React.FC = () => {
+  const { user } = useAuth();
+  const { mutate } = useSWRConfig()
   const [transactionDate, setTransactionDate] = React.useState<Date>(new Date())
   const [isOpenAddTransactions, setIsOpenAddTransactions] = React.useState<boolean>(false)
+  const [isOpenDeleteTransactions, setIsOpenDeleteTransactions] = React.useState<boolean>(false)
+  const [activeTransactionUuid, setActiveTransactionUuid] = React.useState<string>('')
 
   const {
     data: transactions,
@@ -30,8 +38,22 @@ const Index: React.FC = () => {
     dateTo: getFormattedDate(transactionDate)
   })
 
-  const handleCloseModal = () => {
+  const overallSum = transactions?.reduce((acc: number, item: TransactionResponse) => {
+    return acc + item.spentInCurrencies[user?.currency]
+  }, 0)
+
+  const handleCloseModal = (): void => {
     setIsOpenAddTransactions(false)
+    setIsOpenDeleteTransactions(false)
+  }
+
+  const handleDeleteClick = (uuid: string): void => {
+    setActiveTransactionUuid(uuid)
+    setIsOpenDeleteTransactions(true)
+  }
+
+  const mutateTransactions = (): void => {
+    mutate(transactionUrl)
   }
 
   return (
@@ -50,7 +72,7 @@ const Index: React.FC = () => {
       </Toolbar>
       <Grid container spacing={2}>
         <Grid item xs={8}>
-          <TransactionTable transactions={transactions} />
+          <TransactionTable transactions={transactions} handleDeleteClick={handleDeleteClick} />
         </Grid>
         <Grid item xs={4}>
           <Stack>
@@ -59,15 +81,26 @@ const Index: React.FC = () => {
             </LocalizationProvider>
             <Grid container>
               <Grid item xs={12}>
-                <Typography>
+                <Typography variant="h4">
                   Day summary
                 </Typography>
+                {transactions && (
+                  <Typography variant="subtitle">
+                    <strong>{formatMoney(overallSum)}</strong> spent in <strong>{transactions?.length}</strong> transactions
+                  </Typography>
+                )}
               </Grid>
             </Grid>
           </Stack>
         </Grid>
       </Grid>
       <AddForm url={transactionUrl} open={isOpenAddTransactions} handleClose={handleCloseModal}/>
+      <ConfirmDeleteForm
+        open={isOpenDeleteTransactions}
+        uuid={activeTransactionUuid}
+        handleClose={handleCloseModal}
+        mutateTransactions={mutateTransactions}
+      />
     </>
   )
 }

@@ -8,9 +8,11 @@ import {
   DialogTitle,
   FormControl,
   Grid,
+  GridActionsCellItem,
   MenuItem,
   Select,
-  TextField
+  TextField,
+  Typography
 } from '@mui/material'
 import { SelectChangeEvent } from '@mui/material/Select'
 import AddIcon from '@mui/icons-material/Add'
@@ -40,7 +42,7 @@ import { useAccounts } from '@/hooks/accounts'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
 import { useAvailableRates } from '@/hooks/rates'
-import { useBudgetWeek, useBudgetDetails } from '@/hooks/budget'
+import { useBudgetWeek } from '@/hooks/budget'
 import { useUsers } from '@/hooks/users'
 import { AccountResponse } from '@/components/accounts/types'
 import { WeekBudgetItem } from '@/components/budget/types'
@@ -53,7 +55,8 @@ import { formatMoney } from '@/utils/numberUtils'
 interface Types {
   url: string
   open: boolean
-  handleClose: () => void }
+  handleClose: () => void
+}
 
 interface EditToolbarProps {
   rows: GridRowsProp,
@@ -107,6 +110,8 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   }, [authUser, users])
 
   const id = randomId()
+
+  const sumOverall: number = rows.reduce((acc: number, item: any) => acc + parseFloat(item.amount) || 0, 0)
 
   const handleClick = () => {
     setRows((oldRows) => [...oldRows, {...emptyRow, id}])
@@ -199,7 +204,10 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
             Duplicate last transaction
           </Button>
         </Grid>
-        <Grid item xs={6} align="right">
+        <Grid item xs={4}>
+          <Typography variant="h5">Computed amount: {sumOverall}</Typography>
+        </Grid>
+        <Grid item xs={2} align="right">
           <Button variant="contained" onClick={handleSaveClick} disabled={isEditMode}>
             Save All
           </Button>
@@ -468,7 +476,7 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
       width: 20,
       editable: false,
       renderCell: (params) => params.formattedValue && <CheckCircleIcon />
-    }
+    },
   ];
 
   const [rows, setRows] = React.useState<[]>([])
