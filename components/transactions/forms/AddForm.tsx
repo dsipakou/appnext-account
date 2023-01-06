@@ -16,6 +16,7 @@ import {
 } from '@mui/material'
 import { SelectChangeEvent } from '@mui/material/Select'
 import AddIcon from '@mui/icons-material/Add'
+import DeleteIcon from '@mui/icons-material/Delete'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import locale from 'date-fns/locale/ru'
@@ -158,7 +159,6 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
       }).then(
         res => {
           if (res.status === 201) {
-            console.log(res)
             setRows((oldRows) => oldRows.map(
               (item) => item.id === row.id 
                 ? {
@@ -475,7 +475,9 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
       headerName: '',
       width: 20,
       editable: false,
-      renderCell: (params) => params.formattedValue && <CheckCircleIcon />
+      renderCell: (params) => params.formattedValue 
+        ? <CheckCircleIcon /> 
+        : <DeleteIcon onClick={() => handleDeleteClick(params)}/>
     },
   ];
 
@@ -500,6 +502,11 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
 
   const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
     event.defaultMuiPrevented = true
+  }
+
+  const handleDeleteClick = (params): void => {
+    const { id } = params
+    setRows((oldRows) => oldRows.filter((item) => item?.id !== id))
   }
 
   const onClose = () => {
