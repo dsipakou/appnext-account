@@ -1,10 +1,9 @@
-import dynamic from 'next/dynamic';
-import { FC, useEffect, useState } from "react";
-import { ChartRates, ChartRate, ChartPeriod, Currency } from './types';
-import ApexCharts from 'apexcharts';
+import dynamic from 'next/dynamic'
+import { FC, useEffect, useState } from "react"
+import { ChartRates, ChartRate, ChartPeriod, Currency } from './types'
+import ApexCharts from 'apexcharts'
 
-const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
-
+const Chart = dynamic(() => import('react-apexcharts'), { ssr: false })
 
 interface Types {
   data: ChartRates[]

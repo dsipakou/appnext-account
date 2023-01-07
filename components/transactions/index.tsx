@@ -18,6 +18,7 @@ import { getFormattedDate } from '@/utils/dateUtils'
 import { AddForm, ConfirmDeleteForm } from '@/components/transactions/forms'
 import { useAuth } from '@/context/auth'
 import { TransactionResponse } from '@/components/transactions/types'
+import DailyChart from '@/components/transactions/components/DailyChart'
 import { formatMoney } from '@/utils/numberUtils'
 
 const Index: React.FC = () => {
@@ -89,6 +90,11 @@ const Index: React.FC = () => {
                     <strong>{formatMoney(overallSum)}</strong> spent in <strong>{transactions?.length}</strong> transactions
                   </Typography>
                 )}
+              </Grid>
+              <Grid item xs={12}>
+                <DailyChart
+                  transactions={transactions}
+                />
               </Grid>
             </Grid>
           </Stack>
