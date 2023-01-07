@@ -205,7 +205,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
           </Button>
         </Grid>
         <Grid item xs={4}>
-          <Typography variant="h5">Computed amount: {sumOverall}</Typography>
+          <Typography variant="h5">Computed amount: {formatMoney(sumOverall)}</Typography>
         </Grid>
         <Grid item xs={2} align="right">
           <Button variant="contained" onClick={handleSaveClick} disabled={isEditMode}>
@@ -506,7 +506,7 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
 
   const handleDeleteClick = (params): void => {
     const { id } = params
-    setRows((oldRows) => oldRows.filter((item) => item?.id !== id))
+    setRows((oldRows) => oldRows.filter((item) => item.id !== id))
   }
 
   const onClose = () => {
