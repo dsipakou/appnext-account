@@ -11,6 +11,7 @@ import TextField from '@mui/material/TextField';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import locale from 'date-fns/locale/ru'
 import { PickersDay, PickersDayProps } from '@mui/x-date-pickers/PickersDay';
 
 interface CustomPickerDayProps extends PickersDayProps<Date> {
@@ -80,7 +81,7 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
   };
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
+    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
       <DatePicker
         label="Week budget"
         value={weekDate}

@@ -1,33 +1,40 @@
-import React, { FC, ReactElement, ReactNode } from 'react';
-import { useTheme } from '@mui/material/styles';
-import Link from 'next/link';
-import { styled, Theme, CSSObject } from '@mui/material/styles';
+import React, { FC, ReactElement, ReactNode } from 'react'
+import axios from 'axios'
+import { useTheme } from '@mui/material/styles'
+import Link from 'next/link'
+import { styled, Theme, CSSObject } from '@mui/material/styles'
 import {
   Drawer,
   Box,
   Button,
+  FormControl,
+  InputLabel,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  MenuItem,
+  Select,
   Toolbar,
   Container,
-  Typography,
-} from '@mui/material';
-import AppBar, { AppBarProps } from '@mui/material/AppBar';
-import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import CategoryIcon from '@mui/icons-material/Category';
-import OnlinePredictionIcon from '@mui/icons-material/OnlinePrediction';
-import CreditCardIcon from '@mui/icons-material/CreditCard';
-import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
-import ShowChartIcon from '@mui/icons-material/ShowChart';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import { Link as MuiLink } from '@mui/material';
-import { useAuth } from '@/context/auth';
+  Typography
+} from '@mui/material'
+import AppBar, { AppBarProps } from '@mui/material/AppBar'
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
+import CategoryIcon from '@mui/icons-material/Category'
+import OnlinePredictionIcon from '@mui/icons-material/OnlinePrediction'
+import CreditCardIcon from '@mui/icons-material/CreditCard'
+import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
+import ShowChartIcon from '@mui/icons-material/ShowChart'
+import IconButton from '@mui/material/IconButton'
+import MenuIcon from '@mui/icons-material/Menu'
+import { Link as MuiLink } from '@mui/material'
+import { useAuth } from '@/context/auth'
+import { useCurrencies } from '@/hooks/currencies'
+import { Currency } from '@/components/currencies/types'
 
-const drawerWidth = 250;
+const drawerWidth = 250
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
@@ -36,7 +43,7 @@ const openedMixin = (theme: Theme): CSSObject => ({
     duration: theme.transitions.duration.enteringScreen,
   }),
   overflowX: 'hidden',
-});
+})
 
 const closedMixin = (theme: Theme): CSSObject => ({
   transition: theme.transitions.create('width', {
@@ -48,7 +55,7 @@ const closedMixin = (theme: Theme): CSSObject => ({
   [theme.breakpoints.up('sm')]: {
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
-});
+})
 
 const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
@@ -65,7 +72,7 @@ const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'ope
       '& .MuiDrawer-paper': closedMixin(theme),
     }),
   }),
-);
+)
 
 const AppBarStyled = styled(AppBar, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
@@ -81,30 +88,62 @@ const AppBarStyled = styled(AppBar, { shouldForwardProp: (prop) => prop !== 'ope
       duration: theme.transitions.duration.enteringScreen
     })
   })
-}));
+}))
 
 const StyledList = styled(List)(({ theme }) => ({
   padding: theme.spacing(1, 0),
-}));
-
+}))
 
 type Props = {
   children: ReactNode,
-};
+}
 
 const Layout: FC<Props> = ({ children }) => {
-  const theme = useTheme();
-  const { isAuthenticated, user, loading } = useAuth();
-  console.log(useAuth());
-  const [open, setOpen] = React.useState(false);
+  const theme = useTheme()
+  const { isAuthenticated, user, loading, updateCurrency } = useAuth()
+  const [open, setOpen] = React.useState(false)
+  const {
+    data: currencies,
+    isLoading: isCurrenciesLoading
+  } = useCurrencies()
 
   const handleDrawerOpen = () => {
-    setOpen(true);
-  };
+    setOpen(true)
+  }
 
   const handleDrawerClose = () => {
-    setOpen(false);
-  };
+    setOpen(false)
+  }
+
+  const handleCurrencyChange = (e) => {
+    const selectedCurrency = e.target.value
+
+    if (selectedCurrency !== user.currency) {
+      axios.patch('users/currency/', {
+        currency: selectedCurrency 
+      }).then(
+        res => {
+          if (res.status === 200) {
+              console.log(selectedCurrency)
+              updateCurrency(selectedCurrency)
+            // TODO: mutate something
+          }
+        }
+      ).catch(
+        (error) => {
+          const errRes = error.response.data
+        }
+      )
+    }
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <Container fixed maxWidth="lg">
+        {children}
+      </Container>
+    )
+  }
 
   const menuItems = [
     {
@@ -137,7 +176,7 @@ const Layout: FC<Props> = ({ children }) => {
       icon: <ShowChartIcon />,
       link: '/reports/'
     },
-  ];
+  ]
 
   const menuComponent = (name: string, icon: ReactElement, link: string): ReactElement => (
     <ListItem key={name} disablePadding sx={{ display: 'block' }}>
@@ -163,13 +202,14 @@ const Layout: FC<Props> = ({ children }) => {
       </Link>
     </ListItem>
   )
+
   const appBar = {
     position: 'fixed',
     elevation: 0,
     sx: {
       borderBottom: `1px solid ${theme.palette.divider}`,
     }
-  };
+  }
 
   return (
     <>
@@ -189,10 +229,25 @@ const Layout: FC<Props> = ({ children }) => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Flying Budget
           </Typography>
-          {isAuthenticated && <div>{user.username}</div>}
+          <Select
+            size="small"
+            value={user.currency}
+            onChange={handleCurrencyChange}
+            sx={{
+              backgroundColor: 'white',
+              width: '200px'
+            }}
+          >
+            { currencies && currencies.map((item: Currency) => (
+              <MenuItem key={item.code} value={item.code}>{item.verbalName}</MenuItem>
+            ))}
+          </Select>
+          { isAuthenticated && (
+            <Typography variant="text" sx={{ mx: 2 }}>Hello, {user.username}</Typography> 
+          )}
           {!loading && !isAuthenticated
             ? <Link href="/login" color="inherit">Login</Link>
-            : <Link href="/logout">Logout</Link>
+            : <Link href="/logout"><Typography variant="">Logout</Typography></Link>
           }
         </Toolbar>
       </AppBarStyled>
@@ -214,6 +269,6 @@ const Layout: FC<Props> = ({ children }) => {
       </Container>
     </>
   )
-};
+}
 
-export default Layout;
+export default Layout

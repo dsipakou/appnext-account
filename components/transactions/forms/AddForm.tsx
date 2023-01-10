@@ -1,6 +1,7 @@
 import * as React from 'react'
 import axios from 'axios'
 import { useSWRConfig } from 'swr'
+import { evaluate } from 'mathjs'
 import {
   Button,
   Dialog,
@@ -94,7 +95,7 @@ interface SelectedItem {
 
 const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   const [user, setUser] = React.useState('')
-  const { rows, setRows, rowModesModel, setRowModesModel, url } = props;
+  const { rows, setRows, rowModesModel, setRowModesModel, url } = props
   const { mutate } = useSWRConfig()
   const { user: authUser, isLoading: isAuthLoading } = useAuth()
 
@@ -143,7 +144,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
 
       const payload = {
         account: row.account.uuid,
-        amount: row.amount,
+        amount: String(evaluate(row.amount.replace(',', '.'))),
         budget: row.budget.uuid,
         category: row.category.uuid,
         currency: row.currency.uuid,

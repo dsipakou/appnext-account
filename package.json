@@ -24,6 +24,7 @@
     "date-fns": "^2.29.3",
     "dexie": "^3.2.2",
     "dexie-react-hooks": "^1.1.1",
+    "mathjs": "^11.5.0",
     "next": "13.0.0",
     "react": "18.2.0",
     "react-apexcharts": "^1.4.0",

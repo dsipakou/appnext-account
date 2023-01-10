@@ -5,6 +5,7 @@ import { userTable } from '@/models/indexedDb.config';
 import { LoginResponse } from '@/components/login/types';
 
 interface UserState {
+  id: number,
   email: string,
   username: string,
   currency: string,
@@ -28,13 +29,11 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    console.log('loading user');
     const loadUserFromIndexedDB = async (): Promise<void> => {
       const userList: Array<UserState> = await userTable.toArray();
       const user = userList[0];
       if (user) {
-        console.log('found user in indexedDB');
-        axios.defaults.headers.Authorization = `Bearer ${user.token}`;
+        axios.defaults.headers.Authorization = `Token ${user.token}`;
         setUser(user);
       }
       setLoading(false)
@@ -56,7 +55,8 @@ export const AuthProvider = ({ children }) => {
       .then((res) => {
         if (res.status === 200) {
           const data = res.data;
-          const userData: LoginResponse = {
+          const userData: UserState = {
+            id: 0,
             username: data.username,
             email: data.email,
             currency: data.currency,
@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const logout = async (): Promise<void> => {
-    setLoading(true);
+    setLoading(true); 
     await userTable.clear();
     setUser(null);
     delete axios.defaults.headers.Authorization;
@@ -86,9 +86,24 @@ export const AuthProvider = ({ children }) => {
     window.location.pathname = '/login'
   }
 
+  const updateCurrency = async (newCurrency: string): Promise<void> => {
+    setLoading(true)
+    const user = await userTable.get(0)
+    await userTable.update(0, { currency: newCurrency })
+    setLoading(false)
+    Router.reload(window.location.pathname)
+  }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated: !!user, user, login, loading, logout }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated: !!user,
+        user,
+        login,
+        loading,
+        logout,
+        updateCurrency
+      }}>
       {children}
     </AuthContext.Provider>
   )
