@@ -3,7 +3,6 @@ import { lazy } from 'react'
 import type { AppProps } from 'next/app'
 import { store } from '../app/store'
 import typography from '../theme/typography'
-import { Provider } from 'react-redux'
 import { CssBaseline, Toolbar } from '@mui/material'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { AuthProvider, useAuth } from '@/context/auth';
@@ -19,17 +18,15 @@ const App = ({ Component, pageProps }: AppProps) => {
   const theme = createTheme({ ...themeOptions })
 
   return (
-    <Provider store={store}>
-      <ThemeProvider theme={theme}>
-        <AuthProvider>
-          <CssBaseline />
-          <Layout>
-            <Toolbar />
-            <Component {...pageProps} />
-          </Layout>
-        </AuthProvider>
-      </ThemeProvider>
-    </Provider>
+    <ThemeProvider theme={theme}>
+      <AuthProvider>
+        <CssBaseline />
+        <Layout>
+          <Toolbar />
+          <Component {...pageProps} />
+        </Layout>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 
