@@ -22,50 +22,50 @@ interface Types {
   activeCategoryUuid: string
   startDate: string
   endDate: string
+  clickDelete: (uuid: string) => void
 }
 
-const DetailsPanel: FC<Types> = ({ activeCategoryUuid, startDate, endDate }) => {
+const DetailsPanel: FC<Types> = ({ activeCategoryUuid, startDate, endDate, clickDelete }) => {
   const { user } = useAuth()
-  const [title, setTitle] = useState<string>('Choose category')
   const [budgetTitle, setBudgetTitle] = useState<string | undefined>()
-  const [categoryBudgets, setCategoryBudgets] = useState<MonthGroupedBudgetItem[]>([])
-  const [category, setCategory] = useState<GroupedByCategoryBudget | null>(null)
   const [budgetItems, setBudgetItems] = useState<MonthBudgetItem[]>([])
   const [activeBudgetUuid, setActiveBudgetUuid] = useState<string | null>(null)
   const {
-    data: budget,
+    data: budgetList = [],
     isLoading: isBudgetLoading
   } = useBudgetMonth(startDate, endDate);
 
-  useEffect(() => {
-    if (!activeCategoryUuid || isBudgetLoading) return;
-
-    setActiveBudgetUuid(null)
-
-    const _category = budget.find(
+  const activeCategory = budgetList.length > 0 
+    ? budgetList.find(
       (item: GroupedByCategoryBudget) => item.uuid === activeCategoryUuid
     )
+    : null
 
-    if (_category) {
-      setCategoryBudgets(_category.budgets)
-      setTitle(_category.categoryName)
-      setCategory(_category)
-    } else {
-      setCategoryBudgets([])
-      setTitle('Choose category')
-      setCategory(null)
-    }
-  }, [activeCategoryUuid, startDate, endDate, isBudgetLoading])
+  const categoryBudgets = activeCategory
+    ? activeCategory.budgets
+    : []
+
+  const title = activeCategory?.categoryName || 'Choose category'
 
   useEffect(() => {
     if (!categoryBudgets || isBudgetLoading || !activeBudgetUuid) return;
+
+    if (!activeCategory) {
+      setActiveBudgetUuid(null)
+      return
+    }
 
     const _budget = categoryBudgets.find(
       (item: MonthBudgetItem) => item.uuid === activeBudgetUuid
     )
 
-    setBudgetTitle(_budget!.title)
-    setBudgetItems(_budget!.items)
+    if (!_budget) {
+      setActiveBudgetUuid(null)
+      return
+    }
+
+    setBudgetTitle(_budget.title)
+    setBudgetItems(_budget.items || [])
   }, [activeBudgetUuid, categoryBudgets, isBudgetLoading])
 
   const handleCloseBudgetDetails = (): void => {
@@ -90,11 +90,12 @@ const DetailsPanel: FC<Types> = ({ activeCategoryUuid, startDate, endDate }) => 
             items={budgetItems}
             startDate={startDate}
             handleClose={handleCloseBudgetDetails}
+            clickDelete={clickDelete}
           /> :
-          category && (
+          activeCategory && (
             <Grid container spacing={2}>
               <Grid item xs={6}>
-                <CategorySummaryCard item={category} />
+                <CategorySummaryCard item={activeCategory} />
               </Grid>
               <Grid item xs={6}>
                 <PreviousMonthsCard />

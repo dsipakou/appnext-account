@@ -15,7 +15,8 @@ import {
   Toolbar,
   Typography
 } from '@mui/material'
-import AddIcon from '@mui/icons-material/Add';
+import AddIcon from '@mui/icons-material/Add'
+import FileCopyIcon from '@mui/icons-material/FileCopy'
 import { useUsers } from '@/hooks/users'
 import { useAuth } from '@/context/auth'
 import { useBudgetMonth, useBudgetWeek } from '@/hooks/budget'
@@ -36,7 +37,8 @@ import {
 import {
   AddForm,
   EditForm,
-  ConfirmDeleteForm
+  ConfirmDeleteForm,
+  DuplicateForm
 } from '@/components/budget/forms'
 
 type BudgetType = 'month' | 'week'
@@ -59,6 +61,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const [isOpenAddBudget, setIsOpenAddBudget] = useState<boolean>(false)
     const [isOpenEditForm, setIsOpenEditForm] = useState<boolean>(false)
     const [isOpenConfirmDeleteForm, setIsOpenConfirmDeleteForm] = useState<boolean>(false)
+    const [isOpenDuplicateForm, setIsOpenDuplicateForm] = useState<boolean>(false)
     const [activeBudgetUuid, setActiveBudgetUuid] = useState<string>('')
     const startDate = activeType === 'month' ? startOfMonth : startOfWeek
     const endDate = activeType === 'month' ? endOfMonth : endOfWeek
@@ -108,12 +111,12 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
 
         _planned = budgetMonth.reduce(
           (acc: number, { plannedInCurrencies }: PlannedMap) => {
-            return acc + plannedInCurrencies[userConfig.currency]
+            return acc + plannedInCurrencies[userConfig?.currency]
           }, 0
         )
         _spent = budgetMonth.reduce(
           (acc: number, { spentInCurrencies }: SpentMap) => {
-            return acc + (spentInCurrencies[userConfig.currency] || 0)
+            return acc + (spentInCurrencies[userConfig?.currency] || 0)
           }, 0
         )
       } else {
@@ -121,7 +124,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
 
         _planned = budgetWeek.reduce(
           (acc: number, { plannedInCurrencies }: PlannedMap) => {
-            return acc + plannedInCurrencies[userConfig.currency]
+            return acc + plannedInCurrencies[userConfig?.currency]
           }, 0
         )
         _spent = budgetWeek.reduce(
@@ -146,6 +149,8 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
       setIsOpenAddBudget(false)
       setIsOpenConfirmDeleteForm(false)
       setIsOpenEditForm(false)
+      setIsOpenDuplicateForm(false)
+      setActiveBudgetUuid('')
     }
 
     const mutateBudget = (): void => {
@@ -213,9 +218,16 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
         </ButtonGroup>
         <Box sx={{ flexGrow: 1 }} />
         <Button
+          startIcon={<FileCopyIcon />}
+          variant="outlined"
+          onClick={() => setIsOpenDuplicateForm(true)}
+        >
+          Duplicate budget
+        </Button>
+        <Button
           startIcon={<AddIcon />}
           variant="contained"
-          sx={{ textTransform: 'none' }}
+          sx={{ textTransform: 'none', ml: 2 }}
           onClick={() => setIsOpenAddBudget(true)}
         >
           Add budget
@@ -290,14 +302,20 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           monthUrl={monthUrl}
           weekUrl={weekUrl}
         />
+        <DuplicateForm
+          open={isOpenDuplicateForm}
+          type={activeType}
+          date={activeType === 'month' ? monthDate : weekDate}
+          handleClose={handleCloseModal}
+          mutateBudget={mutateBudget}
+        />
         {activeBudgetUuid && (
           <>
             <ConfirmDeleteForm
               open={isOpenConfirmDeleteForm}
               uuid={activeBudgetUuid}
               handleClose={handleCloseModal}
-              monthUrl={monthUrl}
-              weekUrl={weekUrl}
+              mutateBudget={mutateBudget}
             />
             <EditForm
               open={isOpenEditForm}

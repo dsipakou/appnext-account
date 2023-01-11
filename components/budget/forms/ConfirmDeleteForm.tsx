@@ -16,11 +16,10 @@ interface Types {
   open: boolean
   uuid: string
   handleClose: () => void
-  monthUrl: string
-  weekUrl: string
+  mutateBudget: () => void
 }
 
-const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose, monthUrl, weekUrl }) => {
+const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose, mutateBudget }) => {
   const [budget, setBudget] = useState('');
   const [errors, setErrors] = useState([]);
   const { mutate } = useSWRConfig();
@@ -33,9 +32,8 @@ const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose, monthUr
       .then(
         res => {
           if (res.status === 204) {
-            mutate(monthUrl)
-            mutate(weekUrl)
-            handleClose();
+            mutateBudget()
+            handleClose()
           } else {
             // TODO: handle errors [non-empty parent,]
           }

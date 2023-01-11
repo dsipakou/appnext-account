@@ -77,6 +77,7 @@ const EditForm: FC<Types> = ({ open, uuid, handleClose, monthUrl, weekUrl }) => 
     isLoading: isBudgetLoading
   } = useBudgetDetails(uuid)
 
+  console.log('seeking budget details 2')
   useEffect(() => {
     if (isCategoriesLoading) return;
 

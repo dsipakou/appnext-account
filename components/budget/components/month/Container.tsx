@@ -13,9 +13,10 @@ import { useAuth } from '@/context/auth'
 interface Types {
   startDate: string
   endDate: string
+  clickDelete: () => void
 }
 
-const Container: FC<Types> = ({ startDate, endDate }) => {
+const Container: FC<Types> = ({ startDate, endDate, clickDelete }) => {
   const { user } = useAuth();
   const [activeCategoryUuid, setActiveCategoryUuid] = useState<string>('')
   const {
@@ -48,6 +49,7 @@ const Container: FC<Types> = ({ startDate, endDate }) => {
           activeCategoryUuid={activeCategoryUuid}
           startDate={startDate}
           endDate={endDate}
+          clickDelete={clickDelete}
         />
       </Grid>
     </Grid>

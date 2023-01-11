@@ -75,3 +75,9 @@ export interface BudgetRequest {
   budgetDate: string
   description: string
 }
+
+export interface DuplicateBudgetResponse {
+  uuid: string
+  title: string
+  date: string
+}

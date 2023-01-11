@@ -68,7 +68,7 @@ const Index: React.FC = () => {
           sx={{ textTransform: 'none' }}
           onClick={() => setIsOpenAddTransactions(true)}
         >
-          Add transctions
+          Add transactions
         </Button>
       </Toolbar>
       <Grid container spacing={2}>

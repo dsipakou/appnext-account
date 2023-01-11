@@ -4,10 +4,6 @@ import {
 } from '@mui/x-data-grid'
 import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
-import {
-  useBudgetDetails,
-  useTransactions
-} from '@/hooks'
 import { useAuth } from '@/context/auth'
 import { TransactionResponse } from '@/components/transactions/types'
 import { formatMoney } from '@/utils/numberUtils'
@@ -16,7 +12,6 @@ interface Types {
   transactions: any
   handleDeleteClick: (uuid: string) => void
 }
-
 
 const TransactionTable: React.FC<Types> = ({ transactions, handleDeleteClick }) => {
   const [rows, setRows] = React.useState<GridRowsProp>([])

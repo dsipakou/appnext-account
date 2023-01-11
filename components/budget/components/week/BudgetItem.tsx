@@ -37,6 +37,7 @@ const BudgetItem: React.FC<Types> = ({
     data: budgetDetails,
     url
   } = useBudgetDetails(uuid)
+  console.log('seeking for budget details')
   const { mutate } = useSWRConfig()
   const [showDetails, setShowDetails] = React.useState<boolean>(false)
   const [errors, setErrors] = React.useState<string>([])

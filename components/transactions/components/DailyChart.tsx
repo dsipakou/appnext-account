@@ -18,9 +18,11 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
 
     setGroupedTransactions(transactions?.reduce((acc, item: TransactionResponse) => {
       const summ = (acc[item.categoryDetails.parentName] || 0) + item.spentInCurrencies[user?.currency]
-      acc[item.categoryDetails.parentName] = Number(formatMoney(summ))
+      acc[item.categoryDetails.parentName] = Number(summ.toFixed(2))
       return acc
     }, {}))
+
+    console.log(groupedTransactions)
   }, [transactions])
 
   return (

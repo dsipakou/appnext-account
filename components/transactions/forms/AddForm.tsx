@@ -501,18 +501,15 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
     return updatedRow;
   }
 
-  const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
-    event.defaultMuiPrevented = true
-  }
-
   const handleDeleteClick = (params): void => {
     const { id } = params
     setRows((oldRows) => oldRows.filter((item) => item.id !== id))
   }
 
   const onClose = () => {
-    handleClose()
     setRows([])
+    setRowModesModel({})
+    handleClose()
   }
 
   return (
