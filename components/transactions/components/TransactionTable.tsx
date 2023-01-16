@@ -1,4 +1,7 @@
 import * as React from 'react'
+import { 
+  Box
+} from '@mui/material'
 import {
   GridActionsCellItem
 } from '@mui/x-data-grid'
@@ -17,14 +20,14 @@ const TransactionTable: React.FC<Types> = ({ transactions, handleDeleteClick }) 
   const [rows, setRows] = React.useState<GridRowsProp>([])
   const columns: GridColDef[] = [
     { field: 'account', headerName: 'Account', width: 150 },
-    { field: 'category', headerName: 'Category', width: 250 },
+    { field: 'category', headerName: 'Category', width: 230 },
     { field: 'budget', headerName: 'Budget', width: 200 },
     { field: 'amount', headerName: 'Amount', width: 80 },
     {
       field: 'actions',
       type: 'actions',
       headerName: 'Actions',
-      width: 100,
+      width: 70,
       getActions: ({ row }) => {
         return [
           <GridActionsCellItem
@@ -58,9 +61,9 @@ const TransactionTable: React.FC<Types> = ({ transactions, handleDeleteClick }) 
   }, [transactions])
 
   return (
-    <div style={{ height: 1000, width: '100%' }}>
+    <Box style={{ height: '80vh', width: '100%' }}>
       <DataGrid rows={rows} columns={columns} />
-    </div>
+    </Box>
   )
 }
 

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import useSWR from 'swr';
 import { Response } from './types';
+import { TransactionsReportResponse } from '@/components/transactions/types'
 
 import {
   Sorting,
@@ -36,4 +37,21 @@ export const useTransactions = (
     isError: error,
     url
   } as Response<TransactionResponse[]>
+}
+
+export const useTransactionsReport = (
+  dateFrom: string,
+  dateTo: string,
+  currency: string
+): Response<TransactionsReportResponse[]> => {
+  const url = `transactions/report?dateFrom=${dateFrom}&dateTo=${dateTo}&currency=${currency}`
+
+  const { data, error } = useSWR(url, fetcher)
+
+  return {
+    data,
+    isLoading: !data && !error,
+    isError: error,
+    url
+  } as Response<TransactionsReportResponse[]>
 }

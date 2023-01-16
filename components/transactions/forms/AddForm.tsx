@@ -420,6 +420,14 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
     isLoading: isCategoriesLoading
   } = useCategories()
 
+  const getTrimmedCategoryName = (uuid: string): string => {
+    const categoryName = categories.find((item: Category) => item.uuid === uuid)?.name || ''
+    if (categoryName.length > 7) {
+      return categoryName.substring(0, 7) + '...'
+    }
+    return categoryName
+  }
+
   const columns: GridColDef[] = [
     {
       field: 'transactionDate',
@@ -444,7 +452,7 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
       headerName: 'Category',
       width: 250,
       editable: true,
-      renderCell: (params) => params.formattedValue.name,
+      renderCell: (params) => `${getTrimmedCategoryName(params.formattedValue.parent)} - ${params.formattedValue.name}`,
       renderEditCell: (params) => <CategoryComponent {...params} categories={categories} />
     },
     {

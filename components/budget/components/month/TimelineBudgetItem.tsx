@@ -4,12 +4,16 @@ import {
   Chip,
   Grid,
   LinearProgress,
+  ListItemIcon,
+  ListItemText,
   Menu,
   MenuItem,
   Paper,
   Typography
 } from '@mui/material'
 import { teal } from '@mui/material/colors'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 import {
   formatMoney
 } from '@/utils/numberUtils'
@@ -19,10 +23,18 @@ interface Types {
   spent: number
   planned: number
   date: string
+  clickEdit: (uuid: string) => void
   clickDelete: (uuid: string) => void
 }
 
-const TimelineBudgetItem: FC<Types> = ({ uuid, spent, planned, date, clickDelete }) => {
+const TimelineBudgetItem: FC<Types> = ({
+  uuid,
+  spent,
+  planned,
+  date,
+  clickEdit,
+  clickDelete
+}) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -37,6 +49,11 @@ const TimelineBudgetItem: FC<Types> = ({ uuid, spent, planned, date, clickDelete
     Math.floor(percentage) > 100 ?
       "error" :
       "primary"
+
+  const handleClickEdit = (): void => {
+    setAnchorEl(null)
+    clickEdit(uuid)
+  }
 
   const handleClickDelete = (): void => {
     setAnchorEl(null)
@@ -139,7 +156,22 @@ const TimelineBudgetItem: FC<Types> = ({ uuid, spent, planned, date, clickDelete
           'aria-labelledby': 'basic-button',
         }}
       >
-        <MenuItem onClick={handleClickDelete}>Delete</MenuItem>
+        <MenuItem onClick={handleClickEdit}>
+          <ListItemIcon>
+            <EditIcon />
+          </ListItemIcon>
+          <ListItemText>
+            Edit
+          </ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleClickDelete}>
+          <ListItemIcon>
+            <DeleteIcon />
+          </ListItemIcon>
+          <ListItemText>
+            Delete
+          </ListItemText>
+        </MenuItem>
       </Menu>
       </>
   )

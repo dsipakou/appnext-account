@@ -40,6 +40,7 @@ interface Types {
   items: MonthBudgetItem[],
   startDate: string
   handleClose: () => void
+  clickEdit: (uuid: string) => void
   clickDelete: (uuid: string) => void
 }
 
@@ -54,7 +55,14 @@ interface WeekItemDetails {
   date: string
 }
 
-const GroupedBudgetDetails: FC<Types> = ({ title, items, startDate, handleClose, clickDelete }) => {
+const GroupedBudgetDetails: FC<Types> = ({
+  title,
+  items,
+  startDate,
+  handleClose,
+  clickEdit,
+  clickDelete
+}) => {
   const weeks: WeekOfMonth[] = getMonthWeeksWithDates(startDate)
   const { user } = useAuth()
 
@@ -143,6 +151,7 @@ const GroupedBudgetDetails: FC<Types> = ({ title, items, startDate, handleClose,
                             planned={item.planned}
                             spent={item.spent}
                             date={item.date}
+                            clickEdit={clickEdit}
                             clickDelete={clickDelete}
                           />
                         </Box>

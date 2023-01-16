@@ -22,10 +22,17 @@ interface Types {
   activeCategoryUuid: string
   startDate: string
   endDate: string
+  clickEdit: (uuid: string) => void
   clickDelete: (uuid: string) => void
 }
 
-const DetailsPanel: FC<Types> = ({ activeCategoryUuid, startDate, endDate, clickDelete }) => {
+const DetailsPanel: FC<Types> = ({
+  activeCategoryUuid,
+  startDate,
+  endDate,
+  clickEdit,
+  clickDelete
+}) => {
   const { user } = useAuth()
   const [budgetTitle, setBudgetTitle] = useState<string | undefined>()
   const [budgetItems, setBudgetItems] = useState<MonthBudgetItem[]>([])
@@ -90,6 +97,7 @@ const DetailsPanel: FC<Types> = ({ activeCategoryUuid, startDate, endDate, click
             items={budgetItems}
             startDate={startDate}
             handleClose={handleCloseBudgetDetails}
+            clickEdit={clickEdit}
             clickDelete={clickDelete}
           /> :
           activeCategory && (

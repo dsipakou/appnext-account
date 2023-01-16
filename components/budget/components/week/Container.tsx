@@ -16,8 +16,8 @@ import HeaderItem from './HeaderItem'
 interface Types {
   startDate: string
   endDate: string
-  clickEdit: () => void
-  clickDelete: () => void
+  clickEdit: (uuid: string) => void
+  clickDelete: (uuid: string) => void
   mutateBudget: () => void
 }
 

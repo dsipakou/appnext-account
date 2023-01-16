@@ -21,6 +21,8 @@ export interface WeekOfMonth {
 
 export const DATE_FORMAT = "yyyy-MM-dd"
 export const MONTH_DAY_FORMAT = "MMM dd"
+export const REPORT_FORMAT = "yyyy-MM"
+export const SHORT_YEAR_MONTH_FORMAT = "MMM-yy"
 
 export const getFormattedDate = (date: Date, dateFormat: string = DATE_FORMAT): string => {
   return format(date, dateFormat);

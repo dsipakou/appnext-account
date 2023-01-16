@@ -18,3 +18,9 @@ export interface TransactionResponse {
   createdAt: string
   modifiedAt: string
 }
+
+export interface TransactionsReportResponse {
+  day: number
+  groupedAmount: number
+  month: string
+}
