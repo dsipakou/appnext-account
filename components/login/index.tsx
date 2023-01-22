@@ -60,4 +60,6 @@ const Index: FC = () => {
   )
 }
 
+Index.layout = 'public'
+
 export default Index

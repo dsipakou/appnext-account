@@ -10,7 +10,7 @@ import {
 
 const Index: React.FC = () => {
   return (
-    <Grid container spacing={4}>
+    <Grid container spacing={4} sx={{ mt: 5 }}>
       <Grid item xs={6}>
         <Box
           sx={{
@@ -35,7 +35,6 @@ const Index: React.FC = () => {
             Sign Up
           </Typography>
           <TextField label="Email" fullWidth />
-          <TextField label="Email repeat" fullWidth />
           <TextField label="Username" fullWidth />
           <TextField label="Password" fullWidth />
           <TextField label="Password again" fullWidth />
@@ -53,5 +52,7 @@ const Index: React.FC = () => {
     </Grid>
   )
 }
+
+Index.layout = 'public'
 
 export default Index

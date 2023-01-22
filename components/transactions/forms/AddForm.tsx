@@ -3,6 +3,7 @@ import axios from 'axios'
 import { useSWRConfig } from 'swr'
 import { evaluate } from 'mathjs'
 import {
+  Box,
   Button,
   Dialog,
   DialogContent,
@@ -28,6 +29,7 @@ import {
   GridRowsProp,
   GridColDef,
   GridEventListener,
+  GridFooter,
   GridRenderEditCellParams,
   GridRowId,
   GridRowModel,
@@ -215,6 +217,15 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
         </Grid>
       </Grid>
     </GridToolbarContainer>
+  )
+}
+
+const FooterWithError: React.FC = (props) => {
+  const { errors } = props
+  return (
+    <Box>
+      <Typography variant="h6">{errors}</Typography>
+    </Box>
   )
 }
 
@@ -410,6 +421,7 @@ const emptyRow = {
 }
 
 const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
+  const [errors, setErrors] = React.useState<string>('')
   const {
     data: accounts = [],
     isLoading: isAccountsLoading
@@ -452,7 +464,7 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
       headerName: 'Category',
       width: 250,
       editable: true,
-      renderCell: (params) => `${getTrimmedCategoryName(params.formattedValue.parent)} - ${params.formattedValue.name}`,
+      renderCell: (params) => `${getTrimmedCategoryName(params.formattedValue.parent)} - ${params.formattedValue.name || ''}`,
       renderEditCell: (params) => <CategoryComponent {...params} categories={categories} />
     },
     {
@@ -467,7 +479,6 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
     {
       field: 'currency',
       headerName: 'Currency',
-      width: 70,
       editable: true,
       renderCell: (params) => params.formattedValue.code,
       renderEditCell: (params) => <CurrencyComponent {...params} />
@@ -476,7 +487,7 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
     {
       field: 'baseAmount',
       headerName: 'Base Amount',
-      width: 80,
+      width: 70,
       editable: false,
     },
     {
@@ -495,6 +506,10 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
   const [account, setAccount] = React.useState<KeyValue>({})
   const [budgetDate, setBudgetDate] = React.useState<Date>(new Date())
 
+  React.useEffect(() => {
+    setErrors('')
+  }, [rows])
+
   const handleAccountChange = (id: GridRowId, e) => {
     setAccount({...account, [id]: e.target.value})
   }
@@ -506,7 +521,7 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
   const processRowUpdate = (newRow: GridRowModel) => {
     const updatedRow = { ...newRow, isNew: false }
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)))
-    return updatedRow;
+    return updatedRow
   }
 
   const handleDeleteClick = (params): void => {
@@ -515,9 +530,15 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
   }
 
   const onClose = () => {
-    setRows([])
-    setRowModesModel({})
-    handleClose()
+    const canClose = rows.every((item: any) => item.saved === true)
+    if (canClose) {
+      handleClose()
+      setErrors('')
+      setRows([])
+      setRowModesModel({})
+    } else {
+      setErrors('You have unsaved records. Remove or save them.')
+    }
   }
 
   return (
@@ -534,10 +555,12 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
               onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
               processRowUpdate={processRowUpdate}
               components={{
-                Toolbar: EditToolbar
+                Toolbar: EditToolbar,
+                Footer: FooterWithError
               }}
               componentsProps={{
-                toolbar: { rows, setRows, rowModesModel, setRowModesModel, url }
+                toolbar: { rows, setRows, rowModesModel, setRowModesModel, url },
+                footer: { errors }
               }}
               experimentalFeatures={{ newEditingApi: true }}
             />

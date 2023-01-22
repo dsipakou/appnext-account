@@ -3,13 +3,15 @@ import {
   format,
   parse,
   formatRelative,
+  eachDayOfInterval,
   max,
   min,
   getWeeksInMonth,
   startOfMonth,
   startOfWeek,
   endOfMonth,
-  endOfWeek
+  endOfWeek,
+  eachHourOfInterval
 } from 'date-fns'
 import { enUS } from 'date-fns/esm/locale'
 
@@ -23,6 +25,8 @@ export const DATE_FORMAT = "yyyy-MM-dd"
 export const MONTH_DAY_FORMAT = "MMM dd"
 export const REPORT_FORMAT = "yyyy-MM"
 export const SHORT_YEAR_MONTH_FORMAT = "MMM-yy"
+export const SHORT_DAY_ONLY_FORMAT = "EEE"
+export const FULL_DAY_ONLY_FORMAT = "EEEE"
 
 export const getFormattedDate = (date: Date, dateFormat: string = DATE_FORMAT): string => {
   return format(date, dateFormat);
@@ -86,6 +90,18 @@ export const getMonthWeeksWithDates = (
     } as WeekOfMonth)
   }
   return weekOfMonth
+}
+
+export const getWeekDays = (formatTemplate: string = SHORT_DAY_ONLY_FORMAT): string[] => {
+  const today = new Date()
+  const everyDayOfWeek = eachDayOfInterval({
+    start: startOfWeek(today, { weekStartsOn: 1 }),
+    end: endOfWeek(today, { weekStartsOn: 1 })
+  })
+  return everyDayOfWeek.reduce((acc: string[], day: string) => {
+    acc.push(format(day, formatTemplate))
+    return acc
+  }, [])
 }
 
 export const formatRelativeLocale = {

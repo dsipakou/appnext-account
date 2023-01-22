@@ -64,16 +64,28 @@ const Index: React.FC = () => {
               key={item.uuid}
               item={item}
               clickAccount={clickAccount}
-              clickDelete={clickDelete}/>
+              clickDelete={clickDelete}
+            />
           </Grid>
         ))}
       </Grid>
-      <AddForm open={isAddFormOpened} handleClose={handleClose} />
+      <AddForm
+        open={isAddFormOpened}
+        handleClose={handleClose}
+      />
       {
         activeAccount && (
           <>
-            <EditForm uuid={activeAccount} open={isEditFormOpened} handleClose={handleClose} />
-            <ConfirmDeleteForm uuid={activeAccount} open={isConfirmDeleteFormOpened} handleClose={handleClose} />
+            <EditForm
+              uuid={activeAccount}
+              open={isEditFormOpened}
+              handleClose={handleClose}
+            />
+            <ConfirmDeleteForm
+              uuid={activeAccount}
+              open={isConfirmDeleteFormOpened}
+              handleClose={handleClose}
+            />
           </>
         )
       } 

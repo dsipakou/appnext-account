@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }) => {
             token: data.token,
           };
           storeUserData(userData);
-          axios.defaults.headers.Authorization = `Bearer ${userData.token}`;
+          axios.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
           window.location.pathname = '/';
         } else {
           // TODO: handle error

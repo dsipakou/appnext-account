@@ -5,8 +5,10 @@ import { useBudgetWeek } from '@/hooks/budget'
 import { WeekBudgetItem } from '@/components/budget/types'
 import { ConfirmDeleteForm } from '@/components/budget/forms'
 import {
+  getWeekDays,
   parseDate,
   parseAndFormatDate,
+  FULL_DAY_ONLY_FORMAT,
   MONTH_DAY_FORMAT,
 } from '@/utils/dateUtils'
 import { useAuth } from '@/context/auth'
@@ -38,33 +40,23 @@ interface GroupedByWeek {
   [key: string]: CompactWeekItem[]
 }
 
-const header = (
-  <Grid container spacing={1}>
-    <Grid item xs={2}></Grid>
-    <Grid item xs={1}>
-      <HeaderItem title="Mon" />
+const header = () => {
+  const currentDay: number = (getDay(new Date()) + 6) % 7
+  const daysShortFormatArray: string[] = getWeekDays()
+  const daysFullFormatArray: string[] = getWeekDays(FULL_DAY_ONLY_FORMAT)
+
+  return (
+    <Grid container spacing={1}>
+      <Grid item xs={2}></Grid>
+      { daysShortFormatArray.map((item: string, index: number) => (
+        <Grid item xs={currentDay === index ? 2 : 1} key={item}>
+          <HeaderItem title={currentDay === index ? daysFullFormatArray[index] : item} />
+        </Grid>
+      ))}
+      <Grid item></Grid>
     </Grid>
-    <Grid item xs={1}>
-      <HeaderItem title="Tue" />
-    </Grid>
-    <Grid item xs={1}>
-      <HeaderItem title="Wed" />
-    </Grid>
-    <Grid item xs={1}>
-      <HeaderItem title="Thu" />
-    </Grid>
-    <Grid item xs={1}>
-      <HeaderItem title="Fri" />
-    </Grid>
-    <Grid item xs={1}>
-      <HeaderItem title="Sat" />
-    </Grid>
-    <Grid item xs={1}>
-      <HeaderItem title="Sun" />
-    </Grid>
-    <Grid item></Grid>
-  </Grid>
-);
+  )
+}
 
 const Container: FC<Types> = ({
   startDate,
@@ -77,9 +69,11 @@ const Container: FC<Types> = ({
   const { data: budget, isLoading }: WeekBudgetResponse = useBudgetWeek(
     startDate,
     endDate
-  );
+  )
+  const currentDay: number = getDay(new Date())
   const { user } = useAuth();
   const weekDaysArray: number[] = [1, 2, 3, 4, 5, 6, 0];
+
 
   useEffect(() => {
     if (!budget) return;
@@ -107,11 +101,11 @@ const Container: FC<Types> = ({
         {parseAndFormatDate(startDate, MONTH_DAY_FORMAT)} -{" "}
         {parseAndFormatDate(endDate, MONTH_DAY_FORMAT)}
       </Typography>
-      {header}
+      { header() }
       <Grid container spacing={1}>
         <Grid item xs={2}></Grid>
         {weekDaysArray.map((i: number) => (
-          <Grid item xs={1} key={i}>
+          <Grid item xs={currentDay === i ? 2 : 1} key={i}>
             <Stack spacing={1}>
               {weekGroup[i] &&
                 weekGroup[i].map((item: CompactWeekItem) => (

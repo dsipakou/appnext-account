@@ -5,7 +5,7 @@ import { store } from '../app/store'
 import typography from '../theme/typography'
 import { CssBaseline, Toolbar } from '@mui/material'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
-import { AuthProvider, useAuth } from '@/context/auth';
+import { AuthProvider } from '@/context/auth';
 import '@/plugins/axios'
 
 const Layout = lazy(async () => await import('../components/common/layout/Layout'))
@@ -16,6 +16,16 @@ const App = ({ Component, pageProps }: AppProps) => {
   }
 
   const theme = createTheme({ ...themeOptions })
+
+  if (Component.layout === 'public') {
+    return (
+      <ThemeProvider theme={theme}>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </ThemeProvider>
+    )
+  }
 
   return (
     <ThemeProvider theme={theme}>
