@@ -65,6 +65,7 @@ const Index: React.FC = () => {
         <Button
           startIcon={<AddIcon />}
           variant="contained"
+          className="bg-blue-500"
           sx={{ textTransform: 'none' }}
           onClick={() => setIsOpenAddTransactions(true)}
         >

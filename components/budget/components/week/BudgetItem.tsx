@@ -209,10 +209,10 @@ const BudgetItem: React.FC<Types> = ({
           <Button
             size="small"
             variant="contained"
-            color={budgetDetails.isCompleted ? 'warning' : 'success'}
+            color={budgetDetails?.isCompleted ? 'warning' : 'success'}
             disableElevation
             onClick={handleClickComplete}>
-            { budgetDetails.isCompleted ? 'Un-complete' : 'Complete' }
+            { budgetDetails?.isCompleted ? 'Un-complete' : 'Complete' }
           </Button>
           <Button size="small" onClick={handleClickEdit}>Edit</Button>
           <Button size="small" onClick={handleClickDelete}>Delete</Button>

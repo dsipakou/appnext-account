@@ -8,9 +8,9 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Divider,
   FormControl,
   Grid,
-  GridActionsCellItem,
   MenuItem,
   Select,
   TextField,
@@ -254,7 +254,8 @@ const AccountComponent: React.FC<AccountComponentTypes> = (params) => {
 
 const BudgetComponent: React.FC<BudgetComponentTypes> = (params) => {
   const { id, field, row, value } = params
-  const [items, setItems] = React.useState<WeekBudgetItem[]>([])
+  const [completedItems, setCompletedItems] = React.useState<WeekBudgetItem[]>([])
+  const [incompletedItems, setIncompletedItems] = React.useState<WeekBudgetItem[]>([])
   const apiRef = useGridApiContext()
   const transactionDate = row.transactionDate
   const weekStart = getStartOfWeek(transactionDate || new Date())
@@ -265,34 +266,47 @@ const BudgetComponent: React.FC<BudgetComponentTypes> = (params) => {
   } = useBudgetWeek(weekStart, weekEnd)
 
   const handleChange = (newValue: any) => {
+    console.log(newValue.target.value)
     apiRef.current.setEditCellValue({ id, field, value: newValue.target.value})
   }
 
   React.useEffect(() => {
     if (!user || !budgets) return
+    const completedBudgets = budgets.filter((item: WeekBudgetItem) => item.isCompleted && item.user === user)
+    const incompletedBudgets = budgets.filter((item: WeekBudgetItem) => !item.isCompleted && item.user === user)
 
     apiRef.current.setEditCellValue({ id, field, value: value })
-    setItems(budgets.filter((item: WeekBudgetItem) => item.user === user))
+    setCompletedItems(completedBudgets)
+    setIncompletedItems(incompletedBudgets)
   }, [budgets, user, transactionDate])
 
   return (
     <FormControl fullWidth>
       <Select
         fullWidth
-        value={!!items.length ? value : ''}
+        value={!![...completedItems, ...incompletedItems].length ? value : ''}
         onChange={handleChange}
       >
-        { !!user 
-            ? items.map((item: WeekBudgetItem) => (
-              <MenuItem
-                key={item.uuid}
-                value={item}
-              >
-                {item.title}
-              </MenuItem>
-            )) 
-            : <MenuItem value="">Please select account first</MenuItem> 
+        { user && incompletedItems.map((item: WeekBudgetItem) => (
+            <MenuItem
+              key={item.uuid}
+              value={item}
+            >
+              {item.title}
+            </MenuItem>
+          ))
         }
+        { user && completedItems.length > 0 && incompletedItems.length > 0 && <Divider /> }
+        { user && completedItems.map((item: WeekBudgetItem) => (
+            <MenuItem
+              key={item.uuid}
+              value={item}
+            >
+              {item.title}
+            </MenuItem>
+          ))
+        }
+        { !user && <MenuItem value="">Please, select account first</MenuItem>}
       </Select>
     </FormControl>
   )

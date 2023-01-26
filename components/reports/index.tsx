@@ -1,6 +1,7 @@
 import React from 'react'
 import {
   addMonths,
+  format,
   subMonths,
   startOfMonth,
   endOfMonth
@@ -32,7 +33,7 @@ const Index: React.FC = () => {
 
   const {
     data: reportResponse = []
-  } = authUser?.currency ? useTransactionsReport(dateFrom, dateTo, authUser?.currency) : []
+  } = authUser?.currency ? useTransactionsReport(dateFrom, dateTo, authUser?.currency) : { data: [] }
 
   const clickBack = (): void => {
     setDate((oldDate) => subMonths(oldDate, 1))
@@ -110,7 +111,13 @@ const Index: React.FC = () => {
             rows={aggregatedRows}
             rowHeight={30}
             sx={{ height: '100%'}}
-            getCellClassName={(params) => console.log(params)}
+            getCellClassName={(params) => {
+              const day: number = format(new Date(), 'd')
+              if (params.id === Number(day)) {
+                return 'bg-slate-500 text-white'
+              }
+              return ''
+            }}
           />
         </Grid>
       </Grid>
