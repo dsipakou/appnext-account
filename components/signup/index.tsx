@@ -1,4 +1,5 @@
 import React from 'react'
+import axios from 'axios'
 import {
   Box,
   Button,
@@ -9,6 +10,10 @@ import {
 } from '@mui/material'
 
 const Index: React.FC = () => {
+  const submit = () => {
+
+  }
+
   return (
     <Grid container spacing={4} sx={{ mt: 5 }}>
       <Grid item xs={6}>
@@ -36,9 +41,10 @@ const Index: React.FC = () => {
           </Typography>
           <TextField label="Email" fullWidth />
           <TextField label="Username" fullWidth />
-          <TextField label="Password" fullWidth />
-          <TextField label="Password again" fullWidth />
+          <TextField label="Password" type="password" fullWidth />
+          <TextField label="Password again" type="password" fullWidth />
           <Button
+            className="bg-sky-500"
             variant="contained"
             size="large"
             sx={{

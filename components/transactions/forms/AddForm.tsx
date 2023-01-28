@@ -77,6 +77,8 @@ interface AccountComponentTypes extends GridRenderEditCellParams {
   accounts: AccountResponse[]
 }
 
+interface AmountComponentTypes extends GridRenderEditCellParams {}
+
 interface BudgetComponentTypes extends GridRenderEditCellParams {
 }
 
@@ -115,7 +117,9 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
 
   const id = randomId()
 
-  const sumOverall: number = rows.reduce((acc: number, item: any) => acc + parseFloat(item.amount) || 0, 0)
+  const sumOverall: number = rows.reduce((acc: number, item: any) => {
+    return acc + parseFloat(item.amount.replace(',', '.')) || 0 
+  }, 0)
 
   const handleClick = () => {
     setRows((oldRows) => [...oldRows, {...emptyRow, id}])
@@ -249,6 +253,28 @@ const AccountComponent: React.FC<AccountComponentTypes> = (params) => {
         ))}
       </Select>
     </FormControl>
+  )
+}
+
+const AmountComponent: React.FC<AmountComponentTypes> = (params) => {
+  const { id, field, value } = params
+  const apiRef = useGridApiContext()
+  const inputRef = React.createRef<HTMLInputElement>()
+
+  React.useEffect(() => {
+    inputRef.current?.select()
+  }, [])
+
+  const handleChange = (newValue: any) => {
+    apiRef.current.setEditCellValue({ id, field, value: newValue.target.value })
+  }
+   
+  return (
+    <TextField
+      value={value}
+      onChange={handleChange}
+      inputProps={{ ref: inputRef }}
+    />
   )
 }
 
@@ -489,7 +515,13 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
       renderCell: (params) => params.formattedValue.title,
       renderEditCell: (params) => <BudgetComponent {...params} />
     },
-    { field: 'amount', headerName: 'Amount', width: 80, editable: true },
+    {
+      field: 'amount',
+      headerName: 'Amount',
+      width: 80,
+      editable: true,
+      renderEditCell: (params) => <AmountComponent {...params} />
+    },
     {
       field: 'currency',
       headerName: 'Currency',
