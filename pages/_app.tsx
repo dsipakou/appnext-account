@@ -20,9 +20,11 @@ const App = ({ Component, pageProps }: AppProps) => {
   if (Component.layout === 'public') {
     return (
       <ThemeProvider theme={theme}>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
+        <AuthProvider>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </AuthProvider>
       </ThemeProvider>
     )
   }

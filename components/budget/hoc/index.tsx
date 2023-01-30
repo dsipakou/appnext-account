@@ -38,7 +38,8 @@ import {
   AddForm,
   EditForm,
   ConfirmDeleteForm,
-  DuplicateForm
+  DuplicateForm,
+  TransactionsForm
 } from '@/components/budget/forms'
 
 type BudgetType = 'month' | 'week'
@@ -59,6 +60,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const [plannedSum, setPlannedSum] = useState<number>(0)
     const [spentSum, setSpentSum] = useState<number>(0)
     const [isOpenAddBudget, setIsOpenAddBudget] = useState<boolean>(false)
+    const [isOpenTransactionsForm, setIsOpenTransactionsForm] = useState<boolean>(false)
     const [isOpenEditForm, setIsOpenEditForm] = useState<boolean>(false)
     const [isOpenConfirmDeleteForm, setIsOpenConfirmDeleteForm] = useState<boolean>(false)
     const [isOpenDuplicateForm, setIsOpenDuplicateForm] = useState<boolean>(false)
@@ -82,6 +84,11 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
       isLoading: isWeekBudgetLoading,
       url: weekUrl
     } = useBudgetWeek(startOfWeek, endOfWeek)
+
+    const handleClickTransactions = (uuid: string): void => {
+      setActiveBudgetUuid(uuid)
+      setIsOpenTransactionsForm(true)
+    }
 
     const handleClickDelete = (uuid: string): void => {
       setActiveBudgetUuid(uuid)
@@ -150,6 +157,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
       setIsOpenConfirmDeleteForm(false)
       setIsOpenEditForm(false)
       setIsOpenDuplicateForm(false)
+      setIsOpenTransactionsForm(false)
       setActiveBudgetUuid('')
     }
 
@@ -290,6 +298,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             <Component
               startDate={startDate}
               endDate={endDate}
+              clickShowTransactions={handleClickTransactions}
               clickEdit={handleClickEdit}
               clickDelete={handleClickDelete}
               mutateBudget={mutateBudget}
@@ -323,6 +332,10 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
               handleClose={handleCloseModal}
               monthUrl={monthUrl}
               weekUrl={weekUrl}
+            />
+            <TransactionsForm
+              open={isOpenTransactionsForm}
+              handleClose={handleCloseModal}
             />
           </>
         )

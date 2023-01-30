@@ -2,6 +2,7 @@ import React, { FC } from 'react'
 import {
   Box,
   Chip,
+  Divider,
   Grid,
   LinearProgress,
   ListItemIcon,
@@ -12,6 +13,7 @@ import {
   Typography
 } from '@mui/material'
 import { teal } from '@mui/material/colors'
+import ReceiptIcon from '@mui/icons-material/Receipt'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import {
@@ -23,6 +25,7 @@ interface Types {
   spent: number
   planned: number
   date: string
+  clickShowTransactions: (uuid: string) => void
   clickEdit: (uuid: string) => void
   clickDelete: (uuid: string) => void
 }
@@ -32,6 +35,7 @@ const TimelineBudgetItem: FC<Types> = ({
   spent,
   planned,
   date,
+  clickShowTransactions,
   clickEdit,
   clickDelete
 }) => {
@@ -49,6 +53,11 @@ const TimelineBudgetItem: FC<Types> = ({
     Math.floor(percentage) > 100 ?
       "error" :
       "primary"
+
+  const handleClickTransactions = (): void => {
+    setAnchorEl(null)
+    clickShowTransactions(uuid)
+  }
 
   const handleClickEdit = (): void => {
     setAnchorEl(null)
@@ -156,6 +165,15 @@ const TimelineBudgetItem: FC<Types> = ({
           'aria-labelledby': 'basic-button',
         }}
       >
+        <MenuItem onClick={handleClickTransactions}>
+          <ListItemIcon>
+            <ReceiptIcon />
+          </ListItemIcon>
+          <ListItemText>
+            Transactions
+          </ListItemText>
+        </MenuItem>
+        <Divider />
         <MenuItem onClick={handleClickEdit}>
           <ListItemIcon>
             <EditIcon />

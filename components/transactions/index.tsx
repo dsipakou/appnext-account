@@ -20,6 +20,7 @@ import { useAuth } from '@/context/auth'
 import { TransactionResponse } from '@/components/transactions/types'
 import DailyChart from '@/components/transactions/components/DailyChart'
 import { formatMoney } from '@/utils/numberUtils'
+import locale from 'date-fns/locale/ru'
 
 const Index: React.FC = () => {
   const { user } = useAuth();
@@ -78,7 +79,7 @@ const Index: React.FC = () => {
         </Grid>
         <Grid item xs={4}>
           <Stack>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
               <CalendarPicker date={transactionDate} onChange={(newDate) => setTransactionDate(newDate)} />
             </LocalizationProvider>
             <Grid container>

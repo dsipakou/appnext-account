@@ -40,6 +40,7 @@ interface Types {
   items: MonthBudgetItem[],
   startDate: string
   handleClose: () => void
+  clickShowTransactions: (uuid: string) => void
   clickEdit: (uuid: string) => void
   clickDelete: (uuid: string) => void
 }
@@ -60,6 +61,7 @@ const GroupedBudgetDetails: FC<Types> = ({
   items,
   startDate,
   handleClose,
+  clickShowTransactions,
   clickEdit,
   clickDelete
 }) => {
@@ -151,6 +153,7 @@ const GroupedBudgetDetails: FC<Types> = ({
                             planned={item.planned}
                             spent={item.spent}
                             date={item.date}
+                            clickShowTransactions={clickShowTransactions}
                             clickEdit={clickEdit}
                             clickDelete={clickDelete}
                           />

@@ -13,6 +13,7 @@ import { useAuth } from '@/context/auth'
 interface Types {
   startDate: string
   endDate: string
+  clickShowTransactions: (uuid: string) => void
   clickEdit: (uuid: string) => void
   clickDelete: (uuid: string) => void
 }
@@ -20,6 +21,7 @@ interface Types {
 const Container: FC<Types> = ({
   startDate,
   endDate,
+  clickShowTransactions,
   clickEdit,
   clickDelete
 }) => {
@@ -55,6 +57,7 @@ const Container: FC<Types> = ({
           activeCategoryUuid={activeCategoryUuid}
           startDate={startDate}
           endDate={endDate}
+          clickShowTransactions={clickShowTransactions}
           clickEdit={clickEdit}
           clickDelete={clickDelete}
         />

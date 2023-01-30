@@ -22,6 +22,7 @@ interface Types {
   activeCategoryUuid: string
   startDate: string
   endDate: string
+  clickShowTransactions: (uuid: string) => void
   clickEdit: (uuid: string) => void
   clickDelete: (uuid: string) => void
 }
@@ -30,6 +31,7 @@ const DetailsPanel: FC<Types> = ({
   activeCategoryUuid,
   startDate,
   endDate,
+  clickShowTransactions,
   clickEdit,
   clickDelete
 }) => {
@@ -97,6 +99,7 @@ const DetailsPanel: FC<Types> = ({
             items={budgetItems}
             startDate={startDate}
             handleClose={handleCloseBudgetDetails}
+            clickShowTransactions={clickShowTransactions}
             clickEdit={clickEdit}
             clickDelete={clickDelete}
           /> :

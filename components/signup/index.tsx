@@ -10,8 +10,34 @@ import {
 } from '@mui/material'
 
 const Index: React.FC = () => {
-  const submit = () => {
+  const [email, setEmail] = React.useState<string>('')
+  const [username, setUsername] = React.useState<string>('')
+  const [password, setPassword] = React.useState<string>('')
+  const [passwordRepeat, setPasswordRepeat] = React.useState<string>('')
+  const [errors, setErrors] = React.useState<string[]>([])
 
+  const handleEmailInput = (e) => {
+    setEmail(e.target.value)
+  }
+
+  const handleUsernameInput = (e) => {
+    setUsername(e.target.value)
+  }
+
+  const handlePasswordInput = (e) => {
+    setPassword(e.target.value)
+  }
+
+  const handlePasswordRepeatInput = (e) => {
+    setPasswordRepeat(e.target.value)
+  }
+
+  const submit = () => {
+    setErrors([])
+    if (password !== passwordRepeat) {
+      const error = "Please, check your password"
+      setErrors((oldErrors: string[]) => [...oldErrors, error])
+    }
   }
 
   return (
@@ -39,10 +65,34 @@ const Index: React.FC = () => {
           <Typography variant="h4">
             Sign Up
           </Typography>
-          <TextField label="Email" fullWidth />
-          <TextField label="Username" fullWidth />
-          <TextField label="Password" type="password" fullWidth />
-          <TextField label="Password again" type="password" fullWidth />
+          <TextField
+            label="Email"
+            id="email"
+            type="email"
+            fullWidth
+            onChange={handleEmailInput}
+          />
+          <TextField
+            label="Username"
+            id="username"
+            type="text"
+            fullWidth
+            onChange={handleUsernameInput}
+          />
+          <TextField
+            label="Password"
+            id="password"
+            type="password"
+            fullWidth
+            onChange={handlePasswordInput}
+          />
+          <TextField
+            label="Password again"
+            id="password-repeat"
+            type="password"
+            fullWidth
+            onChange={handlePasswordRepeatInput}
+          />
           <Button
             className="bg-sky-500"
             variant="contained"
@@ -50,9 +100,13 @@ const Index: React.FC = () => {
             sx={{
               width: '40%'
             }}
+            onClick={submit}
           >
             Create account
           </Button>
+          { errors.map((error: string) => (
+            <Typography>{error}</Typography>
+          ))}
         </Stack>
       </Grid>
     </Grid>

@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
       const userList: Array<UserState> = await userTable.toArray();
       const user = userList[0];
       if (user) {
-        axios.defaults.headers.Authorization = `Token ${user.token}`;
+        axios.defaults.headers.common['Authorization'] = `Token ${user.token}`;
         setUser(user);
       }
       setLoading(false)
@@ -64,6 +64,7 @@ export const AuthProvider = ({ children }) => {
           };
           storeUserData(userData);
           axios.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
+
           window.location.pathname = '/';
         } else {
           // TODO: handle error

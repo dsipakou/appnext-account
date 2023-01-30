@@ -11,7 +11,7 @@ import {
 import { useAuth } from '@/context/auth'
 
 const Index: FC = () => {
-  const { login } = useAuth()
+  const { isAuthenticated, login } = useAuth()
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
 
