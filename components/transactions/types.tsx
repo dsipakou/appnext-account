@@ -6,7 +6,6 @@ export interface TransactionResponse {
   account: string
   accountDetails: any
   amount: number
-  spentInBaseCurrency: number
   spentInCurrencies: any
   currency: string
   budget: string

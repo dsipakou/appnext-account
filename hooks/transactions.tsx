@@ -55,3 +55,18 @@ export const useTransactionsReport = (
     url
   } as Response<TransactionsReportResponse[]>
 }
+
+export const useBudgetTransactions = (
+  uuid: string
+): Response<TransactionResponse[]> => {
+  const url = `transactions/budget/${uuid}/`
+
+  const { data, error } = useSWR(url, fetcher)
+
+  return {
+    data,
+    isLoading: !data && !error,
+    isError: error,
+    url
+  } as Response<TransactionResponse[]>
+}

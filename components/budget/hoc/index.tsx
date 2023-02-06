@@ -336,6 +336,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             <TransactionsForm
               open={isOpenTransactionsForm}
               handleClose={handleCloseModal}
+              uuid={activeBudgetUuid}
             />
           </>
         )

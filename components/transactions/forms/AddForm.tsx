@@ -48,13 +48,16 @@ import { useCurrencies } from '@/hooks/currencies'
 import { useAvailableRates } from '@/hooks/rates'
 import { useBudgetWeek } from '@/hooks/budget'
 import { useUsers } from '@/hooks/users'
-import { AccountResponse } from '@/components/accounts/types'
 import { WeekBudgetItem } from '@/components/budget/types'
 import { Category, CategoryType } from '@/components/categories/types'
 import { Currency } from '@/components/currencies/types'
 import { User } from '@/components/users/types'
 import { getStartOfWeek, getEndOfWeek, getFormattedDate, MONTH_DAY_FORMAT } from '@/utils/dateUtils'
 import { formatMoney } from '@/utils/numberUtils'
+import {
+  AccountComponent,
+  DateComponent
+} from './components'
 
 interface Types {
   url: string
@@ -73,11 +76,7 @@ interface EditToolbarProps {
   ) => void
 }
 
-interface AccountComponentTypes extends GridRenderEditCellParams {
-  accounts: AccountResponse[]
-}
-
-interface AmountComponentTypes extends GridRenderEditCellParams {}
+interface AmountComponentTypes extends GridRenderEditCellParams { }
 
 interface BudgetComponentTypes extends GridRenderEditCellParams {
 }
@@ -85,8 +84,6 @@ interface BudgetComponentTypes extends GridRenderEditCellParams {
 interface CategoryComponentTypes extends GridRenderEditCellParams {
   parentList: Category[]
 }
-
-interface DateComponentTypes extends GridRenderEditCellParams {}
 
 interface KeyValue {
   [id: string]: string
@@ -99,6 +96,7 @@ interface SelectedItem {
 
 const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   const [user, setUser] = React.useState('')
+  const [baseCurrency, setBaseCurrency] = React.useState<string>('')
   const { rows, setRows, rowModesModel, setRowModesModel, url } = props
   const { mutate } = useSWRConfig()
   const { user: authUser, isLoading: isAuthLoading } = useAuth()
@@ -108,6 +106,10 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
     isLoading: isUsersLoading
   } = useUsers()
 
+  const {
+    data: currencies = []
+  } = useCurrencies()
+
   React.useEffect(() => {
     if (!authUser || !users) return
 
@@ -115,14 +117,18 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
     setUser(_user.uuid)
   }, [authUser, users])
 
+  React.useEffect(() => {
+    setBaseCurrency(currencies.find((item: Currency) => item.isBase)?.code)
+  })
+
   const id = randomId()
 
   const sumOverall: number = rows.reduce((acc: number, item: any) => {
-    return acc + parseFloat(item.amount.replace(',', '.')) || 0 
+    return acc + parseFloat(item.amount.replace(',', '.')) || 0
   }, 0)
 
   const handleClick = () => {
-    setRows((oldRows) => [...oldRows, {...emptyRow, id}])
+    setRows((oldRows) => [...oldRows, { ...emptyRow, id }])
     setRowModesModel((oldModel) => ({
       ...oldModel,
       [id]: { mode: GridRowModes.Edit, fieldToFocus: 'amount' },
@@ -167,12 +173,12 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
         res => {
           if (res.status === 201) {
             setRows((oldRows) => oldRows.map(
-              (item) => item.id === row.id 
+              (item) => item.id === row.id
                 ? {
-                    ...item,
-                    saved: true,
-                    baseAmount: formatMoney(res.data.spentInBaseCurrency)
-                  } 
+                  ...item,
+                  saved: true,
+                  baseAmount: formatMoney(res.data.spentInCurrencies[baseCurrency])
+                }
                 : item
             ))
             mutate(url)
@@ -233,28 +239,6 @@ const FooterWithError: React.FC = (props) => {
   )
 }
 
-const AccountComponent: React.FC<AccountComponentTypes> = (params) => {
-  const { id, field, value, accounts } = params
-  const apiRef = useGridApiContext()
-
-  const handleChange = (newValue: any) => {
-    apiRef.current.setEditCellValue({ id, field, value: newValue.target.value})
-  }
-
-  return (
-    <FormControl fullWidth>
-      <Select
-        fullWidth
-        value={value}
-        onChange={handleChange}
-      >
-        { accounts.map((item: AccountResponse) => (
-          <MenuItem key={item.uuid} value={item}>{item.title}</MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  )
-}
 
 const AmountComponent: React.FC<AmountComponentTypes> = (params) => {
   const { id, field, value } = params
@@ -268,7 +252,7 @@ const AmountComponent: React.FC<AmountComponentTypes> = (params) => {
   const handleChange = (newValue: any) => {
     apiRef.current.setEditCellValue({ id, field, value: newValue.target.value })
   }
-   
+
   return (
     <TextField
       value={value}
@@ -293,7 +277,7 @@ const BudgetComponent: React.FC<BudgetComponentTypes> = (params) => {
 
   const handleChange = (newValue: any) => {
     console.log(newValue.target.value)
-    apiRef.current.setEditCellValue({ id, field, value: newValue.target.value})
+    apiRef.current.setEditCellValue({ id, field, value: newValue.target.value })
   }
 
   React.useEffect(() => {
@@ -313,26 +297,26 @@ const BudgetComponent: React.FC<BudgetComponentTypes> = (params) => {
         value={!![...completedItems, ...incompletedItems].length ? value : ''}
         onChange={handleChange}
       >
-        { user && incompletedItems.map((item: WeekBudgetItem) => (
-            <MenuItem
-              key={item.uuid}
-              value={item}
-            >
-              {item.title}
-            </MenuItem>
-          ))
+        {user && incompletedItems.map((item: WeekBudgetItem) => (
+          <MenuItem
+            key={item.uuid}
+            value={item}
+          >
+            {item.title}
+          </MenuItem>
+        ))
         }
-        { user && completedItems.length > 0 && incompletedItems.length > 0 && <Divider /> }
-        { user && completedItems.map((item: WeekBudgetItem) => (
-            <MenuItem
-              key={item.uuid}
-              value={item}
-            >
-              {item.title}
-            </MenuItem>
-          ))
+        {user && completedItems.length > 0 && incompletedItems.length > 0 && <Divider />}
+        {user && completedItems.map((item: WeekBudgetItem) => (
+          <MenuItem
+            key={item.uuid}
+            value={item}
+          >
+            {item.title}
+          </MenuItem>
+        ))
         }
-        { !user && <MenuItem value="">Please, select account first</MenuItem>}
+        {!user && <MenuItem value="">Please, select account first</MenuItem>}
       </Select>
     </FormControl>
   )
@@ -355,7 +339,7 @@ const CategoryComponent: React.FC<CategoryComponentTypes> = (params) => {
   }
 
   const handleChange = (event: SelectChangeEvent) => {
-    apiRef.current.setEditCellValue({ id, field, value: event.target.value})
+    apiRef.current.setEditCellValue({ id, field, value: event.target.value })
   }
 
   return (
@@ -365,9 +349,11 @@ const CategoryComponent: React.FC<CategoryComponentTypes> = (params) => {
         value={value}
         onChange={handleChange}
       >
-        {parents.map((item: Category) => { return getChildren(item.uuid).map((subitem: Category) => (
-          <MenuItem key={subitem.uuid} value={subitem}>{item.name} - {subitem.name}</MenuItem>
-        ))})}
+        {parents.map((item: Category) => {
+          return getChildren(item.uuid).map((subitem: Category) => (
+            <MenuItem key={subitem.uuid} value={subitem}>{item.name} - {subitem.name}</MenuItem>
+          ))
+        })}
       </Select>
     </FormControl>
   )
@@ -385,7 +371,7 @@ const CurrencyComponent: React.FC<any> = (params) => {
   const {
     data: availableRates = {}
   } = useAvailableRates(date)
-  
+
   React.useEffect(() => {
     if (!currencies) return
 
@@ -397,7 +383,7 @@ const CurrencyComponent: React.FC<any> = (params) => {
   }, [availableRates, currencies])
 
   const handleChange = (event: SelectChangeEvent) => {
-    apiRef.current.setEditCellValue({ id, field, value: event.target.value})
+    apiRef.current.setEditCellValue({ id, field, value: event.target.value })
   }
 
   return (
@@ -408,41 +394,18 @@ const CurrencyComponent: React.FC<any> = (params) => {
         onChange={handleChange}
       >
         {currencies.map((item: Currency) => (
-          !!availableRates[item.code] 
+          !!availableRates[item.code]
             ? <MenuItem key={item.uuid} value={item}>{item.sign} {item.verbalName}</MenuItem>
             : <MenuItem
-                key={item.uuid}
-                value={item}
-                disabled
-              >
-                {item.sign} {item.verbalName} (unavailable)
-              </MenuItem>
+              key={item.uuid}
+              value={item}
+              disabled
+            >
+              {item.sign} {item.verbalName} (unavailable)
+            </MenuItem>
         ))}
       </Select>
     </FormControl>
-  )
-}
-
-const DateComponent: React.FC<DateComponentTypes> = (params) => {
-  const { id, field, value } = params
-  const apiRef = useGridApiContext()
-
-  const handleChange = (newValue: any) => {
-    apiRef.current.setEditCellValue({ id, field, value: newValue})
-  }
-
-  React.useEffect(() => {
-    apiRef.current.setEditCellValue({ id, field, value: value || new Date()})
-  }, [])
-
-  return(
-    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
-      <DatePicker
-        value={value}
-        onChange={handleChange} 
-        renderInput={(params) => <TextField fullWidth {...params} />}
-      />
-    </LocalizationProvider>
   )
 }
 
@@ -541,9 +504,9 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
       headerName: '',
       width: 20,
       editable: false,
-      renderCell: (params) => params.formattedValue 
-        ? <CheckCircleIcon /> 
-        : <DeleteIcon onClick={() => handleDeleteClick(params)}/>
+      renderCell: (params) => params.formattedValue
+        ? <CheckCircleIcon />
+        : <DeleteIcon onClick={() => handleDeleteClick(params)} />
     },
   ];
 
@@ -557,7 +520,7 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
   }, [rows])
 
   const handleAccountChange = (id: GridRowId, e) => {
-    setAccount({...account, [id]: e.target.value})
+    setAccount({ ...account, [id]: e.target.value })
   }
 
   const handleCategoryChange = (e) => {
@@ -591,7 +554,7 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
     <Dialog maxWidth="lg" fullWidth={true} open={open} onClose={onClose}>
       <DialogTitle>Add transactions</DialogTitle>
       <DialogContent>
-        <Grid container spacing={2} sx={{ height: 700}}>
+        <Grid container spacing={2} sx={{ height: 700 }}>
           <Grid item xs={12}>
             <DataGrid
               editMode="row"
