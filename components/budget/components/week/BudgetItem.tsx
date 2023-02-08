@@ -2,7 +2,7 @@ import * as React from 'react'
 import axios from 'axios'
 import { useSWRConfig } from 'swr'
 import { formatMoney } from '@/utils/numberUtils'
-import { 
+import {
   Box,
   Button,
   LinearProgress,
@@ -10,7 +10,7 @@ import {
   Typography
 } from '@mui/material'
 import { useBudgetDetails } from '@/hooks/budget'
-import { BudgetRequest } from '@/components/budget/types'
+import { BudgetRequest, RecurrentTypes } from '@/components/budget/types'
 
 interface Types {
   uuid: string
@@ -18,6 +18,7 @@ interface Types {
   planned: number
   spent: number
   isCompleted: boolean
+  recurrent: RecurrentTypes
   clickEdit: (uuid: string) => void
   clickDelete: (uuid: string) => void
   mutateBudget: () => void
@@ -29,6 +30,7 @@ const BudgetItem: React.FC<Types> = ({
   planned,
   spent,
   isCompleted,
+  recurrent,
   clickEdit,
   clickDelete,
   mutateBudget
@@ -84,6 +86,12 @@ const BudgetItem: React.FC<Types> = ({
     })
   }
 
+  const bgColor = recurrent ?
+    recurrent === 'monthly'
+      ? 'bg-blue-100'
+      : 'bg-yellow-100'
+    : ''
+
   return (
     <Paper
       elevation={0}
@@ -101,6 +109,7 @@ const BudgetItem: React.FC<Types> = ({
           zIndex: 1
         }
       }}
+      className={bgColor}
       onMouseEnter={onMouseEnterHandler}
       onMouseLeave={onMouseLeaveHandler}
     >
@@ -120,7 +129,7 @@ const BudgetItem: React.FC<Types> = ({
           justifyContent: 'center'
         }}
       >
-        { showDetails && (
+        {showDetails && (
           <Typography
             sx={{
               fontSize: '0.9em',
@@ -130,7 +139,7 @@ const BudgetItem: React.FC<Types> = ({
             {formatMoney(spent)}
           </Typography>
         )}
-        { showDetails && (
+        {showDetails && (
           <Typography
             sx={{
               fontSize: '0.8em',
@@ -154,18 +163,18 @@ const BudgetItem: React.FC<Types> = ({
           alignItems: 'center'
         }}
       >
-        {planned !== 0 
+        {planned !== 0
           ? (
             <>
               <LinearProgress
                 variant="determinate"
-                color={ percentage > 100 ? 'error' : 'success' }
+                color={percentage > 100 ? 'error' : 'success'}
                 value={percentage > 100 ? percentage % 100 : percentage}
                 sx={{
                   mx: 1,
                   width: '80%'
                 }}
-                />
+              />
               <Typography
                 sx={{
                   fontSize: '0.9em'
@@ -189,7 +198,7 @@ const BudgetItem: React.FC<Types> = ({
           )
         }
       </Box>
-      { !showDetails && (
+      {!showDetails && (
         <Typography
           sx={{
             fontSize: '0.7em',
@@ -201,7 +210,7 @@ const BudgetItem: React.FC<Types> = ({
           {isCompleted && 'Completed'}
         </Typography>
       )}
-      { showDetails && (
+      {showDetails && (
         <Box sx={{
           display: 'flex',
           justifyContent: 'center'
@@ -209,15 +218,16 @@ const BudgetItem: React.FC<Types> = ({
           <Button
             size="small"
             variant="contained"
+            className={isCompleted ? 'bg-red-600' : 'bg-green-600'}
             color={budgetDetails?.isCompleted ? 'warning' : 'success'}
             disableElevation
             onClick={handleClickComplete}>
-            { budgetDetails?.isCompleted ? 'Un-complete' : 'Complete' }
+            {budgetDetails?.isCompleted ? 'Un-complete' : 'Complete'}
           </Button>
           <Button size="small" onClick={handleClickEdit}>Edit</Button>
           <Button size="small" onClick={handleClickDelete}>Delete</Button>
         </Box>
-        )
+      )
       }
     </Paper>
   )

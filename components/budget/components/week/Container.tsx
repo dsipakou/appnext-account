@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from 'react'
 import { getDay } from 'date-fns'
 import { Grid, Stack, Typography } from '@mui/material'
 import { useBudgetWeek } from '@/hooks/budget'
-import { WeekBudgetItem } from '@/components/budget/types'
+import { RecurrentTypes, WeekBudgetItem } from '@/components/budget/types'
 import { ConfirmDeleteForm } from '@/components/budget/forms'
 import {
   getWeekDays,
@@ -33,6 +33,7 @@ interface CompactWeekItem {
   title: string
   planned: number
   spent: number
+  recurrent: RecurrentTypes
   isCompleted: boolean
 }
 
@@ -48,7 +49,7 @@ const header = () => {
   return (
     <Grid container spacing={1}>
       <Grid item xs={2}></Grid>
-      { daysShortFormatArray.map((item: string, index: number) => (
+      {daysShortFormatArray.map((item: string, index: number) => (
         <Grid item xs={currentDay === index ? 2 : 1} key={item}>
           <HeaderItem title={currentDay === index ? daysFullFormatArray[index] : item} />
         </Grid>
@@ -87,6 +88,7 @@ const Container: FC<Types> = ({
         title: item.title,
         planned: item.plannedInCurrencies[user?.currency],
         spent: item.spentInCurrencies[user?.currency] || 0,
+        recurrent: item.recurrent,
         isCompleted: item.isCompleted,
       };
       itemsOnDate.push(compactWeekItem);
@@ -101,7 +103,7 @@ const Container: FC<Types> = ({
         {parseAndFormatDate(startDate, MONTH_DAY_FORMAT)} -{" "}
         {parseAndFormatDate(endDate, MONTH_DAY_FORMAT)}
       </Typography>
-      { header() }
+      {header()}
       <Grid container spacing={1}>
         <Grid item xs={2}></Grid>
         {weekDaysArray.map((i: number) => (
@@ -115,6 +117,7 @@ const Container: FC<Types> = ({
                     title={item.title}
                     planned={item.planned}
                     spent={item.spent}
+                    recurrent={item.recurrent}
                     isCompleted={item.isCompleted}
                     clickEdit={clickEdit}
                     clickDelete={clickDelete}

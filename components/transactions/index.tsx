@@ -14,12 +14,12 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { CalendarPicker } from '@mui/x-date-pickers/CalendarPicker';
 import TransactionTable from './components/TransactionTable'
 import { useTransactions } from '@/hooks/transactions'
-import { getFormattedDate } from '@/utils/dateUtils'
 import { AddForm, ConfirmDeleteForm } from '@/components/transactions/forms'
 import { useAuth } from '@/context/auth'
 import { TransactionResponse } from '@/components/transactions/types'
 import DailyChart from '@/components/transactions/components/DailyChart'
 import { formatMoney } from '@/utils/numberUtils'
+import { getFormattedDate } from '@/utils/dateUtils';
 import locale from 'date-fns/locale/ru'
 
 const Index: React.FC = () => {
@@ -102,7 +102,7 @@ const Index: React.FC = () => {
           </Stack>
         </Grid>
       </Grid>
-      <AddForm url={transactionUrl} open={isOpenAddTransactions} handleClose={handleCloseModal}/>
+      <AddForm url={transactionUrl} open={isOpenAddTransactions} handleClose={handleCloseModal} />
       <ConfirmDeleteForm
         open={isOpenDeleteTransactions}
         uuid={activeTransactionUuid}

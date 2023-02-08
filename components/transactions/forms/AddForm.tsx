@@ -13,17 +13,12 @@ import {
   Grid,
   MenuItem,
   Select,
-  TextField,
   Typography
 } from '@mui/material'
 import { SelectChangeEvent } from '@mui/material/Select'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import locale from 'date-fns/locale/ru'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import {
   DataGrid,
   GridRowsProp,
@@ -46,16 +41,16 @@ import { useAccounts } from '@/hooks/accounts'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
 import { useAvailableRates } from '@/hooks/rates'
-import { useBudgetWeek } from '@/hooks/budget'
 import { useUsers } from '@/hooks/users'
-import { WeekBudgetItem } from '@/components/budget/types'
 import { Category, CategoryType } from '@/components/categories/types'
 import { Currency } from '@/components/currencies/types'
 import { User } from '@/components/users/types'
-import { getStartOfWeek, getEndOfWeek, getFormattedDate, MONTH_DAY_FORMAT } from '@/utils/dateUtils'
+import { getFormattedDate, MONTH_DAY_FORMAT } from '@/utils/dateUtils'
 import { formatMoney } from '@/utils/numberUtils'
 import {
   AccountComponent,
+  AmountComponent,
+  BudgetComponent,
   DateComponent
 } from './components'
 
@@ -76,10 +71,6 @@ interface EditToolbarProps {
   ) => void
 }
 
-interface AmountComponentTypes extends GridRenderEditCellParams { }
-
-interface BudgetComponentTypes extends GridRenderEditCellParams {
-}
 
 interface CategoryComponentTypes extends GridRenderEditCellParams {
   parentList: Category[]
@@ -236,89 +227,6 @@ const FooterWithError: React.FC = (props) => {
     <Box>
       <Typography variant="h6">{errors}</Typography>
     </Box>
-  )
-}
-
-
-const AmountComponent: React.FC<AmountComponentTypes> = (params) => {
-  const { id, field, value } = params
-  const apiRef = useGridApiContext()
-  const inputRef = React.createRef<HTMLInputElement>()
-
-  React.useEffect(() => {
-    inputRef.current?.select()
-  }, [])
-
-  const handleChange = (newValue: any) => {
-    apiRef.current.setEditCellValue({ id, field, value: newValue.target.value })
-  }
-
-  return (
-    <TextField
-      value={value}
-      onChange={handleChange}
-      inputProps={{ ref: inputRef }}
-    />
-  )
-}
-
-const BudgetComponent: React.FC<BudgetComponentTypes> = (params) => {
-  const { id, field, row, value } = params
-  const [completedItems, setCompletedItems] = React.useState<WeekBudgetItem[]>([])
-  const [incompletedItems, setIncompletedItems] = React.useState<WeekBudgetItem[]>([])
-  const apiRef = useGridApiContext()
-  const transactionDate = row.transactionDate
-  const weekStart = getStartOfWeek(transactionDate || new Date())
-  const weekEnd = getEndOfWeek(transactionDate || new Date())
-  const user = row.account.user
-  const {
-    data: budgets = []
-  } = useBudgetWeek(weekStart, weekEnd)
-
-  const handleChange = (newValue: any) => {
-    console.log(newValue.target.value)
-    apiRef.current.setEditCellValue({ id, field, value: newValue.target.value })
-  }
-
-  React.useEffect(() => {
-    if (!user || !budgets) return
-    const completedBudgets = budgets.filter((item: WeekBudgetItem) => item.isCompleted && item.user === user)
-    const incompletedBudgets = budgets.filter((item: WeekBudgetItem) => !item.isCompleted && item.user === user)
-
-    apiRef.current.setEditCellValue({ id, field, value: value })
-    setCompletedItems(completedBudgets)
-    setIncompletedItems(incompletedBudgets)
-  }, [budgets, user, transactionDate])
-
-  return (
-    <FormControl fullWidth>
-      <Select
-        fullWidth
-        value={!![...completedItems, ...incompletedItems].length ? value : ''}
-        onChange={handleChange}
-      >
-        {user && incompletedItems.map((item: WeekBudgetItem) => (
-          <MenuItem
-            key={item.uuid}
-            value={item}
-          >
-            {item.title}
-          </MenuItem>
-        ))
-        }
-        {user && completedItems.length > 0 && incompletedItems.length > 0 && <Divider />}
-        {user && completedItems.map((item: WeekBudgetItem) => (
-          <MenuItem
-            key={item.uuid}
-            value={item}
-          >
-            {item.title}
-          </MenuItem>
-        ))
-        }
-        {!user && <MenuItem value="">Please, select account first</MenuItem>}
-      </Select>
-    </FormControl>
   )
 }
 
