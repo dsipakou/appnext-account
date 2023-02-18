@@ -11,6 +11,9 @@ import {
 } from '@mui/material'
 import { useBudgetDetails } from '@/hooks/budget'
 import { BudgetRequest, RecurrentTypes } from '@/components/budget/types'
+import { useCurrencies } from '@/hooks/currencies'
+import { useAuth } from '@/context/auth'
+import { Currency } from '@/components/currencies/types'
 
 interface Types {
   uuid: string
@@ -39,10 +42,21 @@ const BudgetItem: React.FC<Types> = ({
     data: budgetDetails,
     url
   } = useBudgetDetails(uuid)
+  const {
+    data: currencies
+  } = useCurrencies()
+  const {
+    user: authUser
+  } = useAuth()
   const { mutate } = useSWRConfig()
   const [showDetails, setShowDetails] = React.useState<boolean>(false)
   const [errors, setErrors] = React.useState<string>([])
   const percentage: number = Math.floor(spent * 100 / planned)
+
+  const currencySign = currencies.find(
+    (currency: Currency) => currency.code === authUser.currency
+  )?.sign || '';
+
 
   const onMouseEnterHandler = (): void => {
     setShowDetails(true)
@@ -130,14 +144,24 @@ const BudgetItem: React.FC<Types> = ({
         }}
       >
         {showDetails && (
-          <Typography
-            sx={{
-              fontSize: '0.9em',
-              fontWeight: 'bold'
-            }}
-          >
-            {formatMoney(spent)}
-          </Typography>
+          <>
+            <Typography
+              sx={{
+                fontSize: '0.9em',
+                fontWeight: 'bold'
+              }}
+            >
+              {formatMoney(spent)}
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: '0.9em',
+                marginLeft: '3px'
+              }}
+            >
+              {currencySign}
+            </Typography>
+          </>
         )}
         {showDetails && (
           <Typography
@@ -149,13 +173,23 @@ const BudgetItem: React.FC<Types> = ({
             of
           </Typography>
         )}
-        <Typography
-          sx={{
-            fontSize: '0.8em'
-          }}
-        >
-          {formatMoney(planned)}
-        </Typography>
+        <>
+          <Typography
+            sx={{
+              fontSize: '0.8em'
+            }}
+          >
+            {formatMoney(planned)}
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: '0.8em',
+              marginLeft: '3px'
+            }}
+          >
+            {currencySign}
+          </Typography>
+        </>
       </Box>
       <Box
         sx={{

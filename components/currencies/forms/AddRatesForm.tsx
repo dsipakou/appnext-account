@@ -38,7 +38,7 @@ const AddRatesForm: FC<Types> = ({ open, onSave, onClose, currencies = [] }) => 
   const [selectedDate, setSelectedDate] = useState<Date>(new Date);
   const [ratesInputMap, setRatesInputMap] = useState({});
   const [errors, setErrors] = useState<string[]>([]);
-  const { data: ratesOnDate, isLoading, isError } = useRatesOnDate(getFormattedDate(selectedDate));
+  const { data: ratesOnDate, isLoading, url } = useRatesOnDate(getFormattedDate(selectedDate));
 
   useEffect(() => {
     if (!ratesOnDate || isLoading || !open) return;
@@ -106,8 +106,9 @@ const AddRatesForm: FC<Types> = ({ open, onSave, onClose, currencies = [] }) => 
     }).then(
       res => {
         if (res.status === 200) {
-          onSave();
-          handleClose();
+          mutate(url)
+          onSave()
+          handleClose()
         } else {
           // TODO: handle errors
         }
@@ -164,7 +165,8 @@ const AddRatesForm: FC<Types> = ({ open, onSave, onClose, currencies = [] }) => 
                 openTo="day"
                 value={selectedDate}
                 onChange={handleDateChange}
-                renderInput={(params) => <TextField {...params} />}
+                renderInput={(params) => <TextField {...params}
+                />}
               >
               </StaticDatePicker>
             </LocalizationProvider>

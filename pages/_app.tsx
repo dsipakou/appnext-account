@@ -1,9 +1,8 @@
 import '../styles/globals.css'
 import { lazy } from 'react'
 import type { AppProps } from 'next/app'
-import { store } from '../app/store'
 import typography from '../theme/typography'
-import { CssBaseline, Toolbar } from '@mui/material'
+import { Toolbar } from '@mui/material'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { AuthProvider } from '@/context/auth';
 import '@/plugins/axios'
@@ -32,7 +31,6 @@ const App = ({ Component, pageProps }: AppProps) => {
   return (
     <ThemeProvider theme={theme}>
       <AuthProvider>
-        <CssBaseline />
         <Layout>
           <Toolbar />
           <Component {...pageProps} />

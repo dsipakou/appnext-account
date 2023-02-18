@@ -64,7 +64,6 @@ export const AuthProvider = ({ children }) => {
           };
           storeUserData(userData);
           axios.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
-
           window.location.pathname = '/';
         } else {
           // TODO: handle error
@@ -79,7 +78,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const logout = async (): Promise<void> => {
-    setLoading(true); 
+    setLoading(true);
     await userTable.clear();
     setUser(null);
     delete axios.defaults.headers.Authorization;
@@ -105,7 +104,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         updateCurrency
       }}>
-      {children}
+      {!!user && children}
     </AuthContext.Provider>
   )
 }

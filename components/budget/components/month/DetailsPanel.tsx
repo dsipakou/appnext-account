@@ -44,7 +44,7 @@ const DetailsPanel: FC<Types> = ({
     isLoading: isBudgetLoading
   } = useBudgetMonth(startDate, endDate);
 
-  const activeCategory = budgetList.length > 0 
+  const activeCategory = budgetList.length > 0
     ? budgetList.find(
       (item: GroupedByCategoryBudget) => item.uuid === activeCategoryUuid
     )

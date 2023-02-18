@@ -120,12 +120,12 @@ const Layout: FC<Props> = ({ children }) => {
 
     if (selectedCurrency !== user.currency) {
       axios.patch('users/currency/', {
-        currency: selectedCurrency 
+        currency: selectedCurrency
       }).then(
         res => {
           if (res.status === 200) {
-              console.log(selectedCurrency)
-              updateCurrency(selectedCurrency)
+            console.log(selectedCurrency)
+            updateCurrency(selectedCurrency)
             // TODO: mutate something
           }
         }
@@ -238,12 +238,12 @@ const Layout: FC<Props> = ({ children }) => {
               width: '200px'
             }}
           >
-            { currencies && currencies.map((item: Currency) => (
+            {currencies && currencies.map((item: Currency) => (
               <MenuItem key={item.code} value={item.code}>{item.verbalName}</MenuItem>
             ))}
           </Select>
-          { isAuthenticated && (
-            <Typography variant="text" sx={{ mx: 2 }}>Hello, {user.username}</Typography> 
+          {isAuthenticated && (
+            <Typography variant="text" sx={{ mx: 2 }}>Hello, {user.username}</Typography>
           )}
           {!loading && !isAuthenticated
             ? <Link href="/login" color="inherit">Login</Link>

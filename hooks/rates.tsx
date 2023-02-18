@@ -40,6 +40,7 @@ export const useRatesChart = (period: number = 30): Response<ChartResponse[]> =>
 
 export const useRates = (limit: number = 5): Response<RateResponse[]> => {
   const url: string = `rates?limit=${limit}`;
+  console.log("--- fetching rates ---")
   const { data, error, isValidating } = useSWR(url, fetcher);
 
   return {
@@ -51,12 +52,14 @@ export const useRates = (limit: number = 5): Response<RateResponse[]> => {
 }
 
 export const useRatesOnDate = (date: string): Response<RateResponse[]> => {
-  const { data, error, isValidating } = useSWR(`rates/day/${date}`, fetcher);
+  const url: string = `rates/day/${date}`
+  const { data, error, isValidating } = useSWR(url, fetcher);
 
   return {
     data,
     isLoading: !data && !error,
     isError: error,
+    url,
   } as Response<RateResponse[]>
 }
 
