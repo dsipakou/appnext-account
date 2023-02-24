@@ -123,7 +123,6 @@ const BudgetItem: React.FC<Types> = ({
           zIndex: 1
         }
       }}
-      className={bgColor}
       onMouseEnter={onMouseEnterHandler}
       onMouseLeave={onMouseLeaveHandler}
     >
