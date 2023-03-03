@@ -1,7 +1,9 @@
 import React from 'react'
 import { useSWRConfig } from 'swr'
 import {
+  Button,
   Dialog,
+  DialogActions,
   DialogTitle,
   DialogContent,
   FormControl,
@@ -120,8 +122,12 @@ const EditForm: React.FC<Types> = ({ uuid, open, handleClose }) => {
     setCurrencyUuid(e.target.value)
   }
 
+  const handleSave = (): void => {
+    console.log("saving data")
+  }
+
   return (
-    <Dialog maxWidth="sm" fullWidth={true} open={open} onClose={handleClose}>
+    <Dialog maxWidth="md" fullWidth={true} open={open} onClose={handleClose}>
       <DialogTitle>Update transaction</DialogTitle>
       <DialogContent>
         <div className="grid grid-cols-4 gap-3">
@@ -129,97 +135,105 @@ const EditForm: React.FC<Types> = ({ uuid, open, handleClose }) => {
             <Typography key={message} color="red">{message}</Typography>
           ))}
         </div>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-6 gap-3">
+          <div className="col-span-2">
+            <div className="flex flex-col gap-3">
+              <div>
+                <TextField
+                  margin="dense"
+                  id="amount"
+                  label="Amount"
+                  placeholder="0.00"
+                  type="text"
+                  fullWidth
+                  autoFocus
+                  value={amount}
+                  onChange={handleAmountInput}
+                />
+              </div>
+              <div>
+                <FormControl fullWidth>
+                  <InputLabel id="currency-select-label">Currency</InputLabel>
+                  <Select
+                    labelId="currency-select-label"
+                    fullWidth
+                    value={currencyUuid}
+                    onChange={handleCurrencyChange}
+                  >
+                    {currencies && currencies.map((item: Currency) => (
+                      <MenuItem key={item.uuid} value={item.uuid}>{item.verbalName}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <div>
+                <FormControl fullWidth>
+                  <InputLabel id="category-select-label">Category</InputLabel>
+                  <Select
+                    labelId="category-select-label"
+                    label="Category"
+                    fullWidth
+                    value={categoryUuid}
+                    onChange={handleCategoryChange}
+                  >
+                    {parents.map((item: Category) => {
+                      return getChildren(item.uuid).map((subitem: Category) => (
+                        <MenuItem key={subitem.uuid} value={subitem.uuid}>{item.name} - {subitem.name}</MenuItem>
+                      ))
+                    }
+                    )}
+                  </Select>
+                </FormControl>
+              </div>
+              <div>
+                <FormControl fullWidth>
+                  <InputLabel id="budget-select-label">Budget</InputLabel>
+                  <Select
+                    labelId="budget-select-label"
+                    label="Budget"
+                    fullWidth
+                    value={budgetUuid}
+                    onChange={handleBudgetChange}
+                  >
+                    {
+                      filteredBudgets.map((item: WeekBudgetItem) => (
+                        <MenuItem key={item.uuid} value={item.uuid}>{item.title}</MenuItem>
+                      ))
+                    }
+                  </Select>
+                </FormControl>
+              </div>
+              <div>
+                <FormControl fullWidth>
+                  <InputLabel id="account-select-label">Account</InputLabel>
+                  <Select
+                    labelId="account-select-label"
+                    label="Account"
+                    fullWidth
+                    value={accountUuid}
+                    onChange={handleAccountChange}
+                  >
+                    {
+                      accounts.map((item: Account) => (
+                        <MenuItem key={item.uuid} value={item.uuid}>{item.title}</MenuItem>
+                      ))
+                    }
+                  </Select>
+                </FormControl>
+              </div>
+            </div>
+          </div>
           <div className="col-span-4">
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <CalendarPicker date={transactionDate} onChange={(newDate) => setTransactionDate(newDate)} />
             </LocalizationProvider>
           </div>
-          <div className="col-span-4">
-            <TextField
-              margin="dense"
-              id="amount"
-              label="Amount"
-              placeholder="0.00"
-              type="text"
-              fullWidth
-              autoFocus
-              value={amount}
-              onChange={handleAmountInput}
-            />
-          </div>
-          <div className="col-span-1">
-            <FormControl fullWidth>
-              <InputLabel id="currency-select-label">Currency</InputLabel>
-              <Select
-                labelId="currency-select-label"
-                fullWidth
-                value={currencyUuid}
-                onChange={handleCurrencyChange}
-              >
-                {currencies && currencies.map((item: Currency) => (
-                  <MenuItem key={item.uuid} value={item.uuid}>{item.verbalName}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
-          <div className="col-span-3">
-            <FormControl fullWidth>
-              <InputLabel id="category-select-label">Category</InputLabel>
-              <Select
-                labelId="category-select-label"
-                label="Category"
-                fullWidth
-                value={categoryUuid}
-                onChange={handleCategoryChange}
-              >
-                {parents.map((item: Category) => {
-                  return getChildren(item.uuid).map((subitem: Category) => (
-                    <MenuItem key={subitem.uuid} value={subitem.uuid}>{item.name} - {subitem.name}</MenuItem>
-                  ))
-                }
-                )}
-              </Select>
-            </FormControl>
-          </div>
-          <div className="col-span-3">
-            <FormControl fullWidth>
-              <InputLabel id="budget-select-label">Budget</InputLabel>
-              <Select
-                labelId="budget-select-label"
-                label="Budget"
-                fullWidth
-                value={budgetUuid}
-                onChange={handleBudgetChange}
-              >
-                {
-                  filteredBudgets.map((item: WeekBudgetItem) => (
-                    <MenuItem key={item.uuid} value={item.uuid}>{item.title}</MenuItem>
-                  ))
-                }
-              </Select>
-            </FormControl>
-          </div>
-          <div className="col-span-3">
-            <FormControl fullWidth>
-              <InputLabel id="account-select-label">Account</InputLabel>
-              <Select
-                labelId="account-select-label"
-                label="Account"
-                fullWidth
-                value={accountUuid}
-                onChange={handleAccountChange}
-              >
-                {
-                  accounts.map((item: Account) => (
-                    <MenuItem key={item.uuid} value={item.uuid}>{item.title}</MenuItem>
-                  ))
-                }
-              </Select>
-            </FormControl>
-          </div>
         </div>
       </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button variant="contained" onClick={handleSave}>Save</Button>
+      </DialogActions>
     </Dialog>
   )
 }
