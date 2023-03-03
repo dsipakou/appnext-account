@@ -1,7 +1,7 @@
 import {
   addWeeks,
   format,
-  parse,
+  parseISO,
   formatRelative,
   eachDayOfInterval,
   max,
@@ -31,9 +31,7 @@ export const FULL_DAY_ONLY_FORMAT = "EEEE"
 export const getFormattedDate = (date: Date, dateFormat: string = DATE_FORMAT): string => {
   return format(date, dateFormat);
 }
-
-export const parseDate = (date: string, dateFormat: string = DATE_FORMAT): Date => {
-  return parse(date, dateFormat, new Date());
+export const parseDate = (date: string, dateFormat: string = DATE_FORMAT): Date => { return parseISO(date, dateFormat, new Date());
 }
 
 export const parseAndFormatDate = (

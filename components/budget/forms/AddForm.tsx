@@ -85,7 +85,7 @@ const AddForm: FC<Types> = ({ open, handleClose, monthUrl, weekUrl }) => {
   useEffect(() => {
     if (isCurrenciesLoading) return
 
-    setCurrency(currencies.find((item: Currency) => item.isDefault)!.uuid) 
+    setCurrency(currencies.find((item: Currency) => item.isDefault)!.uuid)
   }, [isCurrenciesLoading, currencies])
 
   useEffect(() => {
@@ -123,7 +123,7 @@ const AddForm: FC<Types> = ({ open, handleClose, monthUrl, weekUrl }) => {
   const handleCurrencyChange = (e) => {
     setCurrency(e.target.value)
   }
-  
+
   const handleDescriptionInput = (e) => {
     setDescription(e.target.value)
   }
@@ -209,7 +209,7 @@ const AddForm: FC<Types> = ({ open, handleClose, monthUrl, weekUrl }) => {
                     value={currency}
                     onChange={handleCurrencyChange}
                   >
-                    { currencies && currencies.map((item: Currency) => (
+                    {currencies && currencies.map((item: Currency) => (
                       <MenuItem key={item.uuid} value={item.uuid}>{item.verbalName}</MenuItem>
                     ))}
                   </Select>
@@ -224,7 +224,7 @@ const AddForm: FC<Types> = ({ open, handleClose, monthUrl, weekUrl }) => {
                     value={user}
                     onChange={handleUserChange}
                   >
-                    { users && users.map((item: User) => (
+                    {users && users.map((item: User) => (
                       <MenuItem key={item.uuid} value={item.uuid}>{item.username}</MenuItem>
                     ))}
                   </Select>
@@ -240,9 +240,9 @@ const AddForm: FC<Types> = ({ open, handleClose, monthUrl, weekUrl }) => {
                     value={category}
                     onChange={handleCategoryChange}
                   >
-                    { parentList.map((item: Category) => (
-                        <MenuItem key={item.uuid} value={item.uuid}>{item.name}</MenuItem>
-                      )
+                    {parentList.map((item: Category) => (
+                      <MenuItem key={item.uuid} value={item.uuid}>{item.name}</MenuItem>
+                    )
                     )}
                   </Select>
                 </FormControl>

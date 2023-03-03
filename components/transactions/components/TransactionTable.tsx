@@ -1,11 +1,11 @@
 import * as React from 'react'
-import { 
+import {
   Box
 } from '@mui/material'
 import {
-  GridActionsCellItem
+  GridActionsCellItem, GridRowParams
 } from '@mui/x-data-grid'
-import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridRowsProp, GridRowParams, GridColDef } from '@mui/x-data-grid'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import { useAuth } from '@/context/auth'
 import { TransactionResponse } from '@/components/transactions/types'
@@ -14,9 +14,10 @@ import { formatMoney } from '@/utils/numberUtils'
 interface Types {
   transactions: any
   handleDeleteClick: (uuid: string) => void
+  handleDoubleClick: (uuid: string) => void
 }
 
-const TransactionTable: React.FC<Types> = ({ transactions, handleDeleteClick }) => {
+const TransactionTable: React.FC<Types> = ({ transactions, handleDeleteClick, handleDoubleClick }) => {
   const [rows, setRows] = React.useState<GridRowsProp>([])
   const columns: GridColDef[] = [
     { field: 'account', headerName: 'Account', width: 150 },
@@ -60,9 +61,18 @@ const TransactionTable: React.FC<Types> = ({ transactions, handleDeleteClick }) 
     ))
   }, [transactions])
 
+  const editTransaction = (params: GridRowParams) => {
+    console.log(params.row.uuid)
+    handleDoubleClick(params.row.uuid)
+  }
+
   return (
     <Box style={{ height: '80vh', width: '100%' }}>
-      <DataGrid rows={rows} columns={columns} />
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        onRowDoubleClick={editTransaction}
+      />
     </Box>
   )
 }

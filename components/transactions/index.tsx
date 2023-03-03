@@ -14,7 +14,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { CalendarPicker } from '@mui/x-date-pickers/CalendarPicker';
 import TransactionTable from './components/TransactionTable'
 import { useTransactions } from '@/hooks/transactions'
-import { AddForm, ConfirmDeleteForm } from '@/components/transactions/forms'
+import { AddForm, EditForm, ConfirmDeleteForm } from '@/components/transactions/forms'
 import { useAuth } from '@/context/auth'
 import { TransactionResponse } from '@/components/transactions/types'
 import DailyChart from '@/components/transactions/components/DailyChart'
@@ -27,6 +27,7 @@ const Index: React.FC = () => {
   const { mutate } = useSWRConfig()
   const [transactionDate, setTransactionDate] = React.useState<Date>(new Date())
   const [isOpenAddTransactions, setIsOpenAddTransactions] = React.useState<boolean>(false)
+  const [isOpenEditTransactions, setIsOpenEditTransactions] = React.useState<boolean>(false)
   const [isOpenDeleteTransactions, setIsOpenDeleteTransactions] = React.useState<boolean>(false)
   const [activeTransactionUuid, setActiveTransactionUuid] = React.useState<string>('')
 
@@ -47,11 +48,17 @@ const Index: React.FC = () => {
   const handleCloseModal = (): void => {
     setIsOpenAddTransactions(false)
     setIsOpenDeleteTransactions(false)
+    setIsOpenEditTransactions(false)
   }
 
   const handleDeleteClick = (uuid: string): void => {
     setActiveTransactionUuid(uuid)
     setIsOpenDeleteTransactions(true)
+  }
+
+  const handleEditClick = (uuid: string): void => {
+    setActiveTransactionUuid(uuid)
+    setIsOpenEditTransactions(true)
   }
 
   const mutateTransactions = (): void => {
@@ -75,7 +82,11 @@ const Index: React.FC = () => {
       </Toolbar>
       <Grid container spacing={2}>
         <Grid item xs={8}>
-          <TransactionTable transactions={transactions} handleDeleteClick={handleDeleteClick} />
+          <TransactionTable
+            transactions={transactions}
+            handleDeleteClick={handleDeleteClick}
+            handleDoubleClick={handleEditClick}
+          />
         </Grid>
         <Grid item xs={4}>
           <Stack>
@@ -103,6 +114,14 @@ const Index: React.FC = () => {
         </Grid>
       </Grid>
       <AddForm url={transactionUrl} open={isOpenAddTransactions} handleClose={handleCloseModal} />
+      {
+        isOpenEditTransactions &&
+        <EditForm
+          uuid={activeTransactionUuid}
+          open={isOpenEditTransactions}
+          handleClose={handleCloseModal}
+        />
+      }
       <ConfirmDeleteForm
         open={isOpenDeleteTransactions}
         uuid={activeTransactionUuid}

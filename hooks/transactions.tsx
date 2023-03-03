@@ -18,8 +18,8 @@ const fetcher = (url: string) => axios.get(url).then(res => res.data);
 
 export const useTransactions = (
   {
-    sorting='added',
-    limit=15,
+    sorting = 'added',
+    limit = 15,
     dateFrom,
     dateTo
   }: TransactionRequest
@@ -70,3 +70,19 @@ export const useBudgetTransactions = (
     url
   } as Response<TransactionResponse[]>
 }
+
+export const useTransaction = (
+  uuid: string
+): Response<TransactionResponse> => {
+  const url = `transactions/${uuid}/`
+
+  const { data, error } = useSWR(url, fetcher)
+
+  return {
+    data,
+    isLoading: !data && !error,
+    isError: error,
+    url
+  } as Response<TransactionResponse>
+}
+

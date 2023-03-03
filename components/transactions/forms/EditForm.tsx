@@ -1,0 +1,227 @@
+import React from 'react'
+import { useSWRConfig } from 'swr'
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography
+} from '@mui/material'
+import { CalendarPicker } from '@mui/x-date-pickers/CalendarPicker';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { useTransaction } from '@/hooks/transactions'
+import { useAccounts } from '@/hooks/accounts'
+import { useBudgetWeek } from '@/hooks/budget'
+import { useCategories } from '@/hooks/categories'
+import { useCurrencies } from '@/hooks/currencies'
+import {
+  TransactionResponse,
+} from '@/components/transactions/types'
+import { WeekBudgetItem } from '@/components/budget/types'
+import { Category, CategoryType } from '@/components/categories/types'
+import { parseDate, getStartOfWeek, getEndOfWeek } from '@/utils/dateUtils'
+
+interface Types {
+  uuid: string,
+  open: boolean,
+  handleClose: () => void,
+}
+
+const EditForm: React.FC<Types> = ({ uuid, open, handleClose }) => {
+  const { mutate } = useSWRConfig()
+  const [errors, setErrors] = React.useState<string[]>([])
+  const [amount, setAmount] = React.useState<string>('')
+  const [accountUuid, setAccountUuid] = React.useState<string>('')
+  const [budgetUuid, setBudgetUuid] = React.useState<string>('')
+  const [currencyUuid, setCurrencyUuid] = React.useState<string>('')
+  const [categoryUuid, setCategoryUuid] = React.useState<string>('')
+  const [transactionDate, setTransactionDate] = React.useState<Date>(new Date())
+  const [weekStart, setWeekStart] = React.useState<string>(getStartOfWeek(transactionDate))
+  const [weekEnd, setWeekEnd] = React.useState<string>(getEndOfWeek(transactionDate))
+  const [filteredBudgets, setFilteredBudgets] = React.useState<WeekBudgetItem[]>([])
+  const { data: transaction } = useTransaction(uuid)
+  const {
+    data: accounts = []
+  } = useAccounts()
+  const {
+    data: budgets = []
+  } = useBudgetWeek(weekStart, weekEnd)
+  const {
+    data: categories = []
+  } = useCategories()
+  const {
+    data: currencies,
+    isLoading: isCurrenciesLoading
+  } = useCurrencies()
+
+  const parents = categories.filter(
+    (category: Category) => (
+      category.parent === null && category.type === CategoryType.Expense
+    )
+  )
+
+  const getChildren = (uuid: string): Category[] => {
+    return categories.filter(
+      (item: Category) => item.parent === uuid
+    ) || []
+  }
+
+  React.useEffect(() => {
+    if (!transaction) return
+
+    setAmount(transaction.amount)
+    setAccountUuid(transaction.account)
+    setBudgetUuid(transaction.budget)
+    setCategoryUuid(transaction.category)
+    setCurrencyUuid(transaction.currency)
+    setTransactionDate(parseDate(transaction.transactionDate))
+  }, [transaction])
+
+  React.useEffect(() => {
+    if (!transactionDate) return
+
+    setWeekStart(getStartOfWeek(transactionDate))
+    setWeekEnd(getEndOfWeek(transactionDate))
+  }, [transactionDate])
+
+  React.useEffect(() => {
+    if (!accountUuid) return
+
+    const account = accounts.find((item: WeekBudgetItem) => item.uuid === accountUuid)
+    setFilteredBudgets(budgets.filter((item: WeekBudgetItem) => item.user === account.user))
+  }, [accountUuid])
+
+  const handleAmountInput = (e: ChangeEvent) => {
+    setAmount(e.target.value)
+  }
+
+  const handleAccountChange = (e: ChangeEvent) => {
+    setAccountUuid(e.target.value)
+  }
+
+  const handleTransactionDateChange = (e: ChangeEvent) => {
+    setTransactionDate(e.target.value)
+  }
+
+  const handleBudgetChange = (e: ChangeEvent) => {
+    setBudgetUuid(e.target.value)
+  }
+
+  const handleCategoryChange = (e): void => {
+    setCategoryUuid(e.target.value)
+  }
+
+  const handleCurrencyChange = (e): void => {
+    setCurrencyUuid(e.target.value)
+  }
+
+  return (
+    <Dialog maxWidth="sm" fullWidth={true} open={open} onClose={handleClose}>
+      <DialogTitle>Update transaction</DialogTitle>
+      <DialogContent>
+        <div className="grid grid-cols-4 gap-3">
+          {errors.map((message: string) => (
+            <Typography key={message} color="red">{message}</Typography>
+          ))}
+        </div>
+        <div className="grid grid-cols-4 gap-3">
+          <div className="col-span-4">
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <CalendarPicker date={transactionDate} onChange={(newDate) => setTransactionDate(newDate)} />
+            </LocalizationProvider>
+          </div>
+          <div className="col-span-4">
+            <TextField
+              margin="dense"
+              id="amount"
+              label="Amount"
+              placeholder="0.00"
+              type="text"
+              fullWidth
+              autoFocus
+              value={amount}
+              onChange={handleAmountInput}
+            />
+          </div>
+          <div className="col-span-1">
+            <FormControl fullWidth>
+              <InputLabel id="currency-select-label">Currency</InputLabel>
+              <Select
+                labelId="currency-select-label"
+                fullWidth
+                value={currencyUuid}
+                onChange={handleCurrencyChange}
+              >
+                {currencies && currencies.map((item: Currency) => (
+                  <MenuItem key={item.uuid} value={item.uuid}>{item.verbalName}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
+          <div className="col-span-3">
+            <FormControl fullWidth>
+              <InputLabel id="category-select-label">Category</InputLabel>
+              <Select
+                labelId="category-select-label"
+                label="Category"
+                fullWidth
+                value={categoryUuid}
+                onChange={handleCategoryChange}
+              >
+                {parents.map((item: Category) => {
+                  return getChildren(item.uuid).map((subitem: Category) => (
+                    <MenuItem key={subitem.uuid} value={subitem.uuid}>{item.name} - {subitem.name}</MenuItem>
+                  ))
+                }
+                )}
+              </Select>
+            </FormControl>
+          </div>
+          <div className="col-span-3">
+            <FormControl fullWidth>
+              <InputLabel id="budget-select-label">Budget</InputLabel>
+              <Select
+                labelId="budget-select-label"
+                label="Budget"
+                fullWidth
+                value={budgetUuid}
+                onChange={handleBudgetChange}
+              >
+                {
+                  filteredBudgets.map((item: WeekBudgetItem) => (
+                    <MenuItem key={item.uuid} value={item.uuid}>{item.title}</MenuItem>
+                  ))
+                }
+              </Select>
+            </FormControl>
+          </div>
+          <div className="col-span-3">
+            <FormControl fullWidth>
+              <InputLabel id="account-select-label">Account</InputLabel>
+              <Select
+                labelId="account-select-label"
+                label="Account"
+                fullWidth
+                value={accountUuid}
+                onChange={handleAccountChange}
+              >
+                {
+                  accounts.map((item: Account) => (
+                    <MenuItem key={item.uuid} value={item.uuid}>{item.title}</MenuItem>
+                  ))
+                }
+              </Select>
+            </FormControl>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+export default EditForm
