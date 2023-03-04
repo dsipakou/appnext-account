@@ -21,9 +21,7 @@ import { useAccounts } from '@/hooks/accounts'
 import { useBudgetWeek } from '@/hooks/budget'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
-import {
-  TransactionResponse,
-} from '@/components/transactions/types'
+import { AccountResponse } from '@/components/accounts/types'
 import { WeekBudgetItem } from '@/components/budget/types'
 import { Category, CategoryType } from '@/components/categories/types'
 import { parseDate, getStartOfWeek, getEndOfWeek } from '@/utils/dateUtils'
@@ -37,7 +35,7 @@ interface Types {
 const EditForm: React.FC<Types> = ({ uuid, open, handleClose }) => {
   const { mutate } = useSWRConfig()
   const [errors, setErrors] = React.useState<string[]>([])
-  const [amount, setAmount] = React.useState<string>('')
+  const [amount, setAmount] = React.useState<number>('')
   const [accountUuid, setAccountUuid] = React.useState<string>('')
   const [budgetUuid, setBudgetUuid] = React.useState<string>('')
   const [currencyUuid, setCurrencyUuid] = React.useState<string>('')
@@ -130,7 +128,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, handleClose }) => {
     <Dialog maxWidth="md" fullWidth={true} open={open} onClose={handleClose}>
       <DialogTitle>Update transaction</DialogTitle>
       <DialogContent>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           {errors.map((message: string) => (
             <Typography key={message} color="red">{message}</Typography>
           ))}
@@ -188,19 +186,25 @@ const EditForm: React.FC<Types> = ({ uuid, open, handleClose }) => {
               <div>
                 <FormControl fullWidth>
                   <InputLabel id="budget-select-label">Budget</InputLabel>
-                  <Select
-                    labelId="budget-select-label"
-                    label="Budget"
-                    fullWidth
-                    value={budgetUuid}
-                    onChange={handleBudgetChange}
-                  >
-                    {
-                      filteredBudgets.map((item: WeekBudgetItem) => (
-                        <MenuItem key={item.uuid} value={item.uuid}>{item.title}</MenuItem>
-                      ))
-                    }
-                  </Select>
+                  {
+                    <Select
+                      labelId="budget-select-label"
+                      label="Budget"
+                      fullWidth
+                      value={
+                        filteredBudgets.find((item: WeekBudgetItem) => item.uuid === budgetUuid)
+                          ? budgetUuid
+                          : ""
+                      }
+                      onChange={handleBudgetChange}
+                    >
+                      {
+                        filteredBudgets.map((item: WeekBudgetItem) => (
+                          <MenuItem key={item.uuid} value={item.uuid}>{item.title}</MenuItem>
+                        ))
+                      }
+                    </Select>
+                  }
                 </FormControl>
               </div>
               <div>
@@ -214,7 +218,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, handleClose }) => {
                     onChange={handleAccountChange}
                   >
                     {
-                      accounts.map((item: Account) => (
+                      accounts.map((item: AccountResponse) => (
                         <MenuItem key={item.uuid} value={item.uuid}>{item.title}</MenuItem>
                       ))
                     }
