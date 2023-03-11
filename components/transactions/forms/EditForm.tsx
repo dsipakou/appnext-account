@@ -1,4 +1,5 @@
 import React from 'react'
+import axios from 'axios'
 import { useSWRConfig } from 'swr'
 import {
   Button,
@@ -13,26 +14,28 @@ import {
   TextField,
   Typography
 } from '@mui/material'
-import { CalendarPicker } from '@mui/x-date-pickers/CalendarPicker';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { CalendarPicker } from '@mui/x-date-pickers/CalendarPicker'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { useTransaction } from '@/hooks/transactions'
 import { useAccounts } from '@/hooks/accounts'
 import { useBudgetWeek } from '@/hooks/budget'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
+import { useAvailableRates } from '@/hooks/rates'
 import { AccountResponse } from '@/components/accounts/types'
 import { WeekBudgetItem } from '@/components/budget/types'
 import { Category, CategoryType } from '@/components/categories/types'
-import { parseDate, getStartOfWeek, getEndOfWeek } from '@/utils/dateUtils'
+import { parseDate, getStartOfWeek, getEndOfWeek, getFormattedDate } from '@/utils/dateUtils'
 
 interface Types {
   uuid: string,
   open: boolean,
+  url: string,
   handleClose: () => void,
 }
 
-const EditForm: React.FC<Types> = ({ uuid, open, handleClose }) => {
+const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   const { mutate } = useSWRConfig()
   const [errors, setErrors] = React.useState<string[]>([])
   const [amount, setAmount] = React.useState<number>('')
@@ -44,20 +47,29 @@ const EditForm: React.FC<Types> = ({ uuid, open, handleClose }) => {
   const [weekStart, setWeekStart] = React.useState<string>(getStartOfWeek(transactionDate))
   const [weekEnd, setWeekEnd] = React.useState<string>(getEndOfWeek(transactionDate))
   const [filteredBudgets, setFilteredBudgets] = React.useState<WeekBudgetItem[]>([])
+
   const { data: transaction } = useTransaction(uuid)
+
   const {
     data: accounts = []
   } = useAccounts()
+
   const {
     data: budgets = []
   } = useBudgetWeek(weekStart, weekEnd)
+
   const {
     data: categories = []
   } = useCategories()
+
   const {
     data: currencies,
     isLoading: isCurrenciesLoading
   } = useCurrencies()
+
+  const {
+    data: availableRates = {}
+  } = useAvailableRates(getFormattedDate(transactionDate))
 
   const parents = categories.filter(
     (category: Category) => (
@@ -90,11 +102,11 @@ const EditForm: React.FC<Types> = ({ uuid, open, handleClose }) => {
   }, [transactionDate])
 
   React.useEffect(() => {
-    if (!accountUuid) return
+    if (!accountUuid || !budgets) return
 
     const account = accounts.find((item: WeekBudgetItem) => item.uuid === accountUuid)
     setFilteredBudgets(budgets.filter((item: WeekBudgetItem) => item.user === account.user))
-  }, [accountUuid])
+  }, [accountUuid, budgets])
 
   const handleAmountInput = (e: ChangeEvent) => {
     setAmount(e.target.value)
@@ -121,7 +133,27 @@ const EditForm: React.FC<Types> = ({ uuid, open, handleClose }) => {
   }
 
   const handleSave = (): void => {
-    console.log("saving data")
+    const payload = {
+      account: accountUuid,
+      amount,
+      budget: budgetUuid,
+      category: categoryUuid,
+      currency: currencyUuid,
+      transactionDate: getFormattedDate(transactionDate)
+    }
+
+    axios.patch(`transactions/${uuid}/`, payload).then(
+      res => {
+        if (res.status === 200) {
+          mutate(url)
+        }
+      }
+    ).catch(
+      (error) => {
+        console.log(`cannot update: ${error}`)
+      }
+    )
+
   }
 
   return (
@@ -159,7 +191,20 @@ const EditForm: React.FC<Types> = ({ uuid, open, handleClose }) => {
                     onChange={handleCurrencyChange}
                   >
                     {currencies && currencies.map((item: Currency) => (
-                      <MenuItem key={item.uuid} value={item.uuid}>{item.verbalName}</MenuItem>
+                      !!availableRates[item.code]
+                        ? <MenuItem
+                          key={item.uuid}
+                          value={item.uuid}
+                        >
+                          {item.verbalName}
+                        </MenuItem>
+                        : <MenuItem
+                          key={item.uuid}
+                          value={item.uuid}
+                          disabled
+                        >
+                          {item.verbalName}
+                        </MenuItem>
                     ))}
                   </Select>
                 </FormControl>

@@ -33,7 +33,7 @@ const Index: React.FC = () => {
 
   const {
     data: transactions,
-    url: transactionUrl
+    url: transactionsUrl
   } = useTransactions({
     sorting: 'added',
     limit: 50,
@@ -62,7 +62,7 @@ const Index: React.FC = () => {
   }
 
   const mutateTransactions = (): void => {
-    mutate(transactionUrl)
+    mutate(transactionsUrl)
   }
 
   return (
@@ -113,12 +113,13 @@ const Index: React.FC = () => {
           </Stack>
         </Grid>
       </Grid>
-      <AddForm url={transactionUrl} open={isOpenAddTransactions} handleClose={handleCloseModal} />
+      <AddForm url={transactionsUrl} open={isOpenAddTransactions} handleClose={handleCloseModal} />
       {
         isOpenEditTransactions &&
         <EditForm
           uuid={activeTransactionUuid}
           open={isOpenEditTransactions}
+          url={transactionsUrl}
           handleClose={handleCloseModal}
         />
       }

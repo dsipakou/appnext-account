@@ -53,7 +53,12 @@ const CurrencyComponent: React.FC<any> = (params) => {
       >
         {currencies.map((item: Currency) => (
           !!availableRates[item.code]
-            ? <MenuItem key={item.uuid} value={item}>{item.sign} {item.verbalName}</MenuItem>
+            ? <MenuItem
+              key={item.uuid}
+              value={item}
+            >
+              {item.sign} {item.verbalName}
+            </MenuItem>
             : <MenuItem
               key={item.uuid}
               value={item}

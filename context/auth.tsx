@@ -1,8 +1,11 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import Router, { useRouter } from 'next/router';
 import axios from 'axios';
-import { userTable } from '@/models/indexedDb.config';
+import { database, userTable, addUser } from '@/models/indexedDb.config';
 import { LoginResponse } from '@/components/login/types';
+import { getCookie, setCookie } from 'cookies-next'
+
+type ActiveUser = UserState | null;
 
 interface UserState {
   id: number,
@@ -20,29 +23,50 @@ interface Auth {
   loading: boolean
 }
 
-type ActiveUser = UserState | null;
+const defaultValues: Auth = {
+  isAuthenticated: false,
+  user: null,
+  login: () => undefined,
+  logout: () => undefined,
+  loading: () => false,
+}
 
-const AuthContext = createContext({});
+export const AuthContext = createContext<Auth>(defaultValues);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState<ActiveUser>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  //const users = useLiveQuery(() => database.users.toArray())
+  let db
 
   useEffect(() => {
     const loadUserFromIndexedDB = async (): Promise<void> => {
-      const userList: Array<UserState> = await userTable.toArray();
-      const user = userList[0];
-      if (user) {
-        axios.defaults.headers.common['Authorization'] = `Token ${user.token}`;
-        setUser(user);
+      //const userList: Array<UserState> = await userTable.toArray();
+      //const user = userList[0];
+      let user = null
+      const openRequest = window.indexedDB.open("accountdb", 10)
+      openRequest.onsuccess = (event) => {
+        db = openRequest.result;
+        const transaction = db.transaction("user")
+        const objectStore = transaction.objectStore("user")
+        console.log(objectStore)
+        const objectStoreRequest = objectStore.get(0)
+        objectStoreRequest.onsuccess = (event) => {
+          user = objectStoreRequest.result
+          console.log(user.token)
+          axios.defaults.headers.common['Authorization'] = `Token ${user.token}`;
+          setUser(user);
+        }
       }
       setLoading(false)
     }
     loadUserFromIndexedDB()
   }, [])
 
-  const storeUserData = async (userData: LoginResponse): Promise<void> => {
-    await userTable.put(userData);
+  const storeUserData = (userData: LoginResponse): void => {
+    console.log('set user')
+    setCookie("user", userData, { req, res, maxAge: 60 * 60 * 24 })
+    //await userTable.put(userData);
   }
 
   const login = async (email: string, password: string): Promise<void> => {
@@ -62,7 +86,9 @@ export const AuthProvider = ({ children }) => {
             currency: data.currency,
             token: data.token,
           };
-          storeUserData(userData);
+          addUser(userData)
+          setCookie("user", userData, { req, res, maxAge: 60 * 60 * 24 })
+          //storeUserData(userData);
           axios.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
           window.location.pathname = '/';
         } else {
@@ -79,7 +105,8 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async (): Promise<void> => {
     setLoading(true);
-    await userTable.clear();
+    setCookie("user", null)
+    //await userTable.clear();
     setUser(null);
     delete axios.defaults.headers.Authorization;
     setLoading(false);
@@ -88,8 +115,10 @@ export const AuthProvider = ({ children }) => {
 
   const updateCurrency = async (newCurrency: string): Promise<void> => {
     setLoading(true)
-    const user = await userTable.get(0)
-    await userTable.update(0, { currency: newCurrency })
+    // const user = await userTable.get(0)
+    // await userTable.update(0, { currency: newCurrency })
+    const user = getCookie("user")
+    setCookie("user", { ...user, currency: newCurrency }, { req, res, maxAge: 60 * 60 * 24 })
     setLoading(false)
     Router.reload(window.location.pathname)
   }
@@ -104,7 +133,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         updateCurrency
       }}>
-      {!!user && children}
+      {children}
     </AuthContext.Provider>
   )
 }

@@ -1,4 +1,4 @@
-import { FC, useState } from 'react'
+import React from 'react'
 import { useBudgetMonth } from '@/hooks/budget'
 import {
   Box,
@@ -18,7 +18,7 @@ interface Types {
   clickDelete: (uuid: string) => void
 }
 
-const Container: FC<Types> = ({
+const Container: React.FC<Types> = ({
   startDate,
   endDate,
   clickShowTransactions,
@@ -26,11 +26,19 @@ const Container: FC<Types> = ({
   clickDelete
 }) => {
   const { user } = useAuth();
-  const [activeCategoryUuid, setActiveCategoryUuid] = useState<string>('')
+  const [activeCategoryUuid, setActiveCategoryUuid] = React.useState<string>('')
   const {
     data: budget,
     isLoading: isBudgetLoading
   } = useBudgetMonth(startDate, endDate);
+
+  React.useEffect(() => {
+    if (!budget) return
+
+    if (!activeCategoryUuid) {
+      setActiveCategoryUuid(budget[0].uuid)
+    }
+  }, [budget])
 
   return (
     <Grid container>
