@@ -102,12 +102,13 @@ const BudgetItem: React.FC<Types> = ({
 
   const bgColor = recurrent ?
     recurrent === 'monthly'
-      ? 'bg-blue-100'
-      : 'bg-yellow-100'
+      ? 'border-2 border-blue-500'
+      : 'border-2 border-green-500'
     : ''
 
   return (
     <Paper
+      className={bgColor}
       elevation={0}
       sx={{
         width: '100%',
@@ -115,7 +116,7 @@ const BudgetItem: React.FC<Types> = ({
         borderRadius: 3,
         zIndex: 1,
         '&:hover': {
-          width: 250,
+          width: 300,
           zIndex: 2,
           boxShadow: '0 0 10px grey'
         },

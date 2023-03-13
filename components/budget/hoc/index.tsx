@@ -21,7 +21,7 @@ import { useUsers } from '@/hooks/users'
 import { useAuth } from '@/context/auth'
 import { useBudgetMonth, useBudgetWeek } from '@/hooks/budget'
 import { User } from '@/components/users/types'
-import { 
+import {
   getStartOfMonth,
   getEndOfMonth,
   getStartOfWeek,
@@ -67,7 +67,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const [activeBudgetUuid, setActiveBudgetUuid] = useState<string>('')
     const startDate = activeType === 'month' ? startOfMonth : startOfWeek
     const endDate = activeType === 'month' ? endOfMonth : endOfWeek
-    
+
     const {
       data: users,
       isLoading: isUsersLoading,
@@ -182,22 +182,22 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             onClick={() => handleTypeButtonClick('month')}
             sx={{ width: 180, p: 0, backgroundColor: "info.dark" }}
           >
-              <Typography
-                variant="h5"
-                sx={activeType === "month" ? {
-                  display: 'flex',
-                  justifyContent: 'center',
-                  color: "info.dark",
-                  backgroundColor: "white",
-                  border: 4,
-                  borderRadius: 2,
-                  width: '100%',
-                  height: '100%',
-                  alignItems: 'center',
-                } : {}}
-              >
-                Monthly
-              </Typography>
+            <Typography
+              variant="h5"
+              sx={activeType === "month" ? {
+                display: 'flex',
+                justifyContent: 'center',
+                color: "info.dark",
+                backgroundColor: "white",
+                border: 4,
+                borderRadius: 2,
+                width: '100%',
+                height: '100%',
+                alignItems: 'center',
+              } : {}}
+            >
+              Monthly
+            </Typography>
           </Button>
           <Button
             disabled={activeType === 'week'}
@@ -206,22 +206,22 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             onClick={() => handleTypeButtonClick('week')}
             sx={{ width: 180, p: 0, backgroundColor: "info.dark" }}
           >
-              <Typography
-                variant="h5"
-                sx={activeType === "week" ? {
-                  display: 'flex',
-                  justifyContent: 'center',
-                  color: 'info.dark',
-                  backgroundColor: "white",
-                  border: 4,
-                  borderRadius: 2,
-                  width: '100%',
-                  height: '100%',
-                  alignItems: 'center',
-                } : {}}
-              >
-                Weekly
-              </Typography>
+            <Typography
+              variant="h5"
+              sx={activeType === "week" ? {
+                display: 'flex',
+                justifyContent: 'center',
+                color: 'info.dark',
+                backgroundColor: "white",
+                border: 4,
+                borderRadius: 2,
+                width: '100%',
+                height: '100%',
+                alignItems: 'center',
+              } : {}}
+            >
+              Weekly
+            </Typography>
           </Button>
         </ButtonGroup>
         <Box sx={{ flexGrow: 1 }} />
@@ -236,6 +236,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           startIcon={<AddIcon />}
           variant="contained"
           sx={{ textTransform: 'none', ml: 2 }}
+          className="bg-blue-500"
           onClick={() => setIsOpenAddBudget(true)}
         >
           Add budget
@@ -261,7 +262,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
               onChange={changeUser}
             >
               <MenuItem value="all">All</MenuItem>
-              {!isUsersLoading && users.map((item: User) => (
+              {users && users.map((item: User) => (
                 <MenuItem value={item.uuid} key={item.uuid}>{item.username}</MenuItem>
               ))}
             </Select>
@@ -340,7 +341,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             />
           </>
         )
-      }
+        }
       </>
     )
   }

@@ -3,7 +3,6 @@ import Router, { useRouter } from 'next/router';
 import axios from 'axios';
 import { database, userTable, addUser } from '@/models/indexedDb.config';
 import { LoginResponse } from '@/components/login/types';
-import { getCookie, setCookie } from 'cookies-next'
 
 type ActiveUser = UserState | null;
 
@@ -65,7 +64,6 @@ export const AuthProvider = ({ children }) => {
 
   const storeUserData = (userData: LoginResponse): void => {
     console.log('set user')
-    setCookie("user", userData, { req, res, maxAge: 60 * 60 * 24 })
     //await userTable.put(userData);
   }
 
@@ -87,7 +85,6 @@ export const AuthProvider = ({ children }) => {
             token: data.token,
           };
           addUser(userData)
-          setCookie("user", userData, { req, res, maxAge: 60 * 60 * 24 })
           //storeUserData(userData);
           axios.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
           window.location.pathname = '/';
@@ -105,7 +102,6 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async (): Promise<void> => {
     setLoading(true);
-    setCookie("user", null)
     //await userTable.clear();
     setUser(null);
     delete axios.defaults.headers.Authorization;
@@ -117,8 +113,6 @@ export const AuthProvider = ({ children }) => {
     setLoading(true)
     // const user = await userTable.get(0)
     // await userTable.update(0, { currency: newCurrency })
-    const user = getCookie("user")
-    setCookie("user", { ...user, currency: newCurrency }, { req, res, maxAge: 60 * 60 * 24 })
     setLoading(false)
     Router.reload(window.location.pathname)
   }

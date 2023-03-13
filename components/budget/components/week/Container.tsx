@@ -47,15 +47,16 @@ const header = () => {
   const daysFullFormatArray: string[] = getWeekDays(FULL_DAY_ONLY_FORMAT)
 
   return (
-    <Grid container spacing={1}>
-      <Grid item xs={2}></Grid>
+    <div className="grid grid-cols-8 gap-3">
       {daysShortFormatArray.map((item: string, index: number) => (
-        <Grid item xs={currentDay === index ? 2 : 1} key={item}>
+        <div
+          key={item}
+          className={currentDay === index ? 'col-span-2' : ''}
+        >
           <HeaderItem title={currentDay === index ? daysFullFormatArray[index] : item} />
-        </Grid>
+        </div>
       ))}
-      <Grid item></Grid>
-    </Grid>
+    </div>
   )
 }
 
@@ -104,10 +105,11 @@ const Container: FC<Types> = ({
         {parseAndFormatDate(endDate, MONTH_DAY_FORMAT)}
       </Typography>
       {header()}
-      <Grid container spacing={1}>
-        <Grid item xs={2}></Grid>
+      <div className="grid grid-cols-8 gap-3">
         {weekDaysArray.map((i: number) => (
-          <Grid item xs={currentDay === i ? 2 : 1} key={i}>
+          <div
+            className={currentDay === i ? 'col-span-2' : ''}
+          >
             <Stack spacing={1}>
               {weekGroup[i] &&
                 weekGroup[i].map((item: CompactWeekItem) => (
@@ -125,10 +127,9 @@ const Container: FC<Types> = ({
                   />
                 ))}
             </Stack>
-          </Grid>
+          </div>
         ))}
-        <Grid item xs={4}></Grid>
-      </Grid>
+      </div>
     </Stack>
   );
 };
