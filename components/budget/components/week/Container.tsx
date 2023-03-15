@@ -50,7 +50,7 @@ const header = () => {
     <div className="grid grid-cols-8 gap-3">
       {daysShortFormatArray.map((item: string, index: number) => (
         <div
-          key={item}
+          key={index}
           className={currentDay === index ? 'col-span-2' : ''}
         >
           <HeaderItem title={currentDay === index ? daysFullFormatArray[index] : item} />
@@ -108,6 +108,7 @@ const Container: FC<Types> = ({
       <div className="grid grid-cols-8 gap-3">
         {weekDaysArray.map((i: number) => (
           <div
+            key={i}
             className={currentDay === i ? 'col-span-2' : ''}
           >
             <Stack spacing={1}>

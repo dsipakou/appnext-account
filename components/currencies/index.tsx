@@ -116,7 +116,7 @@ const Index: FC = () => {
       </Toolbar>
       <Box>
         <Grid container spacing={2} wrap="nowrap" sx={{ overflowX: 'scroll', pb: 2 }}>
-          {!isLoading && currencies.map((item: Currency, index: number) => (
+          {currencies && currencies.map((item: Currency, index: number) => (
             !item.isBase && currencyCard(item, index)
           ))}
         </Grid>

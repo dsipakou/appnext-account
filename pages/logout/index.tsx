@@ -1,9 +1,8 @@
-import { useEffect, useContent } from 'react';
+import { useEffect, useContext } from 'react';
 import { AuthContext } from '@/context/auth';
 
 const Logout = () => {
-  const auth = useContent(AuthContext)
-  const { logout } = auth
+  const { logout } = useContext(AuthContext)
   useEffect(() => {
     logout();
   }, []);

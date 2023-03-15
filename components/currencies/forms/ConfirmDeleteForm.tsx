@@ -26,7 +26,7 @@ const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose }) => {
   const { mutate } = useSWRConfig();
 
   useEffect(() => {
-    if (isLoading) return;
+    if (!currencies) return;
 
     const _currency = currencies.find((item: Currency) => item.uuid === uuid);
     setCurrency(_currency);

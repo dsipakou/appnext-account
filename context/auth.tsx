@@ -1,13 +1,15 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import Router, { useRouter } from 'next/router';
+import Router from 'next/router';
 import axios from 'axios';
-import { database, userTable, addUser } from '@/models/indexedDb.config';
-import { LoginResponse } from '@/components/login/types';
+import {
+  clear,
+  get,
+  set,
+} from '@/models/indexedDb.config';
 
 type ActiveUser = UserState | null;
 
 interface UserState {
-  id: number,
   email: string,
   username: string,
   currency: string,
@@ -17,7 +19,7 @@ interface UserState {
 interface Auth {
   isAuthenticated: boolean
   user: ActiveUser
-  login: () => void
+  login: (email: string, password: string) => Promise<void> | undefined
   logout: () => void
   loading: boolean
 }
@@ -27,7 +29,7 @@ const defaultValues: Auth = {
   user: null,
   login: () => undefined,
   logout: () => undefined,
-  loading: () => false,
+  loading: false,
 }
 
 export const AuthContext = createContext<Auth>(defaultValues);
@@ -35,74 +37,55 @@ export const AuthContext = createContext<Auth>(defaultValues);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState<ActiveUser>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  //const users = useLiveQuery(() => database.users.toArray())
-  let db
 
   useEffect(() => {
     const loadUserFromIndexedDB = async (): Promise<void> => {
-      //const userList: Array<UserState> = await userTable.toArray();
-      //const user = userList[0];
-      let user = null
-      const openRequest = window.indexedDB.open("accountdb", 10)
-      openRequest.onsuccess = (event) => {
-        db = openRequest.result;
-        const transaction = db.transaction("user")
-        const objectStore = transaction.objectStore("user")
-        console.log(objectStore)
-        const objectStoreRequest = objectStore.get(0)
-        objectStoreRequest.onsuccess = (event) => {
-          user = objectStoreRequest.result
-          console.log(user.token)
-          axios.defaults.headers.common['Authorization'] = `Token ${user.token}`;
-          setUser(user);
-        }
+      const user = await get(0)
+
+      if (user) {
+        axios.defaults.headers.common['Authorization'] = `Token ${user.token}`;
+        setUser(user);
       }
       setLoading(false)
     }
     loadUserFromIndexedDB()
   }, [])
 
-  const storeUserData = (userData: LoginResponse): void => {
-    console.log('set user')
-    //await userTable.put(userData);
-  }
-
   const login = async (email: string, password: string): Promise<void> => {
-    setLoading(true);
-    axios
-      .post('users/login/', {
+    setLoading(true)
+    let response = null
+
+    try {
+      response = await axios.post('users/login/', {
         email,
-        password,
+        password
       })
-      .then((res) => {
-        if (res.status === 200) {
-          const data = res.data;
-          const userData: UserState = {
-            id: 0,
-            username: data.username,
-            email: data.email,
-            currency: data.currency,
-            token: data.token,
-          };
-          addUser(userData)
-          //storeUserData(userData);
-          axios.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
-          window.location.pathname = '/';
-        } else {
-          // TODO: handle error
-        }
-      })
-      .catch((error) => {
-        // TODO: handle error
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    } catch (error) {
+      // TODO: handle axios error
+      return
+    }
+
+    if (response.status === 200) {
+      const data = response.data
+      const userData: UserState = {
+        username: data.username,
+        email: data.email,
+        currency: data.currency,
+        token: data.token,
+      };
+      await set(0, userData)
+      axios.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
+      window.location.pathname = '/';
+    } else {
+      // TODO: handle non 200 statuses
+    }
+
+    setLoading(false)
   }
 
   const logout = async (): Promise<void> => {
     setLoading(true);
-    //await userTable.clear();
+    await clear()
     setUser(null);
     delete axios.defaults.headers.Authorization;
     setLoading(false);
@@ -113,6 +96,8 @@ export const AuthProvider = ({ children }) => {
     setLoading(true)
     // const user = await userTable.get(0)
     // await userTable.update(0, { currency: newCurrency })
+    const user = await get(0)
+    await set(0, { ...user, currency: newCurrency })
     setLoading(false)
     Router.reload(window.location.pathname)
   }

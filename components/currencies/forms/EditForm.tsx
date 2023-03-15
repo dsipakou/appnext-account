@@ -37,7 +37,7 @@ const EditForm: FC<Types> = ({ uuid, open, handleClose }) => {
   const { data: currencies, isLoading, isError } = useCurrencies();
 
   useEffect(() => {
-    if (isLoading) return;
+    if (!currencies) return;
 
     const _currency = currencies.find((item: Currency) => item.uuid === uuid);
     if (!_currency) return;
