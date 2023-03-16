@@ -17,7 +17,7 @@ interface Types {
 const HeaderItem: FC<Types> = ({ date, isWeekend }) => {
   return (
     <Box
-      className={isWeekend ? "bg-red-200" : "bg-sky-50"}
+      className={isWeekend ? "ring-2 ring-red-400 bg-red-100" : "ring-2 ring-sky-400 bg-sky-100"}
       sx={{
         display: 'flex',
         flexDirection: 'column',
