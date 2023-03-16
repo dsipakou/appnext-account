@@ -102,8 +102,8 @@ const BudgetItem: React.FC<Types> = ({
 
   let bgColor = recurrent ?
     recurrent === 'monthly'
-      ? 'rounded-l-lg border-l-4 border-blue-500'
-      : 'rounded-l-lg border-l-4 border-yellow-500'
+      ? 'rounded-l-xl border-l-8 border-blue-500'
+      : 'rounded-l-xl border-l-8 border-yellow-500'
     : 'rounded-l-lg'
 
   if (isCompleted) {

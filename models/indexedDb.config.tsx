@@ -1,12 +1,3 @@
-
-interface UserState {
-  id: number
-  email: string
-  username: string
-  currency: string
-  token: string
-}
-
 export function promisifyRequest<T = undefined>(
   request: IDBRequest<T> | IDBTransaction,
 ): Promise<T> {

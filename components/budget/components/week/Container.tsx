@@ -5,11 +5,12 @@ import { useBudgetWeek } from '@/hooks/budget'
 import { RecurrentTypes, WeekBudgetItem } from '@/components/budget/types'
 import { ConfirmDeleteForm } from '@/components/budget/forms'
 import {
-  getWeekDays,
+  getWeekDaysWithFullDays,
   parseDate,
   parseAndFormatDate,
   FULL_DAY_ONLY_FORMAT,
   MONTH_DAY_FORMAT,
+  WeekDayWithFullDate,
 } from '@/utils/dateUtils'
 import { useAuth } from '@/context/auth'
 import BudgetItem from './BudgetItem'
@@ -43,17 +44,20 @@ interface GroupedByWeek {
 
 const header = () => {
   const currentDay: number = (getDay(new Date()) + 6) % 7
-  const daysShortFormatArray: string[] = getWeekDays()
-  const daysFullFormatArray: string[] = getWeekDays(FULL_DAY_ONLY_FORMAT)
+  const daysShortFormatArray: WeekDayWithFullDate[] = getWeekDaysWithFullDays()
+  const daysFullFormatArray: string[] = getWeekDaysWithFullDays(FULL_DAY_ONLY_FORMAT)
 
   return (
     <div className="grid grid-cols-8 gap-3">
-      {daysShortFormatArray.map((item: string, index: number) => (
+      {daysShortFormatArray.map((item: WeekDayWithFullDate, index: number) => (
         <div
           key={index}
           className={currentDay === index ? 'col-span-2' : ''}
         >
-          <HeaderItem title={currentDay === index ? daysFullFormatArray[index] : item} />
+          <HeaderItem
+            date={item}
+            isWeekend={index > 4}
+          />
         </div>
       ))}
     </div>
@@ -100,15 +104,10 @@ const Container: FC<Types> = ({
 
   return (
     <Stack spacing={1}>
-      <Typography align="center" variant="h4">
-        {parseAndFormatDate(startDate, MONTH_DAY_FORMAT)} -{" "}
-        {parseAndFormatDate(endDate, MONTH_DAY_FORMAT)}
-      </Typography>
       {header()}
       <div className="grid grid-cols-8 gap-3">
         {weekDaysArray.map((i: number) => (
           <div
-            key={i}
             className={currentDay === i ? 'col-span-2' : ''}
           >
             <Stack spacing={1}>

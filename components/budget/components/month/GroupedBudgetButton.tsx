@@ -81,8 +81,7 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
                   {formatMoney(planned)}
                 </Typography>
               </>
-            )
-            }
+            )}
           </Box>
         </Grid>
         <Grid item xs={12}>

@@ -94,8 +94,6 @@ export const AuthProvider = ({ children }) => {
 
   const updateCurrency = async (newCurrency: string): Promise<void> => {
     setLoading(true)
-    // const user = await userTable.get(0)
-    // await userTable.update(0, { currency: newCurrency })
     const user = await get(0)
     await set(0, { ...user, currency: newCurrency })
     setLoading(false)

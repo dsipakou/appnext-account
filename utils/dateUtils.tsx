@@ -21,6 +21,11 @@ export interface WeekOfMonth {
   endDate: string
 }
 
+export interface WeekDayWithFullDate {
+  shortDayName: string
+  fullDate: string
+}
+
 export const DATE_FORMAT = "yyyy-MM-dd"
 export const MONTH_DAY_FORMAT = "MMM dd"
 export const REPORT_FORMAT = "yyyy-MM"
@@ -31,7 +36,8 @@ export const FULL_DAY_ONLY_FORMAT = "EEEE"
 export const getFormattedDate = (date: Date, dateFormat: string = DATE_FORMAT): string => {
   return format(date, dateFormat);
 }
-export const parseDate = (date: string, dateFormat: string = DATE_FORMAT): Date => { return parseISO(date, dateFormat, new Date());
+export const parseDate = (date: string, dateFormat: string = DATE_FORMAT): Date => {
+  return parseISO(date, dateFormat, new Date());
 }
 
 export const parseAndFormatDate = (
@@ -101,6 +107,25 @@ export const getWeekDays = (formatTemplate: string = SHORT_DAY_ONLY_FORMAT): str
     return acc
   }, [])
 }
+
+export const getWeekDaysWithFullDays =
+  (formatTemplate: string = SHORT_DAY_ONLY_FORMAT): WeekDayWithFullDate[] => {
+    const today = new Date()
+    const everyDayOfWeek = eachDayOfInterval({
+      start: startOfWeek(today, { weekStartsOn: 1 }),
+      end: endOfWeek(today, { weekStartsOn: 1 })
+    })
+    const daysArray = []
+
+    everyDayOfWeek.forEach((item: string) => {
+      daysArray.push({
+        shortDayName: format(item, formatTemplate),
+        fullDate: item
+      })
+    })
+
+    return daysArray
+  }
 
 export const formatRelativeLocale = {
   lastWeek: "'Last' dddd",
