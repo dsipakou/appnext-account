@@ -13,14 +13,15 @@ import { Account } from './types'
 import { AddForm, EditForm, ConfirmDeleteForm } from './forms'
 
 const Index: React.FC = () => {
-  const {
-    data: accounts
-  } = useAccounts()
 
   const [activeAccount, setActiveAccount] = React.useState<string | null>(null)
   const [isAddFormOpened, setIsAddFormOpened] = React.useState<boolean>(false)
   const [isEditFormOpened, setIsEditFormOpened] = React.useState<boolean>(false)
   const [isConfirmDeleteFormOpened, setIsConfirmDeleteFormOpened] = React.useState<boolean>(false)
+
+  const {
+    data: accounts
+  } = useAccounts()
 
   const clickAccount = (uuid: string): void => {
     setActiveAccount(uuid)
@@ -58,7 +59,7 @@ const Index: React.FC = () => {
         </Button>
       </Toolbar>
       <Grid container spacing={2}>
-        { accounts && accounts.map((item: Account) => (
+        {accounts && accounts.map((item: Account) => (
           <Grid key={item.uuid} item xs={3}>
             <AccountCard
               key={item.uuid}
@@ -88,7 +89,7 @@ const Index: React.FC = () => {
             />
           </>
         )
-      } 
+      }
     </>
   )
 }

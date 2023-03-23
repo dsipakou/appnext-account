@@ -96,11 +96,10 @@ export const getMonthWeeksWithDates = (
   return weekOfMonth
 }
 
-export const getWeekDays = (formatTemplate: string = SHORT_DAY_ONLY_FORMAT): string[] => {
-  const today = new Date()
+export const getWeekDays = (dateOfWeek: Date, formatTemplate: string = SHORT_DAY_ONLY_FORMAT): string[] => {
   const everyDayOfWeek = eachDayOfInterval({
-    start: startOfWeek(today, { weekStartsOn: 1 }),
-    end: endOfWeek(today, { weekStartsOn: 1 })
+    start: startOfWeek(dateOfWeek, { weekStartsOn: 1 }),
+    end: endOfWeek(dateOfWeek, { weekStartsOn: 1 })
   })
   return everyDayOfWeek.reduce((acc: string[], day: string) => {
     acc.push(format(day, formatTemplate))
@@ -109,11 +108,10 @@ export const getWeekDays = (formatTemplate: string = SHORT_DAY_ONLY_FORMAT): str
 }
 
 export const getWeekDaysWithFullDays =
-  (formatTemplate: string = SHORT_DAY_ONLY_FORMAT): WeekDayWithFullDate[] => {
-    const today = new Date()
+  (dateOfWeek: Date, formatTemplate: string = SHORT_DAY_ONLY_FORMAT): WeekDayWithFullDate[] => {
     const everyDayOfWeek = eachDayOfInterval({
-      start: startOfWeek(today, { weekStartsOn: 1 }),
-      end: endOfWeek(today, { weekStartsOn: 1 })
+      start: startOfWeek(dateOfWeek, { weekStartsOn: 1 }),
+      end: endOfWeek(dateOfWeek, { weekStartsOn: 1 })
     })
     const daysArray = []
 

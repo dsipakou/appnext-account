@@ -42,10 +42,10 @@ interface GroupedByWeek {
   [key: string]: CompactWeekItem[]
 }
 
-const header = () => {
+const header = (date: string) => {
   const currentDay: number = (getDay(new Date()) + 6) % 7
-  const daysShortFormatArray: WeekDayWithFullDate[] = getWeekDaysWithFullDays()
-  const daysFullFormatArray: string[] = getWeekDaysWithFullDays(FULL_DAY_ONLY_FORMAT)
+  const daysShortFormatArray: WeekDayWithFullDate[] = getWeekDaysWithFullDays(parseDate(date))
+  const daysFullFormatArray: string[] = getWeekDaysWithFullDays(parseDate(date), FULL_DAY_ONLY_FORMAT)
 
   return (
     <div className="grid grid-cols-8 gap-3">
@@ -104,7 +104,7 @@ const Container: FC<Types> = ({
 
   return (
     <Stack spacing={1}>
-      {header()}
+      {header(startDate)}
       <div className="grid grid-cols-8 gap-3">
         {weekDaysArray.map((i: number) => (
           <div

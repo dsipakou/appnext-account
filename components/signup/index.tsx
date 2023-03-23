@@ -38,6 +38,18 @@ const Index: React.FC = () => {
       const error = "Please, check your password"
       setErrors((oldErrors: string[]) => [...oldErrors, error])
     }
+    axios.post('users/register/', {
+      email,
+      username,
+      password,
+      repeatPassword: passwordRepeat
+    }).then((res) => {
+      if (res.status === 200) {
+        console.log('Everything is ok')
+      }
+    }).catch((err) => {
+      console.log(`Something went wrong: ${err}`)
+    })
   }
 
   return (
@@ -104,7 +116,7 @@ const Index: React.FC = () => {
           >
             Create account
           </Button>
-          { errors.map((error: string) => (
+          {errors.map((error: string) => (
             <Typography>{error}</Typography>
           ))}
         </Stack>

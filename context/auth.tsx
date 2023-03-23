@@ -40,6 +40,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const loadUserFromIndexedDB = async (): Promise<void> => {
+      setLoading(true)
       const user = await get(0)
 
       if (user) {
