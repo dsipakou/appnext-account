@@ -100,33 +100,21 @@ const BudgetItem: React.FC<Types> = ({
     })
   }
 
-  let bgColor = recurrent ?
+  let cssClass = recurrent ?
     recurrent === 'monthly'
-      ? 'rounded-l-xl border-l-8 border-blue-500'
+      ? 'p-2 rounded-l-xl border-l-8 border-blue-500'
       : 'rounded-l-xl border-l-8 border-yellow-500'
     : 'rounded-l-lg'
 
   if (isCompleted) {
-    bgColor = `bg-slate-200 ${bgColor}`
+    cssClass = `bg-slate-200 ${cssClass}`
+  } else {
+    cssClass = `bg-white ${cssClass}`
   }
 
   return (
-    <Paper
-      className={bgColor}
-      elevation={0}
-      sx={{
-        width: '100%',
-        p: 1,
-        zIndex: 1,
-        '&:hover': {
-          width: 300,
-          zIndex: 2,
-          boxShadow: '0 0 10px grey'
-        },
-        '&:mouseout': {
-          zIndex: 1
-        }
-      }}
+    <div
+      className={`p-2 rounded-md hover:w-80 hover:z-20 hover:shadow-xl ${cssClass}`}
       onMouseEnter={onMouseEnterHandler}
       onMouseLeave={onMouseLeaveHandler}
     >
@@ -266,7 +254,7 @@ const BudgetItem: React.FC<Types> = ({
         </Box>
       )
       }
-    </Paper>
+    </div>
   )
 }
 
