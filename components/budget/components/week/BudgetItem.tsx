@@ -107,14 +107,14 @@ const BudgetItem: React.FC<Types> = ({
     : 'rounded-l-lg'
 
   if (isCompleted) {
-    cssClass = `bg-slate-200 ${cssClass}`
+    cssClass = `bg-slate-300 ${cssClass}`
   } else {
     cssClass = `bg-white ${cssClass}`
   }
 
   return (
     <div
-      className={`p-2 rounded-md hover:w-80 hover:z-20 hover:shadow-xl ${cssClass}`}
+      className={`p-2 rounded-md hover:w-80 hover:z-20 hover:shadow-xl w-full ${cssClass}`}
       onMouseEnter={onMouseEnterHandler}
       onMouseLeave={onMouseLeaveHandler}
     >

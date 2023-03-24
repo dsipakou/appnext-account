@@ -110,7 +110,7 @@ const Container: FC<Types> = ({
           <div
             className={currentDay === i ? 'col-span-2' : ''}
           >
-            <Stack spacing={1}>
+            <div className="flex flex-col justify-center items-center gap-1">
               {weekGroup[i] &&
                 weekGroup[i].map((item: CompactWeekItem) => (
                   <BudgetItem
@@ -126,7 +126,7 @@ const Container: FC<Types> = ({
                     mutateBudget={mutateBudget}
                   />
                 ))}
-            </Stack>
+            </div>
           </div>
         ))}
       </div>
