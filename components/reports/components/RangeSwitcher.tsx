@@ -24,21 +24,21 @@ const RangeSwitcher: React.FC<Types> = ({ dateFrom, dateTo, clickBack, clickForw
   const formattedDateTo = parseAndFormatDate(dateTo, SHORT_YEAR_MONTH_FORMAT)
 
   return (
-    <Grid container>
-      <Grid item>
+    <div className="flex">
+      <div>
         <IconButton onClick={clickBack}>
           <KeyboardDoubleArrowLeftIcon />
         </IconButton>
-      </Grid>
-      <Grid item sx={{ display: 'flex', alignItems: 'center' }}>
+      </div>
+      <div className="flex items-center">
         <Typography variant="h5">{formattedDateFrom} - {formattedDateTo}</Typography>
-      </Grid>
-      <Grid item>
+      </div>
+      <div>
         <IconButton onClick={clickForward}>
           <KeyboardDoubleArrowRightIcon />
         </IconButton>
-      </Grid>
-    </Grid>
+      </div>
+    </div>
   )
 }
 

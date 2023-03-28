@@ -14,7 +14,6 @@ import {
 } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { useTransactionsReport } from '@/hooks/transactions'
-import RangeSwitcher from './components/RangeSwitcher'
 import { TransactionsReportResponse } from '@/components/transactions/types'
 import {
   parseAndFormatDate,
@@ -23,9 +22,12 @@ import {
   SHORT_YEAR_MONTH_FORMAT
 } from '@/utils/dateUtils'
 import { useAuth } from '@/context/auth'
+import { RangeSwitcher, ReportTypeSwitcher } from './components'
+import { ReportPages } from './components/ReportTypeSwitcher'
 
 const Index: React.FC = () => {
   const [date, setDate] = React.useState<Date>(new Date())
+  const [reportType, setReportType] = React.useState<ReportPages>(ReportPages.Overall)
   const { user: authUser, isLoading: isAuthLoading } = useAuth()
 
   const dateFrom = getFormattedDate(startOfMonth(subMonths(date, 11)))
@@ -85,7 +87,7 @@ const Index: React.FC = () => {
     if (index === 0) {
       return
     }
-    const aggRow = {id: row.id, day: row.day}
+    const aggRow = { id: row.id, day: row.day }
     for (let i = 1; i <= 12; i += 1) {
       aggRow[`month${i}`] = aggregatedRows[index - 1][`month${i}`] + rows[index][`month${i}`]
     }
@@ -94,23 +96,23 @@ const Index: React.FC = () => {
 
   return (
     <>
-      <Toolbar sx={{ pb: 1 }}>
-        <Typography variant="h4" sx={{ my: 2 }}>Reports</Typography>
-        <Box sx={{ flexGrow: 2 }} />
+      <Toolbar className="flex pb-1">
+        <Typography className="w-full" variant="h4" sx={{ my: 2 }}>Reports</Typography>
+        <ReportTypeSwitcher activePage={reportType} changeReportType={setReportType} />
+      </Toolbar>
+      <div className="flex flex-col items-center gap-2 h-screen">
         <RangeSwitcher
           dateFrom={dateFrom}
           dateTo={dateTo}
           clickBack={clickBack}
           clickForward={clickForward}
         />
-      </Toolbar>
-      <Grid container spacing={2} sx={{ height: '80vh' }}>
-        <Grid item xs={12} sx={{ height: '100%' }}>
+        <div className="flex h-screen w-full">
           <DataGrid
             columns={columns}
             rows={aggregatedRows}
             rowHeight={30}
-            sx={{ height: '100%'}}
+            sx={{ height: '100%' }}
             getCellClassName={(params) => {
               const day: number = format(new Date(), 'd')
               if (params.id === Number(day)) {
@@ -119,8 +121,8 @@ const Index: React.FC = () => {
               return ''
             }}
           />
-        </Grid>
-      </Grid>
+        </div>
+      </div>
     </>
   )
 }
