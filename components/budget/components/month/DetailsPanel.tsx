@@ -16,12 +16,12 @@ import {
 import GroupedBudgetDetails from './GroupedBudgetDetails'
 import CategorySummaryCard from './CategorySummaryCard'
 import PreviousMonthsCard from './PreviousMonthsCard'
-import { useAuth } from '@/context/auth'
 
 interface Types {
   activeCategoryUuid: string
   startDate: string
   endDate: string
+  user: string
   clickShowTransactions: (uuid: string) => void
   clickEdit: (uuid: string) => void
   clickDelete: (uuid: string) => void
@@ -31,18 +31,18 @@ const DetailsPanel: FC<Types> = ({
   activeCategoryUuid,
   startDate,
   endDate,
+  user,
   clickShowTransactions,
   clickEdit,
   clickDelete
 }) => {
-  const { user } = useAuth()
   const [budgetTitle, setBudgetTitle] = useState<string | undefined>()
   const [budgetItems, setBudgetItems] = useState<MonthBudgetItem[]>([])
   const [activeBudgetUuid, setActiveBudgetUuid] = useState<string | null>(null)
   const {
     data: budgetList = [],
     isLoading: isBudgetLoading
-  } = useBudgetMonth(startDate, endDate);
+  } = useBudgetMonth(startDate, endDate, user);
 
   const activeCategory = budgetList.length > 0
     ? budgetList.find(

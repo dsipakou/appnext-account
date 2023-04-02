@@ -19,6 +19,7 @@ import HeaderItem from './HeaderItem'
 interface Types {
   startDate: string
   endDate: string
+  user: string
   clickEdit: (uuid: string) => void
   clickDelete: (uuid: string) => void
   mutateBudget: () => void
@@ -67,6 +68,7 @@ const header = (date: string) => {
 const Container: FC<Types> = ({
   startDate,
   endDate,
+  user,
   clickEdit,
   clickDelete,
   mutateBudget
@@ -74,10 +76,11 @@ const Container: FC<Types> = ({
   const [weekGroup, setWeekGroup] = useState<GroupedByWeek>({});
   const { data: budget, isLoading }: WeekBudgetResponse = useBudgetWeek(
     startDate,
-    endDate
+    endDate,
+    user
   )
   const currentDay: number = getDay(new Date())
-  const { user } = useAuth();
+  const { user: authUser } = useAuth();
   const weekDaysArray: number[] = [1, 2, 3, 4, 5, 6, 0];
 
 
@@ -91,8 +94,8 @@ const Container: FC<Types> = ({
       const compactWeekItem: CompactWeekItem = {
         uuid: item.uuid,
         title: item.title,
-        planned: item.plannedInCurrencies[user?.currency],
-        spent: item.spentInCurrencies[user?.currency] || 0,
+        planned: item.plannedInCurrencies[authUser?.currency],
+        spent: item.spentInCurrencies[authUser?.currency] || 0,
         recurrent: item.recurrent,
         isCompleted: item.isCompleted,
       };

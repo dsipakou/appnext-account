@@ -26,8 +26,10 @@ export const useBudgetDetails = (
 export const useBudgetMonth = (
   dateFrom: string,
   dateTo: string,
+  user: string,
 ): Response<GroupedByCategoryBudget[]> => {
-  const url = `budget/usage/?dateFrom=${dateFrom}&dateTo=${dateTo}`;
+  let url = `budget/usage/?dateFrom=${dateFrom}&dateTo=${dateTo}`;
+  if (user && user !== 'all') url = `${url}&user=${user}`
   const { data, error } = useSWR(url, fetcher);
 
   return {
@@ -36,13 +38,15 @@ export const useBudgetMonth = (
     isError: error,
     url,
   } as Response<GroupedByCategoryBudget[]>;
-} 
+}
 
 export const useBudgetWeek = (
   dateFrom: string,
   dateTo: string,
+  user: string,
 ): Response<WeekBudgetItem[]> => {
-  const url = `budget/weekly-usage/?dateFrom=${dateFrom}&dateTo=${dateTo}`;
+  let url = `budget/weekly-usage/?dateFrom=${dateFrom}&dateTo=${dateTo}`;
+  if (user && user !== 'all') url = `${url}&user=${user}`
   const { data, error } = useSWR(url, fetcher);
 
   return {
@@ -51,7 +55,7 @@ export const useBudgetWeek = (
     isError: error,
     url,
   } as Response<WeekBudgetItem[]>;
-} 
+}
 
 export const useBudgetDuplicate = (
   type: "month" | "week",

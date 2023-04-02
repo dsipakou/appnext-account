@@ -77,13 +77,13 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
       data: budgetMonth,
       isLoading: isMonthBudgetLoading,
       url: monthUrl
-    } = useBudgetMonth(startOfMonth, endOfMonth);
+    } = useBudgetMonth(startOfMonth, endOfMonth, user)
 
     const {
       data: budgetWeek,
       isLoading: isWeekBudgetLoading,
       url: weekUrl
-    } = useBudgetWeek(startOfWeek, endOfWeek)
+    } = useBudgetWeek(startOfWeek, endOfWeek, user)
 
     const handleClickTransactions = (uuid: string): void => {
       setActiveBudgetUuid(uuid)
@@ -149,6 +149,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     }
 
     const changeUser = (e: SelectChangeEvent): void => {
+      console.log(`User changed ${e.target.value}`)
       setUser(e.target.value);
     }
 
@@ -303,6 +304,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
               clickEdit={handleClickEdit}
               clickDelete={handleClickDelete}
               mutateBudget={mutateBudget}
+              user={user}
             />
           </Grid>
         </Grid>

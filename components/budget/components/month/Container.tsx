@@ -13,6 +13,7 @@ import { useAuth } from '@/context/auth'
 interface Types {
   startDate: string
   endDate: string
+  user: string
   clickShowTransactions: (uuid: string) => void
   clickEdit: (uuid: string) => void
   clickDelete: (uuid: string) => void
@@ -21,16 +22,17 @@ interface Types {
 const Container: React.FC<Types> = ({
   startDate,
   endDate,
+  user,
   clickShowTransactions,
   clickEdit,
   clickDelete
 }) => {
-  const { user } = useAuth();
+  const { user: authUser } = useAuth();
   const [activeCategoryUuid, setActiveCategoryUuid] = React.useState<string>('')
   const {
     data: budget,
     isLoading: isBudgetLoading
-  } = useBudgetMonth(startDate, endDate);
+  } = useBudgetMonth(startDate, endDate, user);
 
   React.useEffect(() => {
     if (!budget) return
@@ -52,9 +54,9 @@ const Container: React.FC<Types> = ({
               <CategorySummaryButton
                 title={item.categoryName}
                 isActive={activeCategoryUuid === item.uuid}
-                planned={item.plannedInCurrencies[user?.currency]}
-                spent={item.spentInCurrencies[user?.currency]}
-                currencyCode={user?.currency}
+                planned={item.plannedInCurrencies[authUser?.currency]}
+                spent={item.spentInCurrencies[authUser?.currency]}
+                currencyCode={authUser?.currency}
               />
             </Box>
           ))}
@@ -65,6 +67,7 @@ const Container: React.FC<Types> = ({
           activeCategoryUuid={activeCategoryUuid}
           startDate={startDate}
           endDate={endDate}
+          user={user}
           clickShowTransactions={clickShowTransactions}
           clickEdit={clickEdit}
           clickDelete={clickDelete}
