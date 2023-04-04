@@ -13,5 +13,5 @@ export interface Category {
 export interface CategoryRequest {
   name: string
   type: string
-  parent?: string
+  parent: string | null
 }

@@ -61,13 +61,16 @@ const EditForm: FC<Types> = ({ uuid, open = false, handleClose }) => {
     // TODO: start loading
     setErrors([]);
 
-    if (!category || !parent) return;
+    if (!category) handleClose();
+
+    if (!parent) setParent('')
 
     const payload: CategoryRequest = {
       name,
       type: category.type,
       parent,
-    };
+    }
+
     axios
       .patch(`categories/${uuid}/`, payload)
       .then((res) => {

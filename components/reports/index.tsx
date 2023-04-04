@@ -10,6 +10,7 @@ import ChartReport from './components/ChartReport'
 
 const Index: React.FC = () => {
   const [reportType, setReportType] = React.useState<ReportPages>(ReportPages.Overall)
+  console.log(reportType)
 
   return (
     <>
@@ -19,7 +20,7 @@ const Index: React.FC = () => {
         <ReportTypeSwitcher activePage={reportType} changeReportType={setReportType} />
       </Toolbar>
       {reportType === ReportPages.Overall && <ReportOverall />}
-      {reportType === ReportPages.Chart ** <ChartReport />}
+      {reportType === ReportPages.Chart && <ChartReport />}
     </>
   )
 }

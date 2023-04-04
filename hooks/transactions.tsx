@@ -56,6 +56,23 @@ export const useTransactionsReport = (
   } as Response<TransactionsReportResponse[]>
 }
 
+export const useTransactionsMonthlyReport = (
+  dateFrom: string,
+  dateTo: string,
+  currency: string
+): Response<unknown[]> => {
+  const url = `transactions/report-monthly?dateFrom=${dateFrom}&dateTo=${dateTo}&currency=${currency}`
+
+  const { data, error } = useSWR(url, fetcher)
+
+  return {
+    data,
+    isLoading: !data && !error,
+    isError: error,
+    url
+  } as Response<unknown[]>
+}
+
 export const useBudgetTransactions = (
   uuid: string
 ): Response<TransactionResponse[]> => {
