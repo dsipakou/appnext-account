@@ -1,27 +1,38 @@
 import dynamic from 'next/dynamic'
 import React from 'react'
-import { useTransactionsMonthlyReport } from '@/hooks/transactions'
-import { getFormattedDate } from '@/utils/dateUtils'
 import {
+  addMonths,
+  endOfMonth,
+  subMonths,
+  startOfMonth,
+  sub
+} from 'date-fns'
+import { useTransactionsMonthlyReport } from '@/hooks/transactions'
+import {
+  Button,
   Checkbox,
   FormGroup,
-  FormControlLabel
+  FormControlLabel,
+  Typography
 } from '@mui/material'
 import { useAuth } from '@/context/auth'
+import { getFormattedDate, parseAndFormatDate, SHORT_YEAR_MONTH_FORMAT } from '@/utils/dateUtils'
+import RangeSwitcher from './RangeSwitcher'
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false })
 
-interface Types {
-  chartData
-}
-
 const ChartReport: React.FC = () => {
+  const [date, setDate] = React.useState<Date>(new Date())
+
   const [options, setOptions] = React.useState({});
   const [series, setSeries] = React.useState([]);
   const [categoriesList, setCategoriesList] = React.useState<string[]>([])
-  const { user: authUser } = useAuth()
-  const { data: chartData = [] } = useTransactionsMonthlyReport("2022-04-01", "2023-03-31", authUser?.currency)
   const [disabledCategories, setDisabledCategories] = React.useState<string[]>([])
+  const { user: authUser } = useAuth()
+
+  const dateFrom = getFormattedDate(startOfMonth(subMonths(date, 11)))
+  const dateTo = getFormattedDate(endOfMonth(date))
+  const { data: chartData = [] } = useTransactionsMonthlyReport(dateFrom, dateTo, authUser?.currency)
 
   React.useEffect(() => {
     if (chartData.length === 0) return
@@ -117,27 +128,37 @@ const ChartReport: React.FC = () => {
   const categoryTitles = chartData[0].categories.forEach((item: unknown) => item.name)
 
   return (
-    <div className="flex flex-row gap-4">
-      <Chart
-        options={options}
-        series={series}
-        type="bar"
-        width="1000"
-        height="680"
-      />
-      <div>
-        <FormGroup className="w-80">
-          <FormControlLabel control={
-            <Checkbox
-              checked={disabledCategories.length === 0}
-              indeterminate={disabledCategories.length > 0 && disabledCategories.length !== categoriesList.length}
-              onClick={selectAll}
-            />
-          } label="Select/Unselect all" />
-          {chartData[0].categories.map((item: unknown) => (
-            <FormControlLabel className="pl-3" control={<Checkbox checked={!disabledCategories.includes(item.name)} onClick={() => clickCategory(item.name)} />} label={item.name} />
-          ))}
-        </FormGroup>
+    <div className="flex flex-col">
+      <div className="flex flex-row justify-center">
+        <RangeSwitcher
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          clickBack={() => setDate(subMonths(date, 1))}
+          clickForward={() => setDate(addMonths(date, 1))}
+        />
+      </div>
+      <div className="flex flex-row gap-4">
+        <Chart
+          options={options}
+          series={series}
+          type="bar"
+          width="1000"
+          height="680"
+        />
+        <div>
+          <FormGroup className="w-80">
+            <FormControlLabel control={
+              <Checkbox
+                checked={disabledCategories.length === 0}
+                indeterminate={disabledCategories.length > 0 && disabledCategories.length !== categoriesList.length}
+                onClick={selectAll}
+              />
+            } label="Select/Unselect all" />
+            {chartData[0].categories.map((item: unknown) => (
+              <FormControlLabel className="pl-3" control={<Checkbox checked={!disabledCategories.includes(item.name)} onClick={() => clickCategory(item.name)} />} label={item.name} />
+            ))}
+          </FormGroup>
+        </div>
       </div>
     </div>
   )
