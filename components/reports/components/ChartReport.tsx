@@ -7,6 +7,7 @@ import {
   FormGroup,
   FormControlLabel
 } from '@mui/material'
+import { useAuth } from '@/context/auth'
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false })
 
@@ -17,7 +18,9 @@ interface Types {
 const ChartReport: React.FC = () => {
   const [options, setOptions] = React.useState({});
   const [series, setSeries] = React.useState([]);
-  const { data: chartData = [] } = useTransactionsMonthlyReport("2022-06-01", "2023-03-31", "USD")
+  const [categoriesList, setCategoriesList] = React.useState<string[]>([])
+  const { user: authUser } = useAuth()
+  const { data: chartData = [] } = useTransactionsMonthlyReport("2022-04-01", "2023-03-31", authUser?.currency)
   const [disabledCategories, setDisabledCategories] = React.useState<string[]>([])
 
   React.useEffect(() => {
@@ -41,15 +44,16 @@ const ChartReport: React.FC = () => {
           }
         }
       },
+      plotOptions: {
+        bar: {
+          borderRadius: 1,
+        }
+      },
       stroke: {
         curve: "smooth",
       },
       fill: {
-        type: 'gradient',
-        gradient: {
-          opacityFrom: 0.6,
-          opacityTo: 0.8,
-        }
+        opacity: 0.9,
       },
       xaxis: {
         categories: chartData.map((item: unknown) => item.date),
@@ -64,7 +68,7 @@ const ChartReport: React.FC = () => {
         text: "Please wait...",
       }
     })
-    debugger
+
     const groupByCategory = chartData.reduce((acc, curr) => {
       curr.categories.forEach((category: unknown) => {
         if (!disabledCategories.includes(category.name)) {
@@ -85,6 +89,8 @@ const ChartReport: React.FC = () => {
         )
       )
     )
+
+    setCategoriesList(chartData[0].categories.map((item: unknown) => item.name))
   }, [chartData, disabledCategories])
 
   const clickCategory = (categoryName: string) => {
@@ -95,6 +101,14 @@ const ChartReport: React.FC = () => {
       setDisabledCategories(newItems)
     } else {
       setDisabledCategories([...disabledCategories, categoryName])
+    }
+  }
+
+  const selectAll = () => {
+    if (categoriesList.length === disabledCategories.length) {
+      setDisabledCategories([])
+    } else {
+      setDisabledCategories(categoriesList)
     }
   }
 
@@ -113,8 +127,15 @@ const ChartReport: React.FC = () => {
       />
       <div>
         <FormGroup className="w-80">
+          <FormControlLabel control={
+            <Checkbox
+              checked={disabledCategories.length === 0}
+              indeterminate={disabledCategories.length > 0 && disabledCategories.length !== categoriesList.length}
+              onClick={selectAll}
+            />
+          } label="Select/Unselect all" />
           {chartData[0].categories.map((item: unknown) => (
-            <FormControlLabel control={<Checkbox checked={!disabledCategories.includes(item.name)} onClick={() => clickCategory(item.name)} />} label={item.name} />
+            <FormControlLabel className="pl-3" control={<Checkbox checked={!disabledCategories.includes(item.name)} onClick={() => clickCategory(item.name)} />} label={item.name} />
           ))}
         </FormGroup>
       </div>
