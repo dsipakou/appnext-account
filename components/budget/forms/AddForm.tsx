@@ -70,7 +70,7 @@ const AddForm: FC<Types> = ({ open, handleClose, monthUrl, weekUrl }) => {
   } = useCurrencies()
 
   useEffect(() => {
-    if (isCategoriesLoading) return;
+    if (!categories) return;
 
     const parents = categories.filter(
       (category: Category) => (
@@ -83,7 +83,7 @@ const AddForm: FC<Types> = ({ open, handleClose, monthUrl, weekUrl }) => {
   }, [isCategoriesLoading, categories]);
 
   useEffect(() => {
-    if (isCurrenciesLoading) return
+    if (!currencies) return
 
     setCurrency(currencies.find((item: Currency) => item.isDefault)!.uuid)
   }, [isCurrenciesLoading, currencies])

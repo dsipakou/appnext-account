@@ -46,7 +46,7 @@ const Container: React.FC<Types> = ({
     <Grid container>
       <Grid item xs={4}>
         <Stack spacing={1}>
-          {!isBudgetLoading && budget.map((item: GroupedByCategoryBudget) => (
+          {budget && budget.map((item: GroupedByCategoryBudget) => (
             <Box
               key={item.uuid}
               onClick={() => setActiveCategoryUuid(item.uuid)}

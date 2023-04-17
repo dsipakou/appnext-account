@@ -231,8 +231,8 @@ const EditForm: FC<Types> = ({ open, uuid, handleClose, monthUrl, weekUrl }) => 
                 <FormControl fullWidth>
                   <InputLabel id="currency-select-label">Currency</InputLabel>
                   <Select
-                    labelId="curreny-select-label"
-                    label="Currecny"
+                    labelId="currency-select-label"
+                    label="Currency"
                     fullWidth
                     value={currency}
                     onChange={handleCurrencyChange}

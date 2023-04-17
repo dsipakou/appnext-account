@@ -3,6 +3,7 @@ import React from 'react'
 import {
   addMonths,
   endOfMonth,
+  getDate,
   subMonths,
   startOfMonth,
   sub
@@ -13,6 +14,8 @@ import {
   Checkbox,
   FormGroup,
   FormControlLabel,
+  MenuItem,
+  Select,
   Typography
 } from '@mui/material'
 import { useAuth } from '@/context/auth'
@@ -23,6 +26,8 @@ const Chart = dynamic(() => import('react-apexcharts'), { ssr: false })
 
 const ChartReport: React.FC = () => {
   const [date, setDate] = React.useState<Date>(new Date())
+  const [upToDay, setUpToDay] = React.useState<string>(getDate(new Date()))
+  const [showUpToDay, setShowUpToDay] = React.useState<boolean>(false)
 
   const [options, setOptions] = React.useState({});
   const [series, setSeries] = React.useState([]);
@@ -32,7 +37,12 @@ const ChartReport: React.FC = () => {
 
   const dateFrom = getFormattedDate(startOfMonth(subMonths(date, 11)))
   const dateTo = getFormattedDate(endOfMonth(date))
-  const { data: chartData = [] } = useTransactionsMonthlyReport(dateFrom, dateTo, authUser?.currency)
+  const { data: chartData = [] } = useTransactionsMonthlyReport(
+    dateFrom,
+    dateTo,
+    authUser?.currency,
+    showUpToDay ? upToDay : undefined,
+  )
 
   React.useEffect(() => {
     if (chartData.length === 0) return
@@ -104,6 +114,8 @@ const ChartReport: React.FC = () => {
     setCategoriesList(chartData[0].categories.map((item: unknown) => item.name))
   }, [chartData, disabledCategories])
 
+  const monthDayArray = Array.from({ length: 31 }, (_, i) => i + 1);
+
   const clickCategory = (categoryName: string) => {
     const index = disabledCategories.indexOf(categoryName)
 
@@ -128,7 +140,7 @@ const ChartReport: React.FC = () => {
   const categoryTitles = chartData[0].categories.forEach((item: unknown) => item.name)
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col relative">
       <div className="flex flex-row justify-center">
         <RangeSwitcher
           dateFrom={dateFrom}
@@ -136,6 +148,29 @@ const ChartReport: React.FC = () => {
           clickBack={() => setDate(subMonths(date, 1))}
           clickForward={() => setDate(addMonths(date, 1))}
         />
+        <div className="absolute right-10 justify-center">
+          <Typography variant="text">
+            <Checkbox
+              checked={showUpToDay}
+              onClick={() => setShowUpToDay(!showUpToDay)}
+            />
+            Show till this
+          </Typography>
+          <Select
+            className="mx-3"
+            size="small"
+            value={upToDay}
+            disabled={!showUpToDay}
+            onChange={(e) => setUpToDay(e.target.value)}
+          >
+            {monthDayArray.map((day: number) => (
+              <MenuItem value={day}>{day}</MenuItem>
+            ))}
+          </Select>
+          <Typography variant="text">
+            day of each month
+          </Typography>
+        </div>
       </div>
       <div className="flex flex-row gap-4">
         <Chart

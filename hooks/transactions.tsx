@@ -59,9 +59,14 @@ export const useTransactionsReport = (
 export const useTransactionsMonthlyReport = (
   dateFrom: string,
   dateTo: string,
-  currency: string
+  currency: string,
+  numberOfDays?: number,
 ): Response<unknown[]> => {
-  const url = `transactions/report-monthly?dateFrom=${dateFrom}&dateTo=${dateTo}&currency=${currency}`
+  let url = `transactions/report-monthly?dateFrom=${dateFrom}&dateTo=${dateTo}&currency=${currency}`
+
+  if (numberOfDays) {
+    url += `&numberOfDays=${numberOfDays}`
+  }
 
   const { data, error } = useSWR(url, fetcher)
 

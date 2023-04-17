@@ -114,7 +114,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
       let _planned = 0
       let _spent = 0
       if (activeType === 'month') {
-        if (isMonthBudgetLoading) return
+        if (!budgetMonth) return
 
         _planned = budgetMonth.reduce(
           (acc: number, { plannedInCurrencies }: PlannedMap) => {
@@ -252,7 +252,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
         </Grid>
         <Grid item xs={2}>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={2}>
           <FormControl fullWidth>
             <InputLabel id="user-select-label">User</InputLabel>
             <Select
@@ -269,7 +269,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           {activeType === "month" ?
             <MonthCalendar date={monthDate} setMonthDate={setMonthDate} /> :
             <WeekCalendar date={weekDate} setWeekDate={setWeekDate} />

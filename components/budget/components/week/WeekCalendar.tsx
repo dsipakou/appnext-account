@@ -7,11 +7,19 @@ import {
   isSameDay,
 } from 'date-fns';
 import { styled } from '@mui/material/styles';
-import TextField from '@mui/material/TextField';
+import {
+  Button,
+  TextField,
+  Typography
+} from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import locale from 'date-fns/locale/ru'
+import {
+  addDays,
+  subDays
+} from 'date-fns'
 import { PickersDay, PickersDayProps } from '@mui/x-date-pickers/PickersDay';
 
 interface CustomPickerDayProps extends PickersDayProps<Date> {
@@ -30,23 +38,23 @@ const CustomPickersDay = styled(PickersDay, {
     prop !== 'dayIsBetween' && prop !== 'isFirstDay' && prop !== 'isLastDay',
 })<CustomPickerDayProps>(({ theme, dayIsBetween, isFirstDay, isLastDay }) => (
   {
-  ...(dayIsBetween && {
-    borderRadius: 0,
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.common.white,
-    '&:hover, &:focus': {
-      backgroundColor: theme.palette.primary.dark,
-    },
-  }),
-  ...(isFirstDay && {
-    borderTopLeftRadius: '30%',
-    borderBottomLeftRadius: '30%',
-  }),
-  ...(isLastDay && {
-    borderTopRightRadius: '30%',
-    borderBottomRightRadius: '30%',
-  }),
-})) as React.ComponentType<CustomPickerDayProps>;
+    ...(dayIsBetween && {
+      borderRadius: 0,
+      backgroundColor: theme.palette.primary.main,
+      color: theme.palette.common.white,
+      '&:hover, &:focus': {
+        backgroundColor: theme.palette.primary.dark,
+      },
+    }),
+    ...(isFirstDay && {
+      borderTopLeftRadius: '30%',
+      borderBottomLeftRadius: '30%',
+    }),
+    ...(isLastDay && {
+      borderTopRightRadius: '30%',
+      borderBottomRightRadius: '30%',
+    }),
+  })) as React.ComponentType<CustomPickerDayProps>;
 
 const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
   const renderWeekPickerDay = (
@@ -82,17 +90,31 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
-      <DatePicker
-        label="Week budget"
-        value={weekDate}
-        onChange={(newValue: Date) => {
-          setWeekDate(newValue)
-        }}
-        disableMaskedInput
-        renderDay={renderWeekPickerDay}
-        renderInput={(params) => <TextField fullWidth {...params} />}
-        inputFormat="'Week of' MMM d"
-      />
+      <div className="flex flex-row">
+        <Button
+          variant="text"
+          onClick={() => setWeekDate(subDays(weekDate, 7))}
+        >
+          <Typography variant="h4">&#8592;</Typography>
+        </Button>
+        <DatePicker
+          label="Week budget"
+          value={weekDate}
+          onChange={(newValue: Date) => {
+            setWeekDate(newValue)
+          }}
+          disableMaskedInput
+          renderDay={renderWeekPickerDay}
+          renderInput={(params) => <TextField fullWidth {...params} />}
+          inputFormat="'Week of' MMM d"
+        />
+        <Button
+          variant="text"
+          onClick={() => setWeekDate(addDays(weekDate, 7))}
+        >
+          <Typography variant="h4">&#8594;</Typography>
+        </Button>
+      </div>
     </LocalizationProvider>
   );
 }
