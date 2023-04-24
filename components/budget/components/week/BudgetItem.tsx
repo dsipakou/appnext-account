@@ -3,21 +3,28 @@ import axios from 'axios'
 import { useSWRConfig } from 'swr'
 import { formatMoney } from '@/utils/numberUtils'
 import {
+  Avatar,
   Box,
   Button,
+  Chip,
   LinearProgress,
   Paper,
   Typography
 } from '@mui/material'
+import {
+  deepOrange
+} from '@mui/material/colors'
 import { useBudgetDetails } from '@/hooks/budget'
 import { BudgetRequest, RecurrentTypes } from '@/components/budget/types'
 import { useCurrencies } from '@/hooks/currencies'
+import { useUsers, UserResponse } from '@/hooks/users'
 import { useAuth } from '@/context/auth'
 import { Currency } from '@/components/currencies/types'
 
 interface Types {
   uuid: string
   title: string
+  user: string
   planned: number
   spent: number
   isCompleted: boolean
@@ -30,6 +37,7 @@ interface Types {
 const BudgetItem: React.FC<Types> = ({
   uuid,
   title,
+  user,
   planned,
   spent,
   isCompleted,
@@ -38,19 +46,15 @@ const BudgetItem: React.FC<Types> = ({
   clickDelete,
   mutateBudget
 }) => {
-  const {
-    data: budgetDetails,
-    url
-  } = useBudgetDetails(uuid)
-  const {
-    data: currencies
-  } = useCurrencies()
-  const {
-    user: authUser
-  } = useAuth()
-  const { mutate } = useSWRConfig()
   const [showDetails, setShowDetails] = React.useState<boolean>(false)
   const [errors, setErrors] = React.useState<string>([])
+
+  const { data: budgetDetails, url } = useBudgetDetails(uuid)
+  const { data: currencies } = useCurrencies()
+  const { data: users } = useUsers()
+  const { user: authUser } = useAuth()
+  const { mutate } = useSWRConfig()
+
   const percentage: number = Math.floor(spent * 100 / planned)
 
   const currencySign = currencies.find(
@@ -73,6 +77,10 @@ const BudgetItem: React.FC<Types> = ({
   const handleClickDelete = (): void => {
     clickDelete(uuid)
   }
+
+  const budgetUser = users.find((item: UserResponse) => item.uuid === user)
+
+  const isSameUser = budgetUser?.username === authUser?.username
 
   const handleClickComplete = (): void => {
     axios.patch(`budget/${uuid}/`, {
@@ -118,16 +126,34 @@ const BudgetItem: React.FC<Types> = ({
       onMouseEnter={onMouseEnterHandler}
       onMouseLeave={onMouseLeaveHandler}
     >
-      <Typography
-        align="center"
-        noWrap
-        sx={{
-          fontSize: showDetails ? '1em' : '0.9em',
-          fontWeight: 'bold'
-        }}
-      >
-        {title}
-      </Typography>
+      <div class='flex flex-row gap-1 items-center'>
+        {!isSameUser && !showDetails && (
+          <Avatar
+            sx={{
+              width: 24,
+              height: 24,
+              bgcolor: deepOrange[500],
+            }}
+          >
+            <Typography variant='caption'>
+              {budgetUser.username.charAt(0)}
+            </Typography>
+          </Avatar>
+        )}
+        {!isSameUser && showDetails && (
+          <Chip size="small" label={budgetUser.username} color="primary" />
+        )}
+        <Typography
+          align="center"
+          noWrap
+          sx={{
+            fontSize: showDetails ? '1em' : '0.9em',
+            fontWeight: 'bold'
+          }}
+        >
+          {title}
+        </Typography>
+      </div>
       <Box
         sx={{
           display: 'flex',

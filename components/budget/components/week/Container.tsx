@@ -33,6 +33,7 @@ interface WeekBudgetResponse {
 interface CompactWeekItem {
   uuid: string
   title: string
+  user: string
   planned: number
   spent: number
   recurrent: RecurrentTypes
@@ -94,6 +95,7 @@ const Container: FC<Types> = ({
       const compactWeekItem: CompactWeekItem = {
         uuid: item.uuid,
         title: item.title,
+        user: item.user,
         planned: item.plannedInCurrencies[authUser?.currency],
         spent: item.spentInCurrencies[authUser?.currency] || 0,
         recurrent: item.recurrent,
@@ -120,6 +122,7 @@ const Container: FC<Types> = ({
                     key={item.uuid}
                     uuid={item.uuid}
                     title={item.title}
+                    user={item.user}
                     planned={item.planned}
                     spent={item.spent}
                     recurrent={item.recurrent}
