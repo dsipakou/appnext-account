@@ -14,13 +14,15 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { CalendarPicker } from '@mui/x-date-pickers/CalendarPicker';
 import TransactionTable from './components/TransactionTable'
 import { useTransactions } from '@/hooks/transactions'
+import { useCurrencies } from '@/hooks/currencies'
 import { AddForm, EditForm, ConfirmDeleteForm } from '@/components/transactions/forms'
 import { useAuth } from '@/context/auth'
 import { TransactionResponse } from '@/components/transactions/types'
 import DailyChart from '@/components/transactions/components/DailyChart'
 import { formatMoney } from '@/utils/numberUtils'
-import { getFormattedDate } from '@/utils/dateUtils';
+import { getFormattedDate } from '@/utils/dateUtils'
 import locale from 'date-fns/locale/ru'
+import { Currency } from '@/components/currencies/types'
 
 const Index: React.FC = () => {
   const { user } = useAuth();
@@ -41,8 +43,12 @@ const Index: React.FC = () => {
     dateTo: getFormattedDate(transactionDate)
   })
 
+  const { data: currencies = [] } = useCurrencies()
+
+  const currencySign = currencies.find((item: Currency) => item.code === user?.currency)?.sign;
+
   const overallSum = transactions?.reduce((acc: number, item: TransactionResponse) => {
-    return acc + item.spentInCurrencies[user?.currency]
+    return acc + item.spentInCurrencies[user?.currency] || 0
   }, 0)
 
   const handleCloseModal = (): void => {
@@ -100,7 +106,7 @@ const Index: React.FC = () => {
                 </Typography>
                 {transactions && (
                   <Typography variant="subtitle">
-                    <strong>{formatMoney(overallSum)}</strong> spent in <strong>{transactions?.length}</strong> transactions
+                    <strong>{formatMoney(overallSum)}</strong>{currencySign} spent in <strong>{transactions?.length}</strong> transactions
                   </Typography>
                 )}
               </Grid>

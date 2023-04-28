@@ -11,7 +11,6 @@ import {
   Grid,
   Typography
 } from '@mui/material'
-import { SelectChangeEvent } from '@mui/material/Select'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
@@ -19,24 +18,17 @@ import {
   DataGrid,
   GridRowsProp,
   GridColDef,
-  GridEventListener,
-  GridFooter,
-  GridRenderEditCellParams,
   GridRowId,
   GridRowModel,
   GridRowModes,
   GridRowModesModel,
-  GridRowParams,
   GridToolbarContainer,
-  MuiEvent,
-  useGridApiContext
 } from '@mui/x-data-grid'
 import { randomId } from '@mui/x-data-grid-generator'
 import { useAuth } from '@/context/auth'
 import { useAccounts } from '@/hooks/accounts'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
-import { useAvailableRates } from '@/hooks/rates'
 import { useUsers } from '@/hooks/users'
 import { Category } from '@/components/categories/types'
 import { Currency } from '@/components/currencies/types'
@@ -151,7 +143,6 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
         user: user
       }
 
-
       axios.post('transactions/', {
         ...payload,
       }).then(
@@ -260,7 +251,7 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
     {
       field: 'transactionDate',
       headerName: 'Date',
-      width: 150,
+      width: 200,
       editable: true,
       renderCell: (params) => params.formattedValue
         ? getFormattedDate(params.formattedValue, MONTH_DAY_FORMAT)
@@ -278,7 +269,7 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
     {
       field: 'category',
       headerName: 'Category',
-      width: 250,
+      width: 200,
       editable: true,
       renderCell: (params) => `${getTrimmedCategoryName(params.formattedValue.parent)} - ${params.formattedValue.name || ''}`,
       renderEditCell: (params) => <CategoryComponent {...params} categories={categories} />

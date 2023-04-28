@@ -62,7 +62,6 @@ const TransactionTable: React.FC<Types> = ({ transactions, handleDeleteClick, ha
   }, [transactions])
 
   const editTransaction = (params: GridRowParams) => {
-    console.log(params.row.uuid)
     handleDoubleClick(params.row.uuid)
   }
 
