@@ -32,7 +32,7 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
       options={{
         labels: Object.keys(groupedTransactions)
       }}
-      width="400"
+      width="350"
     />
   )
 }

@@ -99,26 +99,28 @@ const Index: React.FC = () => {
             <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
               <CalendarPicker date={transactionDate} onChange={(newDate) => setTransactionDate(newDate)} />
             </LocalizationProvider>
-            <Grid container>
-              <Grid item xs={12}>
-                <Typography variant="h4">
-                  Day summary
-                </Typography>
+            <div className="flex flex-col flex-nowrap bg-white rounded-md p-3">
+              <div className="flex flex-col">
+                <div className="flex mb-3">
+                  <Typography variant="h4">
+                    Day summary
+                  </Typography>
+                </div>
                 {transactions && (
                   <Typography variant="subtitle">
                     <strong>{formatMoney(overallSum)}</strong>{currencySign} spent in <strong>{transactions?.length}</strong> transactions
                   </Typography>
                 )}
-              </Grid>
-              <Grid item xs={12}>
+              </div>
+              <div className="flex">
                 <DailyChart
                   transactions={transactions}
                 />
-              </Grid>
-            </Grid>
+              </div>
+            </div>
           </Stack>
         </Grid>
-      </Grid>
+      </Grid >
       <AddForm url={transactionsUrl} open={isOpenAddTransactions} handleClose={handleCloseModal} />
       {
         isOpenEditTransactions &&
