@@ -15,7 +15,12 @@ import { CalendarPicker } from '@mui/x-date-pickers/CalendarPicker';
 import TransactionTable from './components/TransactionTable'
 import { useTransactions } from '@/hooks/transactions'
 import { useCurrencies } from '@/hooks/currencies'
-import { AddForm, EditForm, ConfirmDeleteForm } from '@/components/transactions/forms'
+import {
+  AddForm,
+  AddIncomeForm,
+  EditForm,
+  ConfirmDeleteForm
+} from '@/components/transactions/forms'
 import { useAuth } from '@/context/auth'
 import { TransactionResponse } from '@/components/transactions/types'
 import DailyChart from '@/components/transactions/components/DailyChart'
@@ -29,6 +34,7 @@ const Index: React.FC = () => {
   const { mutate } = useSWRConfig()
   const [transactionDate, setTransactionDate] = React.useState<Date>(new Date())
   const [isOpenAddTransactions, setIsOpenAddTransactions] = React.useState<boolean>(false)
+  const [isOpenAddIncomeTransactions, setIsOpenAddIncomeTransactions] = React.useState<boolean>(false)
   const [isOpenEditTransactions, setIsOpenEditTransactions] = React.useState<boolean>(false)
   const [isOpenDeleteTransactions, setIsOpenDeleteTransactions] = React.useState<boolean>(false)
   const [activeTransactionUuid, setActiveTransactionUuid] = React.useState<string>('')
@@ -55,6 +61,7 @@ const Index: React.FC = () => {
     setIsOpenAddTransactions(false)
     setIsOpenDeleteTransactions(false)
     setIsOpenEditTransactions(false)
+    setIsOpenAddIncomeTransactions(false)
   }
 
   const handleDeleteClick = (uuid: string): void => {
@@ -75,6 +82,13 @@ const Index: React.FC = () => {
     <>
       <Toolbar sx={{ pb: 1 }}>
         <Typography variant="h4" sx={{ my: 2 }}>Transactions</Typography>
+        <Box sx={{ flexGrow: 7 }} />
+        <Button
+          variant="outlined"
+          onClick={() => setIsOpenAddIncomeTransactions(true)}
+        >
+          Add income
+        </Button>
         <Box sx={{ flexGrow: 1 }} />
         <Button
           startIcon={<AddIcon />}
@@ -122,6 +136,7 @@ const Index: React.FC = () => {
         </Grid>
       </Grid >
       <AddForm url={transactionsUrl} open={isOpenAddTransactions} handleClose={handleCloseModal} />
+      <AddIncomeForm open={isOpenAddIncomeTransactions} handleClose={handleCloseModal} />
       {
         isOpenEditTransactions &&
         <EditForm
