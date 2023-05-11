@@ -13,12 +13,14 @@ import {
 } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { StaticDatePicker } from '@mui/x-date-pickers';
-import { getFormattedDate } from '@/utils/dateUtils';
-import { useRatesOnDate } from '@/hooks/rates';
+import { StaticDatePicker } from '@mui/x-date-pickers'
+import { getFormattedDate } from '@/utils/dateUtils'
+import { useRatesOnDate } from '@/hooks/rates'
 import { useAvailableRates } from '@/hooks/rates'
 import { useCurrencies } from '@/hooks/currencies'
+import { useCategories } from '@/hooks/categories'
 import { Currency } from '@/components/currencies/types'
+import { Category } from '@/components/categories/types'
 
 interface Types {
   open: boolean,
@@ -26,17 +28,35 @@ interface Types {
 }
 
 const AddIncomeForm: React.FC<Types> = ({ open, handleClose }) => {
-  const [selectedDate, setSelectedDate] = React.useState<Date>(new Date())
-  const [selectedCurrency, setSelectedCurrency] = React.useState<string>('')
+  const [selectedDate, setSelectedDate] = React.useState<string>(getFormattedDate(new Date()))
+  const [currency, setCurrency] = React.useState<string>('')
+  const [category, setCategory] = React.useState<string>('')
+  const [amount, setAmount] = React.useState<string>('')
 
-  const { data: ratesOnDate, isLoading, url } = useRatesOnDate(getFormattedDate(selectedDate))
+  const { data: ratesOnDate, isLoading, url } = useRatesOnDate(selectedDate)
+
+  const { data: categories = [] } = useCategories()
+  const incomeCategories: Category[] = categories.filter((item: Category) => item.type === 'INC')
 
   const { data: currencies = [] } = useCurrencies()
 
   const { data: availableRates = {} } = useAvailableRates(selectedDate)
 
   const handleDateChange = (date: Date | null): void => {
-    if (date !== null) setSelectedDate(date);
+    if (date !== null) setSelectedDate(getFormattedDate(date));
+    setCurrency('')
+  }
+
+  const handleAmountInput = (e) => {
+    setAmount(e.target.value)
+  }
+
+  const handleCategoryChange = (e) => {
+    setCategory(e.target.value)
+  }
+
+  const handleCurrency = (e) => {
+    setCurrency(e.target.value)
   }
 
   return (
@@ -50,7 +70,9 @@ const AddIncomeForm: React.FC<Types> = ({ open, handleClose }) => {
                 <TextField
                   label="Amount"
                   margin="dense"
+                  value={amount}
                   fullWidth
+                  onChange={handleAmountInput}
                 />
               </FormControl>
             </div>
@@ -61,7 +83,17 @@ const AddIncomeForm: React.FC<Types> = ({ open, handleClose }) => {
                   labelId="account-label"
                   label="To Account"
                   fullWidth
+                  value={category}
+                  onChange={handleCategoryChange}
                 >
+                  {incomeCategories.map((item: Category) => (
+                    <MenuItem
+                      key={item.uuid}
+                      value={item.uuid}
+                    >
+                      {item.name}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </div>
@@ -72,8 +104,8 @@ const AddIncomeForm: React.FC<Types> = ({ open, handleClose }) => {
                   labelId="currency-label"
                   label="Currency"
                   fullWidth
-                  value={selectedCurrency}
-                  onChange={(e) => setSelectedCurrency(e.target.value)}
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
                 >
                   {currencies.map((item: Currency) => (
                     !!availableRates[item.code]
