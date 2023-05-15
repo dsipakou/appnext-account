@@ -1,4 +1,5 @@
 import React from 'react'
+import axios from 'axios'
 import {
   Button,
   Dialog,
@@ -10,6 +11,7 @@ import {
   MenuItem,
   Select,
   TextField,
+  Typography,
 } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
@@ -17,10 +19,15 @@ import { StaticDatePicker } from '@mui/x-date-pickers'
 import { getFormattedDate } from '@/utils/dateUtils'
 import { useRatesOnDate } from '@/hooks/rates'
 import { useAvailableRates } from '@/hooks/rates'
+import { useAccounts } from '@/hooks/accounts'
 import { useCurrencies } from '@/hooks/currencies'
 import { useCategories } from '@/hooks/categories'
+import { useAuth } from '@/context/auth'
+import { useUsers } from '@/hooks/users'
 import { Currency } from '@/components/currencies/types'
 import { Category } from '@/components/categories/types'
+import { Account } from '@/components/accounts/types'
+import { User } from '@/components/users/types'
 
 interface Types {
   open: boolean,
@@ -32,15 +39,19 @@ const AddIncomeForm: React.FC<Types> = ({ open, handleClose }) => {
   const [currency, setCurrency] = React.useState<string>('')
   const [category, setCategory] = React.useState<string>('')
   const [amount, setAmount] = React.useState<string>('')
+  const [errors, setErrors] = React.useState<string[]>([])
 
   const { data: ratesOnDate, isLoading, url } = useRatesOnDate(selectedDate)
 
   const { data: categories = [] } = useCategories()
+  const { data: accounts = [] } = useAccounts()
   const incomeCategories: Category[] = categories.filter((item: Category) => item.type === 'INC')
 
   const { data: currencies = [] } = useCurrencies()
 
   const { data: availableRates = {} } = useAvailableRates(selectedDate)
+  const { user: authUser, isLoading: isAuthLoading } = useAuth()
+  const { data: users = [] } = useUsers()
 
   const handleDateChange = (date: Date | null): void => {
     if (date !== null) setSelectedDate(getFormattedDate(date));
@@ -59,14 +70,58 @@ const AddIncomeForm: React.FC<Types> = ({ open, handleClose }) => {
     setCurrency(e.target.value)
   }
 
+  const handleSave = () => {
+    setErrors([])
+    const targetAccount = accounts.find((item: Account) => item.category === category)?.uuid
+    const user = users.find((item: User) => item.username === authUser.username)?.uuid
+
+    const payload = {
+      account: targetAccount,
+      amount,
+      currency,
+      transactionDate: selectedDate,
+      category,
+      user,
+    }
+
+    axios.post('transactions/', {
+      ...payload,
+    }).then(
+      res => {
+        if (res.status === 201) {
+          console.log('All good')
+          // TODO: mutate transactions
+          // mutate(url)
+        }
+      }
+    ).catch(
+      (error) => {
+        const errRes = error.response.data
+        const errorList = []
+        for (const prop in errRes) {
+          errorList.push(prop)
+        }
+        setErrors(errorList)
+      }
+    ).finally(() => {
+      // TODO: stop loading
+    })
+    console.log(payload)
+  }
+
   return (
     <Dialog maxWidth="sm" fullWidth open={open} onClose={handleClose}>
       <DialogTitle>Add your income</DialogTitle>
       <DialogContent>
-        <div className="flex w-full gap-3">
-          <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-5 gap-3">
+          <div className="col-span-5">
+            {errors.map((message: string) => (
+              <Typography key={message} color="red">{message}</Typography>
+            ))}
+          </div>
+          <div className="flex flex-col gap-3 col-span-2">
             <div className="flex w-full">
-              <FormControl>
+              <FormControl fullWidth>
                 <TextField
                   label="Amount"
                   margin="dense"
@@ -78,10 +133,10 @@ const AddIncomeForm: React.FC<Types> = ({ open, handleClose }) => {
             </div>
             <div className="flex w-full">
               <FormControl fullWidth>
-                <InputLabel id="account-label">To Account</InputLabel>
+                <InputLabel id="account-label">Source</InputLabel>
                 <Select
                   labelId="account-label"
-                  label="To Account"
+                  label="Source"
                   fullWidth
                   value={category}
                   onChange={handleCategoryChange}
@@ -105,13 +160,13 @@ const AddIncomeForm: React.FC<Types> = ({ open, handleClose }) => {
                   label="Currency"
                   fullWidth
                   value={currency}
-                  onChange={(e) => setCurrency(e.target.value)}
+                  onChange={handleCurrency}
                 >
                   {currencies.map((item: Currency) => (
                     !!availableRates[item.code]
                       ? <MenuItem
                         key={item.uuid}
-                        value={item}
+                        value={item.uuid}
                       >
                         {item.sign} {item.verbalName}
                       </MenuItem>
@@ -127,7 +182,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, handleClose }) => {
               </FormControl>
             </div>
           </div>
-          <div>
+          <div className="col-span-3">
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <StaticDatePicker
                 displayStaticWrapperAs="desktop"
@@ -144,7 +199,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, handleClose }) => {
         </div>
       </DialogContent>
       <DialogActions>
-        <Button variant="contained">Save</Button>
+        <Button variant="contained" onClick={handleSave}>Save</Button>
       </DialogActions>
     </Dialog>
   )

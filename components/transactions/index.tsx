@@ -28,6 +28,7 @@ import { formatMoney } from '@/utils/numberUtils'
 import { getFormattedDate } from '@/utils/dateUtils'
 import locale from 'date-fns/locale/ru'
 import { Currency } from '@/components/currencies/types'
+import SourceSwitcher from './components/SourceSwitcher';
 
 const Index: React.FC = () => {
   const { user } = useAuth();
@@ -82,6 +83,8 @@ const Index: React.FC = () => {
     <>
       <Toolbar sx={{ pb: 1 }}>
         <Typography variant="h4" sx={{ my: 2 }}>Transactions</Typography>
+        <Box sx={{ flexGrow: 7 }} />
+        <SourceSwitcher />
         <Box sx={{ flexGrow: 7 }} />
         <Button
           variant="outlined"
