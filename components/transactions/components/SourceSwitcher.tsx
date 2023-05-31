@@ -4,15 +4,14 @@ import {
   ButtonGroup,
   Typography
 } from '@mui/material'
+import { TransactionType } from '../index'
 
-type TransactionType = 'outcome' | 'income'
+interface Types {
+  activeType: TransactionType
+  changeType: () => void
+}
 
-const SourceSwitcher: React.FC = () => {
-  const [activeType, setActiveType] = React.useState<TransactionType>('outcome')
-
-  const handleTypeButtonClick = (type: TransactionType) => {
-    setActiveType(type)
-  }
+const SourceSwitcher: React.FC<Types> = ({ activeType, changeType }) => {
   return (
     <ButtonGroup
       disableElevation
@@ -23,7 +22,7 @@ const SourceSwitcher: React.FC = () => {
       <Button
         disabled={activeType === 'outcome'}
         variant={activeType === 'outcome' ? "text" : "contained"}
-        onClick={() => handleTypeButtonClick('outcome')}
+        onClick={() => changeType('outcome')}
         sx={{ width: 180, p: 0, backgroundColor: "info.dark" }}
       >
         <Typography
@@ -47,7 +46,7 @@ const SourceSwitcher: React.FC = () => {
         disabled={activeType === 'income'}
         color="info"
         variant={activeType === 'income' ? "text" : "contained"}
-        onClick={() => handleTypeButtonClick('income')}
+        onClick={() => changeType('income')}
         sx={{ width: 180, p: 0, backgroundColor: "info.dark" }}
       >
         <Typography

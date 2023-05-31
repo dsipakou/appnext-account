@@ -11,6 +11,7 @@ import {
 interface TransactionRequest {
   sorting: Sorting
   limit: number
+  type: string
   dateFrom?: string
   dateTo?: string
 }
@@ -20,11 +21,12 @@ export const useTransactions = (
   {
     sorting = 'added',
     limit = 15,
+    type = 'outcome',
     dateFrom,
-    dateTo
+    dateTo,
   }: TransactionRequest
 ): Response<TransactionResponse[]> => {
-  let url = `transactions?sorting=${sorting}&limit=${limit}`
+  let url = `transactions?sorting=${sorting}&limit=${limit}&type=${type}`
   if (dateFrom && dateTo) {
     url += `&dateFrom=${dateFrom}&dateTo=${dateTo}`
   }

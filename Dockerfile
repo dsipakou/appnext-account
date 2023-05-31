@@ -1,6 +1,16 @@
-FROM node:18-alpine AS deps
-RUN apk add --no-cache libc6-compat
+FROM alpine
+RUN apk --no-cache add nodejs yarn --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 WORKDIR /app
 
-COPY package.json yarn.lock ./
-RUN  npm install --production
+COPY package.json .
+COPY yarn.lock .
+
+RUN yarn install --production
+
+COPY . .
+
+RUN yarn build
+
+EXPOSE 3000
+
+CMD ["yarn", "start"]

@@ -20,10 +20,11 @@ interface Types {
 const TransactionTable: React.FC<Types> = ({ transactions, handleDeleteClick, handleDoubleClick }) => {
   const [rows, setRows] = React.useState<GridRowsProp>([])
   const columns: GridColDef[] = [
-    { field: 'account', headerName: 'Account', width: 150 },
-    { field: 'category', headerName: 'Category', width: 230 },
-    { field: 'budget', headerName: 'Budget', width: 200 },
-    { field: 'amount', headerName: 'Amount', width: 80 },
+    { field: 'date', headerName: 'Date', flex: 0.7 },
+    { field: 'account', headerName: 'Account', flex: 1 },
+    { field: 'category', headerName: 'Category', flex: 1 },
+    { field: 'budget', headerName: 'Budget', flex: 1 },
+    { field: 'amount', headerName: 'Amount', type: 'number', flex: 0.4 },
     {
       field: 'actions',
       type: 'actions',
@@ -52,6 +53,7 @@ const TransactionTable: React.FC<Types> = ({ transactions, handleDeleteClick, ha
         {
           id: index + 1,
           uuid: item.uuid,
+          date: item.transactionDate,
           amount: formatMoney(item.spentInCurrencies[user?.currency]),
           category: item.categoryDetails.name,
           account: item.accountDetails.title,
@@ -65,12 +67,20 @@ const TransactionTable: React.FC<Types> = ({ transactions, handleDeleteClick, ha
     handleDoubleClick(params.row.uuid)
   }
 
+  const hiddenColumns = {
+    // TODO: add hidden columns here
+  }
+
   return (
     <Box style={{ height: '80vh', width: '100%' }}>
       <DataGrid
         rows={rows}
         columns={columns}
         onRowDoubleClick={editTransaction}
+        rowHeight={40}
+        columnVisibilityModel={{
+          ...hiddenColumns
+        }}
       />
     </Box>
   )

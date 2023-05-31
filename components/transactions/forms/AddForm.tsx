@@ -361,6 +361,7 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
         <Grid container spacing={2} sx={{ height: 700 }}>
           <Grid item xs={12}>
             <DataGrid
+              rowHeight={36}
               editMode="row"
               rows={rows}
               columns={columns}

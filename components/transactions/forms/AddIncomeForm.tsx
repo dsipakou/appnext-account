@@ -39,6 +39,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, handleClose }) => {
   const [currency, setCurrency] = React.useState<string>('')
   const [category, setCategory] = React.useState<string>('')
   const [amount, setAmount] = React.useState<string>('')
+  const [description, setDescription] = React.useState<string>('')
   const [errors, setErrors] = React.useState<string[]>([])
 
   const { data: ratesOnDate, isLoading, url } = useRatesOnDate(selectedDate)
@@ -70,6 +71,10 @@ const AddIncomeForm: React.FC<Types> = ({ open, handleClose }) => {
     setCurrency(e.target.value)
   }
 
+  const handleDescription = (e) => {
+    setDescription(e.target.value)
+  }
+
   const handleSave = () => {
     setErrors([])
     const targetAccount = accounts.find((item: Account) => item.category === category)?.uuid
@@ -79,6 +84,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, handleClose }) => {
       account: targetAccount,
       amount,
       currency,
+      description,
       transactionDate: selectedDate,
       category,
       user,
@@ -92,6 +98,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, handleClose }) => {
           console.log('All good')
           // TODO: mutate transactions
           // mutate(url)
+          handleClose()
         }
       }
     ).catch(
@@ -180,6 +187,20 @@ const AddIncomeForm: React.FC<Types> = ({ open, handleClose }) => {
                   ))}
                 </Select>
               </FormControl>
+            </div>
+            <div>
+              <TextField
+                margin="dense"
+                id="description"
+                label="Description"
+                value={description}
+                placeholder="Description"
+                multiline
+                rows={2}
+                fullWidth
+                autoFocus
+                onChange={handleDescription}
+              />
             </div>
           </div>
           <div className="col-span-3">
