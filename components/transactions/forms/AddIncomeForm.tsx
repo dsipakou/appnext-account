@@ -98,7 +98,6 @@ const AddIncomeForm: React.FC<Types> = ({ open, handleClose }) => {
           console.log('All good')
           // TODO: mutate transactions
           // mutate(url)
-          handleClose()
         }
       }
     ).catch(

@@ -22,6 +22,8 @@ import { useUsers } from '@/hooks/users'
 import { useCategories } from '@/hooks/categories'
 import { Category, CategoryType } from '@/components/categories/types'
 import { User } from '@/components/users/types'
+import { Switch as SwitchNew } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 
 interface Types {
   open: boolean
@@ -67,8 +69,8 @@ const AddForm: React.FC<Types> = ({ open = false, handleClose }) => {
     setCategory(e.target.value)
   }
 
-  const handleIsMainSwitch = (e) => {
-    setIsMain(e.target.checked)
+  const handleIsMainSwitch = (isMain: boolean) => {
+    setIsMain(isMain)
   }
 
   const handleDescriptionInput = (e) => {
@@ -129,11 +131,10 @@ const AddForm: React.FC<Types> = ({ open = false, handleClose }) => {
               onChange={handleTitleInput}
             />
           </Grid>
-          <Grid item xs={4} align="center">
-            <FormControlLabel control={
-              <Switch checked={isMain} onChange={handleIsMainSwitch} />
-            } label="Is active" />
-          </Grid>
+          <div className="flex items-center space-x-2">
+            <SwitchNew id="is-active" checked={isMain} onCheckedChange={handleIsMainSwitch} />
+            <Label htmlFor="is-acitve">Active</Label>
+          </div>
           <Grid item xs={6}>
             <FormControl fullWidth>
               <InputLabel id="user-select-label">User</InputLabel>

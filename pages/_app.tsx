@@ -7,6 +7,8 @@ import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { AuthProvider } from '@/context/auth';
 import '@/plugins/axios'
 import axios from 'axios'
+import { Toaster } from '@/components/ui/toaster'
+
 import { get } from '@/models/indexedDb.config'
 
 const Layout = lazy(async () => await import('../components/common/layout/Layout'))
@@ -52,6 +54,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 
   return (
     <ThemeProvider theme={theme}>
+      <Toaster />
       <AuthProvider>
         <Layout>
           <Toolbar />

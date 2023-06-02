@@ -126,7 +126,7 @@ const BudgetItem: React.FC<Types> = ({
       onMouseEnter={onMouseEnterHandler}
       onMouseLeave={onMouseLeaveHandler}
     >
-      <div class='flex flex-row gap-2 items-center'>
+      <div className='flex flex-row gap-2 items-center'>
         {!isSameUser && !showDetails && (
           <Avatar
             sx={{

@@ -59,7 +59,6 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const [endOfWeek, setEndOfWeek] = useState<string>(getEndOfWeek(weekDate))
     const [plannedSum, setPlannedSum] = useState<number>(0)
     const [spentSum, setSpentSum] = useState<number>(0)
-    const [isOpenAddBudget, setIsOpenAddBudget] = useState<boolean>(false)
     const [isOpenTransactionsForm, setIsOpenTransactionsForm] = useState<boolean>(false)
     const [isOpenEditForm, setIsOpenEditForm] = useState<boolean>(false)
     const [isOpenConfirmDeleteForm, setIsOpenConfirmDeleteForm] = useState<boolean>(false)
@@ -154,7 +153,6 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     }
 
     const handleCloseModal = () => {
-      setIsOpenAddBudget(false)
       setIsOpenConfirmDeleteForm(false)
       setIsOpenEditForm(false)
       setIsOpenDuplicateForm(false)
@@ -233,15 +231,10 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
         >
           Duplicate budget
         </Button>
-        <Button
-          startIcon={<AddIcon />}
-          variant="contained"
-          sx={{ textTransform: 'none', ml: 2 }}
-          className="bg-blue-500"
-          onClick={() => setIsOpenAddBudget(true)}
-        >
-          Add budget
-        </Button>
+        <AddForm
+          monthUrl={monthUrl}
+          weekUrl={weekUrl}
+        />
       </Toolbar>
     )
 
@@ -308,12 +301,6 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             />
           </Grid>
         </Grid>
-        <AddForm
-          open={isOpenAddBudget}
-          handleClose={handleCloseModal}
-          monthUrl={monthUrl}
-          weekUrl={weekUrl}
-        />
         <DuplicateForm
           open={isOpenDuplicateForm}
           type={activeType}
