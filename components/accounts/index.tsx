@@ -1,12 +1,10 @@
 import * as React from 'react'
 import {
   Box,
-  Button,
   Grid,
   Toolbar,
   Typography
 } from '@mui/material'
-import AddIcon from '@mui/icons-material/Add';
 import { useAccounts } from '@/hooks/accounts'
 import AccountCard from './AccountCard'
 import { Account } from './types'
@@ -15,7 +13,6 @@ import { AddForm, EditForm, ConfirmDeleteForm } from './forms'
 const Index: React.FC = () => {
 
   const [activeAccount, setActiveAccount] = React.useState<string | null>(null)
-  const [isAddFormOpened, setIsAddFormOpened] = React.useState<boolean>(false)
   const [isEditFormOpened, setIsEditFormOpened] = React.useState<boolean>(false)
   const [isConfirmDeleteFormOpened, setIsConfirmDeleteFormOpened] = React.useState<boolean>(false)
 
@@ -33,12 +30,7 @@ const Index: React.FC = () => {
     setIsConfirmDeleteFormOpened(true)
   }
 
-  const handleOpenAddForm = (): void => {
-    setIsAddFormOpened(true)
-  }
-
   const handleClose = (): void => {
-    setIsAddFormOpened(false)
     setIsEditFormOpened(false)
     setIsConfirmDeleteFormOpened(false)
     setActiveAccount(null)
@@ -49,14 +41,10 @@ const Index: React.FC = () => {
       <Toolbar sx={{ pb: 1 }}>
         <Typography variant="h4" sx={{ my: 2 }}>Accounts</Typography>
         <Box sx={{ flexGrow: 1 }} />
-        <Button
-          startIcon={<AddIcon />}
-          variant="contained"
-          sx={{ textTransform: 'none' }}
-          onClick={handleOpenAddForm}
-        >
-          Add account
-        </Button>
+        <AddForm
+          open={isAddFormOpened}
+          handleClose={handleClose}
+        />
       </Toolbar>
       <Grid container spacing={2}>
         {accounts && accounts.map((item: Account) => (
@@ -70,10 +58,6 @@ const Index: React.FC = () => {
           </Grid>
         ))}
       </Grid>
-      <AddForm
-        open={isAddFormOpened}
-        handleClose={handleClose}
-      />
       {
         activeAccount && (
           <>

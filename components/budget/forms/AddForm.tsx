@@ -80,14 +80,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      amount: "",
-      currency: "",
-      user: "",
-      category: "",
-      repeatType: "",
       budgetDate: new Date(),
-      description: "",
     },
   })
 
@@ -197,7 +190,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl }) => {
 
   return (
     <Dialog onOpenChange={clean}>
-      <DialogTrigger asChild>
+      <DialogTrigger asChild className="mx-2">
         <Button>+ Add budget</Button>
       </DialogTrigger>
       <DialogContent className="min-w-[600px]" >
@@ -280,6 +273,36 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl }) => {
                   />
                   <FormField
                     control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Category</FormLabel>
+                        <FormControl>
+                          <Select
+                            disabled={isLoading}
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger className="w-[180px]">
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectLabel>Categories</SelectLabel>
+                                <SelectItem value=""><em>No income for this account</em></SelectItem>
+                                {parentList.map((item: Category) => (
+                                  <SelectItem key={item.uuid} value={item.uuid}>{item.name}</SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
                     name="user"
                     render={({ field }) => (
                       <FormItem>
@@ -298,35 +321,6 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl }) => {
                                 <SelectLabel>Users</SelectLabel>
                                 {users && users.map((item: User) => (
                                   <SelectItem key={item.uuid} value={item.uuid}>{item.username}</SelectItem>
-                                ))}
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="category"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Category</FormLabel>
-                        <FormControl>
-                          <Select
-                            disabled={isLoading}
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <SelectTrigger className="w-[180px]">
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectLabel>Users</SelectLabel>
-                                {parentList.map((item: Category) => (
-                                  <SelectItem key={item.uuid} value={item.uuid}>{item.name}</SelectItem>
                                 ))}
                               </SelectGroup>
                             </SelectContent>

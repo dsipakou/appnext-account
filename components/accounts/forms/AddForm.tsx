@@ -1,55 +1,75 @@
 import * as React from 'react'
 import axios from 'axios'
+import * as z from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from 'react-hook-form'
 import { useSWRConfig } from 'swr';
+import { Button } from '@/components/ui/button'
 import {
-  Button,
   Dialog,
-  DialogActions,
   DialogContent,
+  DialogHeader,
   DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  Form,
   FormControl,
-  FormControlLabel,
-  Grid,
-  MenuItem,
-  InputLabel,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import {
   Select,
-  Switch,
-  TextField,
-  Typography
-} from '@mui/material'
-import { useAuth } from '@/context/auth'
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 import { useUsers } from '@/hooks/users'
 import { useCategories } from '@/hooks/categories'
 import { Category, CategoryType } from '@/components/categories/types'
 import { User } from '@/components/users/types'
-import { Switch as SwitchNew } from '@/components/ui/switch'
+import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { useToast } from '@/components/ui/use-toast'
 
 interface Types {
   open: boolean
   handleClose: () => void
 }
 
+const formSchema = z.object({
+  title: z.string().min(2, {
+    message: "Title must be at least 2 characters",
+  }),
+  user: z.string().uuid({message: "Please, select user"}),
+  category: z.union([z.string().uuid(), z.string().length(0)]).optional(),
+  isMain: z.boolean(),
+  description: z.string().optional(),
+})
+
 const AddForm: React.FC<Types> = ({ open = false, handleClose }) => {
   const { mutate } = useSWRConfig()
-  const [title, setTitle] = React.useState<string>('')
-  const [user, setUser] = React.useState<string>('')
-  const [category, setCategory] = React.useState<string>('')
   const [incomeCategories, setIncomeCategories] = React.useState<Category[]>([])
-  const [isMain, setIsMain] = React.useState<boolean>(false)
-  const [description, setDescription] = React.useState<string>('')
-  const [errors, setErrors] = React.useState<string[]>([]);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
-  const { user: authUser, isLoading: isAuthLoading } = useAuth()
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      isMain: false,
+    }
+  })
 
-  const {
-    data: users,
-    isLoading: isUsersLoading
-  } = useUsers()
+  const { toast } = useToast()
 
-  const {
-    data: categories
-  } = useCategories()
+  const { data: users } = useUsers()
+
+  const { data: categories } = useCategories()
 
   React.useEffect(() => {
     if (!categories) return 
@@ -57,139 +77,182 @@ const AddForm: React.FC<Types> = ({ open = false, handleClose }) => {
     setIncomeCategories(categories.filter((item: Category) => item.type === CategoryType.Income))
   }, [categories])
 
-  const handleTitleInput = (e): void => {
-    setTitle(e.target.value)
-  }
-
-  const handleUserChange = (e: ChangeEvent) => {
-    setUser(e.target.value)
-  }
-
-  const handleCategoryChange = (e) => {
-    setCategory(e.target.value)
-  }
-
-  const handleIsMainSwitch = (isMain: boolean) => {
-    setIsMain(isMain)
-  }
-
-  const handleDescriptionInput = (e) => {
-    setDescription(e.target.value)
-  }
-
-  const handleSave = () => {
-    setErrors([])
-    const payload: BudgetRequest = {
-      title,
-      category,
-      user,
-      isMain,
-      description
-    }
+  const handleSave = (payload: z.infer<typeof formSchema>) => {
+    setIsLoading(true)
     axios.post('accounts/', {
       ...payload,
     }).then(
       res => {
         if (res.status === 201) {
           mutate('accounts/')
-          handleClose();
+          toast({
+              title: "Saved!"
+            })
         } else {
-          // TODO: handle errors
+          // TODO
         }
       }
     ).catch(
       (error) => {
+        toast({
+            variant: "destructive",
+            title: "Something went wrong",
+            description: "Please, check your fields"
+          })
         const errRes = error.response.data;
         for (const prop in errRes) {
-          setErrors(errRes[prop]);
+          // setErrors(errRes[prop]);
         }
       }
     ).finally(() => {
-      // TODO: stop loading
+      setIsLoading(false)
     })
   }
 
+  const cleanFormErrors = (open: boolean) => {
+    if (!open) {
+      form.clearErrors()
+    }
+  }
+
   return (
-    <Dialog maxWidth="sm" open={open} onClose={handleClose}>
-      <DialogTitle>Add category</DialogTitle>
+    <Dialog onOpenChange={cleanFormErrors}>
+      <DialogTrigger asChild className="mx-2">
+        <Button>+ Add account</Button>
+      </DialogTrigger>
       <DialogContent>
-        <Grid container spacing={2}>
-          <Grid item xs={8}>
-            {errors.map((message: string) => (
-              <Typography key={message} color="red">{message}</Typography>
-            ))}
-          </Grid>
-          <Grid item xs={8}>
-            <TextField
-              margin="dense"
-              id="title"
-              label="Title"
-              placeholder="Account name"
-              type="text"
-              fullWidth
-              autoFocus
-              onChange={handleTitleInput}
-            />
-          </Grid>
-          <div className="flex items-center space-x-2">
-            <SwitchNew id="is-active" checked={isMain} onCheckedChange={handleIsMainSwitch} />
-            <Label htmlFor="is-acitve">Active</Label>
-          </div>
-          <Grid item xs={6}>
-            <FormControl fullWidth>
-              <InputLabel id="user-select-label">User</InputLabel>
-              <Select
-                labelId="user-select-label"
-                label="User"
-                value={user}
-                onChange={handleUserChange}
-              >
-                { users && users.map((item: User) => (
-                  <MenuItem key={item.uuid} value={item.uuid}>{item.username}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={6}>
-            <FormControl fullWidth>
-              <InputLabel id="income-category-select-label">Income category</InputLabel>
-              <Select
-                labelId="income-category-select-label"
-                label="Income category"
-                value={category}
-                onChange={handleCategoryChange}
-              >
-                <MenuItem value="">
-                  <em>
-                    No income for the account
-                  </em>
-                </MenuItem>
-                { incomeCategories.map((item: Category) => (
-                  <MenuItem key={item.uuid} value={item.uuid}>{item.name}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              margin="dense"
-              id="description"
-              label="Description"
-              value={description}
-              placeholder="Description"
-              multiline
-              rows={2}
-              fullWidth
-              autoFocus
-              onChange={handleDescriptionInput}
-            />
-          </Grid>
-        </Grid>
+        <DialogHeader>
+          <DialogTitle>Add account</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
+            <div className="flex flex-col gap-3">
+              <div className="flex w-full">
+                <div className="flex w-2/3">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Account title</FormLabel>
+                        <FormControl>
+                          <Input className="w-full" disabled={isLoading} id="title" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex w-1/3">
+                  <FormField
+                    control={form.control}
+                    name="isMain"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <>
+                            <Switch
+                              id="isMain"
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              disabled={isLoading}
+                            />
+                            <Label htmlFor="isMain">Active</Label>
+                          </>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              <div>
+                <div>
+                  <FormField
+                    control={form.control}
+                    name="user"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>User</FormLabel>
+                        <FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            disabled={isLoading}
+                          >
+                            <SelectTrigger className="w-[180px]">
+                              <SelectValue placeholder="Select user" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                {users && users.map((item: User) => (
+                                  <SelectItem key={item.uuid} value={item.uuid}>{item.username}</SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div>
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Income category</FormLabel>
+                        <FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            disabled={isLoading}
+                          >
+                            <SelectTrigger className="w-[180px]">
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectItem value=""><em>No income for this category</em></SelectItem>
+                                {incomeCategories.map((item: Category) => (
+                                  <SelectItem key={item.uuid} value={item.uuid}>{item.name}</SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              <div>
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Add description if you want"
+                          className="resize-none"
+                          disabled={isLoading}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+            <Button type="submit">Submit</Button>
+          </form>
+        </Form>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleSave}>Save</Button>
-      </DialogActions>
     </Dialog>
   )
 }
