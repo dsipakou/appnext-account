@@ -38,11 +38,6 @@ import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/components/ui/use-toast'
 
-interface Types {
-  open: boolean
-  handleClose: () => void
-}
-
 const formSchema = z.object({
   title: z.string().min(2, {
     message: "Title must be at least 2 characters",
@@ -53,7 +48,7 @@ const formSchema = z.object({
   description: z.string().optional(),
 })
 
-const AddForm: React.FC<Types> = ({ open = false, handleClose }) => {
+const AddForm: React.FC = () => {
   const { mutate } = useSWRConfig()
   const [incomeCategories, setIncomeCategories] = React.useState<Category[]>([])
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
@@ -61,6 +56,7 @@ const AddForm: React.FC<Types> = ({ open = false, handleClose }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      title: '',
       isMain: false,
     }
   })
@@ -72,7 +68,7 @@ const AddForm: React.FC<Types> = ({ open = false, handleClose }) => {
   const { data: categories } = useCategories()
 
   React.useEffect(() => {
-    if (!categories) return 
+    if (!categories) return
 
     setIncomeCategories(categories.filter((item: Category) => item.type === CategoryType.Income))
   }, [categories])
@@ -126,7 +122,7 @@ const AddForm: React.FC<Types> = ({ open = false, handleClose }) => {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col space-y-3">
               <div className="flex w-full">
                 <div className="flex w-2/3">
                   <FormField
@@ -143,14 +139,14 @@ const AddForm: React.FC<Types> = ({ open = false, handleClose }) => {
                     )}
                   />
                 </div>
-                <div className="flex w-1/3">
+                <div className="flex w-1/3 items-center">
                   <FormField
                     control={form.control}
                     name="isMain"
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <>
+                          <div className="flex items-center space-x-2">
                             <Switch
                               id="isMain"
                               checked={field.value}
@@ -158,7 +154,7 @@ const AddForm: React.FC<Types> = ({ open = false, handleClose }) => {
                               disabled={isLoading}
                             />
                             <Label htmlFor="isMain">Active</Label>
-                          </>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -166,8 +162,8 @@ const AddForm: React.FC<Types> = ({ open = false, handleClose }) => {
                   />
                 </div>
               </div>
-              <div>
-                <div>
+              <div className="flex w-full">
+                <div className="flex w-1/2">
                   <FormField
                     control={form.control}
                     name="user"
@@ -180,7 +176,7 @@ const AddForm: React.FC<Types> = ({ open = false, handleClose }) => {
                             defaultValue={field.value}
                             disabled={isLoading}
                           >
-                            <SelectTrigger className="w-[180px]">
+                            <SelectTrigger className="w-full">
                               <SelectValue placeholder="Select user" />
                             </SelectTrigger>
                             <SelectContent>
@@ -197,7 +193,7 @@ const AddForm: React.FC<Types> = ({ open = false, handleClose }) => {
                     )}
                   />
                 </div>
-                <div>
+                <div className="flex w-1/2">
                   <FormField
                     control={form.control}
                     name="category"
@@ -210,7 +206,7 @@ const AddForm: React.FC<Types> = ({ open = false, handleClose }) => {
                             defaultValue={field.value}
                             disabled={isLoading}
                           >
-                            <SelectTrigger className="w-[180px]">
+                            <SelectTrigger className="w-full">
                               <SelectValue placeholder="Select category" />
                             </SelectTrigger>
                             <SelectContent>
@@ -229,7 +225,7 @@ const AddForm: React.FC<Types> = ({ open = false, handleClose }) => {
                   />
                 </div>
               </div>
-              <div>
+              <div className="flex pt-6">
                 <FormField
                   control={form.control}
                   name="description"
@@ -249,7 +245,7 @@ const AddForm: React.FC<Types> = ({ open = false, handleClose }) => {
                 />
               </div>
             </div>
-            <Button type="submit">Submit</Button>
+            <Button type="submit">Save</Button>
           </form>
         </Form>
       </DialogContent>

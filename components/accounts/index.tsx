@@ -1,79 +1,57 @@
 import * as React from 'react'
 import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import {
   Box,
   Grid,
   Toolbar,
   Typography
 } from '@mui/material'
 import { useAccounts } from '@/hooks/accounts'
-import AccountCard from './AccountCard'
-import { Account } from './types'
-import { AddForm, EditForm, ConfirmDeleteForm } from './forms'
+import { UserResponse, useUsers } from '@/hooks/users'
+import { AccountResponse } from './types'
+import { User } from '@/components/users/types'
+import { AddForm as AddAccount, EditForm as EditAccount, ConfirmDeleteForm } from './forms'
 
 const Index: React.FC = () => {
+  const { data: users = [] } = useUsers()
 
-  const [activeAccount, setActiveAccount] = React.useState<string | null>(null)
-  const [isEditFormOpened, setIsEditFormOpened] = React.useState<boolean>(false)
-  const [isConfirmDeleteFormOpened, setIsConfirmDeleteFormOpened] = React.useState<boolean>(false)
+  const { data: accounts } = useAccounts()
 
-  const {
-    data: accounts
-  } = useAccounts()
-
-  const clickAccount = (uuid: string): void => {
-    setActiveAccount(uuid)
-    setIsEditFormOpened(true)
-  }
-
-  const clickDelete = (uuid: string): void => {
-    setActiveAccount(uuid)
-    setIsConfirmDeleteFormOpened(true)
-  }
-
-  const handleClose = (): void => {
-    setIsEditFormOpened(false)
-    setIsConfirmDeleteFormOpened(false)
-    setActiveAccount(null)
+  const getUser = (uuid: string): User | undefined => {
+    return users.find((item: User) => item.uuid === uuid)
   }
 
   return (
     <>
       <Toolbar sx={{ pb: 1 }}>
-        <Typography variant="h4" sx={{ my: 2 }}>Accounts</Typography>
+        <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">Accounts</h4>
         <Box sx={{ flexGrow: 1 }} />
-        <AddForm
-          open={isAddFormOpened}
-          handleClose={handleClose}
-        />
+        <AddAccount />
       </Toolbar>
-      <Grid container spacing={2}>
-        {accounts && accounts.map((item: Account) => (
-          <Grid key={item.uuid} item xs={3}>
-            <AccountCard
-              key={item.uuid}
-              item={item}
-              clickAccount={clickAccount}
-              clickDelete={clickDelete}
-            />
-          </Grid>
+      <div className="grid grid-cols-3 gap-3">
+        {accounts && accounts.map((item: AccountResponse) => (
+          <div key={item.uuid}>
+            <Card>
+              <CardHeader>
+                <CardTitle>{item.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>{getUser(item.user)?.username}</p>
+              </CardContent>
+              <CardFooter className="flex justify-end">
+                <EditAccount uuid={item.uuid} />
+                <ConfirmDeleteForm uuid={item.uuid} />
+              </CardFooter>
+            </Card>
+          </div>
         ))}
-      </Grid>
-      {
-        activeAccount && (
-          <>
-            <EditForm
-              uuid={activeAccount}
-              open={isEditFormOpened}
-              handleClose={handleClose}
-            />
-            <ConfirmDeleteForm
-              uuid={activeAccount}
-              open={isConfirmDeleteFormOpened}
-              handleClose={handleClose}
-            />
-          </>
-        )
-      }
+      </div>
     </>
   )
 }

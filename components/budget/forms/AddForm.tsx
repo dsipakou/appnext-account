@@ -59,8 +59,8 @@ const formSchema = z.object({
   title: z.string().min(2, {
     message: "Title must be at least 2 characters",
   }),
-  amount: z.coerce.number().min(0.01, {
-    message: "Amount should be at least 0.01",
+  amount: z.coerce.number().min(0, {
+    message: "Should be positive number",
   }),
   currency: z.string().uuid({message: "Please, select currency"}),
   user: z.string().uuid({message: "Please, select user"}),
@@ -81,6 +81,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl }) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       budgetDate: new Date(),
+      repeatType: "",
     },
   })
 
@@ -197,13 +198,12 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl }) => {
         <DialogHeader>
           <DialogTitle>Add budget</DialogTitle>
         </DialogHeader>
-        <Form {...form} disabled={isLoading}>
+        <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
             <div className="flex flex-col gap-3">
               <div className="flex w-full">
                 <div className="flex sm:w-2/3">
                   <FormField
-                    className="w-full"
                     control={form.control}
                     name="title"
                     render={({ field }) => (
@@ -289,7 +289,6 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl }) => {
                             <SelectContent>
                               <SelectGroup>
                                 <SelectLabel>Categories</SelectLabel>
-                                <SelectItem value=""><em>No income for this account</em></SelectItem>
                                 {parentList.map((item: Category) => (
                                   <SelectItem key={item.uuid} value={item.uuid}>{item.name}</SelectItem>
                                 ))}
@@ -330,6 +329,37 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl }) => {
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="repeatType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Repeat</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            disabled={isLoading}
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className={styles.radio}
+                          >
+                            <Label>
+                              <RadioGroupItem value="" id="r1" />
+                              <span>Do not repeat</span>
+                            </Label>
+                            <Label>
+                              <RadioGroupItem value="weekly" id="r1" />
+                              <span>Weekly</span>
+                            </Label>
+                            <Label>
+                              <RadioGroupItem value="monthly" id="r1" />
+                              <span>Monthly</span>
+                            </Label>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
                 <div className="flex w-3/5 justify-end">
                   <FormField
@@ -352,39 +382,6 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl }) => {
                     )}
                   />
                 </div>
-              </div>
-              <div className="pb-5">
-                <FormField
-                  control={form.control}
-                  name="repeatType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Repeat</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          disabled={isLoading}
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          className={styles.radio}
-                        >
-                          <Label>
-                            <RadioGroupItem value="" id="r1" />
-                            <span>Do not repeat</span>
-                          </Label>
-                          <Label>
-                            <RadioGroupItem value="weekly" id="r1" />
-                            <span>Weekly</span>
-                          </Label>
-                          <Label>
-                            <RadioGroupItem value="monthly" id="r1" />
-                            <span>Monthly</span>
-                          </Label>
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
               <div>
                 <FormField
