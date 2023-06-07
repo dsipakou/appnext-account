@@ -86,12 +86,7 @@ const Category = () => {
               >
                 Edit
               </Button>
-              <Button
-                sx={isParent ? { color: 'white' } : {}}
-                onClick={() => handleDelete(category)}
-              >
-                Delete
-              </Button>
+              <ConfirmDeleteForm uuid={category.uuid} />
             </Box>
           </Grid>
         </Grid>
@@ -117,7 +112,6 @@ const Category = () => {
         {childrenCategories.map((item: Category) => <Box key={item.uuid}>{categoryCard(item)}</Box>)}
       </Stack>
       <EditForm open={isEditFormOpen} uuid={activeCategory?.uuid} handleClose={handleClose} />
-      <ConfirmDeleteForm open={isDeleteFormOpen} uuid={activeCategory?.uuid} handleClose={handleClose} />
     </>
   )
 }
