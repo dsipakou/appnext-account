@@ -265,7 +265,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                 />
               </div>
             </div>
-            <Button type="submit">Save</Button>
+            <Button disabled={isLoading} type="submit">Save</Button>
           </form>
         </Form>
       </DialogContent>

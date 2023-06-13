@@ -80,12 +80,7 @@ const Category = () => {
           </Grid>
           <Grid item xs={2}>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'end' }}>
-              <Button
-                sx={isParent ? { color: 'white' } : {}}
-                onClick={() => editCategoryClick(category)}
-              >
-                Edit
-              </Button>
+              <EditForm uuid={category.uuid} />
               <ConfirmDeleteForm uuid={category.uuid} />
             </Box>
           </Grid>
@@ -111,7 +106,6 @@ const Category = () => {
         {parentCategory && categoryCard(parentCategory)}
         {childrenCategories.map((item: Category) => <Box key={item.uuid}>{categoryCard(item)}</Box>)}
       </Stack>
-      <EditForm open={isEditFormOpen} uuid={activeCategory?.uuid} handleClose={handleClose} />
     </>
   )
 }

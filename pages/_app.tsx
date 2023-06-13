@@ -8,6 +8,7 @@ import { AuthProvider } from '@/context/auth';
 import '@/plugins/axios'
 import axios from 'axios'
 import { Toaster } from '@/components/ui/toaster'
+import '@/date-fns.config.js'
 
 import { get } from '@/models/indexedDb.config'
 
@@ -33,8 +34,7 @@ const App = ({ Component, pageProps }: AppProps) => {
       }
       setLoading(false)
     }
-    loadUserFromIndexedDB()
-  }, [])
+    loadUserFromIndexedDB() }, [])
 
   const theme = createTheme({ ...themeOptions })
 

@@ -1,82 +1,93 @@
-import { FC } from 'react';
-import { selectChangeEvent, ChangeEvent, useEffect, useState } from 'react';
+import React from 'react'
+import * as z from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Button } from '@/components/ui/button'
+import { useForm, useFormState } from 'react-hook-form'
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormControl,
+} from '@/components/ui/form'
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  Grid,
-  TextField,
+  DialogHeader,
+  DialogTrigger,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import {
   Select,
-  MenuItem,
-  Button,
-  FormControl,
-  InputLabel,
-  Typography,
-} from '@mui/material';
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { useToast } from '@/components/ui/use-toast'
 import axios from 'axios';
 import { useSWRConfig } from 'swr';
 import { useCategories } from '../../../hooks/categories';
-import { Category, CategoryRequest } from '../types';
+import { Category } from '../types';
 
 interface Types {
   uuid: string,
-  open: boolean,
-  handleClose: () => void,
 }
 
-const EditForm: FC<Types> = ({ uuid, open = false, handleClose }) => {
+const formSchema = z.object({
+  name: z.string().min(2),
+  parent: z.string().uuid().nullable(),
+  description: z.string().optional(),
+})
+
+const EditForm: React.FC<Types> = ({ uuid }) => {
   const { mutate } = useSWRConfig();
-  const { data: categories, isLoading, isError } = useCategories();
+  const { data: categories } = useCategories();
+  const { toast } = useToast()
 
-  const [category, setCategory] = useState<Category>();
-  const [name, setName] = useState<string>('');
-  const [parent, setParent] = useState<string | null>('');
-  const [childrenCategories, setChildrenCategories] = useState<Category[]>([]);
-  const [parentList, setParentList] = useState<Category[]>([]);
-  const [errors, setErrors] = useState<string[]>([]);
+  const [parentList, setParentList] = React.useState<Category[]>([]);
+  const [errors, setErrors] = React.useState<string[]>([]);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
-  useEffect(() => {
-    if (isLoading) return;
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema)
+  })
 
-    const _category = categories.find((item: any) => item.uuid === uuid);
+  React.useEffect(() => {
+    if (!categories) return
 
-    if (!_category) return;
+    const _category = categories.find((item: any) => item.uuid === uuid)
 
-    const _childrenCategories = categories.filter(
-      (item: any) => item.parent === _category.uuid,
-    );
+    if (!_category) return
+
     const _parentCategories = categories.filter(
       (item: any) => item.parent === null && item.type === _category.type,
     );
 
-    setCategory(_category);
-    setName(_category.name);
-    setChildrenCategories(_childrenCategories);
+    form.setValue('name', _category.name)
+    form.setValue('parent', _category.parent)
+    form.setValue('description', _category.description)
+
     setParentList(_parentCategories);
-    setParent(_category.parent);
-  }, [categories, uuid, isLoading]);
+  }, [categories, uuid]);
 
-  const handleEdit = async () => {
-    // TODO: start loading
-    setErrors([]);
+  const handleSave = (payload: z.infer<typeof formSchema>) => {
+    setIsLoading(true)
 
-    if (!category) handleClose();
-
-    if (!parent) setParent('')
-
-    const payload: CategoryRequest = {
-      name,
-      type: category.type,
-      parent,
-    }
+    console.log(payload)
 
     axios
-      .patch(`categories/${uuid}/`, payload)
+      .patch(`categories/${uuid}/`, {...payload})
       .then((res) => {
         if (res.status === 200) {
           mutate('categories/');
-          handleClose();
+          toast({
+            title: 'Category updated'
+          })
         } else {
           // TODO: handle errors
         }
@@ -86,82 +97,99 @@ const EditForm: FC<Types> = ({ uuid, open = false, handleClose }) => {
         for (const prop in errRes) {
           setErrors(errRes[prop]);
         }
+        toast({
+          variant: "destructive",
+          title: "Something went wrong",
+          description: errors.toString(),
+        })
       })
       .finally(() => {
-        // TODO: stop-loading
+        setIsLoading(false)
       })
-  }
-
-  const handleParentSelect = (e: SelectChangeEvent) => {
-    setParent(e.target.value);
-  }
-
-  const handleNameTextbox = (e: ChangeEvent) => {
-    setName(e.target.value);
-  }
-
-  const onClose = () => {
-    handleClose();
-    setName(category?.name || '');
-    setParent(category?.parent || null);
-    setErrors([]);
   }
 
   return (
-    <Dialog open={open} maxWidth="sm" fullWidth={true} onClose={onClose}>
-      <DialogTitle>Edit category</DialogTitle>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="link">Edit</Button>
+      </DialogTrigger>
       <DialogContent>
-        <Grid container spacing={4}>
-          {errors.length > 0 && (
-            <Grid item xs={12}>
-              {errors.map((message: string) => (
-                <Typography key={message} color="red">{message}</Typography>
-              ))}
-            </Grid>
-          )}
-          <Grid item xs={12}>
-            {category?.parent !== null && (
-              <FormControl fullWidth sx={{ mt: 1 }}>
-                <InputLabel id="parent-select-label">Parent category</InputLabel>
-                <Select
-                  labelId="parent-select-label"
-                  label="Parent category"
-                  value={parent}
-                  fullWidth
-                  defaultValue=""
-                  onChange={handleParentSelect}
-                >
-                  {parentList?.map((category: Category) => (
-                    <MenuItem key={category.uuid} value={category.uuid}>{category.name}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            )}
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              label="Category name"
-              type="text"
-              fullWidth
-              value={name}
-              onChange={handleNameTextbox}
-            />
-          </Grid>
-        </Grid>
+        <DialogHeader>
+          <DialogTitle>Edit category</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
+            <div className="flex flex-col space-y-3">
+              <div className="flex w-full">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category name</FormLabel>
+                      <FormControl>
+                        <Input className="w-full" disabled={isLoading} id="name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              { form.getValues('parent') && (
+                <div className="flex w-full">
+                  <FormField
+                    control={form.control}
+                    name="parent"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            disabled={isLoading}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Choose parent category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                {parentList.map((category: Category) => (
+                                  <SelectItem key={category.uuid} value={category.uuid}>{category.name}</SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
+              <div className="flex pt-6">
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Add description if you want"
+                          className="resize-none"
+                          disabled={isLoading}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+            <Button disabled={isLoading} type="submit">Save</Button>
+          </form>
+        </Form>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button
-          variant="contained"
-          disabled={name === category?.name}
-          onClick={handleEdit}
-        >
-          Update
-        </Button>
-      </DialogActions>
     </Dialog>
   )
 }
