@@ -1,90 +1,75 @@
-import { useState, useEffect } from 'react';
+import React from 'react'
 import { useRouter } from 'next/router';
+import Link from 'next/link';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Button } from '@/components/ui/button'
 import {
-  Box,
-  Button,
-  Chip,
-  Grid,
-  Stack,
   Paper,
   Toolbar,
   Typography,
-  MenuItem
 } from '@mui/material';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import Link from 'next/link';
-import { useCategories } from '../../../hooks/categories';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useCategories } from '@/hooks/categories';
 import EditForm from '../forms/EditForm';
 import ConfirmDeleteForm from '../forms/ConfirmDeleteForm';
 import { Category } from '../types';
 
 const Category = () => {
-  const [isEditFormOpen, setIsEditFormOpen] = useState<boolean>(false);
-  const [isDeleteFormOpen, setIsDeleteFormOpen] = useState<boolean>(false);
-  const [parentCategory, setParentCategory] = useState<Category>();
-  const [childrenCategories, setChildrenCategories] = useState<Category[]>([]);
-  const [activeCategory, setActiveCategory] = useState<Category>();
+  const [parentCategory, setParentCategory] = React.useState<Category>();
+  const [childrenCategories, setChildrenCategories] = React.useState<Category[]>([]);
 
-  const { data: categories, isLoading, isError } = useCategories();
+  const { data: categories } = useCategories();
+
   const router = useRouter();
   const { uuid: parentUuid } = router.query;
 
-  useEffect(() => {
-    if (isLoading) return;
+  React.useEffect(() => {
+    if (!categories) return;
 
     const parentCategory = categories.find((item: Category) => item.uuid === parentUuid);
     const childrenCategories = categories.filter((item: Category) => item.parent === parentCategory?.uuid);
 
     setParentCategory(parentCategory);
     setChildrenCategories(childrenCategories);
-  }, [categories, parentUuid, isLoading]);
+  }, [categories, parentUuid]);
 
-  const editCategoryClick = (category: Category) => {
-    setActiveCategory(category)
-    setIsEditFormOpen(true);
-  };
-
-  const handleClose = () => {
-    setIsEditFormOpen(false);
-    setIsDeleteFormOpen(false);
-  };
-
-  const handleDelete = (category: Category) => {
-    setActiveCategory(category)
-    setIsDeleteFormOpen(true);
-  };
-
-  const categoryCard = (category: Category) => {
-    const isParent = category.parent === null;
-
+  const parentCategoryCard = (category: Category) => {
     return (
-      <Paper
-        elevation={isParent ? 3 : 0}
-        sx={isParent ? { backgroundColor: 'primary.light', color: 'white' } : {}}
-        variant={!isParent ? 'outlined' : 'elevation'}
-      >
-        <Grid container alignItems="center">
-          <Grid item xs={2}>
-          </Grid>
-          <Grid item xs={8}>
-            {isParent ? (
-              <>
-                <Typography align="center" variant="h3">{category.name}</Typography>
-              </>
-            ) : (
-              <Typography align="center" variant="h6">
-                {category.name}
-              </Typography>
-            )}
-          </Grid>
-          <Grid item xs={2}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'end' }}>
+      <div className="border rounded-md shadow-md bg-white">
+        <div className="grid grid-cols-12">
+          <div className="col-span-2">
+          </div>
+          <div className="col-span-8 self-center">
+            <Typography align="center" variant="h3">{category.name}</Typography>
+          </div>
+          <div className="col-span-2">
+            <div className="flex flex-col items-end text-white">
               <EditForm uuid={category.uuid} />
               <ConfirmDeleteForm uuid={category.uuid} />
-            </Box>
-          </Grid>
-        </Grid>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const categoryCard = (category: Category) => {
+    return (
+      <Paper variant="outlined">
+        <div className="grid grid-cols-12">
+          <div className="col-span-2">
+          </div>
+          <div className="col-span-8 self-center">
+            <div className="text-lg">
+              {category.name}
+            </div>
+          </div>
+          <div className="col-span-2">
+            <div className="flex flex-col items-end">
+              <EditForm uuid={category.uuid} />
+              <ConfirmDeleteForm uuid={category.uuid} />
+            </div>
+          </div>
+        </div>
       </Paper>
     )
   }
@@ -92,22 +77,20 @@ const Category = () => {
   return (
     <>
       <Toolbar sx={{ mb: 4, py: 2 }}>
-        <Link href="/categories">
-          <Button
-            startIcon={<ArrowBackIcon />}
-            variant="outlined"
-            xs={{ textTransform: 'none' }}
-          >
-            Go back
-          </Button>
-        </Link>
+        <Button asChild variant="link">
+          <Link href="/categories">
+            <ArrowBackIcon className="mr-2" /> Back
+          </Link>
+        </Button>
       </Toolbar>
-      <Stack justifyContent="center" spacing={2}>
-        {parentCategory && categoryCard(parentCategory)}
-        {childrenCategories.map((item: Category) => <Box key={item.uuid}>{categoryCard(item)}</Box>)}
-      </Stack>
+      <div className="grid grid-cols-3 gap-4">
+        <div className="col-span-3">
+          {parentCategory && parentCategoryCard(parentCategory)}
+        </div>
+        {childrenCategories.map((item: Category) => <div key={item.uuid}>{categoryCard(item)}</div>)}
+      </div>
     </>
   )
 }
 
-export default Category;
+export default Category

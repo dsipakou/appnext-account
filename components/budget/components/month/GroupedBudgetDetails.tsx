@@ -2,12 +2,9 @@ import { FC, useEffect } from 'react'
 import { getWeekOfMonth } from 'date-fns'
 import {
   Box,
-  Chip,
   IconButton,
-  LinearProgress,
   Grid,
   Paper,
-  Stack,
   Typography
 } from '@mui/material'
 import {
@@ -22,7 +19,6 @@ import TimelineOppositeContent, {
   timelineOppositeContentClasses,
 } from '@mui/lab/TimelineOppositeContent';
 import CloseIcon from '@mui/icons-material/Close'
-import { teal } from '@mui/material/colors'
 import {
   parseDate,
   parseAndFormatDate,
@@ -39,10 +35,10 @@ interface Types {
   title: string
   items: MonthBudgetItem[],
   startDate: string
+  weekUrl: string
+  monthUrl: string
   handleClose: () => void
   clickShowTransactions: (uuid: string) => void
-  clickEdit: (uuid: string) => void
-  clickDelete: (uuid: string) => void
 }
 
 interface WeekGroup {
@@ -60,10 +56,10 @@ const GroupedBudgetDetails: FC<Types> = ({
   title,
   items,
   startDate,
+  weekUrl,
+  monthUrl,
   handleClose,
   clickShowTransactions,
-  clickEdit,
-  clickDelete
 }) => {
   const weeks: WeekOfMonth[] = getMonthWeeksWithDates(startDate)
   const { user } = useAuth()
@@ -153,9 +149,9 @@ const GroupedBudgetDetails: FC<Types> = ({
                             planned={item.planned}
                             spent={item.spent}
                             date={item.date}
+                            weekUrl={weekUrl}
+                            monthUrl={monthUrl}
                             clickShowTransactions={clickShowTransactions}
-                            clickEdit={clickEdit}
-                            clickDelete={clickDelete}
                           />
                         </Box>
                       )

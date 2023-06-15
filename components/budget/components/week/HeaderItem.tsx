@@ -1,6 +1,5 @@
 import { FC } from 'react'
 import {
-  Box,
   Typography
 } from '@mui/material'
 import {
@@ -12,31 +11,23 @@ import {
 interface Types {
   date: WeekDayWithFullDate
   isWeekend: boolean
+  isToday: boolean
 }
 
-const HeaderItem: FC<Types> = ({ date, isWeekend }) => {
+const HeaderItem: FC<Types> = ({ date, isWeekend, isToday }) => {
+  let containerClasses = isWeekend ? "outline outline-red-500 text-red-500 bg-white" : "outline outline-stone-500 bg-white"
+  if (isToday) {
+    containerClasses = `${containerClasses} bg-orange-200 outline-offset-2 font-bold rounded-sm`
+  }
+  containerClasses = `${containerClasses} rounded-sm`
+
   return (
-    <Box
-      className={isWeekend ? "ring-2 ring-red-400 bg-red-100" : "ring-2 ring-sky-400 bg-sky-100"}
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: 50,
-        width: '100%',
-        borderRadius: 3,
-        border: '1px solid rgba(0, 0, 0, 0.4)',
-      }}
+    <div
+      className={containerClasses}
     >
-      <Typography sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100%',
-        fontSize: '1.2em',
-        fontWeight: 'bold'
-      }}>
-        {date.shortDayName}
-      </Typography>
+      <span className="flex align-middle justify-center text-xl">
+        {date.shortDayName} {isToday && ' (today)'}
+      </span>
       <Typography
         sx={{
           display: 'flex',
@@ -48,7 +39,7 @@ const HeaderItem: FC<Types> = ({ date, isWeekend }) => {
       >
         {getFormattedDate(date.fullDate, MONTH_DAY_FORMAT)}
       </Typography>
-    </Box>
+    </div>
   )
 }
 

@@ -53,6 +53,8 @@ import styles from '../style/AddForm.module.css'
 interface Types {
   monthUrl: string
   weekUrl: string
+  date?: Date
+  customTrigger?: React.ReactElement
 }
 
 const formSchema = z.object({
@@ -72,18 +74,24 @@ const formSchema = z.object({
   description: z.string().optional()
 })
 
-const AddForm: FC<Types> = ({ monthUrl, weekUrl }) => {
+const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
   const { mutate } = useSWRConfig()
   const [parentList, setParentList] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [open, setOpen] = useState<boolean>(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      budgetDate: new Date(),
       repeatType: "",
     },
   })
+
+  useEffect(() => {
+    if (open) {
+      form.setValue('budgetDate', date || new Date())
+    }
+  }, [open])
 
   const { toast } = useToast()
 
@@ -187,14 +195,19 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl }) => {
     if (!open) {
       form.clearErrors()
     }
+    setOpen(open)
   }
 
+  const defaultTrigger = (
+    <Button className="mx-2">+ Add budget</Button>
+  )
+
   return (
-    <Dialog onOpenChange={clean}>
-      <DialogTrigger asChild className="mx-2">
-        <Button>+ Add budget</Button>
+    <Dialog onOpenChange={clean} open={open}>
+      <DialogTrigger asChild>
+        {customTrigger || defaultTrigger}
       </DialogTrigger>
-      <DialogContent className="min-w-[600px]" >
+      <DialogContent className="min-w-[600px]">
         <DialogHeader>
           <DialogTitle>Add budget</DialogTitle>
         </DialogHeader>

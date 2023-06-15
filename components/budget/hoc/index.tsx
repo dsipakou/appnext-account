@@ -135,7 +135,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
         )
         _spent = budgetWeek.reduce(
           (acc: number, { spentInCurrencies }: SpentMap) => {
-            return acc + (spentInCurrencies[userConfig.currency] || 0)
+            return acc + (spentInCurrencies[userConfig?.currency] || 0)
           }, 0
         )
       }
@@ -298,6 +298,8 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
               clickDelete={handleClickDelete}
               mutateBudget={mutateBudget}
               user={user}
+              weekUrl={weekUrl}
+              monthUrl={monthUrl}
             />
           </Grid>
         </Grid>

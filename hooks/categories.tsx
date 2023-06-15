@@ -8,6 +8,7 @@ export interface CategoryResponse {
   name: string
   parent: string
   type: CategoryType
+  description: string
   createdAt: string
   modifiedAt: string
 }

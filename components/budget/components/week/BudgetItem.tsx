@@ -5,23 +5,24 @@ import { formatMoney } from '@/utils/numberUtils'
 import {
   Avatar,
   Box,
-  Button,
   Chip,
   LinearProgress,
-  Paper,
   Typography
 } from '@mui/material'
 import {
   deepOrange
 } from '@mui/material/colors'
+import { Button } from '@/components/ui/button'
 import { useBudgetDetails } from '@/hooks/budget'
-import { BudgetRequest, RecurrentTypes } from '@/components/budget/types'
+import { RecurrentTypes } from '@/components/budget/types'
 import { useCurrencies } from '@/hooks/currencies'
 import { useUsers, UserResponse } from '@/hooks/users'
 import { useAuth } from '@/context/auth'
 import { Currency } from '@/components/currencies/types'
+import EditForm from '@/components/budget/forms/EditForm'
 
 interface Types {
+  index: number
   uuid: string
   title: string
   user: string
@@ -29,12 +30,15 @@ interface Types {
   spent: number
   isCompleted: boolean
   recurrent: RecurrentTypes
+  weekUrl: string
+  monthUrl: string
   clickEdit: (uuid: string) => void
   clickDelete: (uuid: string) => void
   mutateBudget: () => void
 }
 
 const BudgetItem: React.FC<Types> = ({
+  index,
   uuid,
   title,
   user,
@@ -42,12 +46,14 @@ const BudgetItem: React.FC<Types> = ({
   spent,
   isCompleted,
   recurrent,
+  weekUrl,
+  monthUrl,
   clickEdit,
   clickDelete,
   mutateBudget
 }) => {
-  const [showDetails, setShowDetails] = React.useState<boolean>(false)
   const [errors, setErrors] = React.useState<string>([])
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
   const { data: budgetDetails, url } = useBudgetDetails(uuid)
   const { data: currencies } = useCurrencies()
@@ -60,15 +66,6 @@ const BudgetItem: React.FC<Types> = ({
   const currencySign = currencies.find(
     (currency: Currency) => currency.code === authUser.currency
   )?.sign || '';
-
-
-  const onMouseEnterHandler = (): void => {
-    setShowDetails(true)
-  }
-
-  const onMouseLeaveHandler = (): void => {
-    setShowDetails(false)
-  }
 
   const handleClickEdit = (): void => {
     clickEdit(uuid)
@@ -83,6 +80,7 @@ const BudgetItem: React.FC<Types> = ({
   const isSameUser = budgetUser?.username === authUser?.username
 
   const handleClickComplete = (): void => {
+    setIsLoading(true)
     axios.patch(`budget/${uuid}/`, {
       isCompleted: !budgetDetails.isCompleted,
       category: budgetDetails.category
@@ -104,15 +102,15 @@ const BudgetItem: React.FC<Types> = ({
         }
       }
     ).finally(() => {
-      // TODO: stop loading
+        setIsLoading(false)
     })
   }
 
   let cssClass = recurrent ?
     recurrent === 'monthly'
-      ? 'p-2 rounded-l-xl border-l-8 border-blue-500'
-      : 'rounded-l-xl border-l-8 border-yellow-500'
-    : 'rounded-l-lg'
+      ? 'p-2 border-l-8 border-blue-500'
+      : 'border-l-8 border-yellow-500'
+    : ''
 
   if (isCompleted) {
     cssClass = `bg-slate-300 ${cssClass}`
@@ -120,76 +118,86 @@ const BudgetItem: React.FC<Types> = ({
     cssClass = `bg-white ${cssClass}`
   }
 
+  const editButton = (
+    <Button
+      size="small"
+      disabled={isLoading}
+      variant="ghost"
+      className="px-3 text-xs"
+      onClick={handleClickEdit}
+    >
+      Edit
+    </Button>
+  )
+
   return (
     <div
-      className={`p-2 rounded-md hover:w-80 hover:z-20 hover:shadow-xl w-full ${cssClass}`}
-      onMouseEnter={onMouseEnterHandler}
-      onMouseLeave={onMouseLeaveHandler}
+      className={`group p-2 h-[100px] shadow-sm rounded-md hover:w-80 hover:z-20 hover:shadow-xl w-full ${cssClass}`}
     >
       <div className='flex flex-row gap-2 items-center'>
-        {!isSameUser && !showDetails && (
-          <Avatar
-            sx={{
-              width: 24,
-              height: 24,
-              bgcolor: deepOrange[500],
-            }}
+        {!isSameUser && (
+          <div
+            className="flex group-hover:hidden"
           >
-            <Typography variant='caption'>
-              {budgetUser.username.charAt(0)}
-            </Typography>
-          </Avatar>
+            <Avatar
+              sx={{
+                width: 24,
+                height: 24,
+                bgcolor: deepOrange[500],
+              }}
+            >
+              <Typography variant='caption'>
+                {budgetUser.username.charAt(0)}
+              </Typography>
+            </Avatar>
+          </div>
         )}
-        {!isSameUser && showDetails && (
+        {!isSameUser && (
+          <div
+            className="hidden group-hover:flex"
+          >
           <Chip size="small" label={budgetUser.username} color="primary" />
+          </div>
         )}
         <Typography
           align="center"
           noWrap
           sx={{
-            fontSize: showDetails ? '1em' : '0.9em',
+            fontSize: '0.9em',
             fontWeight: 'bold'
           }}
         >
           {title}
         </Typography>
       </div>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center'
-        }}
-      >
-        {showDetails && (
-          <>
-            <Typography
-              sx={{
-                fontSize: '0.9em',
-                fontWeight: 'bold'
-              }}
-            >
-              {formatMoney(spent)}
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: '0.9em',
-                marginLeft: '3px'
-              }}
-            >
-              {currencySign}
-            </Typography>
-          </>
-        )}
-        {showDetails && (
-          <Typography
-            sx={{
-              fontSize: '0.8em',
-              mx: 1
-            }}
-          >
-            of
-          </Typography>
-        )}
+      <div className="flex justify-center">
+        <Typography
+          className="hidden group-hover:flex"
+          sx={{
+            fontSize: '0.9em',
+            fontWeight: 'bold'
+          }}
+        >
+          {formatMoney(spent)}
+        </Typography>
+        <Typography
+          className="hidden group-hover:flex"
+          sx={{
+            fontSize: '0.9em',
+            marginLeft: '3px'
+          }}
+        >
+          {currencySign}
+        </Typography>
+        <Typography
+          className="hidden group-hover:flex"
+          sx={{
+            fontSize: '0.8em',
+            mx: 1
+          }}
+        >
+          of
+        </Typography>
         <>
           <Typography
             sx={{
@@ -207,13 +215,8 @@ const BudgetItem: React.FC<Types> = ({
             {currencySign}
           </Typography>
         </>
-      </Box>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center'
-        }}
-      >
+      </div>
+      <div className="flex justify-center">
         {planned !== 0
           ? (
             <>
@@ -248,38 +251,38 @@ const BudgetItem: React.FC<Types> = ({
             </Typography>
           )
         }
-      </Box>
-      {!showDetails && (
-        <Typography
-          sx={{
-            fontSize: '0.7em',
-            color: 'blue',
-            fontWeight: 'bold'
-          }}
-          align="center"
+      </div>
+      <Typography
+        className="flex justify-center group-hover:hidden"
+        sx={{
+          fontSize: '0.7em',
+          color: `${isCompleted ? 'blue' : 'grey'}`,
+          fontWeight: 'bold'
+        }}
+        align="center"
+      >
+        {isCompleted ? 'Completed' : 'To do'}
+      </Typography>
+      <div className="hidden group-hover:flex justify-center gap-1 text-xs">
+        <Button
+          size="small"
+          disabled={isLoading}
+          className={isCompleted ? 'px-3 bg-red-400 text-xs' : 'px-3 bg-green-400 text-xs'}
+          color={budgetDetails?.isCompleted ? 'warning' : 'success'}
+          onClick={handleClickComplete}>
+          {budgetDetails?.isCompleted ? 'Un-complete' : 'Complete'}
+        </Button>
+        <EditForm uuid={uuid} customTrigger={editButton} weekUrl={weekUrl} monthUrl={monthUrl} />
+        <Button
+          size="small"
+          variant="ghost"
+          disabled={isLoading}
+          className="px-3 text-xs text-red-500"
+          onClick={handleClickDelete}
         >
-          {isCompleted && 'Completed'}
-        </Typography>
-      )}
-      {showDetails && (
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'center'
-        }}>
-          <Button
-            size="small"
-            variant="contained"
-            className={isCompleted ? 'bg-red-600' : 'bg-green-600'}
-            color={budgetDetails?.isCompleted ? 'warning' : 'success'}
-            disableElevation
-            onClick={handleClickComplete}>
-            {budgetDetails?.isCompleted ? 'Un-complete' : 'Complete'}
-          </Button>
-          <Button size="small" onClick={handleClickEdit}>Edit</Button>
-          <Button size="small" onClick={handleClickDelete}>Delete</Button>
-        </Box>
-      )
-      }
+          Delete
+        </Button>
+      </div>
     </div>
   )
 }

@@ -71,14 +71,9 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
     isLoading: isAccountLoading
   } = useAccounts()
 
-  const {
-    data: users,
-    isLoading: isUsersLoading
-  } = useUsers()
+  const { data: users } = useUsers()
 
-  const {
-    data: categories
-  } = useCategories()
+  const { data: categories } = useCategories()
 
   React.useEffect(() => {
     if (!categories) return

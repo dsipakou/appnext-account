@@ -1,8 +1,9 @@
 import React from 'react'
 import * as z from 'zod'
+import axios from 'axios'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
-import { useForm, useFormState } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import {
   Form,
   FormField,
@@ -29,10 +30,9 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/components/ui/use-toast'
-import axios from 'axios';
-import { useSWRConfig } from 'swr';
-import { useCategories } from '../../../hooks/categories';
-import { Category } from '../types';
+import { useSWRConfig } from 'swr'
+import { Category, CategoryResponse } from '@/components/categories/types'
+import { useCategories } from '@/hooks/categories'
 
 interface Types {
   uuid: string,
@@ -60,7 +60,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
   React.useEffect(() => {
     if (!categories) return
 
-    const _category = categories.find((item: any) => item.uuid === uuid)
+    const _category = categories.find((item: CategoryResponse) => item.uuid === uuid)
 
     if (!_category) return
 
@@ -194,4 +194,4 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
   )
 }
 
-export default EditForm;
+export default EditForm

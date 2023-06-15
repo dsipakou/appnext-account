@@ -16,6 +16,7 @@ import { teal } from '@mui/material/colors'
 import ReceiptIcon from '@mui/icons-material/Receipt'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
+import { EditForm } from '@/components/budget/forms'
 import {
   formatMoney
 } from '@/utils/numberUtils'
@@ -25,9 +26,9 @@ interface Types {
   spent: number
   planned: number
   date: string
+  weekUrl: string
+  monthUrl: string
   clickShowTransactions: (uuid: string) => void
-  clickEdit: (uuid: string) => void
-  clickDelete: (uuid: string) => void
 }
 
 const TimelineBudgetItem: FC<Types> = ({
@@ -35,9 +36,9 @@ const TimelineBudgetItem: FC<Types> = ({
   spent,
   planned,
   date,
+  weekUrl,
+  monthUrl,
   clickShowTransactions,
-  clickEdit,
-  clickDelete
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -61,12 +62,10 @@ const TimelineBudgetItem: FC<Types> = ({
 
   const handleClickEdit = (): void => {
     setAnchorEl(null)
-    clickEdit(uuid)
   }
 
   const handleClickDelete = (): void => {
     setAnchorEl(null)
-    clickDelete(uuid)
   }
 
   return (
@@ -174,6 +173,7 @@ const TimelineBudgetItem: FC<Types> = ({
           </ListItemText>
         </MenuItem>
         <Divider />
+        <EditForm uuid={uuid} weekUrl={weekUrl} monthUrl={monthUrl} />
         <MenuItem onClick={handleClickEdit}>
           <ListItemIcon>
             <EditIcon />

@@ -14,6 +14,8 @@ interface Types {
   startDate: string
   endDate: string
   user: string
+  weekUrl: string
+  monthUrl: string
   clickShowTransactions: (uuid: string) => void
   clickEdit: (uuid: string) => void
   clickDelete: (uuid: string) => void
@@ -23,6 +25,8 @@ const Container: React.FC<Types> = ({
   startDate,
   endDate,
   user,
+  weekUrl,
+  monthUrl,
   clickShowTransactions,
   clickEdit,
   clickDelete
@@ -69,8 +73,8 @@ const Container: React.FC<Types> = ({
           endDate={endDate}
           user={user}
           clickShowTransactions={clickShowTransactions}
-          clickEdit={clickEdit}
-          clickDelete={clickDelete}
+          weekUrl={weekUrl}
+          monthUrl={monthUrl}
         />
       </Grid>
     </Grid>

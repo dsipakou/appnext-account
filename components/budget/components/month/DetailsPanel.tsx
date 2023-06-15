@@ -22,9 +22,9 @@ interface Types {
   startDate: string
   endDate: string
   user: string
+  weekUrl: string
+  monthUrl: string
   clickShowTransactions: (uuid: string) => void
-  clickEdit: (uuid: string) => void
-  clickDelete: (uuid: string) => void
 }
 
 const DetailsPanel: FC<Types> = ({
@@ -32,9 +32,9 @@ const DetailsPanel: FC<Types> = ({
   startDate,
   endDate,
   user,
+  weekUrl,
+  monthUrl,
   clickShowTransactions,
-  clickEdit,
-  clickDelete
 }) => {
   const [budgetTitle, setBudgetTitle] = useState<string | undefined>()
   const [budgetItems, setBudgetItems] = useState<MonthBudgetItem[]>([])
@@ -99,9 +99,9 @@ const DetailsPanel: FC<Types> = ({
             items={budgetItems}
             startDate={startDate}
             handleClose={handleCloseBudgetDetails}
+            weekUrl={weekUrl}
+            monthUrl={monthUrl}
             clickShowTransactions={clickShowTransactions}
-            clickEdit={clickEdit}
-            clickDelete={clickDelete}
           /> :
           activeCategory && (
             <Grid container spacing={2}>
