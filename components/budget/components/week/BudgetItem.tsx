@@ -4,7 +4,6 @@ import { useSWRConfig } from 'swr'
 import { formatMoney } from '@/utils/numberUtils'
 import {
   Avatar,
-  Box,
   Chip,
   LinearProgress,
   Typography
@@ -20,6 +19,7 @@ import { useUsers, UserResponse } from '@/hooks/users'
 import { useAuth } from '@/context/auth'
 import { Currency } from '@/components/currencies/types'
 import EditForm from '@/components/budget/forms/EditForm'
+import ConfirmDeleteForm from '@/components/budget/forms/ConfirmDeleteForm'
 
 interface Types {
   index: number
@@ -127,6 +127,16 @@ const BudgetItem: React.FC<Types> = ({
       onClick={handleClickEdit}
     >
       Edit
+    </Button>
+  )
+
+  const deleteButton = (
+    <Button
+      size="small"
+      variant="ghost"
+      className="px-3 text-xs text-red-500"
+    >
+      Delete
     </Button>
   )
 
@@ -273,15 +283,7 @@ const BudgetItem: React.FC<Types> = ({
           {budgetDetails?.isCompleted ? 'Un-complete' : 'Complete'}
         </Button>
         <EditForm uuid={uuid} customTrigger={editButton} weekUrl={weekUrl} monthUrl={monthUrl} />
-        <Button
-          size="small"
-          variant="ghost"
-          disabled={isLoading}
-          className="px-3 text-xs text-red-500"
-          onClick={handleClickDelete}
-        >
-          Delete
-        </Button>
+        <ConfirmDeleteForm uuid={uuid} weekUrl={weekUrl} monthUrl={monthUrl} trigger={deleteButton} />
       </div>
     </div>
   )

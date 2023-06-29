@@ -312,12 +312,6 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
         />
         {activeBudgetUuid && (
           <>
-            <ConfirmDeleteForm
-              open={isOpenConfirmDeleteForm}
-              uuid={activeBudgetUuid}
-              handleClose={handleCloseModal}
-              mutateBudget={mutateBudget}
-            />
             <EditForm
               open={isOpenEditForm}
               uuid={activeBudgetUuid}

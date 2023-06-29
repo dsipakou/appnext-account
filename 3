@@ -16,7 +16,7 @@ import { teal } from '@mui/material/colors'
 import ReceiptIcon from '@mui/icons-material/Receipt'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
-import { ConfirmDeleteForm, EditForm } from '@/components/budget/forms'
+import { EditForm } from '@/components/budget/forms'
 import {
   formatMoney
 } from '@/utils/numberUtils'
@@ -78,17 +78,14 @@ const TimelineBudgetItem: FC<Types> = ({
       </ListItemText>
     </MenuItem>
   )
-
-  const deleteMenuItem = (
-    <MenuItem>
-      <ListItemIcon>
-        <DeleteIcon />
-      </ListItemIcon>
-      <ListItemText>
-        Delete
-      </ListItemText>
-    </MenuItem>
-  )
+        <MenuItem onClick={handleClickDelete}>
+          <ListItemIcon>
+            <DeleteIcon />
+          </ListItemIcon>
+          <ListItemText>
+            Delete
+          </ListItemText>
+        </MenuItem>
 
   return (
     <>
@@ -195,8 +192,23 @@ const TimelineBudgetItem: FC<Types> = ({
           </ListItemText>
         </MenuItem>
         <Divider />
-        <EditForm uuid={uuid} weekUrl={weekUrl} monthUrl={monthUrl} customTrigger={editMenuItem} />
-        <ConfirmDeleteForm uuid={uuid} weekUrl={weekUrl} monthUrl={monthUrl} trigger={deleteMenuItem} />
+        <EditForm uuid={uuid} weekUrl={weekUrl} monthUrl={monthUrl} />
+        <MenuItem onClick={handleClickEdit}>
+          <ListItemIcon>
+            <EditIcon />
+          </ListItemIcon>
+          <ListItemText>
+            Edit
+          </ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleClickDelete}>
+          <ListItemIcon>
+            <DeleteIcon />
+          </ListItemIcon>
+          <ListItemText>
+            Delete
+          </ListItemText>
+        </MenuItem>
       </Menu>
       </>
   )

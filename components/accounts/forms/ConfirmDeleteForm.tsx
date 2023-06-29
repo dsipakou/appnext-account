@@ -15,14 +15,16 @@ import { useToast } from '@/components/ui/use-toast'
 import { AccountResponse } from '../types';
 
 interface Types {
-  uuid: string,
+  uuid: string
 }
 
 const ConfirmDeleteForm: FC<Types> = ({ uuid }) => {
   const [account, setAccount] = useState<AccountResponse>();
-  const { data: accounts } = useAccounts();
   const [open, setOpen] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const { data: accounts } = useAccounts();
+
   const { mutate } = useSWRConfig();
   const { toast } = useToast()
 
