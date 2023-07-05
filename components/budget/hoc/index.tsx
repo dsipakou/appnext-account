@@ -15,7 +15,6 @@ import {
   Toolbar,
   Typography
 } from '@mui/material'
-import AddIcon from '@mui/icons-material/Add'
 import FileCopyIcon from '@mui/icons-material/FileCopy'
 import { useUsers } from '@/hooks/users'
 import { useAuth } from '@/context/auth'
@@ -60,8 +59,6 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const [plannedSum, setPlannedSum] = useState<number>(0)
     const [spentSum, setSpentSum] = useState<number>(0)
     const [isOpenTransactionsForm, setIsOpenTransactionsForm] = useState<boolean>(false)
-    const [isOpenEditForm, setIsOpenEditForm] = useState<boolean>(false)
-    const [isOpenConfirmDeleteForm, setIsOpenConfirmDeleteForm] = useState<boolean>(false)
     const [isOpenDuplicateForm, setIsOpenDuplicateForm] = useState<boolean>(false)
     const [activeBudgetUuid, setActiveBudgetUuid] = useState<string>('')
     const startDate = activeType === 'month' ? startOfMonth : startOfWeek
@@ -91,12 +88,10 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
 
     const handleClickDelete = (uuid: string): void => {
       setActiveBudgetUuid(uuid)
-      setIsOpenConfirmDeleteForm(true)
     }
 
     const handleClickEdit = (uuid: string): void => {
       setActiveBudgetUuid(uuid)
-      setIsOpenEditForm(true)
     }
 
     useEffect(() => {
@@ -153,8 +148,6 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     }
 
     const handleCloseModal = () => {
-      setIsOpenConfirmDeleteForm(false)
-      setIsOpenEditForm(false)
       setIsOpenDuplicateForm(false)
       setIsOpenTransactionsForm(false)
       setActiveBudgetUuid('')
@@ -312,13 +305,6 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
         />
         {activeBudgetUuid && (
           <>
-            <EditForm
-              open={isOpenEditForm}
-              uuid={activeBudgetUuid}
-              handleClose={handleCloseModal}
-              monthUrl={monthUrl}
-              weekUrl={weekUrl}
-            />
             <TransactionsForm
               open={isOpenTransactionsForm}
               handleClose={handleCloseModal}
