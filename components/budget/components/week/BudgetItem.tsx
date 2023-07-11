@@ -54,6 +54,8 @@ const BudgetItem: React.FC<Types> = ({
 }) => {
   const [errors, setErrors] = React.useState<string>([])
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [isEditDialogOpened, setIsEditDialogOpened] = React.useState<boolean>(false)
+  const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] = React.useState<boolean>(false)
 
   const { data: budgetDetails, url } = useBudgetDetails(uuid)
   const { data: currencies } = useCurrencies()
@@ -69,10 +71,6 @@ const BudgetItem: React.FC<Types> = ({
 
   const handleClickEdit = (): void => {
     clickEdit(uuid)
-  }
-
-  const handleClickDelete = (): void => {
-    clickDelete(uuid)
   }
 
   const budgetUser = users.find((item: UserResponse) => item.uuid === user)
@@ -117,28 +115,6 @@ const BudgetItem: React.FC<Types> = ({
   } else {
     cssClass = `bg-white ${cssClass}`
   }
-
-  const editButton = (
-    <Button
-      size="small"
-      disabled={isLoading}
-      variant="ghost"
-      className="px-3 text-xs"
-      onClick={handleClickEdit}
-    >
-      Edit
-    </Button>
-  )
-
-  const deleteButton = (
-    <Button
-      size="small"
-      variant="ghost"
-      className="px-3 text-xs text-red-500"
-    >
-      Delete
-    </Button>
-  )
 
   return (
     <div
@@ -282,9 +258,38 @@ const BudgetItem: React.FC<Types> = ({
           onClick={handleClickComplete}>
           {budgetDetails?.isCompleted ? 'Un-complete' : 'Complete'}
         </Button>
-        <EditForm uuid={uuid} customTrigger={editButton} weekUrl={weekUrl} monthUrl={monthUrl} />
-        <ConfirmDeleteForm uuid={uuid} weekUrl={weekUrl} monthUrl={monthUrl} trigger={deleteButton} />
+        <Button
+          size="small"
+          disabled={isLoading}
+          variant="ghost"
+          className="px-3 text-xs"
+          onClick={() => setIsEditDialogOpened(true)}
+        >
+          Edit
+        </Button>
+        <Button
+          size="small"
+          variant="ghost"
+          className="px-3 text-xs text-red-500"
+          onClick={() => setIsConfirmDeleteDialogOpened(true)}
+        >
+          Delete
+        </Button>
       </div>
+      <EditForm 
+        open={isEditDialogOpened}
+        setOpen={setIsEditDialogOpened}
+        uuid={uuid} 
+        weekUrl={weekUrl}
+        monthUrl={monthUrl}
+      />
+      <ConfirmDeleteForm
+        open={isConfirmDeleteDialogOpened}
+        setOpen={setIsConfirmDeleteDialogOpened}
+        uuid={uuid}
+        weekUrl={weekUrl}
+        monthUrl={monthUrl}
+      />
     </div>
   )
 }

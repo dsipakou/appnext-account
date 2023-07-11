@@ -2,24 +2,19 @@ import React, { FC } from 'react'
 import {
   Box,
   Chip,
-  Divider,
-  Grid,
   LinearProgress,
-  ListItemIcon,
-  ListItemText,
-  Menu,
-  MenuItem,
-  Paper,
   Typography
 } from '@mui/material'
-import { teal } from '@mui/material/colors'
-import ReceiptIcon from '@mui/icons-material/Receipt'
-import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
-import { ConfirmDeleteForm, EditForm } from '@/components/budget/forms'
 import {
-  formatMoney
-} from '@/utils/numberUtils'
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { ConfirmDeleteForm, EditForm } from '@/components/budget/forms'
+import { formatMoney } from '@/utils/numberUtils'
 
 interface Types {
   uuid: string
@@ -40,14 +35,10 @@ const TimelineBudgetItem: FC<Types> = ({
   monthUrl,
   clickShowTransactions,
 }) => {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  const [isMenuOpened, setIsMenuOpened] = React.useState<boolean>(false)
+  const [isEditDialogOpened, setIsEditDialogOpened] = React.useState<boolean>(false)
+  const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] = React.useState<boolean>(false)
+
   const percentage: number = Math.floor(spent * 100 / planned)
   const progressColor: string = planned === 0 ?
     "secondary" :
@@ -56,61 +47,18 @@ const TimelineBudgetItem: FC<Types> = ({
       "primary"
 
   const handleClickTransactions = (): void => {
-    setAnchorEl(null)
     clickShowTransactions(uuid)
   }
 
-  const handleClickEdit = (): void => {
-    setAnchorEl(null)
-  }
-
-  const handleClickDelete = (): void => {
-    setAnchorEl(null)
-  }
-
-  const editMenuItem = (
-    <MenuItem>
-      <ListItemIcon>
-        <EditIcon />
-      </ListItemIcon>
-      <ListItemText>
-        Edit
-      </ListItemText>
-    </MenuItem>
-  )
-
-  const deleteMenuItem = (
-    <MenuItem>
-      <ListItemIcon>
-        <DeleteIcon />
-      </ListItemIcon>
-      <ListItemText>
-        Delete
-      </ListItemText>
-    </MenuItem>
-  )
-
   return (
     <>
-      <Paper
-        elevation={0}
-        sx={{
-          height: 60,
-          width: '60%',
-          border: '1px solid',
-          backgroundColor: teal[50],
-          cursor: 'pointer'
-        }}
-        onClick={handleClick}
+      <div
+        className="h-14 w-2/3 border border-gray-500 rounded-lg bg-blue-50 cursor-pointer"
+        onClick={() => setIsMenuOpened(true)}
       >
-        <Grid container>
-          <Grid item xs={12}>
-            <Box sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              position: 'relative',
-              width: '100%'
-            }}>
+        <div className="grid">
+          <div>
+            <div className="flex justify-center relative w-full">
               <Typography align="center" sx={{ fontSize: "1.3em", fontWeight: 'bold' }}>
                 {formatMoney(spent)}
               </Typography>
@@ -140,9 +88,9 @@ const TimelineBudgetItem: FC<Types> = ({
                   }}
                   />
               </Box>
-            </Box>
-          </Grid>
-          <Grid item xs={12}>
+            </div>
+          </div>
+          <div>
             <Box sx={{ position: "relative" }}>
               <LinearProgress
                 variant="determinate"
@@ -174,31 +122,34 @@ const TimelineBudgetItem: FC<Types> = ({
                 </Typography>
               </Box>
             </Box>
-          </Grid>
-        </Grid>
-      </Paper>
-      <Menu
-        id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        MenuListProps={{
-          'aria-labelledby': 'basic-button',
-        }}
-      >
-        <MenuItem onClick={handleClickTransactions}>
-          <ListItemIcon>
-            <ReceiptIcon />
-          </ListItemIcon>
-          <ListItemText>
-            Transactions
-          </ListItemText>
-        </MenuItem>
-        <Divider />
-        <EditForm uuid={uuid} weekUrl={weekUrl} monthUrl={monthUrl} customTrigger={editMenuItem} />
-        <ConfirmDeleteForm uuid={uuid} weekUrl={weekUrl} monthUrl={monthUrl} trigger={deleteMenuItem} />
-      </Menu>
-      </>
+          </div>
+        </div>
+      </div>
+      <DropdownMenu open={isMenuOpened} onOpenChange={(isOpened: boolean) => setIsMenuOpened(isOpened)}>
+        <DropdownMenuTrigger />
+        <DropdownMenuContent>
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleClickTransactions}>Transactions</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsEditDialogOpened(true)}>Edit</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsConfirmDeleteDialogOpened(true)}>Delete</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <EditForm
+        uuid={uuid}
+        weekUrl={weekUrl}
+        monthUrl={monthUrl}
+        open={isEditDialogOpened}
+        setOpen={setIsEditDialogOpened}
+      />
+      <ConfirmDeleteForm
+        open={isConfirmDeleteDialogOpened}
+        setOpen={setIsConfirmDeleteDialogOpened}
+        uuid={uuid}
+        weekUrl={weekUrl}
+        monthUrl={monthUrl}
+      />
+    </>
   )
 }
 

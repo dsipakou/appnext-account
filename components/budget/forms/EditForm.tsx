@@ -53,11 +53,10 @@ import styles from '../style/AddForm.module.css'
 
 interface Types {
   open: boolean
+  setOpen: (open: boolean) => void
   uuid: string
-  handleClose: () => void
   monthUrl: string
   weekUrl: string
-  customTrigger?: React.ReactElement
 }
 
 const formSchema = z.object({
@@ -77,7 +76,7 @@ const formSchema = z.object({
   description: z.string().optional()
 })
 
-const EditForm: FC<Types> = ({ open, uuid, handleClose, monthUrl, weekUrl, customTrigger}) => {
+const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
   const { mutate } = useSWRConfig()
   const [parentList, setParentList] = useState<Category[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
@@ -161,21 +160,15 @@ const EditForm: FC<Types> = ({ open, uuid, handleClose, monthUrl, weekUrl, custo
     })
   }
 
-  const defaultTrigger = (
-    <Button className="mx-2">Edit budget</Button>
-  )
-
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
       form.clearErrors()
     }
+    setOpen(false)
   }
 
   return (
-    <Dialog onOpenChange={cleanFormErrors}>
-      <DialogTrigger asChild>
-        {customTrigger || defaultTrigger}
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={cleanFormErrors}>
       <DialogContent className="min-w-[600px]">
         <DialogHeader>
           <DialogTitle>Edit budget</DialogTitle>

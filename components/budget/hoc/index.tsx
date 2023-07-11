@@ -35,8 +35,6 @@ import {
 } from '@/components/budget/types'
 import {
   AddForm,
-  EditForm,
-  ConfirmDeleteForm,
   DuplicateForm,
   TransactionsForm
 } from '@/components/budget/forms'
@@ -64,22 +62,10 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const startDate = activeType === 'month' ? startOfMonth : startOfWeek
     const endDate = activeType === 'month' ? endOfMonth : endOfWeek
 
-    const {
-      data: users,
-      isLoading: isUsersLoading,
-    } = useUsers();
+    const { data: users } = useUsers();
 
-    const {
-      data: budgetMonth,
-      isLoading: isMonthBudgetLoading,
-      url: monthUrl
-    } = useBudgetMonth(startOfMonth, endOfMonth, user)
-
-    const {
-      data: budgetWeek,
-      isLoading: isWeekBudgetLoading,
-      url: weekUrl
-    } = useBudgetWeek(startOfWeek, endOfWeek, user)
+    const { data: budgetMonth, url: monthUrl } = useBudgetMonth(startOfMonth, endOfMonth, user)
+    const { data: budgetWeek, url: weekUrl } = useBudgetWeek(startOfWeek, endOfWeek, user)
 
     const handleClickTransactions = (uuid: string): void => {
       setActiveBudgetUuid(uuid)
@@ -121,7 +107,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           }, 0
         )
       } else {
-        if (isWeekBudgetLoading) return
+        if (!budgetWeek) return
 
         _planned = budgetWeek.reduce(
           (acc: number, { plannedInCurrencies }: PlannedMap) => {
@@ -136,7 +122,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
       }
       setPlannedSum(_planned)
       setSpentSum(_spent)
-    }, [isMonthBudgetLoading, isWeekBudgetLoading, budgetMonth, budgetWeek])
+    }, [budgetMonth, budgetWeek])
 
     const handleTypeButtonClick = (type: BudgetType) => {
       router.push(`/budget/${type}`)
@@ -267,7 +253,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     return (
       <>
         {toolbar}
-        {(isMonthBudgetLoading) && (
+        {!budgetMonth && (
           <Box sx={{ position: 'relative', width: '100%' }}>
             <LinearProgress color="primary" sx={{
               position: 'absolute',

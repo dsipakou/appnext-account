@@ -13,14 +13,15 @@ import { useSWRConfig } from 'swr';
 import { useToast } from '@/components/ui/use-toast'
 
 interface Types {
+  open: boolean
+  setOpen: (open: boolean) => void
   uuid: string
   weekUrl: string
   monthUrl: string
   trigger?: React.ReactElement
 }
 
-const ConfirmDeleteForm: React.FC<Types> = ({ uuid, weekUrl, monthUrl, trigger }) => {
-  const [open, setOpen] = React.useState<boolean>(false)
+const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, weekUrl, monthUrl, trigger }) => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
   const { mutate } = useSWRConfig()
@@ -64,9 +65,6 @@ const ConfirmDeleteForm: React.FC<Types> = ({ uuid, weekUrl, monthUrl, trigger }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || defaultTrigger}
-      </DialogTrigger>
       <DialogContent>
         <DialogTitle>Please, confirm deletion</DialogTitle>
         <p className="leading-7">
