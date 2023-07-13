@@ -22,7 +22,6 @@ interface Types extends GridRenderEditCellParams { }
 
 const DateComponent: React.FC<Types> = (params) => {
   const { id, field, value } = params
-  console.log(value)
   const apiRef = useGridApiContext()
 
   const handleChange = (newValue: any) => {

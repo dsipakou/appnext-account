@@ -48,6 +48,7 @@ interface Types {
   url: string
   open: boolean
   handleClose: () => void
+  budget?: string
 }
 
 interface EditToolbarProps {
@@ -76,7 +77,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   const [baseCurrency, setBaseCurrency] = React.useState<string>('')
   const { rows, setRows, rowModesModel, setRowModesModel, url } = props
   const { mutate } = useSWRConfig()
-  const { user: authUser, isLoading: isAuthLoading } = useAuth()
+  const { user: authUser } = useAuth()
 
   const {
     data: users,
@@ -215,7 +216,7 @@ const FooterWithError: React.FC = (props) => {
   )
 }
 
-const emptyRow = {
+let emptyRow = {
   account: '',
   category: '',
   budget: '',
@@ -229,7 +230,7 @@ const emptyRow = {
   saved: false
 }
 
-const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
+const AddForm: React.FC<Types> = ({ url, open, handleClose, budget }) => {
   const [errors, setErrors] = React.useState<string>('')
   const {
     data: accounts = []
@@ -238,6 +239,11 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose }) => {
   const {
     data: categories
   } = useCategories()
+
+  if (budget) {
+    console.log(budget)
+    emptyRow = {...emptyRow, budget }
+  }
 
   const getTrimmedCategoryName = (uuid: string): string => {
     const categoryName = categories.find((item: Category) => item.uuid === uuid)?.name || ''

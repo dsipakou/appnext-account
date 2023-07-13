@@ -3,13 +3,8 @@ import axios from 'axios'
 import { useSWRConfig } from 'swr'
 import { Check, CheckCircle } from 'lucide-react'
 import { formatMoney } from '@/utils/numberUtils'
-import {
-  Avatar,
-  Chip,
-} from '@mui/material'
-import {
-  deepOrange
-} from '@mui/material/colors'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { useBudgetDetails } from '@/hooks/budget'
@@ -20,7 +15,7 @@ import { useAuth } from '@/context/auth'
 import { Currency } from '@/components/currencies/types'
 import EditForm from '@/components/budget/forms/EditForm'
 import ConfirmDeleteForm from '@/components/budget/forms/ConfirmDeleteForm'
-import { isSameDay } from 'date-fns'
+import { AddForm } from '@/components/transactions/forms'
 
 interface Types {
   index: number
@@ -33,8 +28,6 @@ interface Types {
   recurrent: RecurrentTypes
   weekUrl: string
   monthUrl: string
-  clickEdit: (uuid: string) => void
-  clickDelete: (uuid: string) => void
   mutateBudget: () => void
 }
 
@@ -48,14 +41,13 @@ const BudgetItem: React.FC<Types> = ({
   recurrent,
   weekUrl,
   monthUrl,
-  clickEdit,
-  clickDelete,
   mutateBudget
 }) => {
   const [errors, setErrors] = React.useState<string>([])
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [isEditDialogOpened, setIsEditDialogOpened] = React.useState<boolean>(false)
   const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] = React.useState<boolean>(false)
+  const [isAddTransactionDialogOpened, setIsAddTransactionDialogOpened] = React.useState<boolean>(false)
 
   const { data: budgetDetails, url } = useBudgetDetails(uuid)
   const { data: currencies } = useCurrencies()
@@ -68,10 +60,6 @@ const BudgetItem: React.FC<Types> = ({
   const currencySign = currencies.find(
     (currency: Currency) => currency.code === authUser.currency
   )?.sign || '';
-
-  const handleClickEdit = (): void => {
-    clickEdit(uuid)
-  }
 
   const budgetUser = users.find((item: UserResponse) => item.uuid === user)
 
@@ -118,33 +106,27 @@ const BudgetItem: React.FC<Types> = ({
 
   return (
     <div className={`flex flex-col group p-2 h-[100px] shadow-sm justify-between rounded-md hover:w-80 hover:border-double hover:border-2 hover:border-gray-400 hover:z-20 hover:shadow-xl w-full ${cssClass}`}>
-      <div className='flex flex-row gap-2 items-center'>
+      <div className='flex flex-row gap-1 items-center'>
         {!isSameUser && (
           <div
             className="flex group-hover:hidden"
           >
-            <Avatar
-              sx={{
-                width: 24,
-                height: 24,
-                bgcolor: deepOrange[500],
-              }}
-            >
-              <div className="text-sm font-bold">
+            <Avatar className="h-6 w-6">
+              <AvatarFallback className="text-xs font-bold bg-sky-400 text-white">
                 {budgetUser.username.charAt(0)}
-              </div>
+              </AvatarFallback>
             </Avatar>
           </div>
         )}
         {!isSameUser && (
           <div className="justify-center text-sm font-bold">
             <div className="hidden group-hover:flex">
-              <Chip size="small" label={budgetUser.username} color="primary" />
+              <Badge className="bg-sky-400">{budgetUser.username}</Badge>
             </div>
           </div>
         )}
-        <div className="grow justify-start whitespace-nowrap text-ellipsis overflow-hidden text-sm font-semibold">
-          {title}
+        <div className="flex grow group-hover:text-base group-hover:ml-3 whitespace-nowrap text-ellipsis overflow-hidden text-sm font-semibold">
+          <span>{title}</span>
         </div>
         {isCompleted && (
         <div class="flex-none justify-end">
@@ -196,7 +178,7 @@ const BudgetItem: React.FC<Types> = ({
           disabled={isLoading}
           variant="outline"
           className="px-3 text-xs h-2 bg-white"
-          onClick={handleClickComplete}>
+          onClick={() => setIsAddTransactionDialogOpened(true)}>
           Add spending
         </Button>
         <Button
@@ -229,6 +211,14 @@ const BudgetItem: React.FC<Types> = ({
         weekUrl={weekUrl}
         monthUrl={monthUrl}
       />
+      {isAddTransactionDialogOpened && (
+        <AddForm
+          url={weekUrl}
+          open={isAddTransactionDialogOpened}
+          handleClose={setIsAddTransactionDialogOpened}
+          budget={uuid}
+        />
+      )}
     </div>
   )
 }
