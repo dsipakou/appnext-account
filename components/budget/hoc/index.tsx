@@ -72,14 +72,6 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
       setIsOpenTransactionsForm(true)
     }
 
-    const handleClickDelete = (uuid: string): void => {
-      setActiveBudgetUuid(uuid)
-    }
-
-    const handleClickEdit = (uuid: string): void => {
-      setActiveBudgetUuid(uuid)
-    }
-
     useEffect(() => {
       setStartOfMonth(getStartOfMonth(monthDate))
       setEndOfMonth(getEndOfMonth(monthDate))
@@ -273,8 +265,6 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
               startDate={startDate}
               endDate={endDate}
               clickShowTransactions={handleClickTransactions}
-              clickEdit={handleClickEdit}
-              clickDelete={handleClickDelete}
               mutateBudget={mutateBudget}
               user={user}
               weekUrl={weekUrl}

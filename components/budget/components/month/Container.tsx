@@ -17,8 +17,6 @@ interface Types {
   weekUrl: string
   monthUrl: string
   clickShowTransactions: (uuid: string) => void
-  clickEdit: (uuid: string) => void
-  clickDelete: (uuid: string) => void
 }
 
 const Container: React.FC<Types> = ({
@@ -28,8 +26,6 @@ const Container: React.FC<Types> = ({
   weekUrl,
   monthUrl,
   clickShowTransactions,
-  clickEdit,
-  clickDelete
 }) => {
   const { user: authUser } = useAuth();
   const [activeCategoryUuid, setActiveCategoryUuid] = React.useState<string>('')

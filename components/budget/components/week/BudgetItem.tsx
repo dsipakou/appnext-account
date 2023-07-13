@@ -1,17 +1,17 @@
 import * as React from 'react'
 import axios from 'axios'
 import { useSWRConfig } from 'swr'
+import { Check, CheckCircle } from 'lucide-react'
 import { formatMoney } from '@/utils/numberUtils'
 import {
   Avatar,
   Chip,
-  LinearProgress,
-  Typography
 } from '@mui/material'
 import {
   deepOrange
 } from '@mui/material/colors'
 import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
 import { useBudgetDetails } from '@/hooks/budget'
 import { RecurrentTypes } from '@/components/budget/types'
 import { useCurrencies } from '@/hooks/currencies'
@@ -20,6 +20,7 @@ import { useAuth } from '@/context/auth'
 import { Currency } from '@/components/currencies/types'
 import EditForm from '@/components/budget/forms/EditForm'
 import ConfirmDeleteForm from '@/components/budget/forms/ConfirmDeleteForm'
+import { isSameDay } from 'date-fns'
 
 interface Types {
   index: number
@@ -38,7 +39,6 @@ interface Types {
 }
 
 const BudgetItem: React.FC<Types> = ({
-  index,
   uuid,
   title,
   user,
@@ -117,9 +117,7 @@ const BudgetItem: React.FC<Types> = ({
   }
 
   return (
-    <div
-      className={`group p-2 h-[100px] shadow-sm rounded-md hover:w-80 hover:z-20 hover:shadow-xl w-full ${cssClass}`}
-    >
+    <div className={`flex flex-col group p-2 h-[100px] shadow-sm justify-between rounded-md hover:w-80 hover:border-double hover:border-2 hover:border-gray-400 hover:z-20 hover:shadow-xl w-full ${cssClass}`}>
       <div className='flex flex-row gap-2 items-center'>
         {!isSameUser && (
           <div
@@ -132,145 +130,86 @@ const BudgetItem: React.FC<Types> = ({
                 bgcolor: deepOrange[500],
               }}
             >
-              <Typography variant='caption'>
+              <div className="text-sm font-bold">
                 {budgetUser.username.charAt(0)}
-              </Typography>
+              </div>
             </Avatar>
           </div>
         )}
         {!isSameUser && (
-          <div
-            className="hidden group-hover:flex"
-          >
-          <Chip size="small" label={budgetUser.username} color="primary" />
+          <div className="justify-center text-sm font-bold">
+            <div className="hidden group-hover:flex">
+              <Chip size="small" label={budgetUser.username} color="primary" />
+            </div>
           </div>
         )}
-        <Typography
-          align="center"
-          noWrap
-          sx={{
-            fontSize: '0.9em',
-            fontWeight: 'bold'
-          }}
-        >
+        <div className="grow justify-start whitespace-nowrap text-ellipsis overflow-hidden text-sm font-semibold">
           {title}
-        </Typography>
+        </div>
+        {isCompleted && (
+        <div class="flex-none justify-end">
+          <CheckCircle className="text-green-600 h-4" />
+        </div>
+        )}
       </div>
       <div className="flex justify-center">
-        <Typography
-          className="hidden group-hover:flex"
-          sx={{
-            fontSize: '0.9em',
-            fontWeight: 'bold'
-          }}
-        >
+        <div className="hidden group-hover:flex text-sm font-semibold">
           {formatMoney(spent)}
-        </Typography>
-        <Typography
-          className="hidden group-hover:flex"
-          sx={{
-            fontSize: '0.9em',
-            marginLeft: '3px'
-          }}
-        >
+        </div>
+        <div className="hidden group-hover:flex ml-[3px] text-sm font-semibold">
           {currencySign}
-        </Typography>
-        <Typography
-          className="hidden group-hover:flex"
-          sx={{
-            fontSize: '0.8em',
-            mx: 1
-          }}
-        >
+        </div>
+        <div className="hidden group-hover:flex text-xs font-semibold mx-2">
           of
-        </Typography>
-        <>
-          <Typography
-            sx={{
-              fontSize: '0.8em'
-            }}
-          >
-            {formatMoney(planned)}
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: '0.8em',
-              marginLeft: '3px'
-            }}
-          >
-            {currencySign}
-          </Typography>
-        </>
+        </div>
+        <div className="text-xs">{formatMoney(planned)}</div>
+        <div className="text-xs ml-[3px]">{currencySign}</div>
       </div>
-      <div className="flex justify-center">
+      <div className="flex justify-center items-center">
         {planned !== 0
           ? (
             <>
-              <LinearProgress
-                variant="determinate"
-                color={percentage > 100 ? 'error' : 'success'}
+              <Progress
+                className={`h-1.5 ${percentage > 100 ? 'bg-red-200' : 'bg-gray-200'}`}
+                indicatorClassName={`${percentage > 100 ? 'bg-red-500' : 'bg-green-500'}`}
                 value={percentage > 100 ? percentage % 100 : percentage}
-                sx={{
-                  mx: 1,
-                  width: '80%'
-                }}
               />
-              <Typography
-                sx={{
-                  fontSize: '0.9em'
-                }}
-              >
-                {`${percentage}%`}
-              </Typography>
+              <div className="text-xs font-bold ml-2">{`${percentage}%`}</div>
             </>
           )
           : (
-            <Typography
-              align="center"
-              sx={{
-                fontSize: '0.8em',
-                fontWeight: 'bold',
-                width: '100%'
-              }}
-            >
+            <div className="flex justify-center text-xs font-semibold w-full">
               Unplanned
-            </Typography>
+            </div>
           )
         }
       </div>
-      <Typography
-        className="flex justify-center group-hover:hidden"
-        sx={{
-          fontSize: '0.7em',
-          color: `${isCompleted ? 'blue' : 'grey'}`,
-          fontWeight: 'bold'
-        }}
-        align="center"
-      >
-        {isCompleted ? 'Completed' : 'To do'}
-      </Typography>
-      <div className="hidden group-hover:flex justify-center gap-1 text-xs">
+      <div className="hidden h-full group-hover:flex group-hover:items-end justify-center gap-1 text-xs">
         <Button
-          size="small"
           disabled={isLoading}
-          className={isCompleted ? 'px-3 bg-red-400 text-xs' : 'px-3 bg-green-400 text-xs'}
-          color={budgetDetails?.isCompleted ? 'warning' : 'success'}
+          variant="outline"
+          className={`px-3 text-xs h-2 ${isCompleted ? 'bg-gray-400' : 'bg-white'}`}
           onClick={handleClickComplete}>
-          {budgetDetails?.isCompleted ? 'Un-complete' : 'Complete'}
+          <Check className={`h-4 ${isCompleted ? 'text-white' : 'text-gray-400'}`} />
         </Button>
         <Button
-          size="small"
           disabled={isLoading}
-          variant="ghost"
-          className="px-3 text-xs"
+          variant="outline"
+          className="px-3 text-xs h-2 bg-white"
+          onClick={handleClickComplete}>
+          Add spending
+        </Button>
+        <Button
+          disabled={isLoading}
+          variant="outline"
+          className="px-3 text-xs h-2 bg-white"
           onClick={() => setIsEditDialogOpened(true)}
         >
           Edit
         </Button>
         <Button
-          size="small"
-          variant="ghost"
-          className="px-3 text-xs text-red-500"
+          variant="destructive"
+          className="px-3 text-xs h-2"
           onClick={() => setIsConfirmDeleteDialogOpened(true)}
         >
           Delete

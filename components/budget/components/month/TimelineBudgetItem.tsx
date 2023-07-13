@@ -5,6 +5,8 @@ import {
   LinearProgress,
   Typography
 } from '@mui/material'
+import { MoreVertical, Pencil, Trash2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,15 +49,13 @@ const TimelineBudgetItem: FC<Types> = ({
       "primary"
 
   const handleClickTransactions = (): void => {
+    setIsMenuOpened(false)
     clickShowTransactions(uuid)
   }
 
   return (
     <>
-      <div
-        className="h-14 w-2/3 border border-gray-500 rounded-lg bg-blue-50 cursor-pointer"
-        onClick={() => setIsMenuOpened(true)}
-      >
+      <div className="h-14 w-2/3 border border-gray-500 rounded-lg bg-blue-50">
         <div className="grid">
           <div>
             <div className="flex justify-center relative w-full">
@@ -88,6 +88,28 @@ const TimelineBudgetItem: FC<Types> = ({
                   }}
                   />
               </Box>
+              <div className="absolute right-1 top-1">
+                <Button variant="outline" size="icon" className="bg-white" onClick={() => setIsMenuOpened(true)}>
+                  <MoreVertical className="h-5 w-5" />
+                </Button>
+                <DropdownMenu open={isMenuOpened} onOpenChange={(isOpened: boolean) => setIsMenuOpened(isOpened)}>
+                  <DropdownMenuTrigger />
+                  <DropdownMenuContent>
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleClickTransactions}>Transactions</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => setIsEditDialogOpened(true)}>
+                      <Pencil className="h-4 w-4 mr-2" />
+                      <span>Edit</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setIsConfirmDeleteDialogOpened(true)}>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      <span>Delete</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
           </div>
           <div>
@@ -125,16 +147,6 @@ const TimelineBudgetItem: FC<Types> = ({
           </div>
         </div>
       </div>
-      <DropdownMenu open={isMenuOpened} onOpenChange={(isOpened: boolean) => setIsMenuOpened(isOpened)}>
-        <DropdownMenuTrigger />
-        <DropdownMenuContent>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleClickTransactions}>Transactions</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setIsEditDialogOpened(true)}>Edit</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setIsConfirmDeleteDialogOpened(true)}>Delete</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
       <EditForm
         uuid={uuid}
         weekUrl={weekUrl}
