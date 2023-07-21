@@ -5,13 +5,22 @@ import {
   isAfter,
   isBefore,
   isSameDay,
+  format
 } from 'date-fns';
-import { styled } from '@mui/material/styles';
+import { DateRange } from 'react-day-picker'
+import { CalendarDays } from 'lucide-react'
 import {
-  Button,
-  TextField,
-  Typography
-} from '@mui/material'
+  Button
+} from '@/components/ui/button'
+import {
+  Calendar
+} from '@/components/ui/calendar'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
+import { styled } from '@mui/material/styles';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -88,34 +97,52 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
     );
   };
 
+  const range: DateRange = {
+    from: startOfWeek(weekDate, { weekStartsOn: 1 }),
+    to: endOfWeek(weekDate, { weekStartsOn: 1 })
+  }
+
+  const setWeekDateProxy = (date: Date | undefined) => {
+    if (date) {
+      setWeekDate(date)
+    }
+  }
+
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
-      <div className="flex flex-row">
-        <Button
-          variant="text"
-          onClick={() => setWeekDate(subDays(weekDate, 7))}
-        >
-          <Typography variant="h4">&#8592;</Typography>
-        </Button>
-        <DatePicker
-          label="Week budget"
-          value={weekDate}
-          onChange={(newValue: Date) => {
-            setWeekDate(newValue)
-          }}
-          disableMaskedInput
-          renderDay={renderWeekPickerDay}
-          renderInput={(params) => <TextField fullWidth {...params} />}
-          inputFormat="'Week of' MMM d"
-        />
-        <Button
-          variant="text"
-          onClick={() => setWeekDate(addDays(weekDate, 7))}
-        >
-          <Typography variant="h4">&#8594;</Typography>
-        </Button>
-      </div>
-    </LocalizationProvider>
+    <div className="flex flex-row h-full">
+      <Button
+        variant="ghost"
+        onClick={() => setWeekDate(subDays(weekDate, 7))}
+      >
+        <div className="text-lg">&#8592;</div>
+      </Button>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className={`w-[280px] justify-start text-left font-normal" ${weekDate && 'text-muted-foreground'}`}>
+            <CalendarDays className="mr-2 h-6 w-6 text-muted-foreground" />
+            {weekDate ? format(weekDate, "PPP") : <span>Pick a date</span>}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="h-full w-full p-0">
+          <Calendar
+            mode="single"
+            selected={range}
+            onSelect={setWeekDateProxy}
+            showWeekNumber
+            ISOWeek
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+      <Button
+        variant="ghost"
+        onClick={() => setWeekDate(addDays(weekDate, 7))}
+      >
+        <div className="text-lg">&#8594;</div>
+      </Button>
+    </div>
   );
 }
 

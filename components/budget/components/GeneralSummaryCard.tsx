@@ -1,13 +1,14 @@
 import { FC } from 'react'
 import {
-  Divider,
   Grid,
   Paper,
-  Stack,
   Typography
 } from '@mui/material'
 import { blue, yellow, grey } from '@mui/material/colors'
 import { formatMoney } from '@/utils/numberUtils'
+import { useCurrencies } from '@/hooks/currencies'
+import { useAuth } from '@/context/auth'
+import { Currency } from '@/components/currencies/types'
 
 interface Types {
   title: string
@@ -16,11 +17,19 @@ interface Types {
 }
 
 const GeneralSummaryCard: FC<Types> = ({ title, planned, spent }) => {
+  const { data: currencies = [] } = useCurrencies()
+  const { user: authUser } = useAuth()
+
   const maxValue: number = Math.max(planned, spent)
 
   const spentPercent = spent * 100 / maxValue
 
   const plannedPercent = planned * 100 / maxValue
+
+  const currencySign = currencies.find(
+    (currency: Currency) => currency.code === authUser?.currency
+  )?.sign || '';
+
   return (
     <Paper
       elevation={0}
@@ -33,58 +42,42 @@ const GeneralSummaryCard: FC<Types> = ({ title, planned, spent }) => {
           </Typography>
         </Grid>
         <Grid item xs={12}>
-          <Stack
-            direction="row"
-            divider={<Divider orientation="vertical" sx={{ mx: 1 }} flexItem />}
-          >
-            <Grid container spacing={1}>
-              <Grid item xs={10}>
-                <Stack>
-                  <Typography align="right" sx={{ fontSize: "1.3em", fontWeight: "bold" }}>
-                    {formatMoney(planned)}
-                  </Typography>
-                  <Typography align="right" sx={{ fontSize: "0.8em" }}>
+          <div className="flex">
+            <div className="flex flex-1">
+              <div className="flex flex-1 justify-end">
+                <div className="flex flex-col h-full">
+                  <div className="flex justify-end text-2xl">
+                    {formatMoney(planned)} {currencySign}
+                  </div>
+                  <div className="flex justify-end text-xs items-end">
                     Planned
-                  </Typography>
-                </Stack>
-              </Grid>
-              <Grid item xs={2} sx={{ display: "flex", alignItems: "end" }}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    backgroundColor: yellow[700],
-                    width: "100%",
-                    height: `${plannedPercent}%`,
-                  }}
-                ></Paper>
-              </Grid>
-            </Grid>
-            <Grid container spacing={1}>
-              <Grid item xs={2} sx={{ display: "flex", alignItems: "end" }}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    backgroundColor: yellow[700],
-                    width: "100%",
-                    height: `${spentPercent}%`,
-                  }}
-                ></Paper>
-              </Grid>
-              <Grid item xs={10}>
-                <Stack>
-                  <Typography align="left" sx={{ fontSize: "1.3em", fontWeight: "bold" }}>
-                    {formatMoney(spent)}
-                  </Typography>
-                  <Typography align="left" sx={{ fontSize: "0.8em" }}>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-start ml-2">
+                <div className="rounded bg-yellow-400 w-5" style={{height: `${plannedPercent}%`}}></div>
+              </div>
+            </div>
+            <div className="w-[1px] bg-gray-500 mx-1"></div>
+            <div className="flex flex-1">
+              <div className="flex items-end mr-2 h-full">
+                <div className="rounded bg-yellow-400 w-5" style={{height: `${spentPercent}%`}}></div>
+              </div>
+              <div className="flex flex-1 justify-start">
+                <div className="flex flex-col h-full">
+                  <div className="flex justify-start text-2xl">
+                    {formatMoney(spent)} {currencySign}
+                  </div>
+                  <div className="flex justify-start text-xs">
                     Actual
-                  </Typography>
-                </Stack>
-              </Grid>
-            </Grid>
-          </Stack>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </Grid>
       </Grid>
-    </Paper >
+    </Paper>
   )
 }
 

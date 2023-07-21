@@ -285,7 +285,7 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose, budget }) => {
       headerName: 'Budget',
       width: 200,
       editable: true,
-      renderCell: (params) => params.formattedValue.title,
+      renderCell: (params) => params.formattedValue?.title || '',
       renderEditCell: (params) => <BudgetComponent {...params} />
     },
     {

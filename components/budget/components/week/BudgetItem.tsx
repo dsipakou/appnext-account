@@ -1,7 +1,7 @@
 import * as React from 'react'
 import axios from 'axios'
 import { useSWRConfig } from 'swr'
-import { Check, CheckCircle } from 'lucide-react'
+import { Check, CheckCircle, Repeat } from 'lucide-react'
 import { formatMoney } from '@/utils/numberUtils'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -94,9 +94,9 @@ const BudgetItem: React.FC<Types> = ({
 
   let cssClass = recurrent ?
     recurrent === 'monthly'
-      ? 'p-2 border-l-8 border-blue-500'
-      : 'border-l-8 border-yellow-500'
-    : ''
+      ? 'p-2 border-l-8 border-blue-400'
+      : 'border-l-8 border-yellow-400'
+    : 'border-gray-300'
 
   if (isCompleted) {
     cssClass = `bg-slate-300 ${cssClass}`
@@ -105,12 +105,10 @@ const BudgetItem: React.FC<Types> = ({
   }
 
   return (
-    <div className={`flex flex-col group p-2 h-[100px] shadow-sm justify-between rounded-md hover:w-80 hover:border-double hover:border-2 hover:border-gray-400 hover:z-20 hover:shadow-xl w-full ${cssClass}`}>
+    <div className={`flex flex-col group p-2 h-[100px] shadow-sm justify-between rounded-md hover:w-80 border hover:border-double hover:border-2 hover:z-20 hover:shadow-xl w-full ${cssClass}`}>
       <div className='flex flex-row gap-1 items-center'>
         {!isSameUser && (
-          <div
-            className="flex group-hover:hidden"
-          >
+          <div className="flex group-hover:hidden">
             <Avatar className="h-6 w-6">
               <AvatarFallback className="text-xs font-bold bg-sky-400 text-white">
                 {budgetUser.username.charAt(0)}
@@ -129,23 +127,43 @@ const BudgetItem: React.FC<Types> = ({
           <span>{title}</span>
         </div>
         {isCompleted && (
-        <div class="flex-none justify-end">
+        <div className="flex-none justify-end">
           <CheckCircle className="text-green-600 h-4" />
         </div>
         )}
+        {!!recurrent && (
+          <div className={`hidden group-hover:flex items-center ${recurrent === 'monthly' ? 'text-blue-500' : 'text-yellow-500'}`}>
+            <Repeat className="h-3" />
+            <span className="text-xs">
+              {recurrent}
+            </span>
+          </div>
+        )}
       </div>
-      <div className="flex justify-center">
+      <div className="flex h-full justify-center items-center">
         <div className="hidden group-hover:flex text-sm font-semibold">
           {formatMoney(spent)}
         </div>
         <div className="hidden group-hover:flex ml-[3px] text-sm font-semibold">
           {currencySign}
         </div>
-        <div className="hidden group-hover:flex text-xs font-semibold mx-2">
-          of
-        </div>
-        <div className="text-xs">{formatMoney(planned)}</div>
-        <div className="text-xs ml-[3px]">{currencySign}</div>
+        {
+          planned !== 0 && (
+            <div className="hidden group-hover:flex text-xs font-semibold mx-2">
+              of
+            </div>
+          )
+        }
+        { planned !== 0 && (
+          <div className="text-xs">{formatMoney(planned)}</div>
+        )}
+        <div className="text-xs ml-[3px]">{
+          planned === 0 
+            ? (
+              <span className="hidden group-hover:flex ml-2">(not planned)</span>
+            ) 
+            : currencySign
+        }</div>
       </div>
       <div className="flex justify-center items-center">
         {planned !== 0
@@ -153,16 +171,16 @@ const BudgetItem: React.FC<Types> = ({
             <>
               <Progress
                 className={`h-1.5 ${percentage > 100 ? 'bg-red-200' : 'bg-gray-200'}`}
-                indicatorClassName={`${percentage > 100 ? 'bg-red-500' : 'bg-green-500'}`}
+                indicatorclassname={`${percentage > 100 ? 'bg-red-500' : 'bg-green-500'}`}
                 value={percentage > 100 ? percentage % 100 : percentage}
               />
               <div className="text-xs font-bold ml-2">{`${percentage}%`}</div>
             </>
           )
           : (
-            <div className="flex justify-center text-xs font-semibold w-full">
-              Unplanned
-            </div>
+            <Badge variant="secondary" className="flex font-normal group-hover:hidden text-xs tracking-widest">
+              Not Planned
+            </Badge>
           )
         }
       </div>

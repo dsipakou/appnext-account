@@ -1,4 +1,5 @@
 import { FC, ChangeEvent, useState } from 'react'
+import { signIn } from 'next-auth/react'
 import {
   Box,
   Grid,
@@ -44,7 +45,12 @@ const Index: FC = () => {
   const handleLogin: SubmitHandler<FieldValues> = async (data): void => {
     console.log(data)
     setIsLoading(true)
-    await login(data.email, data.password)
+    // await login(data.email, data.password)
+    signIn('credentials', {
+      username: data.email,
+      password: data.password,
+      callbackUrl: `${window.location.origin}/accounts`,
+    })
     setIsLoading(false)
   }
 

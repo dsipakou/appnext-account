@@ -1,3 +1,9 @@
 import Currencies from '@/components/currencies';
 
-export default Currencies;
+Index.auth = {}
+
+export default function Index() {
+  return (
+    <Currencies />
+  )
+}

@@ -37,14 +37,14 @@ const BudgetComponent: React.FC<BudgetComponentTypes> = (params) => {
   }
 
   React.useEffect(() => {
-    console.log("before")
     if (!user || !budgets) return
     const completedBudgets = budgets.filter((item: WeekBudgetItem) => item.isCompleted && item.user === user)
     const incompletedBudgets = budgets.filter((item: WeekBudgetItem) => !item.isCompleted && item.user === user)
-    const activeBudget = budgets.find((item: WeekBudgetItem) => item.uuid === value)
-    console.log(value)
+    const activeBudget = typeof value === 'string' 
+      ? budgets.find((item: WeekBudgetItem) => item.uuid === value) 
+      : value
 
-    apiRef.current.setEditCellValue({ id, field, value: activeBudget })
+    apiRef.current.setEditCellValue({ id, field, value: row.account.user === activeBudget?.user ? activeBudget : null })
 
     setCompletedItems(completedBudgets)
     setIncompletedItems(incompletedBudgets)

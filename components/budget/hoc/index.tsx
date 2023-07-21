@@ -2,16 +2,22 @@ import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useSWRConfig } from 'swr'
+import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectGroup,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 import {
   Box,
   Button,
   ButtonGroup,
-  FormControl,
   Grid,
-  InputLabel,
   LinearProgress,
-  MenuItem,
-  Select,
   Toolbar,
   Typography
 } from '@mui/material'
@@ -120,9 +126,8 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
       router.push(`/budget/${type}`)
     }
 
-    const changeUser = (e: SelectChangeEvent): void => {
-      console.log(`User changed ${e.target.value}`)
-      setUser(e.target.value);
+    const changeUser = (userId: string): void => {
+      setUser(userId);
     }
 
     const handleCloseModal = () => {
@@ -210,36 +215,38 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     )
 
     const header = (
-      <Grid container spacing={3} alignItems="center">
-        <Grid item xs={4}>
+      <div className="flex justify-between items-center gap-3">
+        <div className="w-1/3">
           <GeneralSummaryCard planned={plannedSum} spent={spentSum} title={activeType} />
-        </Grid>
-        <Grid item xs={2}>
-        </Grid>
-        <Grid item xs={2}>
-          <FormControl fullWidth>
-            <InputLabel id="user-select-label">User</InputLabel>
-            <Select
-              labelId="user-select-label"
-              label="Type"
-              fullWidth
-              value={user}
-              onChange={changeUser}
-            >
-              <MenuItem value="all">All</MenuItem>
-              {users && users.map((item: User) => (
-                <MenuItem value={item.uuid} key={item.uuid}>{item.username}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid item xs={4}>
+        </div>
+        <div className="w-1/3 px-7">
+          <Select
+            onValueChange={changeUser}
+            defaultValue="all"
+            disabled={!users}
+          >
+            <SelectTrigger className="w-full border-2 hover:border-gray-300">
+              <SelectValue placeholder="User" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Users</SelectLabel>
+                <SelectItem value="all">All users</SelectItem>
+                <DropdownMenuSeparator />
+                { users && users.map((item: User) => (
+                  <SelectItem value={item.uuid} key={item.uuid}>{item.username}</SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="w-1/3 h-auto">
           {activeType === "month" ?
             <MonthCalendar date={monthDate} setMonthDate={setMonthDate} /> :
             <WeekCalendar date={weekDate} setWeekDate={setWeekDate} />
           }
-        </Grid>
-      </Grid>
+        </div>
+      </div>
     );
 
     return (
@@ -256,11 +263,11 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             }} />
           </Box>
         )}
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
+        <div className="flex flex-col">
+          <div className="w-full p-1 rounded shadow-sm shadow-zinc-300 bg-white">
             {header}
-          </Grid>
-          <Grid item xs={12}>
+          </div>
+          <div className="w-full mt-5">
             <Component
               startDate={startDate}
               endDate={endDate}
@@ -270,8 +277,8 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
               weekUrl={weekUrl}
               monthUrl={monthUrl}
             />
-          </Grid>
-        </Grid>
+          </div>
+        </div>
         <DuplicateForm
           open={isOpenDuplicateForm}
           type={activeType}

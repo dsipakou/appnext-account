@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
       };
       await set(0, userData)
       axios.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
-      window.location.pathname = '/';
+      // window.location.pathname = '/';
     } else {
       // TODO: handle non 200 statuses
     }

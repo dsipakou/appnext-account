@@ -1,3 +1,9 @@
 import Index from '@/components/transactions'
 
-export default Index
+Transactions.auth = {}
+
+export default function Transactions() {
+  return (
+    <Index />
+  )
+}

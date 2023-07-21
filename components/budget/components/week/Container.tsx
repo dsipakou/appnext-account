@@ -1,6 +1,5 @@
 import { FC, useEffect, useState } from 'react'
-import { getDay, isToday  } from 'date-fns'
-import { Stack } from '@mui/material'
+import { getDay, isToday, isThisWeek  } from 'date-fns'
 import { useBudgetWeek } from '@/hooks/budget'
 import { RecurrentTypes, WeekBudgetItem } from '@/components/budget/types'
 import {
@@ -46,7 +45,7 @@ const header = (date: string) => {
   const daysShortFormatArray: WeekDayWithFullDate[] = getWeekDaysWithFullDays(parseDate(date))
 
   return (
-    <div className="grid grid-cols-8 gap-1 mb-3">
+    <div className={`grid mb-3 drop-shadow border-x border-stone-200 ${isThisWeek(daysShortFormatArray[0].fullDate) ? 'grid-cols-8' : 'grid-cols-7'}`}>
       {daysShortFormatArray.map((item: WeekDayWithFullDate, index: number) => (
         <div
           key={index}
@@ -113,9 +112,9 @@ const Container: FC<Types> = ({
   )
 
   return (
-    <Stack spacing={1}>
+    <div className="flex flex-col">
       {header(startDate)}
-      <div className="grid grid-cols-8 gap-3 justify-center">
+      <div className={`grid gap-3 justify-center ${isThisWeek(daysFullFormatArray[0].fullDate) ? 'grid-cols-8' : 'grid-cols-7'}`}>
         {weekDaysArray.map((day: number, weekDayIndex: number) => (
           <div
             className={isToday(daysFullFormatArray[weekDayIndex].fullDate) ? 'col-span-2' : ''}
@@ -141,7 +140,7 @@ const Container: FC<Types> = ({
           </div>
         ))}
       </div>
-    </Stack>
+    </div>
   );
 };
 

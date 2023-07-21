@@ -1,5 +1,11 @@
 import Index from '@/components/reports'
 
-export default Index
+Reports.auth = {}
+
+export default function Reports() {
+  return (
+    <Index />
+  )
+}
 
 

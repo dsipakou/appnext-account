@@ -144,7 +144,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
       return ""
     }
 
-    const _user = users.find((item: User) => item.username === authUser.username)
+    const _user = users.find((item: User) => item.username === authUser?.username)
     if (_user) {
       return _user.uuid
     }

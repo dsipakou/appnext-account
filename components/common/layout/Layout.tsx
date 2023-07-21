@@ -1,14 +1,12 @@
 import React, { FC, ReactElement, ReactNode } from 'react'
 import axios from 'axios'
 import { useTheme } from '@mui/material/styles'
+import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { styled, Theme, CSSObject } from '@mui/material/styles'
 import {
   Drawer,
   Box,
-  Button,
-  FormControl,
-  InputLabel,
   List,
   ListItem,
   ListItemButton,
@@ -29,7 +27,6 @@ import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
 import IconButton from '@mui/material/IconButton'
 import MenuIcon from '@mui/icons-material/Menu'
-import { Link as MuiLink } from '@mui/material'
 import { useAuth } from '@/context/auth'
 import { useCurrencies } from '@/hooks/currencies'
 import { Currency } from '@/components/currencies/types'
@@ -100,6 +97,7 @@ type Props = {
 
 const Layout: FC<Props> = ({ children }) => {
   const theme = useTheme()
+  const router = useRouter()
   const { isAuthenticated, user, loading, updateCurrency } = useAuth()
   const [open, setOpen] = React.useState(false)
   const {
@@ -114,6 +112,13 @@ const Layout: FC<Props> = ({ children }) => {
   const handleDrawerClose = () => {
     setOpen(false)
   }
+
+  React.useEffect(() => {
+    if (loading) return
+    if (!isAuthenticated) {
+      router.push('/login')
+    }
+  }, [loading])
 
   const handleCurrencyChange = (e) => {
     const selectedCurrency = e.target.value
@@ -143,6 +148,10 @@ const Layout: FC<Props> = ({ children }) => {
         {children}
       </Container>
     )
+  }
+
+  if (loading) {
+    return
   }
 
   const menuItems = [
