@@ -1,5 +1,6 @@
 import { FC, useEffect } from 'react'
 import { getWeekOfMonth } from 'date-fns'
+import { useSession } from 'next-auth/react'
 import {
   Box,
   IconButton,
@@ -26,9 +27,7 @@ import {
   WeekOfMonth,
   MONTH_DAY_FORMAT
 } from '@/utils/dateUtils'
-import { formatMoney } from '@/utils/numberUtils'
 import { MonthBudgetItem } from '@/components/budget/types'
-import { useAuth } from '@/context/auth'
 import TimelineBudgetItem from './TimelineBudgetItem'
 
 interface Types {
@@ -62,7 +61,7 @@ const GroupedBudgetDetails: FC<Types> = ({
   clickShowTransactions,
 }) => {
   const weeks: WeekOfMonth[] = getMonthWeeksWithDates(startDate)
-  const { user } = useAuth()
+  const { data: { user }} = useSession()
 
   const groupedByWeek = (): WeekGroup => {
     const group: WeekGroup = {}

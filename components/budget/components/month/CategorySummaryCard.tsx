@@ -1,4 +1,5 @@
 import { FC } from 'react'
+import { useSession } from 'next-auth/react'
 import {
   Box,
   Grid,
@@ -6,8 +7,6 @@ import {
   Paper,
   Typography
 } from '@mui/material'
-import { MonthGroupedBudgetItem } from '@/components/budgets/types'
-import { useAuth } from '@/context/auth'
 import { formatMoney } from '@/utils/numberUtils'
 import { GroupedByCategoryBudget } from '@/components/budget/types'
 
@@ -16,7 +15,7 @@ interface Types {
 }
 
 const CategorySummaryCard: FC<Types> = ({ item }) => {
-  const { user } = useAuth()
+  const { data: { user }} = useSession()
   const planned = item.plannedInCurrencies[user?.currency]
   const spent = item.spentInCurrencies[user?.currency]
   const percentage: number = Math.floor(spent * 100 / planned)

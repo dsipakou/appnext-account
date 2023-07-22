@@ -5,6 +5,7 @@ import {
   isAfter,
   isBefore,
   isSameDay,
+  getWeekOfMonth,
   format
 } from 'date-fns';
 import { DateRange } from 'react-day-picker'
@@ -122,7 +123,7 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
             variant="outline"
             className={`w-[280px] justify-start text-left font-normal" ${weekDate && 'text-muted-foreground'}`}>
             <CalendarDays className="mr-2 h-6 w-6 text-muted-foreground" />
-            {weekDate ? format(weekDate, "PPP") : <span>Pick a date</span>}
+            {weekDate ? `Week ${getWeekOfMonth(weekDate, {weekStartsOn: 1})} of ${format(weekDate, "MMM, yyyy")}` : <span>Pick a date</span>}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="h-full w-full p-0">

@@ -1,4 +1,5 @@
 import { FC, useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
 import axios from 'axios'
 import { useSWRConfig } from 'swr';
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -44,7 +45,6 @@ import { useCurrencies } from '@/hooks/currencies'
 import { User } from '@/components/users/types'
 import { Category, CategoryType } from '@/components/categories/types'
 import { Currency } from '@/components/currencies/types'
-import { useAuth } from '@/context/auth'
 import { getFormattedDate } from '@/utils/dateUtils'
 import { Label } from '@/components/ui/label';
 
@@ -95,7 +95,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
 
   const { toast } = useToast()
 
-  const { user: authUser } = useAuth()
+  const { data: { user: authUser }} = useSession()
 
   const { data: users } = useUsers()
 

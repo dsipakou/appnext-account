@@ -1,12 +1,11 @@
-import { SessionProvider, useSession } from "next-auth/react"
-import type { Session } from "next-auth"
+import { SessionProvider, useSession } from 'next-auth/react'
+import type { Session } from 'next-auth'
 import React, { lazy } from 'react'
 import type { AppProps } from 'next/app'
 import { useRouter } from 'next/router'
 import typography from '../theme/typography'
 import { Toolbar } from '@mui/material'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
-import { AuthProvider } from '@/context/auth';
 import '@/plugins/axios'
 import axios from 'axios'
 import { Toaster } from '@/components/ui/toaster'
@@ -52,9 +51,7 @@ const App = ({
     return (
       <SessionProvider session={session}>
         <ThemeProvider theme={theme}>
-          <AuthProvider>
-            <Component {...pageProps} />
-          </AuthProvider>
+          <Component {...pageProps} />
         </ThemeProvider>
       </SessionProvider>
     )
@@ -64,21 +61,19 @@ const App = ({
     <SessionProvider session={session}>
       <ThemeProvider theme={theme}>
         <Toaster />
-        <AuthProvider>
-          {Component.auth ? (
-            <Auth>
-              <Layout>
-                <Toolbar />
-                <Component {...pageProps} />
-              </Layout>
-            </Auth>
-          ) : (
+        {Component.auth ? (
+          <Auth>
             <Layout>
               <Toolbar />
               <Component {...pageProps} />
             </Layout>
-          )}
-        </AuthProvider>
+          </Auth>
+        ) : (
+          <Layout>
+            <Toolbar />
+            <Component {...pageProps} />
+          </Layout>
+        )}
       </ThemeProvider>
     </SessionProvider>
   )

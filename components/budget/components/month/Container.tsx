@@ -1,4 +1,5 @@
 import React from 'react'
+import { useSession } from 'next-auth/react'
 import { useBudgetMonth } from '@/hooks/budget'
 import {
   Box,
@@ -8,7 +9,6 @@ import {
 import { GroupedByCategoryBudget } from '@/components/budget/types'
 import CategorySummaryButton from './CategorySummaryButton'
 import DetailsPanel from './DetailsPanel'
-import { useAuth } from '@/context/auth'
 
 interface Types {
   startDate: string
@@ -27,7 +27,7 @@ const Container: React.FC<Types> = ({
   monthUrl,
   clickShowTransactions,
 }) => {
-  const { user: authUser } = useAuth();
+  const { data: { user: authUser }} = useSession()
   const [activeCategoryUuid, setActiveCategoryUuid] = React.useState<string>('')
   const {
     data: budget,

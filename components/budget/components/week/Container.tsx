@@ -1,4 +1,5 @@
 import { FC, useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
 import { getDay, isToday, isThisWeek  } from 'date-fns'
 import { useBudgetWeek } from '@/hooks/budget'
 import { RecurrentTypes, WeekBudgetItem } from '@/components/budget/types'
@@ -8,7 +9,6 @@ import {
   FULL_DAY_ONLY_FORMAT,
   WeekDayWithFullDate,
 } from '@/utils/dateUtils'
-import { useAuth } from '@/context/auth'
 import { Button } from '@/components/ui/button'
 import BudgetItem from './BudgetItem'
 import HeaderItem from './HeaderItem'
@@ -76,7 +76,7 @@ const Container: FC<Types> = ({
     endDate,
     user
   )
-  const { user: authUser } = useAuth();
+  const { data: { user: authUser }} = useSession()
   const weekDaysArray: number[] = [1, 2, 3, 4, 5, 6, 0];
   const daysFullFormatArray: WeekDayWithFullDate[] = getWeekDaysWithFullDays(parseDate(startDate), FULL_DAY_ONLY_FORMAT)
 

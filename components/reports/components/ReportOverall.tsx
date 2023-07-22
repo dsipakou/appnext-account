@@ -1,4 +1,5 @@
 import React from 'react'
+import { useSession } from 'next-auth/react'
 import {
   format,
   addMonths,
@@ -8,7 +9,6 @@ import {
 } from 'date-fns'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { useTransactionsReport } from '@/hooks/transactions'
-import { useAuth } from '@/context/auth'
 import {
   getFormattedDate,
   parseAndFormatDate,
@@ -20,7 +20,7 @@ import RangeSwitcher from './RangeSwitcher'
 
 const ReportOverall: React.FC = () => {
   const [date, setDate] = React.useState<Date>(new Date())
-  const { user: authUser } = useAuth()
+  const { data: { user: authUser }} = useSession()
 
   const dateFrom = getFormattedDate(startOfMonth(subMonths(date, 11)))
   const dateTo = getFormattedDate(endOfMonth(date))

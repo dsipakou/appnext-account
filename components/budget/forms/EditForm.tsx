@@ -45,7 +45,6 @@ import { useBudgetDetails } from '@/hooks/budget'
 import { User } from '@/components/users/types'
 import { Category, CategoryType } from '@/components/categories/types'
 import { Currency } from '@/components/currencies/types'
-import { useAuth } from '@/context/auth'
 import { getFormattedDate, parseDate } from '@/utils/dateUtils'
 
 import styles from '../style/AddForm.module.css'
@@ -81,8 +80,6 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
   const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const { toast } = useToast()
-
-  const { user: authUser, isLoading: isAuthLoading } = useAuth()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

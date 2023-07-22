@@ -1,5 +1,6 @@
 import * as React from 'react'
 import axios from 'axios'
+import { useSession } from 'next-auth/react'
 import { useSWRConfig } from 'swr'
 import { Check, CheckCircle, Repeat } from 'lucide-react'
 import { formatMoney } from '@/utils/numberUtils'
@@ -11,7 +12,6 @@ import { useBudgetDetails } from '@/hooks/budget'
 import { RecurrentTypes } from '@/components/budget/types'
 import { useCurrencies } from '@/hooks/currencies'
 import { useUsers, UserResponse } from '@/hooks/users'
-import { useAuth } from '@/context/auth'
 import { Currency } from '@/components/currencies/types'
 import EditForm from '@/components/budget/forms/EditForm'
 import ConfirmDeleteForm from '@/components/budget/forms/ConfirmDeleteForm'
@@ -52,7 +52,7 @@ const BudgetItem: React.FC<Types> = ({
   const { data: budgetDetails, url } = useBudgetDetails(uuid)
   const { data: currencies } = useCurrencies()
   const { data: users } = useUsers()
-  const { user: authUser } = useAuth()
+  const { data: { user: authUser }} = useSession()
   const { mutate } = useSWRConfig()
 
   const percentage: number = Math.floor(spent * 100 / planned)

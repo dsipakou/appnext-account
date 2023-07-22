@@ -1,4 +1,4 @@
-import { FC, ChangeEvent, useState } from 'react'
+import React from 'react'
 import { signIn } from 'next-auth/react'
 import {
   Box,
@@ -13,13 +13,9 @@ import {
   SubmitHandler,
   useForm
 } from 'react-hook-form'
-import { useAuth } from '@/context/auth'
 
-const Index: FC = () => {
-  const { isAuthenticated, login } = useAuth()
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [email, setEmail] = useState<string>('')
-  const [password, setPassword] = useState<string>('')
+const Index: React.FC = () => {
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
   const {
     register,
@@ -34,18 +30,9 @@ const Index: FC = () => {
     }
   })
 
-  const handleEmailInput = (e: ChangeEvent): void => {
-    setEmail(e.target.value)
-  }
-
-  const handlePasswordInput = (e: ChangeEvent): void => {
-    setPassword(e.target.value)
-  }
-
   const handleLogin: SubmitHandler<FieldValues> = async (data): void => {
     console.log(data)
     setIsLoading(true)
-    // await login(data.email, data.password)
     signIn('credentials', {
       username: data.email,
       password: data.password,

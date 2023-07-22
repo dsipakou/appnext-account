@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useSession } from 'next-auth/react'
 import {
   Box
 } from '@mui/material'
@@ -7,7 +8,6 @@ import {
 } from '@mui/x-data-grid'
 import { DataGrid, GridRowsProp, GridRowParams, GridColDef } from '@mui/x-data-grid'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
-import { useAuth } from '@/context/auth'
 import { TransactionResponse } from '@/components/transactions/types'
 import { formatMoney } from '@/utils/numberUtils'
 
@@ -43,7 +43,7 @@ const TransactionTable: React.FC<Types> = ({ transactions, handleDeleteClick, ha
     }
   ]
 
-  const { user } = useAuth()
+  const { data: { user }} = useSession()
 
   React.useEffect(() => {
     if (!transactions) return

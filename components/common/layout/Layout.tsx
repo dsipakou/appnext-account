@@ -1,9 +1,19 @@
 import React, { FC, ReactElement, ReactNode } from 'react'
+import { useSession } from 'next-auth/react'
 import axios from 'axios'
 import { useTheme } from '@mui/material/styles'
-import { useRouter } from 'next/router'
 import Link from 'next/link'
+import { RemoveScroll } from 'react-remove-scroll'
 import { styled, Theme, CSSObject } from '@mui/material/styles'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 import {
   Drawer,
   Box,
@@ -12,13 +22,11 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  MenuItem,
-  Select,
   Toolbar,
   Container,
   Typography
 } from '@mui/material'
-import AppBar, { AppBarProps } from '@mui/material/AppBar'
+import AppBar from '@mui/material/AppBar'
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
 import CategoryIcon from '@mui/icons-material/Category'
 import OnlinePredictionIcon from '@mui/icons-material/OnlinePrediction'
@@ -27,7 +35,6 @@ import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
 import IconButton from '@mui/material/IconButton'
 import MenuIcon from '@mui/icons-material/Menu'
-import { useAuth } from '@/context/auth'
 import { useCurrencies } from '@/hooks/currencies'
 import { Currency } from '@/components/currencies/types'
 
@@ -97,13 +104,9 @@ type Props = {
 
 const Layout: FC<Props> = ({ children }) => {
   const theme = useTheme()
-  const router = useRouter()
-  const { isAuthenticated, user, loading, updateCurrency } = useAuth()
   const [open, setOpen] = React.useState(false)
-  const {
-    data: currencies,
-    isLoading: isCurrenciesLoading
-  } = useCurrencies()
+  const { data: currencies } = useCurrencies()
+  const { data: { user }, update: updateSession } = useSession()
 
   const handleDrawerOpen = () => {
     setOpen(true)
@@ -113,24 +116,16 @@ const Layout: FC<Props> = ({ children }) => {
     setOpen(false)
   }
 
-  React.useEffect(() => {
-    if (loading) return
-    if (!isAuthenticated) {
-      router.push('/login')
-    }
-  }, [loading])
-
-  const handleCurrencyChange = (e) => {
-    const selectedCurrency = e.target.value
-
-    if (selectedCurrency !== user.currency) {
+  const handleCurrencyChange = (currencyCode: string) => {
+    if (currencyCode !== user.currency) {
       axios.patch('users/currency/', {
-        currency: selectedCurrency
+        currency: currencyCode
       }).then(
         res => {
           if (res.status === 200) {
-            console.log(selectedCurrency)
-            updateCurrency(selectedCurrency)
+            // TODO: Remove this after migrating to session
+            // updateCurrency(currencyCode)
+            updateSession({ currency: currencyCode })
             // TODO: mutate something
           }
         }
@@ -140,18 +135,6 @@ const Layout: FC<Props> = ({ children }) => {
         }
       )
     }
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <Container fixed maxWidth="lg">
-        {children}
-      </Container>
-    )
-  }
-
-  if (loading) {
-    return
   }
 
   const menuItems = [
@@ -223,7 +206,7 @@ const Layout: FC<Props> = ({ children }) => {
   return (
     <>
       <AppBarStyled {...appBar}>
-        <Toolbar>
+        <Toolbar className={RemoveScroll.classNames.fullWidth}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -238,26 +221,39 @@ const Layout: FC<Props> = ({ children }) => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Flying Budget
           </Typography>
-          <Select
-            size="small"
-            value={user.currency}
-            onChange={handleCurrencyChange}
-            sx={{
-              backgroundColor: 'white',
-              width: '200px'
-            }}
-          >
-            {currencies && currencies.map((item: Currency) => (
-              <MenuItem key={item.code} value={item.code}>{item.verbalName}</MenuItem>
-            ))}
-          </Select>
-          {isAuthenticated && (
-            <Typography variant="text" sx={{ mx: 2 }}>Hello, {user.username}</Typography>
-          )}
-          {!loading && !isAuthenticated
-            ? <Link href="/login" color="inherit">Login</Link>
-            : <Link href="/logout"><Typography variant="">Logout</Typography></Link>
-          }
+          <div className="flex w-80">
+            <Select
+              defaultValue={user.currency}
+              onValueChange={handleCurrencyChange}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select currency" />
+              </SelectTrigger>
+              <SelectContent className="flex bg-white w-full pt-3" position="popper">
+                <SelectGroup>
+                  <SelectLabel>Default currency</SelectLabel>
+                  {currencies && currencies.map((item: Currency) => (
+                    <SelectItem key={item.code} value={item.code}>{item.verbalName}</SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+          {/* <Select */}
+          {/*   size="small" */}
+          {/*   value={user.currency} */}
+          {/*   onChange={handleCurrencyChange} */}
+          {/*   sx={{ */}
+          {/*     backgroundColor: 'white', */}
+          {/*     width: '200px' */}
+          {/*   }} */}
+          {/* > */}
+          {/*   {currencies && currencies.map((item: Currency) => ( */}
+          {/*     <MenuItem key={item.code} value={item.code}>{item.verbalName}</MenuItem> */}
+          {/*   ))} */}
+          {/* </Select> */}
+          <Typography variant="text" sx={{ mx: 2 }}>Hello, {user.username}</Typography>
+          <Link href="/logout"><Typography variant="">Logout</Typography></Link>
         </Toolbar>
       </AppBarStyled>
       <StyledDrawer

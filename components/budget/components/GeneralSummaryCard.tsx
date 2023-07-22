@@ -1,13 +1,13 @@
 import { FC } from 'react'
+import { useSession} from 'next-auth/react'
 import {
   Grid,
   Paper,
   Typography
 } from '@mui/material'
-import { blue, yellow, grey } from '@mui/material/colors'
+import { yellow, grey } from '@mui/material/colors'
 import { formatMoney } from '@/utils/numberUtils'
 import { useCurrencies } from '@/hooks/currencies'
-import { useAuth } from '@/context/auth'
 import { Currency } from '@/components/currencies/types'
 
 interface Types {
@@ -18,7 +18,7 @@ interface Types {
 
 const GeneralSummaryCard: FC<Types> = ({ title, planned, spent }) => {
   const { data: currencies = [] } = useCurrencies()
-  const { user: authUser } = useAuth()
+  const { data: { user: authUser }} = useSession()
 
   const maxValue: number = Math.max(planned, spent)
 

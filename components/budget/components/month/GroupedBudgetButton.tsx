@@ -1,4 +1,5 @@
 import { FC } from 'react'
+import { useSession } from 'next-auth/react'
 import {
   Badge,
   Box,
@@ -12,7 +13,6 @@ import { styled } from '@mui/material/styles'
 import { MonthGroupedBudgetItem } from '@/components/budget/types'
 import { teal, green } from '@mui/material/colors'
 import { formatMoney } from '@/utils/numberUtils'
-import { useAuth } from '@/context/auth'
 import LoopIcon from '@mui/icons-material/Loop'
 
 interface Types {
@@ -29,7 +29,7 @@ const StyledBadge = styled(Badge)<BadgeProps>(({ theme }) => ({
 }));
 
 const GroupedBudgetButton: FC<Types> = ({ item }) => {
-  const { user } = useAuth()
+  const { data: { user }} = useSession()
 
   const repeatedFor: number = item.items.length
 

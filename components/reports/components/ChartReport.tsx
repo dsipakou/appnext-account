@@ -1,16 +1,15 @@
 import dynamic from 'next/dynamic'
 import React from 'react'
+import { useSession } from 'next-auth/react'
 import {
   addMonths,
   endOfMonth,
   getDate,
   subMonths,
   startOfMonth,
-  sub
 } from 'date-fns'
 import { useTransactionsMonthlyReport } from '@/hooks/transactions'
 import {
-  Button,
   Checkbox,
   FormGroup,
   FormControlLabel,
@@ -18,7 +17,6 @@ import {
   Select,
   Typography
 } from '@mui/material'
-import { useAuth } from '@/context/auth'
 import { getFormattedDate, parseAndFormatDate, SHORT_YEAR_MONTH_FORMAT } from '@/utils/dateUtils'
 import RangeSwitcher from './RangeSwitcher'
 
@@ -33,7 +31,7 @@ const ChartReport: React.FC = () => {
   const [series, setSeries] = React.useState([]);
   const [categoriesList, setCategoriesList] = React.useState<string[]>([])
   const [disabledCategories, setDisabledCategories] = React.useState<string[]>([])
-  const { user: authUser } = useAuth()
+  const { data: { user: authUser }} = useSession()
 
   const dateFrom = getFormattedDate(startOfMonth(subMonths(date, 11)))
   const dateTo = getFormattedDate(endOfMonth(date))

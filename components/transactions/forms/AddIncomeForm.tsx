@@ -1,5 +1,6 @@
 import React from 'react'
 import axios from 'axios'
+import { useSession } from 'next-auth/react'
 import {
   Button,
   Dialog,
@@ -22,7 +23,6 @@ import { useAvailableRates } from '@/hooks/rates'
 import { useAccounts } from '@/hooks/accounts'
 import { useCurrencies } from '@/hooks/currencies'
 import { useCategories } from '@/hooks/categories'
-import { useAuth } from '@/context/auth'
 import { useUsers } from '@/hooks/users'
 import { Currency } from '@/components/currencies/types'
 import { Category } from '@/components/categories/types'
@@ -51,7 +51,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, handleClose }) => {
   const { data: currencies = [] } = useCurrencies()
 
   const { data: availableRates = {} } = useAvailableRates(selectedDate)
-  const { user: authUser, isLoading: isAuthLoading } = useAuth()
+  const { data: { user: authUser }} = useSession()
   const { data: users = [] } = useUsers()
 
   const handleDateChange = (date: Date | null): void => {

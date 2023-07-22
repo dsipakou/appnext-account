@@ -1,6 +1,7 @@
 import axios from 'axios'
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
+import { Session } from "next-auth/core/types"
 
 export const authOptions = {
   // Configure one or more authentication providers
@@ -23,9 +24,9 @@ export const authOptions = {
       },
       async authorize(credentials) {
         // Add logic here to look up the user from the credentials supplied
-        const user = { id: "1", name: "J Smith", email: "jsmith@example.com" }
         try {
-          const response = await axios.post('http://192.168.0.12:8000/users/login/', {
+          const url = `http://${process.env.APP_HOST}:${process.env.APP_HOST_PORT}/users/login/`
+          const response = await axios.post(url, {
             email: credentials?.username, 
             password: credentials?.password
           })
@@ -45,16 +46,14 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    async signIn(response) {
-      console.log(response)
-      return true
-    },
     async session({ token, session }) {
       session.user = token
       return session
     },
-    async jwt({ token, user }) {
-      console.log(token, user)
+    async jwt({ token, trigger, user, session }) {
+      if (trigger === 'update' && session?.currency) {
+        token.currency = session.currency
+      }
       return { ...token, ...user }
     }
   }

@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useSession } from 'next-auth/react'
 import axios from 'axios'
 import { useSWRConfig } from 'swr'
 import { evaluate } from 'mathjs'
@@ -25,7 +26,6 @@ import {
   GridToolbarContainer,
 } from '@mui/x-data-grid'
 import { randomId } from '@mui/x-data-grid-generator'
-import { useAuth } from '@/context/auth'
 import { useAccounts } from '@/hooks/accounts'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
@@ -77,7 +77,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   const [baseCurrency, setBaseCurrency] = React.useState<string>('')
   const { rows, setRows, rowModesModel, setRowModesModel, url } = props
   const { mutate } = useSWRConfig()
-  const { user: authUser } = useAuth()
+  const { data: { user: authUser } } = useSession()
 
   const {
     data: users,

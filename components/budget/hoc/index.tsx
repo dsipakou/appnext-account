@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { useSWRConfig } from 'swr'
 import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
@@ -16,14 +17,12 @@ import {
   Box,
   Button,
   ButtonGroup,
-  Grid,
   LinearProgress,
   Toolbar,
   Typography
 } from '@mui/material'
 import FileCopyIcon from '@mui/icons-material/FileCopy'
 import { useUsers } from '@/hooks/users'
-import { useAuth } from '@/context/auth'
 import { useBudgetMonth, useBudgetWeek } from '@/hooks/budget'
 import { User } from '@/components/users/types'
 import {
@@ -52,7 +51,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const activeType = hocProps.activeType || 'month'
     const router = useRouter()
     const { mutate } = useSWRConfig()
-    const { user: userConfig } = useAuth();
+    const { data: { user: userConfig }} = useSession()
     const [user, setUser] = useState<string>('all')
     const [monthDate, setMonthDate] = useState<Date>(new Date())
     const [weekDate, setWeekDate] = useState<Date>(new Date())
