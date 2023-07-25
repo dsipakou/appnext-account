@@ -45,9 +45,9 @@ const Container: React.FC<Types> = ({
   return (
     <Grid container>
       <Grid item xs={4}>
-        <Stack spacing={1}>
+        <div className="flex flex-col gap-2">
           {budget && budget.map((item: GroupedByCategoryBudget) => (
-            <Box
+            <div className="flex justify-center"
               key={item.uuid}
               onClick={() => setActiveCategoryUuid(item.uuid)}
             >
@@ -58,9 +58,9 @@ const Container: React.FC<Types> = ({
                 spent={item.spentInCurrencies[authUser?.currency]}
                 currencyCode={authUser?.currency}
               />
-            </Box>
+            </div>
           ))}
-        </Stack>
+        </div>
       </Grid>
       <Grid item xs={8}>
         <DetailsPanel

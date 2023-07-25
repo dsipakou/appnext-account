@@ -45,7 +45,7 @@ const header = (date: string) => {
   const daysShortFormatArray: WeekDayWithFullDate[] = getWeekDaysWithFullDays(parseDate(date))
 
   return (
-    <div className={`grid mb-3 drop-shadow border-x border-stone-200 ${isThisWeek(daysShortFormatArray[0].fullDate) ? 'grid-cols-8' : 'grid-cols-7'}`}>
+    <div className={`grid mb-3 border-x border-stone-200 ${isThisWeek(daysShortFormatArray[0].fullDate) ? 'grid-cols-8' : 'grid-cols-7'}`}>
       {daysShortFormatArray.map((item: WeekDayWithFullDate, index: number) => (
         <div
           key={index}

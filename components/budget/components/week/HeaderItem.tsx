@@ -1,9 +1,5 @@
-import { FC } from 'react'
-import {
-  WeekDayWithFullDate,
-  getFormattedDate,
-  MONTH_DAY_FORMAT
-} from '@/utils/dateUtils'
+import React from 'react'
+import { WeekDayWithFullDate, getFormattedDate, MONTH_DAY_FORMAT } from '@/utils/dateUtils'
 
 interface Types {
   date: WeekDayWithFullDate
@@ -11,7 +7,7 @@ interface Types {
   isToday: boolean
 }
 
-const HeaderItem: FC<Types> = ({ date, isWeekend, isToday }) => {
+const HeaderItem: React.FC<Types> = ({ date, isWeekend, isToday }) => {
   let containerClasses = isWeekend ? "border-y border-red-500 text-red-500 bg-white" : "border-y border-stone-500 bg-white"
   if (isToday) {
     containerClasses = `${containerClasses} bg-orange-200 font-bold`

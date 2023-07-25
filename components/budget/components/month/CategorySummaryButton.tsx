@@ -25,21 +25,7 @@ const CategorySummaryButton: FC<Types> = ({ title, isActive, planned, spent, cur
   const plannedPercent: number = planned * 100 / maxValue
 
   return (
-    <Paper
-      sx={
-        {
-          height: 80,
-          width: isActive ? "91%" : "90%",
-          borderRadius: 3,
-          border: isActive ? "2px solid rgba(0, 0, 0, 0.2)" : "",
-          backgroundColor: isActive ? teal[50] : "",
-          cursor: 'pointer'
-        }
-      }
-      elevation={
-        isActive ? 0 : 3
-      }
-    >
+    <div className={`h-[80px] rounded-md cursor-pointer ${isActive ? 'w-[92%] border-slate-300 bg-slate-400 text-slate-50' : 'hover:drop-shadow-lg drop-shadow bg-white w-[90%]'}`}>
       <Grid container justifyContent="center">
         <Grid item xs={12} sx={{ height: 40, mt: 1 }}>
           <Stack
@@ -95,7 +81,7 @@ const CategorySummaryButton: FC<Types> = ({ title, isActive, planned, spent, cur
           </Typography>
         </Grid>
       </Grid>
-    </Paper>
+    </div>
   )
 }
 

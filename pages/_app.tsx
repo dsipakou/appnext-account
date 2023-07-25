@@ -12,40 +12,15 @@ import { Toaster } from '@/components/ui/toaster'
 import '@/date-fns.config.js'
 import '../styles/globals.css'
 
-import { get } from '@/models/indexedDb.config'
-
 const Layout = lazy(async () => await import('../components/common/layout/Layout'))
 
 const App = ({
   Component,
   pageProps: { session, ...pageProps },
 }: AppProps<{ session: Session }>) => {
-  const [loading, setLoading] = React.useState<boolean>(true)
-  const [token, setToken] = React.useState<string>('')
-  const themeOptions = {
-    typography
-  }
-
-  // if (token) {
-  //   axios.defaults.headers.common['Authorization'] = `Token ${token}`;
-  // }
-
-  React.useEffect(() => {
-    const loadUserFromIndexedDB = async (): Promise<void> => {
-      const storedUser = await get(0)
-
-      if (storedUser) {
-        setToken(storedUser.token)
-      }
-      setLoading(false)
-    }
-    loadUserFromIndexedDB() }, [])
+  const themeOptions = { typography }
 
   const theme = createTheme({ ...themeOptions })
-
-  if (loading) {
-    return
-  }
 
   if (Component.layout === 'public') {
     return (
@@ -64,13 +39,11 @@ const App = ({
         {Component.auth ? (
           <Auth>
             <Layout>
-              <Toolbar />
               <Component {...pageProps} />
             </Layout>
           </Auth>
         ) : (
           <Layout>
-            <Toolbar />
             <Component {...pageProps} />
           </Layout>
         )}

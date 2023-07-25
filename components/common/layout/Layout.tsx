@@ -1,10 +1,9 @@
 import React, { FC, ReactElement, ReactNode } from 'react'
 import { useSession } from 'next-auth/react'
 import axios from 'axios'
-import { useTheme } from '@mui/material/styles'
 import Link from 'next/link'
-import { RemoveScroll } from 'react-remove-scroll'
 import { styled, Theme, CSSObject } from '@mui/material/styles'
+import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
@@ -12,7 +11,7 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from '@/components/ui/select'
 import {
   Drawer,
@@ -22,9 +21,8 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Toolbar,
   Container,
-  Typography
+  Typography,
 } from '@mui/material'
 import AppBar from '@mui/material/AppBar'
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
@@ -33,7 +31,6 @@ import OnlinePredictionIcon from '@mui/icons-material/OnlinePrediction'
 import CreditCardIcon from '@mui/icons-material/CreditCard'
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
-import IconButton from '@mui/material/IconButton'
 import MenuIcon from '@mui/icons-material/Menu'
 import { useCurrencies } from '@/hooks/currencies'
 import { Currency } from '@/components/currencies/types'
@@ -103,7 +100,6 @@ type Props = {
 }
 
 const Layout: FC<Props> = ({ children }) => {
-  const theme = useTheme()
   const [open, setOpen] = React.useState(false)
   const { data: currencies } = useCurrencies()
   const { data: { user }, update: updateSession } = useSession()
@@ -171,7 +167,7 @@ const Layout: FC<Props> = ({ children }) => {
   ]
 
   const menuComponent = (name: string, icon: ReactElement, link: string): ReactElement => (
-    <ListItem key={name} disablePadding sx={{ display: 'block' }}>
+    <ListItem onClick={handleDrawerClose} key={name} disablePadding sx={{ display: 'block' }}>
       <Link href={link}>
         <ListItemButton
           sx={{
@@ -195,29 +191,17 @@ const Layout: FC<Props> = ({ children }) => {
     </ListItem>
   )
 
-  const appBar = {
-    position: 'fixed',
-    elevation: 0,
-    sx: {
-      borderBottom: `1px solid ${theme.palette.divider}`,
-    }
-  }
-
   return (
     <>
-      <AppBarStyled {...appBar}>
-        <Toolbar className={RemoveScroll.classNames.fullWidth}>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
+      <header className="sticky top-0 z-50 bg-blue-500 text-white">
+        <div className="flex mx-2 py-2 items-center">
+          <Button
+            variant="link"
+            className="text-white"
             onClick={open ? handleDrawerClose : handleDrawerOpen}
-            edge="start"
-            sx={{
-              marginRight: 5,
-            }}
           >
             <MenuIcon />
-          </IconButton>
+          </Button>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Flying Budget
           </Typography>
@@ -229,9 +213,9 @@ const Layout: FC<Props> = ({ children }) => {
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
-              <SelectContent className="flex bg-white w-full pt-3" position="popper">
+              <SelectContent className="flex bg-white w-full pt-1" position="popper">
                 <SelectGroup>
-                  <SelectLabel>Default currency</SelectLabel>
+                  <SelectLabel>Displayed currency</SelectLabel>
                   {currencies && currencies.map((item: Currency) => (
                     <SelectItem key={item.code} value={item.code}>{item.verbalName}</SelectItem>
                   ))}
@@ -239,28 +223,11 @@ const Layout: FC<Props> = ({ children }) => {
               </SelectContent>
             </Select>
           </div>
-          {/* <Select */}
-          {/*   size="small" */}
-          {/*   value={user.currency} */}
-          {/*   onChange={handleCurrencyChange} */}
-          {/*   sx={{ */}
-          {/*     backgroundColor: 'white', */}
-          {/*     width: '200px' */}
-          {/*   }} */}
-          {/* > */}
-          {/*   {currencies && currencies.map((item: Currency) => ( */}
-          {/*     <MenuItem key={item.code} value={item.code}>{item.verbalName}</MenuItem> */}
-          {/*   ))} */}
-          {/* </Select> */}
-          <Typography variant="text" sx={{ mx: 2 }}>Hello, {user.username}</Typography>
-          <Link href="/logout"><Typography variant="">Logout</Typography></Link>
-        </Toolbar>
-      </AppBarStyled>
-      <StyledDrawer
-        variant="permanent"
-        open={open}
-      >
-        <Toolbar />
+          <span className="mx-4">Hello, {user.username}</span>
+          <Link href="/logout"><span className="mr-4">Logout</span></Link>
+        </div>
+      </header>
+      <div className={`drop-shadow-sm transition-all ease-in-out delay-50 fixed bg-white overflow-hidden h-screen ${open ? 'w-60' : 'w-16'}`}>
         <StyledList>
           {menuItems.map(({ name, icon, link }) => (
             <Box key={name}>
@@ -268,10 +235,10 @@ const Layout: FC<Props> = ({ children }) => {
             </Box>
           ))}
         </StyledList>
-      </StyledDrawer>
-      <Container fixed maxWidth="lg">
+      </div>
+      <div className="container mx-auto max-w-screen-xl min-w-screen-lg">
         {children}
-      </Container>
+      </div>
     </>
   )
 }

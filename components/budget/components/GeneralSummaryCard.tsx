@@ -46,7 +46,7 @@ const GeneralSummaryCard: FC<Types> = ({ title, planned, spent }) => {
             <div className="flex flex-1">
               <div className="flex flex-1 justify-end">
                 <div className="flex flex-col h-full">
-                  <div className="flex justify-end text-2xl">
+                  <div className="flex justify-end text-xl">
                     {formatMoney(planned)} {currencySign}
                   </div>
                   <div className="flex justify-end text-xs items-end">
@@ -65,7 +65,7 @@ const GeneralSummaryCard: FC<Types> = ({ title, planned, spent }) => {
               </div>
               <div className="flex flex-1 justify-start">
                 <div className="flex flex-col h-full">
-                  <div className="flex justify-start text-2xl">
+                  <div className="flex justify-start text-xl">
                     {formatMoney(spent)} {currencySign}
                   </div>
                   <div className="flex justify-start text-xs">

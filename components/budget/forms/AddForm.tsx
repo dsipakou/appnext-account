@@ -215,35 +215,33 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
           <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
             <div className="flex flex-col gap-3">
               <div className="flex w-full">
-                <div className="flex sm:w-2/3">
+                <div className="flex sm:w-3/5">
                   <FormField
                     control={form.control}
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Budget title</FormLabel>
                         <FormControl>
-                          <Input disabled={isLoading} id="title" {...field} />
+                          <Input placeholder="Title" disabled={isLoading} id="title" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
-                <div className="flex sm:w-1/3">
+                <div className="flex sm:w-1/5">
                   <FormField
                     control={form.control}
                     name="amount"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Amount</FormLabel>
                         <FormControl>
                         <div className="flex gap-2">
                           <div>
-                            <Input disabled={isLoading} id="amount" {...field} />
+                            <Input placeholder="10" disabled={isLoading} id="amount" {...field} />
                           </div>
-                          <span className="flex items-center w-5">
-                            {form.watch('currency') && getCurrencySign()}
+                          <span className="flex items-center text-sm">
+                            { form.watch('currency') && getCurrencySign()}
                           </span>
                         </div>
                         </FormControl>
@@ -252,29 +250,26 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                     )}
                   />
                 </div>
-              </div>
-              <div className="flex w-full">
-                <div className="flex flex-col w-2/5 gap-4">
+                <div className="flex sm:w-1/5">
                   <FormField
                     control={form.control}
                     name="currency"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Currency</FormLabel>
                         <FormControl>
                           <Select
                             disabled={isLoading}
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
-                            <SelectTrigger className="w-[180px]">
+                            <SelectTrigger className="w-full">
                               <SelectValue placeholder="Select a currency" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
                                 <SelectLabel>Currencies</SelectLabel>
                                 {currencies && currencies.map((item: Currency) => (
-                                  <SelectItem key={item.uuid} value={item.uuid}>{item.verbalName}</SelectItem>
+                                  <SelectItem key={item.uuid} value={item.uuid}>{item.code}</SelectItem>
                                 ))}
                               </SelectGroup>
                             </SelectContent>
@@ -284,19 +279,22 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                       </FormItem>
                     )}
                   />
+                </div>
+              </div>
+              <div className="flex w-full">
+                <div className="flex flex-col flex-1 gap-4">
                   <FormField
                     control={form.control}
                     name="category"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Category</FormLabel>
                         <FormControl>
                           <Select
                             disabled={isLoading}
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
-                            <SelectTrigger className="w-[180px]">
+                            <SelectTrigger className="w-full">
                               <SelectValue placeholder="Select category" />
                             </SelectTrigger>
                             <SelectContent>
@@ -318,19 +316,18 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                     name="user"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>User</FormLabel>
                         <FormControl>
                           <Select
                             disabled={isLoading}
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
-                            <SelectTrigger className="w-[180px]">
+                            <SelectTrigger className="w-full">
                               <SelectValue placeholder="Select user" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                <SelectLabel>Users</SelectLabel>
+                                <SelectLabel>Budget owner</SelectLabel>
                                 {users && users.map((item: User) => (
                                   <SelectItem key={item.uuid} value={item.uuid}>{item.username}</SelectItem>
                                 ))}
@@ -347,7 +344,6 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                     name="repeatType"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Repeat</FormLabel>
                         <FormControl>
                           <RadioGroup
                             disabled={isLoading}
@@ -355,17 +351,17 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                             defaultValue={field.value}
                             className={styles.radio}
                           >
-                            <Label>
+                            <Label className="w-full">
                               <RadioGroupItem value="" id="r1" />
                               <span>Do not repeat</span>
                             </Label>
-                            <Label>
+                            <Label className="w-full">
                               <RadioGroupItem value="weekly" id="r1" />
-                              <span>Weekly</span>
+                              <span>Repeat Weekly</span>
                             </Label>
                             <Label>
                               <RadioGroupItem value="monthly" id="r1" />
-                              <span>Monthly</span>
+                              <span>Repeat Monthly</span>
                             </Label>
                           </RadioGroup>
                         </FormControl>
@@ -373,8 +369,25 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Textarea
+                            disabled={isLoading}
+                            placeholder="Add description if you want"
+                            className="resize-none h-full"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                <div className="flex w-3/5 justify-end">
+                <div className="flex-1 w-3/5 justify-end">
                   <FormField
                     control={form.control}
                     name="budgetDate"
@@ -395,25 +408,6 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                     )}
                   />
                 </div>
-              </div>
-              <div>
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Textarea
-                          disabled={isLoading}
-                          placeholder="Add description if you want"
-                          className="resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
             </div>
             <Button type="submit">Submit</Button>
