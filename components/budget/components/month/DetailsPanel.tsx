@@ -1,11 +1,4 @@
 import { FC, useEffect, useState } from 'react'
-import {
-  Box,
-  Grid,
-  Paper,
-  Stack,
-  Typography
-} from '@mui/material'
 import GroupedBudgetButton from './GroupedBudgetButton'
 import { useBudgetMonth } from '@/hooks/budget'
 import {
@@ -16,6 +9,7 @@ import {
 import GroupedBudgetDetails from './GroupedBudgetDetails'
 import CategorySummaryCard from './CategorySummaryCard'
 import PreviousMonthsCard from './PreviousMonthsCard'
+import DetailsCalendar from './DetailsCalendar'
 
 interface Types {
   activeCategoryUuid: string
@@ -82,47 +76,35 @@ const DetailsPanel: FC<Types> = ({
   }
 
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        border: "1px solid rgba(0, 0, 0, 0.2)",
-        borderRadius: 5,
-      }}
-    >
-      <Stack justifyContent="center" sx={{ p: 2 }}>
-        <Typography align="center" variant="h3" mb={2}>
-          {title}
-        </Typography>
+    <div className="flex h-min-full flex-col p-2 rounded-lg bg-white border">
+      <span className="text-2xl font-semibold p-2 self-center">{title}</span>
         {activeBudgetUuid ?
-          <GroupedBudgetDetails
+          <DetailsCalendar
             title={budgetTitle}
             items={budgetItems}
-            startDate={startDate}
+            date={startDate}
             handleClose={handleCloseBudgetDetails}
+            clickShowTransactions={clickShowTransactions}
             weekUrl={weekUrl}
             monthUrl={monthUrl}
-            clickShowTransactions={clickShowTransactions}
           /> :
           activeCategory && (
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
                 <CategorySummaryCard item={activeCategory} />
-              </Grid>
-              <Grid item xs={6}>
+              </div>
+              <div>
                 <PreviousMonthsCard />
-              </Grid>
+              </div>
               {categoryBudgets.map((item: MonthGroupedBudgetItem) => (
-                <Grid item xs={6} key={item.uuid}>
-                  <Box key={item.uuid} onClick={() => setActiveBudgetUuid(item.uuid)}>
-                    <GroupedBudgetButton item={item} />
-                  </Box>
-                </Grid>
+                <div key={item.uuid} onClick={() => setActiveBudgetUuid(item.uuid)}>
+                  <GroupedBudgetButton item={item} />
+                </div>
               ))}
-            </Grid>
+            </div>
           )
         }
-      </Stack>
-    </Paper>
+    </div>
   )
 }
 

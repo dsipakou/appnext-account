@@ -1,11 +1,6 @@
 import React from 'react'
 import { useSession } from 'next-auth/react'
 import { useBudgetMonth } from '@/hooks/budget'
-import {
-  Box,
-  Grid,
-  Stack
-} from '@mui/material'
 import { GroupedByCategoryBudget } from '@/components/budget/types'
 import CategorySummaryButton from './CategorySummaryButton'
 import DetailsPanel from './DetailsPanel'
@@ -29,10 +24,7 @@ const Container: React.FC<Types> = ({
 }) => {
   const { data: { user: authUser }} = useSession()
   const [activeCategoryUuid, setActiveCategoryUuid] = React.useState<string>('')
-  const {
-    data: budget,
-    isLoading: isBudgetLoading
-  } = useBudgetMonth(startDate, endDate, user);
+  const { data: budget } = useBudgetMonth(startDate, endDate, user);
 
   React.useEffect(() => {
     if (!budget) return
@@ -43,8 +35,8 @@ const Container: React.FC<Types> = ({
   }, [budget])
 
   return (
-    <Grid container>
-      <Grid item xs={4}>
+    <div className="grid grid-cols-12">
+      <div className="col-span-4">
         <div className="flex flex-col gap-2">
           {budget && budget.map((item: GroupedByCategoryBudget) => (
             <div className="flex justify-center"
@@ -61,8 +53,8 @@ const Container: React.FC<Types> = ({
             </div>
           ))}
         </div>
-      </Grid>
-      <Grid item xs={8}>
+      </div>
+      <div className="col-span-8 h-full">
         <DetailsPanel
           activeCategoryUuid={activeCategoryUuid}
           startDate={startDate}
@@ -72,8 +64,8 @@ const Container: React.FC<Types> = ({
           weekUrl={weekUrl}
           monthUrl={monthUrl}
         />
-      </Grid>
-    </Grid>
+      </div>
+    </div>
   )
 }
 

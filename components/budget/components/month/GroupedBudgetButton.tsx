@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { useSession } from 'next-auth/react'
 import { CheckCircle, Repeat2 } from 'lucide-react'
-import { getDate, getDay, format } from 'date-fns'
+import { getDate, format } from 'date-fns'
 import { Progress } from '@/components/ui/progress'
 import {
   Tooltip,
@@ -96,11 +96,6 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
             indicatorclassname={`${percentage > 100 ? 'bg-red-500' : 'bg-blue-500'}`}
             color={progressColor}
             value={percentage > 100 ? percentage % 100 : percentage}
-            sx={{
-              height: 35,
-              mx: 2,
-              my: 1,
-            }}
           />
           <div className="absolute top-0 w-full h-full">
             <span className="flex text-white text-lg font-semibold h-full items-center justify-center">

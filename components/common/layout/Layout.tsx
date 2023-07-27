@@ -2,6 +2,7 @@ import React, { FC, ReactElement, ReactNode } from 'react'
 import { useSession } from 'next-auth/react'
 import axios from 'axios'
 import Link from 'next/link'
+import { User2 } from 'lucide-react'
 import { styled, Theme, CSSObject } from '@mui/material/styles'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,7 +22,6 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Container,
   Typography,
 } from '@mui/material'
 import AppBar from '@mui/material/AppBar'
@@ -166,6 +166,14 @@ const Layout: FC<Props> = ({ children }) => {
     },
   ]
 
+  const bottomMenuItems = [
+    {
+      name: 'Users',
+      icon: <User2 />,
+      link: '/users/'
+    },
+  ]
+
   const menuComponent = (name: string, icon: ReactElement, link: string): ReactElement => (
     <ListItem onClick={handleDrawerClose} key={name} disablePadding sx={{ display: 'block' }}>
       <Link href={link}>
@@ -233,6 +241,13 @@ const Layout: FC<Props> = ({ children }) => {
             <Box key={name}>
               {menuComponent(name, icon, link)}
             </Box>
+          ))}
+        </StyledList>
+        <StyledList className="self-end">
+          {bottomMenuItems.map(({ name, icon, link }) => (
+            <div key={name}>
+              {menuComponent(name, icon, link)}
+            </div>
           ))}
         </StyledList>
       </div>

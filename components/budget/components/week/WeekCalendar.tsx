@@ -30,7 +30,7 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
         variant="ghost"
         onClick={() => setWeekDate(subDays(weekDate, 7))}
       >
-        <div className="text-lg">&#8592;</div>
+        <span className="text-lg">&#8592;</span>
       </Button>
       <Popover>
         <PopoverTrigger asChild>
@@ -45,7 +45,7 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
           <Calendar
             mode="single"
             selected={range}
-            onSelect={setWeekDateProxy}
+            onSelect={(date: Date | undefined) => !!date && setWeekDateProxy(date)}
             showWeekNumber
             ISOWeek
             initialFocus
@@ -56,10 +56,10 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
         variant="ghost"
         onClick={() => setWeekDate(addDays(weekDate, 7))}
       >
-        <div className="text-lg">&#8594;</div>
+        <span className="text-lg">&#8594;</span>
       </Button>
     </div>
-  );
+  )
 }
 
 export default WeekCalendar;
