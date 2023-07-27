@@ -2,8 +2,6 @@ import React from 'react'
 import { useSession } from 'next-auth/react'
 import {
   addDays,
-  format,
-  isSameDay,
   isSameWeek,
   isSameMonth,
   isWeekend,
@@ -12,7 +10,7 @@ import {
   endOfMonth,
   endOfWeek,
 } from 'date-fns'
-import { XSquare } from 'lucide-react'
+import { X } from 'lucide-react'
 import { parseDate } from '@/utils/dateUtils'
 import { getFormattedDate } from '@/utils/dateUtils'
 import { MonthBudgetItem } from '@/components/budget/types'
@@ -92,9 +90,9 @@ const DetailsCalendar: React.FC<Types> = ({title, items, date, weekUrl, monthUrl
 
   return (
     <div className="flex flex-col gap-2 border rounded-md">
-      <div className="flex w-full justify-center items-center">
+      <div className="flex w-full py-2 justify-center items-center">
         <span className="m-auto text-xl font-bold">{title}</span>
-        <XSquare className="mt-1 mr-1 cursor-pointer" onClick={handleClose} />
+        <X className="mr-2 cursor-pointer" onClick={handleClose} />
       </div>
       <div className="grid grid-cols-7">{generateWeeksForCurrentMonth()}</div>
     </div>

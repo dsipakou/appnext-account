@@ -4,9 +4,8 @@ import { useBudgetMonth } from '@/hooks/budget'
 import {
   GroupedByCategoryBudget,
   MonthGroupedBudgetItem,
-  MonthBudgetItem
+  MonthBudgetItem,
 } from '@/components/budget/types'
-import GroupedBudgetDetails from './GroupedBudgetDetails'
 import CategorySummaryCard from './CategorySummaryCard'
 import PreviousMonthsCard from './PreviousMonthsCard'
 import DetailsCalendar from './DetailsCalendar'
@@ -108,4 +107,4 @@ const DetailsPanel: FC<Types> = ({
   )
 }
 
-export default DetailsPanel;
+export default DetailsPanel

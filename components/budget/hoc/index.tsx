@@ -15,13 +15,10 @@ import {
 } from '@/components/ui/select'
 import {
   Box,
-  Button,
-  ButtonGroup,
   LinearProgress,
-  Toolbar,
   Typography
 } from '@mui/material'
-import FileCopyIcon from '@mui/icons-material/FileCopy'
+import { Button } from '@/components/ui/button'
 import { useUsers } from '@/hooks/users'
 import { useBudgetMonth, useBudgetWeek } from '@/hooks/budget'
 import { User } from '@/components/users/types'
@@ -62,7 +59,6 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const [plannedSum, setPlannedSum] = useState<number>(0)
     const [spentSum, setSpentSum] = useState<number>(0)
     const [isOpenTransactionsForm, setIsOpenTransactionsForm] = useState<boolean>(false)
-    const [isOpenDuplicateForm, setIsOpenDuplicateForm] = useState<boolean>(false)
     const [activeBudgetUuid, setActiveBudgetUuid] = useState<string>('')
     const startDate = activeType === 'month' ? startOfMonth : startOfWeek
     const endDate = activeType === 'month' ? endOfMonth : endOfWeek
@@ -130,7 +126,6 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     }
 
     const handleCloseModal = () => {
-      setIsOpenDuplicateForm(false)
       setIsOpenTransactionsForm(false)
       setActiveBudgetUuid('')
     }
@@ -141,76 +136,42 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     }
 
     const toolbar = (
-      <Toolbar sx={{ pb: 1 }}>
-        <Typography variant="h4" sx={{ my: 2 }}>Budget</Typography>
-        <Box sx={{ flexGrow: 1 }} />
-        <ButtonGroup
-          disableElevation
-          size="large"
-          aria-label="outlined primary button group"
-          sx={{ backgroundColor: "info.dark" }}
-        >
+      <div className="flex justify-between items-center py-3">
+        <span className="text-xl font-bold">Budget</span>
+        <div className="flex border bg-blue-500 rounded-md">
           <Button
+            className="w-[180px] disabled:opacity-100 p-1"
             disabled={activeType === 'month'}
-            variant={activeType === 'month' ? "text" : "contained"}
+            variant="none"
             onClick={() => handleTypeButtonClick('month')}
-            sx={{ width: 180, p: 0, backgroundColor: "info.dark" }}
           >
-            <Typography
-              variant="h5"
-              sx={activeType === "month" ? {
-                display: 'flex',
-                justifyContent: 'center',
-                color: "info.dark",
-                backgroundColor: "white",
-                border: 4,
-                borderRadius: 2,
-                width: '100%',
-                height: '100%',
-                alignItems: 'center',
-              } : {}}
-            >
+            <span className={`text-xl ${activeType === 'month' ? 'flex justify-center items-center text-xl rounded-md text-blue-500 bg-white w-full h-full' : 'text-white'}`}>
               Monthly
-            </Typography>
+            </span>
           </Button>
           <Button
+            className="w-[180px] disabled:opacity-100 p-1"
             disabled={activeType === 'week'}
-            color="info"
-            variant={activeType === 'week' ? "text" : "contained"}
+            variant="none"
             onClick={() => handleTypeButtonClick('week')}
-            sx={{ width: 180, p: 0, backgroundColor: "info.dark" }}
           >
-            <Typography
-              variant="h5"
-              sx={activeType === "week" ? {
-                display: 'flex',
-                justifyContent: 'center',
-                color: 'info.dark',
-                backgroundColor: "white",
-                border: 4,
-                borderRadius: 2,
-                width: '100%',
-                height: '100%',
-                alignItems: 'center',
-              } : {}}
-            >
+            <span className={`text-xl ${activeType === 'week' ? 'flex justify-center items-center text-xl rounded-md text-blue-500 bg-white w-full h-full' : 'text-white'}`}>
               Weekly
-            </Typography>
+            </span>
           </Button>
-        </ButtonGroup>
-        <Box sx={{ flexGrow: 1 }} />
-        <Button
-          startIcon={<FileCopyIcon />}
-          variant="outlined"
-          onClick={() => setIsOpenDuplicateForm(true)}
-        >
-          Duplicate budget
-        </Button>
-        <AddForm
-          monthUrl={monthUrl}
-          weekUrl={weekUrl}
-        />
-      </Toolbar>
+        </div>
+        <div className="flex items-center">
+          <DuplicateForm
+            type={activeType}
+            date={activeType === 'month' ? monthDate : weekDate}
+            mutateBudget={mutateBudget}
+          />
+          <AddForm
+            monthUrl={monthUrl}
+            weekUrl={weekUrl}
+          />
+        </div>
+      </div>
     )
 
     const header = (
@@ -278,13 +239,6 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             />
           </div>
         </div>
-        <DuplicateForm
-          open={isOpenDuplicateForm}
-          type={activeType}
-          date={activeType === 'month' ? monthDate : weekDate}
-          handleClose={handleCloseModal}
-          mutateBudget={mutateBudget}
-        />
         {activeBudgetUuid && (
           <>
             <TransactionsForm
