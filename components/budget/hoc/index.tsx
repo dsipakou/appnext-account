@@ -16,7 +16,6 @@ import {
 import {
   Box,
   LinearProgress,
-  Typography
 } from '@mui/material'
 import { Button } from '@/components/ui/button'
 import { useUsers } from '@/hooks/users'

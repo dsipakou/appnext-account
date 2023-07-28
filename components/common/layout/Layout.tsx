@@ -200,19 +200,40 @@ const Layout: FC<Props> = ({ children }) => {
   )
 
   return (
-    <>
-      <header className="sticky top-0 z-50 bg-blue-500 text-white">
-        <div className="flex mx-2 py-2 items-center">
+    <div className="relative">
+      <div className={`fixed flex flex-col justify-between drop-shadow-sm transition-all ease-in-out delay-50 bg-white overflow-hidden z-100 h-screen ${open ? 'w-60' : 'w-16'}`}>
+        <div className="flex flex-col pt-2 items-start">
           <Button
             variant="link"
-            className="text-white"
+            className="mb-3 ml-1 mt-1 text-black justify-self-left"
             onClick={open ? handleDrawerClose : handleDrawerOpen}
           >
             <MenuIcon />
           </Button>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <StyledList>
+            {menuItems.map(({ name, icon, link }) => (
+              <Box key={name}>
+                {menuComponent(name, icon, link)}
+              </Box>
+            ))}
+          </StyledList>
+        </div>
+        <div>
+          <StyledList>
+            {bottomMenuItems.map(({ name, icon, link }) => (
+              <div key={name} className="w-full">
+                {menuComponent(name, icon, link)}
+              </div>
+            ))}
+          </StyledList>
+        </div>
+      </div>
+      <header className="z-50 bg-blue-500 text-white">
+        <div className="flex mx-2 py-2 justify-between items-center">
+          <span className="text-lg ml-20">
             Flying Budget
-          </Typography>
+          </span>
+          <div className="flex items-center">
           <div className="flex w-80">
             <Select
               defaultValue={user.currency}
@@ -233,28 +254,13 @@ const Layout: FC<Props> = ({ children }) => {
           </div>
           <span className="mx-4">Hello, {user.username}</span>
           <Link href="/logout"><span className="mr-4">Logout</span></Link>
+          </div>
         </div>
       </header>
-      <div className={`drop-shadow-sm transition-all ease-in-out delay-50 fixed bg-white overflow-hidden h-screen ${open ? 'w-60' : 'w-16'}`}>
-        <StyledList>
-          {menuItems.map(({ name, icon, link }) => (
-            <Box key={name}>
-              {menuComponent(name, icon, link)}
-            </Box>
-          ))}
-        </StyledList>
-        <StyledList className="self-end">
-          {bottomMenuItems.map(({ name, icon, link }) => (
-            <div key={name}>
-              {menuComponent(name, icon, link)}
-            </div>
-          ))}
-        </StyledList>
-      </div>
       <div className="container mx-auto max-w-screen-xl min-w-screen-lg">
         {children}
       </div>
-    </>
+    </div>
   )
 }
 
