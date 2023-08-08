@@ -14,8 +14,8 @@ interface Types {
 
 const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
   const range: DateRange = {
-    from: startOfWeek(weekDate, { weekStartsOn: 1 }),
-    to: endOfWeek(weekDate, { weekStartsOn: 1 })
+    from: startOfWeek(weekDate),
+    to: endOfWeek(weekDate)
   }
 
   const setWeekDateProxy = (date: Date | undefined) => {
@@ -38,7 +38,7 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
             variant="outline"
             className={`w-[280px] justify-start hover:bg-white border-2 h-12 text-left font-normal" ${weekDate && 'text-muted-foreground'}`}>
             <CalendarDays className="mr-2 h-6 w-6" />
-            {weekDate ? `Week ${getWeekOfMonth(weekDate, {weekStartsOn: 1})} of ${format(weekDate, "MMM, yyyy")}` : <span>Pick a date</span>}
+            {weekDate ? `Week ${getWeekOfMonth(weekDate)} of ${format(weekDate, "MMM, yyyy")}` : <span>Pick a date</span>}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="h-full w-full p-0">

@@ -6,10 +6,6 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
-import {
-  Box,
-  Toolbar,
-} from '@mui/material'
 import { useAccounts } from '@/hooks/accounts'
 import { useUsers } from '@/hooks/users'
 import { AccountResponse } from './types'
@@ -26,12 +22,11 @@ const Index: React.FC = () => {
   }
 
   return (
-    <>
-      <Toolbar sx={{ pb: 1 }}>
-        <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">Accounts</h4>
-        <Box sx={{ flexGrow: 1 }} />
+    <div className="flex flex-col">
+      <div className="flex w-full px-6 my-3 justify-between items-center">
+        <span className="text-xl font-semibold">Accounts</span>
         <AddAccount />
-      </Toolbar>
+      </div>
       <div className="grid grid-cols-3 gap-3">
         {accounts && accounts.map((item: AccountResponse) => (
           <div key={item.uuid}>
@@ -50,7 +45,7 @@ const Index: React.FC = () => {
           </div>
         ))}
       </div>
-    </>
+    </div>
   )
 }
 

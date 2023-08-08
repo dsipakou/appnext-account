@@ -24,12 +24,13 @@ const Container: React.FC<Types> = ({
 }) => {
   const { data: { user: authUser }} = useSession()
   const [activeCategoryUuid, setActiveCategoryUuid] = React.useState<string>('')
-  const { data: budget } = useBudgetMonth(startDate, endDate, user);
+  const { data: budget = [] } = useBudgetMonth(startDate, endDate, user);
 
   React.useEffect(() => {
-    if (!budget) return
+    if (!budget.length) return
 
     if (!activeCategoryUuid) {
+      console.log(budget)
       setActiveCategoryUuid(budget[0].uuid)
     }
   }, [budget])

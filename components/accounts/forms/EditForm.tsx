@@ -66,23 +66,20 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
     }
   })
 
-  const {
-    data: accounts,
-    isLoading: isAccountLoading
-  } = useAccounts()
+  const { data: accounts = [] } = useAccounts()
 
-  const { data: users } = useUsers()
+  const { data: users = [] } = useUsers()
 
-  const { data: categories } = useCategories()
+  const { data: categories = [] } = useCategories()
 
   React.useEffect(() => {
-    if (!categories) return
+    if (!categories.length) return
 
     setIncomeCategories(categories.filter((item: Category) => item.type === CategoryType.Income))
   }, [categories])
 
   React.useEffect(() => {
-    if (!accounts || isAccountLoading) return
+    if (!accounts.length) return
 
     const _account = accounts.find((_item: AccountResponse) => _item.uuid === uuid)!
 
@@ -91,11 +88,12 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
     form.setValue('isMain', _account.isMain)
     form.setValue('category', _account.category)
     form.setValue('description', _account.description)
-  }, [accounts, isAccountLoading])
+  }, [accounts])
 
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
       form.clearErrors()
+      form.reset()
     }
   }
 
@@ -196,7 +194,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                {users && users.map((item: User) => (
+                                {users.length && users.map((item: unknown) => (
                                   <SelectItem key={item.uuid} value={item.uuid}>{item.username}</SelectItem>
                                 ))}
                               </SelectGroup>

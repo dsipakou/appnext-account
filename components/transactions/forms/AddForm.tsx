@@ -67,11 +67,6 @@ interface KeyValue {
   [id: string]: string
 }
 
-interface SelectedItem {
-  uuid: string
-  name: string
-}
-
 const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   const [user, setUser] = React.useState('')
   const [baseCurrency, setBaseCurrency] = React.useState<string>('')
@@ -79,17 +74,12 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   const { mutate } = useSWRConfig()
   const { data: { user: authUser } } = useSession()
 
-  const {
-    data: users,
-    isLoading: isUsersLoading
-  } = useUsers()
+  const { data: users = [] } = useUsers()
 
-  const {
-    data: currencies = []
-  } = useCurrencies()
+  const { data: currencies = [] } = useCurrencies()
 
   React.useEffect(() => {
-    if (!authUser || !users) return
+    if (!authUser || !users.length) return
 
     const _user = users.find((item: User) => item.username === authUser.username)!
     setUser(_user.uuid)
@@ -243,6 +233,8 @@ const AddForm: React.FC<Types> = ({ url, open, handleClose, budget }) => {
   if (budget) {
     console.log(budget)
     emptyRow = {...emptyRow, budget }
+  } else {
+    emptyRow = {...emptyRow, budget: '' }
   }
 
   const getTrimmedCategoryName = (uuid: string): string => {

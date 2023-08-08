@@ -53,26 +53,14 @@ const Index: React.FC = () => {
   }
 
   return (
-    <Grid container spacing={4} sx={{ mt: 5 }}>
-      <Grid item xs={6}>
-        <Box
-          sx={{
-            backgroundColor: 'blue',
-            p: 4,
-            height: '100%',
-            borderRadius: '25px',
-            color: 'white'
-          }}
-        >
-          <Typography variant="h3">
-            Welcome to Fly Budget
-          </Typography>
-          <Typography variant="h5">
-            Create an account now to control your expenses
-          </Typography>
-        </Box>
-      </Grid>
-      <Grid item xs={6}>
+    <div className="flex w-full h-screen gap-5">
+      <div className="flex-1">
+        <div className="flex flex-col bg-blue-500 p-4 h-full text-white gap-5">
+          <span className="text-2xl font-bold">Welcome to Fly Budget</span>
+          <span className="text-xl">Create an account now to control your expenses</span>
+        </div>
+      </div>
+      <div className="flex-1">
         <Stack spacing={4}>
           <Typography variant="h4">
             Sign Up
@@ -120,8 +108,8 @@ const Index: React.FC = () => {
             <Typography>{error}</Typography>
           ))}
         </Stack>
-      </Grid>
-    </Grid>
+      </div>
+    </div>
   )
 }
 

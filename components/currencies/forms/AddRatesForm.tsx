@@ -1,94 +1,92 @@
-import { ChangeEvent, FC, useEffect, useState } from 'react';
+import React from 'react';
 import InputMask from 'react-input-mask';
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogTitle,
-  DialogContent,
-  Grid,
-  InputAdornment,
-  Stack,
-  TextField,
-} from '@mui/material';
 import axios from 'axios';
 import { useSWRConfig } from 'swr';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { StaticDatePicker } from '@mui/x-date-pickers';
+import { useForm } from 'react-hook-form'
+import { useToast } from '@/components/ui/use-toast'
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import { useRatesOnDate } from '@/hooks/rates';
 import { getFormattedDate } from '@/utils/dateUtils';
 import { RateResponse } from '@/hooks/rates';
 import { Currency, RatePostRequest, RateItemPostRequest } from '../types';
 
 interface Types {
-  open: boolean
-  onClose: () => void
-  onSave: () => void
   currencies: Currency[]
 }
 
-interface RatesMap {
-  [key: string]: number
+interface FormData {
+  rateDate: Date
+  [dynamicKey: string]: number | string
 }
 
-const AddRatesForm: FC<Types> = ({ open, onSave, onClose, currencies = [] }) => {
+const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
   const { mutate } = useSWRConfig();
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date);
-  const [ratesInputMap, setRatesInputMap] = useState({});
-  const [errors, setErrors] = useState<string[]>([]);
-  const { data: ratesOnDate, isLoading, url } = useRatesOnDate(getFormattedDate(selectedDate));
+  const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
+  const [errors, setErrors] = React.useState<string[]>([]);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const form = useForm<FormData>()
+  const { data: ratesOnDate = [], url } = useRatesOnDate(getFormattedDate(selectedDate));
 
-  useEffect(() => {
-    if (!ratesOnDate || isLoading || !open) return;
+  const { toast } = useToast()
 
-    let ratesValues = {}
+  React.useEffect(() => {
+    form.setValue('rateDate', selectedDate)
+    if (currencies.length) {
+      currencies.forEach((item: Currency) => {
+        form.setValue(item.uuid, '')
+      })
+    }
 
-    ratesOnDate.forEach(
-      (item: RateResponse) => {
-        ratesValues = {
-          ...ratesValues,
-          [item.currency]: item.rate,
-        } as RatesMap
-      }
-    )
-    setRatesInputMap(ratesValues);
-  }, [isLoading, selectedDate, open]);
+    if (!ratesOnDate.length) return
+
+    ratesOnDate.forEach( (item: RateResponse) => {
+      form.setValue(item.currency, item.rate)
+    })
+  }, [selectedDate, ratesOnDate])
+
+  const changeDate = (day: Date | undefined) => {
+    if (!!day) {
+      setSelectedDate(day)
+    }
+  }
 
   const getBaseCurrency = (): Currency => {
     return currencies.find((item: Currency) => item.isBase)!
   }
 
-  const handleDateChange = (date: Date | null): void => {
-    if (date !== null) setSelectedDate(date);
-  }
-
-  const handleRateChange = (uuid: string, e: ChangeEvent): void => {
-    const ratesValues = {
-      ...ratesInputMap,
-      [uuid]: e.target.value,
-    }
-    setRatesInputMap(ratesValues);
-  }
-
-  const prepareSaveRequest = (): RatePostRequest => {
+  const prepareSaveRequest = (formData: FormData): RatePostRequest => {
     const requestPayload: RatePostRequest = {
-      baseCurrency: getBaseCurrency().code,
+      baseCurrency: getBaseCurrency().uuid,
       items: [],
-      rateDate: getFormattedDate(selectedDate),
+      rateDate: getFormattedDate(formData.rateDate),
     }
 
-    Object.keys(ratesInputMap).forEach((_uuid: string) => {
-      const code = currencies.find(
-        (_currency: Currency) => _currency.uuid === _uuid
-      )!.code
-      const normalizedRate: number = typeof ratesInputMap[_uuid] === 'number' ?
-        ratesInputMap[_uuid] :
-        Number(ratesInputMap[_uuid].replace(/[^0-9.]/g, ''))
+    Object.keys(formData).forEach((uuid: string) => {
+      if (uuid === 'rateDate') return
+
+      const normalizedRate: number = typeof formData[uuid] === 'number' ?
+        Number(formData[uuid]) :
+        Number(String(formData[uuid]).replace(/[^0-9.]/g, ''))
       const rateItem: RateItemPostRequest = {
-        code,
-        rate: normalizedRate
+        currency: uuid,
+        rate: String(normalizedRate)
       }
       if (normalizedRate !== 0) requestPayload.items.push(rateItem);
     });
@@ -96,10 +94,10 @@ const AddRatesForm: FC<Types> = ({ open, onSave, onClose, currencies = [] }) => 
     return requestPayload;
   }
 
-  const handleSave = async (): void => {
-    setErrors([]);
+  const handleSave = (formData: FormData): void => {
+    setIsLoading(true)
 
-    const payload = prepareSaveRequest();
+    const payload = prepareSaveRequest(formData);
 
     axios.post('rates/batched/', {
       ...payload,
@@ -107,8 +105,9 @@ const AddRatesForm: FC<Types> = ({ open, onSave, onClose, currencies = [] }) => 
       res => {
         if (res.status === 200) {
           mutate(url)
-          onSave()
-          handleClose()
+          toast({
+            title: "Saved!"
+          })
         } else {
           // TODO: handle errors
         }
@@ -117,66 +116,84 @@ const AddRatesForm: FC<Types> = ({ open, onSave, onClose, currencies = [] }) => 
       (error) => {
         const errRes = error.response.data;
         for (const prop in errRes) {
+        toast({
+            variant: "destructive",
+            title: "Something went wrong",
+            description: prop,
+          })
           setErrors(errRes[prop]);
         }
       }
     ).finally(() => {
-      // TODO: stop loading
+        setIsLoading(false)
     })
   }
 
-  const handleClose = (): void => {
-    setRatesInputMap({});
-    onClose();
-  }
-
   return (
-    <Dialog maxWidth="sm" fullWidth={true} open={open} onClose={handleClose}>
-      <DialogTitle>Add rates</DialogTitle>
+    <Dialog>
+      <DialogTrigger asChild className="mx-2">
+        <Button variant="outline" className="text-blue-500 border-blue-500 hover:text-blue-600">+ Add rates</Button>
+      </DialogTrigger>
       <DialogContent>
-        <Grid container spacing={2}>
-          <Grid item xs={4}>
-            <Stack gap={1}>
-              {currencies.map((item: Currency) => (!item.isBase &&
-                <Box key={item.uuid}>
-                  <InputMask
-                    mask='9.9999'
-                    value={ratesInputMap[item.uuid] || ''}
-                    onChange={(e: ChangeEvent) => handleRateChange(item.uuid, e)}
-                  >
-                    {() => (
-                      <TextField
-                        fullWidth
-                        InputProps={{
-                          startAdornment: <InputAdornment position="start">{item.sign}</InputAdornment>,
-                        }}
-                      />
-                    )}
-                  </InputMask>
-                </Box>
-              ))}
-            </Stack>
-          </Grid>
-          <Grid item xs={8}>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <StaticDatePicker
-                displayStaticWrapperAs="desktop"
-                disabled={isLoading}
-                openTo="day"
-                value={selectedDate}
-                onChange={handleDateChange}
-                renderInput={(params) => <TextField {...params}
-                />}
-              >
-              </StaticDatePicker>
-            </LocalizationProvider>
-          </Grid>
-        </Grid>
+        <DialogHeader>
+          <DialogTitle>Add or update rates for currencies</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
+            <div className="flex space-y-3">
+              <div className="flex flex-col space-y-2 w-1/3">
+              {
+                currencies.map((item: Currency) => (!item.isBase && (
+                  <div className="flex" key={item.uuid}>
+                    <FormField
+                      control={form.control}
+                      name={item.uuid}
+                      render={({ field }) => (
+                        <FormItem className="flex items-center gap-2">
+                          <FormControl>
+                            <InputMask
+                              mask='9.9999'
+                              disabled={isLoading}
+                              {...field}
+                            >
+                              {() => (
+                                <Input className="w-20" />
+                              )}
+                            </InputMask>
+                          </FormControl>
+                          <FormLabel>{item.sign}</FormLabel>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )))
+              }
+              </div>
+              <div>
+                <FormField
+                  control={form.control}
+                  name="rateDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Calendar
+                          disabled={isLoading}
+                          mode="single"
+                          selected={field.value}
+                          onSelect={changeDate}
+                          initialFocus
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+            <Button disabled={isLoading} variant="default" type="submit">Save</Button>
+          </form>
+        </Form>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Close</Button>
-        <Button variant="contained" disabled={isLoading} onClick={handleSave}>Save</Button>
-      </DialogActions>
     </Dialog>
   )
 }

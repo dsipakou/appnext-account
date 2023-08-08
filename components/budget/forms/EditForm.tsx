@@ -159,6 +159,7 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
       form.clearErrors()
+      form.reset()
     }
     setOpen(false)
   }

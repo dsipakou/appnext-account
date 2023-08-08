@@ -25,8 +25,15 @@ interface Types {
   clickShowTransactions: (uuid: string) => void
 }
 
-const CalendarBudgetItem: React.FC<Types> = ({ item, date, currency, currencies, weekUrl, monthUrl, clickShowTransactions }) => {
-  const [isMenuOpened, setIsMenuOpened] = React.useState<boolean>(false)
+const CalendarBudgetItem: React.FC<Types> = ({
+  item,
+  date,
+  currency,
+  currencies,
+  weekUrl,
+  monthUrl,
+  clickShowTransactions,
+}) => {
   const [isEditDialogOpened, setIsEditDialogOpened] = React.useState<boolean>(false)
   const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] = React.useState<boolean>(false)
 

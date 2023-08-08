@@ -2,14 +2,12 @@ import { useState } from 'react';
 import Link from 'next/link';
 import {
   Box,
-  Button,
   Grid,
   Paper,
   Skeleton,
   Toolbar,
   Typography
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
 import { Category } from './types';
 import { useCategories } from '../../hooks/categories';
 import AddForm from './forms/AddForm';

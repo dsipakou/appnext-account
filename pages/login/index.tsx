@@ -1,3 +1,3 @@
-import Index from '@/components/login';
+import Index from '@/components/login'
 
-export default Index;
+export default Index

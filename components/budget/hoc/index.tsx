@@ -64,8 +64,8 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
 
     const { data: users } = useUsers();
 
-    const { data: budgetMonth, url: monthUrl } = useBudgetMonth(startOfMonth, endOfMonth, user)
-    const { data: budgetWeek, url: weekUrl } = useBudgetWeek(startOfWeek, endOfWeek, user)
+    const { data: budgetMonth = [], url: monthUrl } = useBudgetMonth(startOfMonth, endOfMonth, user)
+    const { data: budgetWeek = [], url: weekUrl } = useBudgetWeek(startOfWeek, endOfWeek, user)
 
     const handleClickTransactions = (uuid: string): void => {
       setActiveBudgetUuid(uuid)
@@ -206,7 +206,13 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           }
         </div>
       </div>
-    );
+    )
+
+    const emptyState = (
+      <div className="flex f-full h-full pt-20 justify-center items-center">
+        <span className="text-2xl">No plans for selected period</span>
+      </div>
+    )
 
     return (
       <>
@@ -227,15 +233,23 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             {header}
           </div>
           <div className="w-full mt-5">
-            <Component
-              startDate={startDate}
-              endDate={endDate}
-              clickShowTransactions={handleClickTransactions}
-              mutateBudget={mutateBudget}
-              user={user}
-              weekUrl={weekUrl}
-              monthUrl={monthUrl}
-            />
+            { 
+              (activeType === 'month' && !budgetMonth.length) || (activeType === 'week' && !budgetWeek.length) 
+              ? (
+                emptyState
+              ) 
+              : (
+                <Component
+                  startDate={startDate}
+                  endDate={endDate}
+                  clickShowTransactions={handleClickTransactions}
+                  mutateBudget={mutateBudget}
+                  user={user}
+                  weekUrl={weekUrl}
+                  monthUrl={monthUrl}
+                />
+              )
+            }
           </div>
         </div>
         {activeBudgetUuid && (

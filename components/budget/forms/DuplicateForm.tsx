@@ -35,6 +35,7 @@ const BudgetCard: React.FC<BudgetCardTypes> = ({
   handleClick
 }) => {
   return (
+  <>
     <div className={`overflow-hidden w-full h-24 cursor-pointer border rounded p-2 ${!selected ? 'drop-shadow-md bg-white' : 'text-white bg-blue-500'}`}
       onClick={handleClick}
     >
@@ -46,6 +47,9 @@ const BudgetCard: React.FC<BudgetCardTypes> = ({
         <span className="text-md font-semibold">{title}</span>
       </div>
     </div>
+    <div className="test flex flex-col">
+    </div>
+  </>
   )
 }
 
@@ -109,7 +113,7 @@ const DuplicateForm: React.FC<Types> = ({ date, type, mutateBudget }) => {
   return (
     <Dialog onOpenChange={clearForm}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="text-blue-500 border-blue-500"><Copy className="mr-2" /> Duplicate</Button>
+        <Button variant="outline" className="text-blue-500 border-blue-500 hover:text-blue-600"><Copy className="mr-2" /> Duplicate</Button>
       </DialogTrigger>
       <DialogContent className="min-w-[600px]">
         { budgetList.length > 0 && (

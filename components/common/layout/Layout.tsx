@@ -1,5 +1,5 @@
 import React, { FC, ReactElement, ReactNode } from 'react'
-import { useSession } from 'next-auth/react'
+import { signOut, useSession } from 'next-auth/react'
 import axios from 'axios'
 import Link from 'next/link'
 import { User2 } from 'lucide-react'
@@ -234,26 +234,32 @@ const Layout: FC<Props> = ({ children }) => {
             Flying Budget
           </span>
           <div className="flex items-center">
-          <div className="flex w-80">
-            <Select
-              defaultValue={user.currency}
-              onValueChange={handleCurrencyChange}
+            <div className="flex w-80">
+              <Select
+                defaultValue={user.currency}
+                onValueChange={handleCurrencyChange}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select currency" />
+                </SelectTrigger>
+                <SelectContent className="flex bg-white w-full pt-1" position="popper">
+                  <SelectGroup>
+                    <SelectLabel>Displayed currency</SelectLabel>
+                    {currencies && currencies.map((item: Currency) => (
+                      <SelectItem key={item.code} value={item.code}>{item.verbalName}</SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+            <span className="mx-4">Hello, {user.username}</span>
+            <Button
+              variant="link"
+              className="text-white"
+              onClick={() => signOut({callbackUrl: '/login'})}
             >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select currency" />
-              </SelectTrigger>
-              <SelectContent className="flex bg-white w-full pt-1" position="popper">
-                <SelectGroup>
-                  <SelectLabel>Displayed currency</SelectLabel>
-                  {currencies && currencies.map((item: Currency) => (
-                    <SelectItem key={item.code} value={item.code}>{item.verbalName}</SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-          <span className="mx-4">Hello, {user.username}</span>
-          <Link href="/logout"><span className="mr-4">Logout</span></Link>
+              Logout
+            </Button>
           </div>
         </div>
       </header>

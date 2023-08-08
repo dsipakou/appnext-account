@@ -4,7 +4,6 @@ import {
   DialogContent,
   DialogTitle
 } from '@mui/material'
-import { useBudgetDetails } from '@/hooks/budget'
 import { useBudgetTransactions } from '@/hooks/transactions'
 
 interface Props {
