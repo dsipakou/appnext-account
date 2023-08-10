@@ -1,8 +1,16 @@
-import { FC, useEffect, useState } from 'react';
+import React from 'react';
 import { useSWRConfig } from 'swr';
-import { Box, Button, Grid, FormControl, InputLabel, MenuItem, Select, Toolbar, Typography } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
 import { useRates, useRatesChart } from '@/hooks/rates';
+import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import CurrencyCard from './CurrencyCard';
 import { useCurrencies } from '@/hooks/currencies';
 import { Currency, ChartPeriod, ChartPeriodMap } from './types';
@@ -12,26 +20,22 @@ import EditForm from './forms/EditForm';
 import ConfirmDeleteForm from './forms/ConfirmDeleteForm';
 import AddRatesForm from './forms/AddRatesForm';
 
-const Index: FC = () => {
-  const { mutate } = useSWRConfig();
-  const [selectedCurrencies, setSelectedCurrencies] = useState<Currency[]>([]);
-  const [isAddCurrencyOpen, setIsAddCurrencyOpen] = useState<boolean>(false);
-  const [isEditCurrencyOpen, setIsEditCurrencyOpen] = useState<boolean>(false);
-  const [isDeleteCurrencyOpen, setIsDeleteCurrencyOpen] = useState<boolean>(false);
-  const [isRatesFormOpen, setIsRatesFormOpen] = useState<boolean>(false);
-  const [period, setPeriod] = useState<ChartPeriod>("month")
-  const [activeCurrency, setActiveCurrency] = useState<Currency>();
-  const { data: currencies, isLoading, isError } = useCurrencies();
+const Index: React.FC = () => {
+
+  const [selectedCurrencies, setSelectedCurrencies] = React.useState<Currency[]>([]);
+  const [isAddCurrencyOpen, setIsAddCurrencyOpen] = React.useState<boolean>(false);
+  const [isEditCurrencyOpen, setIsEditCurrencyOpen] = React.useState<boolean>(false);
+  const [isDeleteCurrencyOpen, setIsDeleteCurrencyOpen] = React.useState<boolean>(false);
+  const [period, setPeriod] = React.useState<ChartPeriod>("month")
+  const [activeCurrency, setActiveCurrency] = React.useState<string>();
+  const { data: currencies = [] } = useCurrencies();
   const {
-    data: chartRates,
+    data: chartRates = [],
     isLoading: isChartLoading,
-    isError: isChartError,
     url: chartRatesUrl,
   } = useRatesChart(ChartPeriodMap[period]);
   const {
-    data: rates,
-    isLoading: isRatesLoading,
-    isError: isRatesError,
+    data: rates = [],
     url: ratesUrl,
   } = useRates(2);
 
@@ -43,20 +47,18 @@ const Index: FC = () => {
     }
   }
 
-  const changeChartPeriod = (e: SelectChangeEvent) => {
-    const period: ChartPeriod = e.target.value;
-    setPeriod(period);
+  const changeChartPeriod = (value: ChartPeriod) => {
+    const period: ChartPeriod = value
+    setPeriod(period)
   }
+
+  const baseCurrency = currencies.find((item: Currency) => item.isBase)
 
   const unselectCurrency = (code: string): void => {
     if (selectedCurrencies.find((item: Currency) => item.code === code)) {
       setSelectedCurrencies(selectedCurrencies.filter((item: Currency) => item.code !== code));
     }
   }
-
-  const openAddCurrencyForm = (): void => {
-    setIsAddCurrencyOpen(true);
-  };
 
   const openDeleteCurrencyForm = (uuid: string): void => {
     setActiveCurrency(uuid);
@@ -68,15 +70,6 @@ const Index: FC = () => {
     setIsEditCurrencyOpen(true);
   }
 
-  const openAddRatesForm = (): void => {
-    setIsRatesFormOpen(true);
-  }
-
-  const handleRateSave = (): void => {
-    mutate(chartRatesUrl)
-    mutate(ratesUrl)
-  }
-
   const closeAddCurrencyForm = (): void => {
     setIsAddCurrencyOpen(false);
   };
@@ -84,11 +77,10 @@ const Index: FC = () => {
   const handleCloseModals = (): void => {
     setIsEditCurrencyOpen(false);
     setIsDeleteCurrencyOpen(false);
-    setIsRatesFormOpen(false);
   }
 
   const currencyCard = (item: Currency, index: number) => (
-    <Grid item key={index}>
+    <div key={index}>
       <CurrencyCard
         currency={item}
         rates={rates}
@@ -97,75 +89,79 @@ const Index: FC = () => {
         handleDeleteClick={openDeleteCurrencyForm}
         handleEditClick={openEditCurrencyForm}
       />
-    </Grid>
+    </div>
   )
 
   return (
-    <>
-      <Toolbar sx={{ pb: 1 }}>
-        <Typography variant="h4" sx={{ my: 2 }}>Currencies</Typography>
-        <Box sx={{ flexGrow: 1 }} />
-        <Button
-          startIcon={<AddIcon />}
-          variant="contained"
-          sx={{ textTransform: 'none' }}
-          onClick={openAddCurrencyForm}
-        >
-          Add currency
-        </Button>
-      </Toolbar>
-      <Box>
-        <Grid container spacing={2} wrap="nowrap" sx={{ overflowX: 'scroll', pb: 2 }}>
-          {currencies && currencies.map((item: Currency, index: number) => (
-            !item.isBase && currencyCard(item, index)
-          ))}
-        </Grid>
-        <Grid container justifyContent="center" sx={{ mt: 5 }}>
-          <Grid item xs={12}>
-            <Toolbar>
-              <FormControl>
-                <InputLabel id="chart-select-label">Range</InputLabel>
-                <Select
-                  labelId="chart-select-label"
-                  label="Range"
-                  value={period}
-                  sx={{ width: 300, justifyContent: 'flex-end' }}
-                  onChange={changeChartPeriod}
-                >
-                  <MenuItem value="month">Month</MenuItem>
-                  <MenuItem value="quarter">3 months</MenuItem>
-                  <MenuItem value="biannual">6 months</MenuItem>
-                  <MenuItem value="annual">Year</MenuItem>
-                </Select>
-              </FormControl>
-              <Box sx={{ flexGrow: 1 }} />
-              <Button
-                startIcon={<AddIcon />}
-                variant="contained"
-                sx={{ textTransform: 'none' }}
-                onClick={openAddRatesForm}
-              >
-                Add rates
-              </Button>
-            </Toolbar>
-          </Grid>
-          <Grid item>
-            <CurrencyChart
-              data={chartRates}
-              isLoading={isChartLoading}
-              currencies={selectedCurrencies}
-              period={period}
-              changePeriod={changeChartPeriod}
-            />
-          </Grid>
-        </Grid>
-      </Box>
-      <AddForm open={isAddCurrencyOpen} handleClose={closeAddCurrencyForm} />
-      <EditForm open={isEditCurrencyOpen} uuid={activeCurrency} handleClose={handleCloseModals} />
-      <ConfirmDeleteForm open={isDeleteCurrencyOpen} uuid={activeCurrency} handleClose={handleCloseModals} />
-      <AddRatesForm open={isRatesFormOpen} onClose={handleCloseModals} onSave={handleRateSave} currencies={currencies} />
-    </>
+    <div className="flex flex-col">
+      <div className="flex w-full px-6 my-3 justify-between items-center">
+        <span className="text-xl font-semibold">Currencies</span>
+        <div>
+          {currencies.length && <AddRatesForm currencies={currencies} />}
+          <AddForm open={isAddCurrencyOpen} handleClose={closeAddCurrencyForm} />
+        </div>
+      </div>
+      { !currencies.length ? (
+        <div className="flex w-full justify-center pt-3">
+          <span className="text-2xl">Add your base currency first</span>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center">
+          <div className="flex items-center w-2/3 justify-center gap-3 p-1 mb-2 bg-white border rounded">
+            <span className="text-xl">Base currency:</span>
+            <span className="text-xl font-semibold">{baseCurrency.verbalName}</span>
+            <Button className="h-6" onClick={() => openEditCurrencyForm(baseCurrency.uuid)}>Edit</Button>
+          </div>
+          <div className="flex gap-3 w-full nowrap overflow-x-scroll p-2">
+            {currencies.length && currencies.map((item: Currency, index: number) => (
+              !item.isBase && currencyCard(item, index)
+            ))}
+          </div>
+          {
+            !!selectedCurrencies.length ? (
+              <div className="flex flex-col mt-10 justify-center w-full">
+                <div className="flex justify-between">
+                  <div className="flex gap-2 items-center pl-10">
+                    <span className="text-sm font-semibold">Show data for</span>
+                    <Select
+                      defaultValue={period || 'month'}
+                      onValueChange={changeChartPeriod}
+                    >
+                      <SelectTrigger className="relative bg-white w-40">
+                        <SelectValue placeholder="Select period" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Period</SelectLabel>
+                          <SelectItem value="month">Month</SelectItem>
+                          <SelectItem value="quarter">3 months</SelectItem>
+                          <SelectItem value="biannual">6 months</SelectItem>
+                          <SelectItem value="annual">Year</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div>
+                  <CurrencyChart
+                    data={chartRates}
+                    isLoading={isChartLoading}
+                    currencies={selectedCurrencies}
+                    period={period}
+                    changePeriod={changeChartPeriod}
+                  /> 
+                </div>
+              </div>
+            ) : (
+              <span className="text-xl">Choose any currency to view the chart</span>
+            )
+          }
+        </div>
+      )}
+      <EditForm uuid={activeCurrency} open={isEditCurrencyOpen} setOpen={handleCloseModals} />
+      <ConfirmDeleteForm uuid={activeCurrency} open={isDeleteCurrencyOpen} handleClose={handleCloseModals} />
+    </div>
   )
 }
 
-export default Index;
+export default Index

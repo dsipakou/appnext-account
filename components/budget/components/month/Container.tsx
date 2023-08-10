@@ -1,53 +1,46 @@
 import React from 'react'
+import { useSession } from 'next-auth/react'
 import { useBudgetMonth } from '@/hooks/budget'
-import {
-  Box,
-  Grid,
-  Stack
-} from '@mui/material'
 import { GroupedByCategoryBudget } from '@/components/budget/types'
 import CategorySummaryButton from './CategorySummaryButton'
 import DetailsPanel from './DetailsPanel'
-import { useAuth } from '@/context/auth'
 
 interface Types {
   startDate: string
   endDate: string
   user: string
+  weekUrl: string
+  monthUrl: string
   clickShowTransactions: (uuid: string) => void
-  clickEdit: (uuid: string) => void
-  clickDelete: (uuid: string) => void
 }
 
 const Container: React.FC<Types> = ({
   startDate,
   endDate,
   user,
+  weekUrl,
+  monthUrl,
   clickShowTransactions,
-  clickEdit,
-  clickDelete
 }) => {
-  const { user: authUser } = useAuth();
+  const { data: { user: authUser }} = useSession()
   const [activeCategoryUuid, setActiveCategoryUuid] = React.useState<string>('')
-  const {
-    data: budget,
-    isLoading: isBudgetLoading
-  } = useBudgetMonth(startDate, endDate, user);
+  const { data: budget = [] } = useBudgetMonth(startDate, endDate, user);
 
   React.useEffect(() => {
-    if (!budget) return
+    if (!budget.length) return
 
     if (!activeCategoryUuid) {
+      console.log(budget)
       setActiveCategoryUuid(budget[0].uuid)
     }
   }, [budget])
 
   return (
-    <Grid container>
-      <Grid item xs={4}>
-        <Stack spacing={1}>
+    <div className="grid grid-cols-12">
+      <div className="col-span-4">
+        <div className="flex flex-col gap-2">
           {budget && budget.map((item: GroupedByCategoryBudget) => (
-            <Box
+            <div className="flex justify-center"
               key={item.uuid}
               onClick={() => setActiveCategoryUuid(item.uuid)}
             >
@@ -58,22 +51,22 @@ const Container: React.FC<Types> = ({
                 spent={item.spentInCurrencies[authUser?.currency]}
                 currencyCode={authUser?.currency}
               />
-            </Box>
+            </div>
           ))}
-        </Stack>
-      </Grid>
-      <Grid item xs={8}>
+        </div>
+      </div>
+      <div className="col-span-8 h-full">
         <DetailsPanel
           activeCategoryUuid={activeCategoryUuid}
           startDate={startDate}
           endDate={endDate}
           user={user}
           clickShowTransactions={clickShowTransactions}
-          clickEdit={clickEdit}
-          clickDelete={clickDelete}
+          weekUrl={weekUrl}
+          monthUrl={monthUrl}
         />
-      </Grid>
-    </Grid>
+      </div>
+    </div>
   )
 }
 

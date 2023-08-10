@@ -1,55 +1,58 @@
-import { FC, useEffect, useState } from 'react';
+import React from 'react';
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  Box,
-  Typography,
-  Button,
-} from '@mui/material';
+  DialogFooter,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import axios from 'axios';
 import { useSWRConfig } from 'swr';
 import { useRouter } from 'next/router';
-import { useCategories } from '../../../hooks/categories';
-import { Category } from '../types';
+import { useToast } from '@/components/ui/use-toast'
+import { CategoryResponse, useCategories } from '../../../hooks/categories';
 
 interface Types {
-  open: boolean,
   uuid: string,
-  handleClose: () => void;
 }
 
-const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose }) => {
-  const [category, setCategory] = useState('');
-  const [errors, setErrors] = useState([]);
-  const { data: categories, isLoading, isError } = useCategories();
+const ConfirmDeleteForm: React.FC<Types> = ({ uuid }) => {
+  const [category, setCategory] = React.useState<CategoryResponse>();
+  const [open, setOpen] = React.useState<boolean>(false)
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const { mutate } = useSWRConfig();
   const router = useRouter();
+  const { toast } = useToast()
+
+  const { data: categories } = useCategories();
   const { uuid: queryUuid } = router.query;
 
-  useEffect(() => {
-    if (isLoading) return;
+  React.useEffect(() => {
+    if (!categories) return;
 
-    const category = categories.find((category: Category) => category.uuid === uuid);
-    setCategory(category);
+    const _category = categories.find((category: CategoryResponse) => category.uuid === uuid);
+    if (_category) {
+      setCategory(_category)
+    }
 
-    return () => setErrors([]);
-  }, [isLoading, categories, uuid])
+  }, [categories, uuid])
 
   const handleDelete = () => {
-    // TODO: start loading
-    setErrors([]);
+    setIsLoading(true)
     axios
-      .delete(`categories/${category.uuid}`)
+      .delete(`categories/${category!.uuid}`)
       .then(
         res => {
           if (res.status === 204) {
-            if (category.uuid === queryUuid) {
+            if (category!.uuid === queryUuid) {
               router.push('/categories/');
             }
             mutate('categories/');
-            handleClose();
+            setOpen(false)
+            toast({
+              title: `Category '${category?.name}' deleted!`
+            })
           } else {
             // TODO: handle errors [non-empty parent,]
           }
@@ -57,37 +60,34 @@ const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose }) => {
       )
       .catch(
         (err) => {
-          setErrors(err.response.data);
+          toast({
+            variant: 'destructive',
+            title: 'Something went wrong'
+          })
         }
       )
       .finally(
         () => {
-          // TODO: stop-loading
+          setIsLoading(false)
         }
       );
   };
 
   return (
-    <Dialog maxWidth="sm" fullWidth={true} open={open} onClose={handleClose}>
-      <DialogTitle>Please, confirm deletion</DialogTitle>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="link">Delete</Button>
+      </DialogTrigger>
       <DialogContent>
-        {errors.length > 0 && (
-          <Box>
-            {errors.map((message: string) => (
-              <Typography key={message} color="red">{message}</Typography>
-            ))}
-          </Box>
-        )}
-        <Box>
-          <Typography variant="body1">
-            You are about to delete {category?.name} category
-          </Typography>
-        </Box>
+        <DialogTitle>Please, confirm deletion</DialogTitle>
+        <p className="leading-7">
+          You are about to delete '{category?.name}' category
+        </p>
+        <DialogFooter>
+          <Button disabled={isLoading} variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button disabled={isLoading} variant="destructive" onClick={handleDelete}>Delete</Button>
+        </DialogFooter>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button color="warning" variant="contained" onClick={handleDelete}>Delete</Button>
-      </DialogActions>
     </Dialog>
   )
 }

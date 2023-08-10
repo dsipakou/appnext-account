@@ -4,6 +4,7 @@ import BudgetComponent from './BudgetComponent'
 import CategoryComponent from './CategoryComponent'
 import CurrencyComponent from './CurrencyComponent'
 import DateComponent from './DateComponent'
+import DescriptionComponent from './DescriptionComponent'
 
 export {
   AccountComponent,
@@ -11,5 +12,6 @@ export {
   BudgetComponent,
   CategoryComponent,
   CurrencyComponent,
-  DateComponent
+  DateComponent,
+  DescriptionComponent,
 }

@@ -1,96 +1,51 @@
 import * as React from 'react'
 import {
-  Box,
-  Button,
-  Grid,
-  Toolbar,
-  Typography
-} from '@mui/material'
-import AddIcon from '@mui/icons-material/Add';
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
 import { useAccounts } from '@/hooks/accounts'
-import AccountCard from './AccountCard'
-import { Account } from './types'
-import { AddForm, EditForm, ConfirmDeleteForm } from './forms'
+import { useUsers } from '@/hooks/users'
+import { AccountResponse } from './types'
+import { User } from '@/components/users/types'
+import { AddForm as AddAccount, EditForm as EditAccount, ConfirmDeleteForm } from './forms'
 
 const Index: React.FC = () => {
+  const { data: users = [] } = useUsers()
 
-  const [activeAccount, setActiveAccount] = React.useState<string | null>(null)
-  const [isAddFormOpened, setIsAddFormOpened] = React.useState<boolean>(false)
-  const [isEditFormOpened, setIsEditFormOpened] = React.useState<boolean>(false)
-  const [isConfirmDeleteFormOpened, setIsConfirmDeleteFormOpened] = React.useState<boolean>(false)
+  const { data: accounts } = useAccounts()
 
-  const {
-    data: accounts
-  } = useAccounts()
-
-  const clickAccount = (uuid: string): void => {
-    setActiveAccount(uuid)
-    setIsEditFormOpened(true)
-  }
-
-  const clickDelete = (uuid: string): void => {
-    setActiveAccount(uuid)
-    setIsConfirmDeleteFormOpened(true)
-  }
-
-  const handleOpenAddForm = (): void => {
-    setIsAddFormOpened(true)
-  }
-
-  const handleClose = (): void => {
-    setIsAddFormOpened(false)
-    setIsEditFormOpened(false)
-    setIsConfirmDeleteFormOpened(false)
-    setActiveAccount(null)
+  const getUser = (uuid: string): User | undefined => {
+    return users.find((item: User) => item.uuid === uuid)
   }
 
   return (
-    <>
-      <Toolbar sx={{ pb: 1 }}>
-        <Typography variant="h4" sx={{ my: 2 }}>Accounts</Typography>
-        <Box sx={{ flexGrow: 1 }} />
-        <Button
-          startIcon={<AddIcon />}
-          variant="contained"
-          sx={{ textTransform: 'none' }}
-          onClick={handleOpenAddForm}
-        >
-          Add account
-        </Button>
-      </Toolbar>
-      <Grid container spacing={2}>
-        {accounts && accounts.map((item: Account) => (
-          <Grid key={item.uuid} item xs={3}>
-            <AccountCard
-              key={item.uuid}
-              item={item}
-              clickAccount={clickAccount}
-              clickDelete={clickDelete}
-            />
-          </Grid>
+    <div className="flex flex-col">
+      <div className="flex w-full px-6 my-3 justify-between items-center">
+        <span className="text-xl font-semibold">Accounts</span>
+        <AddAccount />
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        {accounts && accounts.map((item: AccountResponse) => (
+          <div key={item.uuid}>
+            <Card>
+              <CardHeader>
+                <CardTitle>{item.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>{getUser(item.user)?.username}</p>
+              </CardContent>
+              <CardFooter className="flex justify-end">
+                <EditAccount uuid={item.uuid} />
+                <ConfirmDeleteForm uuid={item.uuid} />
+              </CardFooter>
+            </Card>
+          </div>
         ))}
-      </Grid>
-      <AddForm
-        open={isAddFormOpened}
-        handleClose={handleClose}
-      />
-      {
-        activeAccount && (
-          <>
-            <EditForm
-              uuid={activeAccount}
-              open={isEditFormOpened}
-              handleClose={handleClose}
-            />
-            <ConfirmDeleteForm
-              uuid={activeAccount}
-              open={isConfirmDeleteFormOpened}
-              handleClose={handleClose}
-            />
-          </>
-        )
-      }
-    </>
+      </div>
+    </div>
   )
 }
 

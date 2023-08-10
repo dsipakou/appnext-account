@@ -11,9 +11,9 @@ import {
   startOfWeek,
   endOfMonth,
   endOfWeek,
-  eachHourOfInterval
+  setDefaultOptions,
 } from 'date-fns'
-import { enUS } from 'date-fns/esm/locale'
+import { enUS } from 'date-fns/locale'
 
 export interface WeekOfMonth {
   week: number
@@ -33,9 +33,27 @@ export const SHORT_YEAR_MONTH_FORMAT = "MMM-yy"
 export const SHORT_DAY_ONLY_FORMAT = "EEE"
 export const FULL_DAY_ONLY_FORMAT = "EEEE"
 
+const formatRelativeLocale = {
+  lastWeek: "'Last' eeee",
+  yesterday: "'Yesterday'",
+  today: "'Today'",
+  tomorrow: "'Tomorrow'",
+  nextWeek: "eeee",
+  other: 'P',
+}
+
+const locale = {
+  ...enUS,
+  formatRelative: token => formatRelativeLocale[token]
+}
+
+
+setDefaultOptions({ locale, weekStartsOn: 1 })
+
 export const getFormattedDate = (date: Date, dateFormat: string = DATE_FORMAT): string => {
   return format(date, dateFormat);
 }
+
 export const parseDate = (date: string, dateFormat: string = DATE_FORMAT): Date => {
   return parseISO(date, dateFormat, new Date());
 }
@@ -58,19 +76,19 @@ export const getStartOfMonth = (date: Date, dateFormat: string = DATE_FORMAT): s
 }
 
 export const getStartOfWeek = (date: Date): string => {
-  return getFormattedDate(startOfWeek(date, { weekStartsOn: 1 }))
+  return getFormattedDate(startOfWeek(date))
 }
 
 export const getStartOfWeekOrMonth = (date: Date): Date => {
-  return max([startOfWeek(date, { weekStartsOn: 1 }), startOfMonth(date)])
+  return max([startOfWeek(date), startOfMonth(date)])
 }
 
 export const getEndOfWeekOrMonth = (date: Date): Date => {
-  return min([endOfWeek(date, { weekStartsOn: 1 }), endOfMonth(date)])
+  return min([endOfWeek(date), endOfMonth(date)])
 }
 
 export const getEndOfWeek = (date: Date): string => {
-  return getFormattedDate(endOfWeek(date, { weekStartsOn: 1 }))
+  return getFormattedDate(endOfWeek(date))
 }
 
 export const getEndOfMonth = (date: Date): string => {
@@ -82,11 +100,11 @@ export const getMonthWeeksWithDates = (
   dateFormat: string = MONTH_DAY_FORMAT
 ): WeekOfMonth[] => {
   const start = parseDate(firstDayOfMonth)
-  const weeksAmount = getWeeksInMonth(start, { weekStartsOn: 1 })
+  const weeksAmount = getWeeksInMonth(start)
   const weekOfMonth: WeekOfMonth[] = []
   for (let i: number = 0; i < weeksAmount; i += 1) {
     let currentDate = addWeeks(start, i)
-    if (i > 0) currentDate = startOfWeek(currentDate, { weekStartsOn: 1 })
+    if (i > 0) currentDate = startOfWeek(currentDate)
     weekOfMonth.push({
       week: i + 1,
       startDate: getFormattedDate(getStartOfWeekOrMonth(currentDate), dateFormat),
@@ -98,9 +116,10 @@ export const getMonthWeeksWithDates = (
 
 export const getWeekDays = (dateOfWeek: Date, formatTemplate: string = SHORT_DAY_ONLY_FORMAT): string[] => {
   const everyDayOfWeek = eachDayOfInterval({
-    start: startOfWeek(dateOfWeek, { weekStartsOn: 1 }),
-    end: endOfWeek(dateOfWeek, { weekStartsOn: 1 })
+    start: startOfWeek(dateOfWeek),
+    end: endOfWeek(dateOfWeek)
   })
+
   return everyDayOfWeek.reduce((acc: string[], day: string) => {
     acc.push(format(day, formatTemplate))
     return acc
@@ -110,9 +129,10 @@ export const getWeekDays = (dateOfWeek: Date, formatTemplate: string = SHORT_DAY
 export const getWeekDaysWithFullDays =
   (dateOfWeek: Date, formatTemplate: string = SHORT_DAY_ONLY_FORMAT): WeekDayWithFullDate[] => {
     const everyDayOfWeek = eachDayOfInterval({
-      start: startOfWeek(dateOfWeek, { weekStartsOn: 1 }),
-      end: endOfWeek(dateOfWeek, { weekStartsOn: 1 })
+      start: startOfWeek(dateOfWeek),
+      end: endOfWeek(dateOfWeek)
     })
+
     const daysArray = []
 
     everyDayOfWeek.forEach((item: string) => {
@@ -124,13 +144,3 @@ export const getWeekDaysWithFullDays =
 
     return daysArray
   }
-
-export const formatRelativeLocale = {
-  lastWeek: "'Last' dddd",
-  yesterday: "'Yesterday'",
-  today: "'Today'",
-  tomorrow: "'Tomorrow'",
-  nextWeek: "dddd",
-  other: 'L', // Difference: Add time to the date
-};
-

@@ -1,163 +1,271 @@
-import { FC } from 'react';
-import { selectChangeEvent, ChangeEvent, useEffect, useState } from 'react';
+import React from 'react';
+import axios from 'axios';
+import * as z from 'zod'
+
+import { useSWRConfig } from 'swr';
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from 'react-hook-form'
+import { useCategories } from '@/hooks/categories';
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  Grid,
-  TextField,
-  FormControlLabel,
-  Switch,
-  Select,
-  InputLabel,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  Form,
   FormControl,
-  MenuItem,
-  Button,
-  Typography,
-} from '@mui/material';
-import { Category, CategoryType, CategoryRequest } from '../types';
-import { useCategories } from '@/hooks/categories';
-import { useSWRConfig } from 'swr';
-import axios from 'axios';
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectGroup,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
+import { useToast } from '@/components/ui/use-toast'
 
-interface Types {
-  open: boolean,
-  handleClose: () => void;
-}
+import { Category, CategoryType  } from '../types';
 
-const AddForm: FC<Types> = ({ open = false, handleClose }) => {
+const formSchema = z.object({
+  title: z.string().min(2, {
+    message: "Must be at least 2 characters long"
+  }),
+  type: z.nativeEnum(CategoryType),
+  isParent: z.boolean(),
+  parentCategory: z.string().uuid().optional(),
+  description: z.string().optional()
+}).superRefine((values, ctx) => {
+  if (values.type === CategoryType.Expense && values.isParent && !values.parentCategory) {
+    ctx.addIssue({
+      message: "Non-parent category should have parent selected",
+      code: z.ZodIssueCode.custom,
+      path: ['parentCategory']
+    })
+  }
+})
+
+const AddForm: React.FC<Types> = () => {
   const { mutate } = useSWRConfig();
-  const { data: categories, isLoading, isError } = useCategories();
+  const { data: categories } = useCategories();
 
-  const [isParent, setIsParent] = useState<boolean>(false);
-  const [type, setType] = useState<CategoryType>(CategoryType.Expense);
-  const [name, setName] = useState<string>('');
-  const [parentList, setParentList] = useState<Category[]>([]);
-  const [parent, setParent] = useState<Category>('');
-  const [errors, setErrors] = useState<string[]>([]);
+  const [parentList, setParentList] = React.useState<Category[]>([]);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
-  useEffect(() => {
-    if (isLoading) return;
+  const { toast } = useToast()
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: '',
+      type: CategoryType.Expense,
+      isParent: false,
+    }
+  })
+
+  const watchIsParent = form.watch('isParent')
+  const watchType = form.watch('type')
+
+  React.useEffect(() => {
+    if (!categories) return
 
     const parents = categories.filter(
-      (category: Category) => category.parent === null && category.type === type,
-    );
-    setParentList(parents);
+      (category: Category) => category.parent === null && category.type === CategoryType.Expense,
+    )
+    setParentList(parents)
 
-    return () => setErrors([]);
-  }, [isLoading, categories, type]);
+  }, [categories]);
 
-  const handleSave = async () => {
-    setErrors([]);
-    const payload: CategoryRequest = {
-      name,
-      type,
-      parent,
-    };
+  React.useEffect(() => {
+    if (!watchIsParent) {
+      form.setValue('parentCategory', undefined)
+    }
+  }, [watchIsParent])
+
+  const handleSave = async (payload: z.infer<typeof formSchema>) => {
+    setIsLoading(true)
+
     axios.post('categories/', {
-      ...payload,
+      name: payload.title,
+      parent: payload.parentCategory || '',
+      type: payload.type,
+      description: payload.description,
     }).then(
       res => {
         if (res.status === 201) {
           mutate('categories/');
-          handleClose();
+          toast({
+              title: "Saved!"
+            })
         } else {
           // TODO: handle errors
         }
       }
     ).catch(
       (error) => {
-        const errRes = error.response.data;
-        for (const prop in errRes) {
-          setErrors(errRes[prop]);
-        }
+        toast({
+            variant: "destructive",
+            title: "Something went wrong",
+            description: "Please, check your fields"
+          })
       }
-    ).finally(() => { console.log('stopLoading') })
+    ).finally(() => {setIsLoading(false)})
   }
 
-  const handleTypeChange = (e: SelectChangeEvent) => {
-    setType(e.target.value);
-  }
-
-  const handleParentSwitch = (e: ChangeEvent) => {
-    // TODO: disable parent select box
-    setIsParent(e.target.checked);
-    setParent('');
-  }
-
-  const handleParentSelect = (e: SelectChangeEvent) => {
-    setParent(e.target.value);
-  }
-
-  const handleNameInput = (e: ChangeEvent) => {
-    setName(e.target.value);
+  const cleanFormErrors = (open: boolean) => {
+    if (!open) {
+      form.clearErrors()
+    }
   }
 
   return (
-    <Dialog maxWidth="sm" fullWidth={true} open={open} onClose={handleClose}>
-      <DialogTitle>Add category</DialogTitle>
+    <Dialog onOpenChange={cleanFormErrors}>
+      <DialogTrigger asChild>
+        <Button>+ Add Category</Button>
+      </DialogTrigger>
       <DialogContent>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            {errors.map((message: string) => (
-              <Typography key={message} color="red">{message}</Typography>
-            ))}
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              autoFocus={true}
-              margin="dense"
-              id="name"
-              label="Category name"
-              type="text"
-              fullWidth
-              onChange={handleNameInput}
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <FormControl fullWidth>
-              <InputLabel id="type-select-label">Type</InputLabel>
-              <Select
-                labelId="type-select-label"
-                label="Type"
-                fullWidth
-                value={type}
-                onChange={handleTypeChange}
-              >
-                <MenuItem value={CategoryType.Income}>Income</MenuItem>
-                <MenuItem value={CategoryType.Expense}>Expense</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={6}>
-            <FormControlLabel control={
-              <Switch checked={isParent} onChange={handleParentSwitch} />
-            } label="This is parent category" />
-          </Grid>
-          <Grid item xs={12}>
-            <FormControl fullWidth disabled={isParent}>
-              <InputLabel id="parent-select-label">Parent category</InputLabel>
-              <Select
-                labelId="parent-select-label"
-                label="Parent category"
-                value={parent}
-                fullWidth
-                defaultValue=""
-                onChange={handleParentSelect}
-              >
-                {parentList.map((category: Category) => (
-                  <MenuItem key={category.uuid} value={category.uuid}>{category.name}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
+        <DialogHeader>
+          <DialogTitle>Add category</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
+            <div className="flex flex-col space-y-3">
+              <div className="flex w-full">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category title</FormLabel>
+                      <FormControl>
+                        <Input className="w-full" disabled={isLoading} id="title" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div>
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category type</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          disabled={isLoading}
+                        >
+                          <SelectTrigger className="relative w-full">
+                            <SelectValue placeholder="Category type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value={CategoryType.Income}>Income</SelectItem>
+                              <SelectItem value={CategoryType.Expense}>Expense</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="flex">
+                { watchType === CategoryType.Expense && (
+                  <div className="flex w-1/2 items-center h-12">
+                    <FormField
+                      control={form.control}
+                      name="isParent"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <div className="flex items-center space-x-2">
+                              <Switch
+                                id="isParent"
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                disabled={isLoading}
+                              />
+                              <Label htmlFor="isParent">Has parent</Label>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+                { watchType === CategoryType.Expense && watchIsParent && (
+                  <div className="flex w-1/2">
+                    <FormField
+                      control={form.control}
+                      name="parentCategory"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              disabled={isLoading}
+                            >
+                              <SelectTrigger className="relative w-full">
+                                <SelectValue placeholder="Choose parent category" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectGroup>
+                                  {parentList.map((category: Category) => (
+                                    <SelectItem key={category.uuid} value={category.uuid}>{category.name}</SelectItem>
+                                  ))}
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+              </div>
+              <div>
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Add description if you want"
+                          className="resize-none"
+                          disabled={isLoading}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+            <Button type="submit">Save</Button>
+          </form>
+        </Form>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button variant="contained" onClick={handleSave}>Save</Button>
-      </DialogActions>
     </Dialog>
   )
 }

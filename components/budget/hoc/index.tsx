@@ -1,24 +1,24 @@
 import * as React from 'react'
 import { useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { useSWRConfig } from 'swr'
+import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectGroup,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 import {
   Box,
-  Button,
-  ButtonGroup,
-  FormControl,
-  Grid,
-  InputLabel,
   LinearProgress,
-  MenuItem,
-  Select,
-  Toolbar,
-  Typography
 } from '@mui/material'
-import AddIcon from '@mui/icons-material/Add'
-import FileCopyIcon from '@mui/icons-material/FileCopy'
+import { Button } from '@/components/ui/button'
 import { useUsers } from '@/hooks/users'
-import { useAuth } from '@/context/auth'
 import { useBudgetMonth, useBudgetWeek } from '@/hooks/budget'
 import { User } from '@/components/users/types'
 import {
@@ -36,8 +36,6 @@ import {
 } from '@/components/budget/types'
 import {
   AddForm,
-  EditForm,
-  ConfirmDeleteForm,
   DuplicateForm,
   TransactionsForm
 } from '@/components/budget/forms'
@@ -49,7 +47,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const activeType = hocProps.activeType || 'month'
     const router = useRouter()
     const { mutate } = useSWRConfig()
-    const { user: userConfig } = useAuth();
+    const { data: { user: userConfig }} = useSession()
     const [user, setUser] = useState<string>('all')
     const [monthDate, setMonthDate] = useState<Date>(new Date())
     const [weekDate, setWeekDate] = useState<Date>(new Date())
@@ -59,45 +57,19 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const [endOfWeek, setEndOfWeek] = useState<string>(getEndOfWeek(weekDate))
     const [plannedSum, setPlannedSum] = useState<number>(0)
     const [spentSum, setSpentSum] = useState<number>(0)
-    const [isOpenAddBudget, setIsOpenAddBudget] = useState<boolean>(false)
     const [isOpenTransactionsForm, setIsOpenTransactionsForm] = useState<boolean>(false)
-    const [isOpenEditForm, setIsOpenEditForm] = useState<boolean>(false)
-    const [isOpenConfirmDeleteForm, setIsOpenConfirmDeleteForm] = useState<boolean>(false)
-    const [isOpenDuplicateForm, setIsOpenDuplicateForm] = useState<boolean>(false)
     const [activeBudgetUuid, setActiveBudgetUuid] = useState<string>('')
     const startDate = activeType === 'month' ? startOfMonth : startOfWeek
     const endDate = activeType === 'month' ? endOfMonth : endOfWeek
 
-    const {
-      data: users,
-      isLoading: isUsersLoading,
-    } = useUsers();
+    const { data: users } = useUsers();
 
-    const {
-      data: budgetMonth,
-      isLoading: isMonthBudgetLoading,
-      url: monthUrl
-    } = useBudgetMonth(startOfMonth, endOfMonth, user)
-
-    const {
-      data: budgetWeek,
-      isLoading: isWeekBudgetLoading,
-      url: weekUrl
-    } = useBudgetWeek(startOfWeek, endOfWeek, user)
+    const { data: budgetMonth = [], url: monthUrl } = useBudgetMonth(startOfMonth, endOfMonth, user)
+    const { data: budgetWeek = [], url: weekUrl } = useBudgetWeek(startOfWeek, endOfWeek, user)
 
     const handleClickTransactions = (uuid: string): void => {
       setActiveBudgetUuid(uuid)
       setIsOpenTransactionsForm(true)
-    }
-
-    const handleClickDelete = (uuid: string): void => {
-      setActiveBudgetUuid(uuid)
-      setIsOpenConfirmDeleteForm(true)
-    }
-
-    const handleClickEdit = (uuid: string): void => {
-      setActiveBudgetUuid(uuid)
-      setIsOpenEditForm(true)
     }
 
     useEffect(() => {
@@ -127,7 +99,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           }, 0
         )
       } else {
-        if (isWeekBudgetLoading) return
+        if (!budgetWeek) return
 
         _planned = budgetWeek.reduce(
           (acc: number, { plannedInCurrencies }: PlannedMap) => {
@@ -136,28 +108,23 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
         )
         _spent = budgetWeek.reduce(
           (acc: number, { spentInCurrencies }: SpentMap) => {
-            return acc + (spentInCurrencies[userConfig.currency] || 0)
+            return acc + (spentInCurrencies[userConfig?.currency] || 0)
           }, 0
         )
       }
       setPlannedSum(_planned)
       setSpentSum(_spent)
-    }, [isMonthBudgetLoading, isWeekBudgetLoading, budgetMonth, budgetWeek])
+    }, [budgetMonth, budgetWeek])
 
     const handleTypeButtonClick = (type: BudgetType) => {
       router.push(`/budget/${type}`)
     }
 
-    const changeUser = (e: SelectChangeEvent): void => {
-      console.log(`User changed ${e.target.value}`)
-      setUser(e.target.value);
+    const changeUser = (userId: string): void => {
+      setUser(userId);
     }
 
     const handleCloseModal = () => {
-      setIsOpenAddBudget(false)
-      setIsOpenConfirmDeleteForm(false)
-      setIsOpenEditForm(false)
-      setIsOpenDuplicateForm(false)
       setIsOpenTransactionsForm(false)
       setActiveBudgetUuid('')
     }
@@ -168,120 +135,89 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     }
 
     const toolbar = (
-      <Toolbar sx={{ pb: 1 }}>
-        <Typography variant="h4" sx={{ my: 2 }}>Budget</Typography>
-        <Box sx={{ flexGrow: 1 }} />
-        <ButtonGroup
-          disableElevation
-          size="large"
-          aria-label="outlined primary button group"
-          sx={{ backgroundColor: "info.dark" }}
-        >
+      <div className="flex justify-between items-center py-3">
+        <span className="text-xl font-bold">Budget</span>
+        <div className="flex border bg-blue-500 rounded-md">
           <Button
+            className="w-[180px] disabled:opacity-100 p-1"
             disabled={activeType === 'month'}
-            variant={activeType === 'month' ? "text" : "contained"}
+            variant="none"
             onClick={() => handleTypeButtonClick('month')}
-            sx={{ width: 180, p: 0, backgroundColor: "info.dark" }}
           >
-            <Typography
-              variant="h5"
-              sx={activeType === "month" ? {
-                display: 'flex',
-                justifyContent: 'center',
-                color: "info.dark",
-                backgroundColor: "white",
-                border: 4,
-                borderRadius: 2,
-                width: '100%',
-                height: '100%',
-                alignItems: 'center',
-              } : {}}
-            >
+            <span className={`text-xl ${activeType === 'month' ? 'flex justify-center items-center text-xl rounded-md text-blue-500 bg-white w-full h-full' : 'text-white'}`}>
               Monthly
-            </Typography>
+            </span>
           </Button>
           <Button
+            className="w-[180px] disabled:opacity-100 p-1"
             disabled={activeType === 'week'}
-            color="info"
-            variant={activeType === 'week' ? "text" : "contained"}
+            variant="none"
             onClick={() => handleTypeButtonClick('week')}
-            sx={{ width: 180, p: 0, backgroundColor: "info.dark" }}
           >
-            <Typography
-              variant="h5"
-              sx={activeType === "week" ? {
-                display: 'flex',
-                justifyContent: 'center',
-                color: 'info.dark',
-                backgroundColor: "white",
-                border: 4,
-                borderRadius: 2,
-                width: '100%',
-                height: '100%',
-                alignItems: 'center',
-              } : {}}
-            >
+            <span className={`text-xl ${activeType === 'week' ? 'flex justify-center items-center text-xl rounded-md text-blue-500 bg-white w-full h-full' : 'text-white'}`}>
               Weekly
-            </Typography>
+            </span>
           </Button>
-        </ButtonGroup>
-        <Box sx={{ flexGrow: 1 }} />
-        <Button
-          startIcon={<FileCopyIcon />}
-          variant="outlined"
-          onClick={() => setIsOpenDuplicateForm(true)}
-        >
-          Duplicate budget
-        </Button>
-        <Button
-          startIcon={<AddIcon />}
-          variant="contained"
-          sx={{ textTransform: 'none', ml: 2 }}
-          className="bg-blue-500"
-          onClick={() => setIsOpenAddBudget(true)}
-        >
-          Add budget
-        </Button>
-      </Toolbar>
+        </div>
+        <div className="flex items-center">
+          <DuplicateForm
+            type={activeType}
+            date={activeType === 'month' ? monthDate : weekDate}
+            mutateBudget={mutateBudget}
+          />
+          <AddForm
+            monthUrl={monthUrl}
+            weekUrl={weekUrl}
+          />
+        </div>
+      </div>
     )
 
     const header = (
-      <Grid container spacing={3} alignItems="center">
-        <Grid item xs={4}>
+      <div className="flex justify-between items-center gap-3">
+        <div className="w-1/3">
           <GeneralSummaryCard planned={plannedSum} spent={spentSum} title={activeType} />
-        </Grid>
-        <Grid item xs={2}>
-        </Grid>
-        <Grid item xs={2}>
-          <FormControl fullWidth>
-            <InputLabel id="user-select-label">User</InputLabel>
-            <Select
-              labelId="user-select-label"
-              label="Type"
-              fullWidth
-              value={user}
-              onChange={changeUser}
-            >
-              <MenuItem value="all">All</MenuItem>
-              {users && users.map((item: User) => (
-                <MenuItem value={item.uuid} key={item.uuid}>{item.username}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid item xs={4}>
+        </div>
+        <div className="w-1/3 px-7">
+          <Select
+            onValueChange={changeUser}
+            defaultValue="all"
+            disabled={!users}
+          >
+            <SelectTrigger className="relative w-full border-2 hover:text-black text-muted-foreground font-normal">
+              <SelectValue placeholder="User" />
+            </SelectTrigger>
+            <SelectContent className="h-full">
+              <SelectGroup>
+                <SelectLabel>Users</SelectLabel>
+                <SelectItem value="all">All users</SelectItem>
+                <DropdownMenuSeparator />
+                { users && users.map((item: User) => (
+                  <SelectItem value={item.uuid} key={item.uuid}>{item.username}</SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="w-1/3 h-auto">
           {activeType === "month" ?
             <MonthCalendar date={monthDate} setMonthDate={setMonthDate} /> :
             <WeekCalendar date={weekDate} setWeekDate={setWeekDate} />
           }
-        </Grid>
-      </Grid>
-    );
+        </div>
+      </div>
+    )
+
+    const emptyState = (
+      <div className="flex f-full h-full pt-20 justify-center items-center">
+        <span className="text-2xl">No plans for selected period</span>
+      </div>
+    )
 
     return (
       <>
         {toolbar}
-        {(isMonthBudgetLoading) && (
+        {!budgetMonth && (
           <Box sx={{ position: 'relative', width: '100%' }}>
             <LinearProgress color="primary" sx={{
               position: 'absolute',
@@ -292,50 +228,32 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             }} />
           </Box>
         )}
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
+        <div className="flex flex-col">
+          <div className="w-full p-1 rounded shadow-sm shadow-zinc-300 bg-white">
             {header}
-          </Grid>
-          <Grid item xs={12}>
-            <Component
-              startDate={startDate}
-              endDate={endDate}
-              clickShowTransactions={handleClickTransactions}
-              clickEdit={handleClickEdit}
-              clickDelete={handleClickDelete}
-              mutateBudget={mutateBudget}
-              user={user}
-            />
-          </Grid>
-        </Grid>
-        <AddForm
-          open={isOpenAddBudget}
-          handleClose={handleCloseModal}
-          monthUrl={monthUrl}
-          weekUrl={weekUrl}
-        />
-        <DuplicateForm
-          open={isOpenDuplicateForm}
-          type={activeType}
-          date={activeType === 'month' ? monthDate : weekDate}
-          handleClose={handleCloseModal}
-          mutateBudget={mutateBudget}
-        />
+          </div>
+          <div className="w-full mt-5">
+            { 
+              (activeType === 'month' && !budgetMonth.length) || (activeType === 'week' && !budgetWeek.length) 
+              ? (
+                emptyState
+              ) 
+              : (
+                <Component
+                  startDate={startDate}
+                  endDate={endDate}
+                  clickShowTransactions={handleClickTransactions}
+                  mutateBudget={mutateBudget}
+                  user={user}
+                  weekUrl={weekUrl}
+                  monthUrl={monthUrl}
+                />
+              )
+            }
+          </div>
+        </div>
         {activeBudgetUuid && (
           <>
-            <ConfirmDeleteForm
-              open={isOpenConfirmDeleteForm}
-              uuid={activeBudgetUuid}
-              handleClose={handleCloseModal}
-              mutateBudget={mutateBudget}
-            />
-            <EditForm
-              open={isOpenEditForm}
-              uuid={activeBudgetUuid}
-              handleClose={handleCloseModal}
-              monthUrl={monthUrl}
-              weekUrl={weekUrl}
-            />
             <TransactionsForm
               open={isOpenTransactionsForm}
               handleClose={handleCloseModal}

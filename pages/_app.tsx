@@ -1,65 +1,78 @@
-import '../styles/globals.css'
+import { SessionProvider, useSession } from 'next-auth/react'
+import type { Session } from 'next-auth'
 import React, { lazy } from 'react'
 import type { AppProps } from 'next/app'
+import { useRouter } from 'next/router'
 import typography from '../theme/typography'
 import { Toolbar } from '@mui/material'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
-import { AuthProvider } from '@/context/auth';
 import '@/plugins/axios'
 import axios from 'axios'
-import { get } from '@/models/indexedDb.config'
+import { Toaster } from '@/components/ui/toaster'
+import '@/date-fns.config.js'
+import '../styles/globals.css'
 
 const Layout = lazy(async () => await import('../components/common/layout/Layout'))
 
-const App = ({ Component, pageProps }: AppProps) => {
-  const [loading, setLoading] = React.useState<boolean>(true)
-  const [token, setToken] = React.useState<string>('')
-  const themeOptions = {
-    typography
-  }
-
-  if (token) {
-    axios.defaults.headers.common['Authorization'] = `Token ${token}`;
-  }
-
-  React.useEffect(() => {
-    const loadUserFromIndexedDB = async (): Promise<void> => {
-      const storedUser = await get(0)
-
-      if (storedUser) {
-        setToken(storedUser.token)
-      }
-      setLoading(false)
-    }
-    loadUserFromIndexedDB()
-  }, [])
+const App = ({
+  Component,
+  pageProps: { session, ...pageProps },
+}: AppProps<{ session: Session }>) => {
+  const themeOptions = { typography }
 
   const theme = createTheme({ ...themeOptions })
 
-  if (loading) {
-    return
-  }
-
   if (Component.layout === 'public') {
     return (
-      <ThemeProvider theme={theme}>
-        <AuthProvider>
+      <SessionProvider session={session}>
+        <ThemeProvider theme={theme}>
           <Component {...pageProps} />
-        </AuthProvider>
-      </ThemeProvider>
+        </ThemeProvider>
+      </SessionProvider>
     )
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <AuthProvider>
-        <Layout>
-          <Toolbar />
-          <Component {...pageProps} />
-        </Layout>
-      </AuthProvider>
-    </ThemeProvider>
+    <SessionProvider session={session}>
+      <ThemeProvider theme={theme}>
+        <Toaster />
+        {Component.auth ? (
+          <Auth>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </Auth>
+        ) : (
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        )}
+      </ThemeProvider>
+    </SessionProvider>
   )
+}
+
+type AuthProps = {
+  children: React.ReactNode
+}
+
+function Auth({ children }: AuthProps) {
+  const router = useRouter()
+
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      router.push('/login')
+    }
+  })
+
+  if (status === "loading") {
+    return
+  }
+
+  axios.defaults.headers.common['Authorization'] = `Token ${session.user.token}`;
+
+  return children
 }
 
 export default App

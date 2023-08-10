@@ -1,34 +1,30 @@
 import React from 'react'
 import axios from 'axios'
 import { useSWRConfig } from 'swr'
+import { Check, Copy } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
-  Box,
-  Button,
   Dialog,
-  DialogContent,
+  DialogHeader,
+  DialogTrigger,
   DialogTitle,
-  Grid,
-  Paper,
-  Stack,
-  Typography
-} from '@mui/material'
-import CheckIcon from '@mui/icons-material/Check'
+  DialogContent,
+} from '@/components/ui/dialog'
 import { useBudgetDuplicate } from '@/hooks/budget'
 import { getFormattedDate } from '@/utils/dateUtils'
 import { DuplicateBudgetResponse } from '@/components/budget/types'
+import { useToast } from '@/components/ui/use-toast'
 
 interface BudgetCardTypes {
   date: string
   title: string
   selected: boolean
-  handleClick: (uuid: string) => void
+  handleClick: () => void
 }
 
 interface Types {
-  open: boolean
   date: Date
   type: "month" | "week"
-  handleClose: () => void
   mutateBudget: () => void
 }
 
@@ -39,42 +35,25 @@ const BudgetCard: React.FC<BudgetCardTypes> = ({
   handleClick
 }) => {
   return (
-    <Paper
-      elevation={selected ? 0 : 3}
+  <>
+    <div className={`overflow-hidden w-full h-24 cursor-pointer border rounded p-2 ${!selected ? 'drop-shadow-md bg-white' : 'text-white bg-blue-500'}`}
       onClick={handleClick}
-      sx={{
-        overflow: 'hidden',
-        width: '100%',
-        height: '100px',
-        p: 1,
-        cursor: 'pointer',
-        backgroundColor: selected ? '#03a9f4' : 'white',
-        color: selected ? 'white' : 'black'
-     }}
     >
-      <Stack>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography
-            variant="caption"
-          >
-            {date}
-          </Typography>
-          { selected && <CheckIcon /> }
-        </Box> 
-        <Typography
-          variant="h6"
-          sx={{
-            width: '100%'
-          }}
-        >
-          {title}
-        </Typography>
-      </Stack>
-    </Paper>
+      <div className="flex flex-col">
+        <div className="flex justify-between">
+          <span className="text-xs">{date}</span>
+          { selected && <Check className="h-4 w-4" /> }
+        </div> 
+        <span className="text-md font-semibold">{title}</span>
+      </div>
+    </div>
+    <div className="test flex flex-col">
+    </div>
+  </>
   )
 }
 
-const DuplicateForm: React.FC<Types> = ({ open, date, type, handleClose, mutateBudget }) => {
+const DuplicateForm: React.FC<Types> = ({ date, type, mutateBudget }) => {
   const [selectedBudgetUuids, setSelectedBudgetUuids] = React.useState<string[]>([])
   const formattedDate = getFormattedDate(date)
   const {
@@ -82,6 +61,7 @@ const DuplicateForm: React.FC<Types> = ({ open, date, type, handleClose, mutateB
     url: urlToMutate
   } = useBudgetDuplicate(type, formattedDate)
   const { mutate } = useSWRConfig()
+  const { toast } = useToast()
 
   const isBudgetSelected = (uuid: string): boolean => {
     return selectedBudgetUuids.includes(uuid)
@@ -103,11 +83,6 @@ const DuplicateForm: React.FC<Types> = ({ open, date, type, handleClose, mutateB
     setSelectedBudgetUuids(uuidsArray)
   }
 
-  const closeModal = (): void => {
-    setSelectedBudgetUuids([])
-    handleClose()
-  }
-
   const handleDuplicateClick = (): void => {
     axios.post('budget/duplicate/', {
       uuids: selectedBudgetUuids,
@@ -116,59 +91,77 @@ const DuplicateForm: React.FC<Types> = ({ open, date, type, handleClose, mutateB
         if (res.status === 201) {
           mutate(urlToMutate)
           mutateBudget()
-          // TODO: Done
+          toast({
+            title: "Successfully duplicated"
+          })
         }
       }
     ).catch(
       (error) => {
+        toast({
+          variant: "destructive",
+          title: "Something went wrong",
+        })
         // TODO: Handle errors
-        }
-      )
+      })
+  }
+
+  const clearForm = () => {
+    setSelectedBudgetUuids([])
   }
 
   return (
-    <Dialog maxWidth="md" fullWidth open={open} onClose={closeModal}>
-      <DialogTitle>
-        <Grid container sx={{justifyContent: 'space-between'}}>
-          <Grid item>
-            <Typography variant="h4">Select budgets to repeat</Typography>
-          </Grid>
-        </Grid>
-      </DialogTitle>
-      <DialogContent>
-        <Grid container spacing={3}>
-          <Grid item xs={6}>
-            <Button onClick={selectAllBudgets}>Select all</Button>
-            <Button onClick={() => setSelectedBudgetUuids([])}>Deselect all</Button>
-          </Grid>
-          <Grid item xs={6} align="right">
-            <Button onClick={closeModal} sx={{ mr: 2 }}>
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              onClick={handleDuplicateClick}
-              disabled={selectedBudgetUuids.length === 0}
-            >
-              Duplicate selected
-            </Button>
-          </Grid>
-          <>
-            { budgetList.length === 0 
-              ? <Grid item xs={12}>Nothing to duplicate</Grid> 
-              : budgetList.map((budgetItem: DuplicateBudgetResponse) => (
-                  <Grid key={budgetItem.uuid} item xs={3}>
+    <Dialog onOpenChange={clearForm}>
+      <DialogTrigger asChild>
+        <Button
+          variant="outline"
+          className="text-blue-500 border-blue-500 hover:text-blue-600"
+        >
+          <Copy className="mr-2" /> Duplicate
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="min-w-[600px]">
+        { budgetList.length > 0 && (
+          <DialogHeader>
+            <DialogTitle>Choose budget to repeat</DialogTitle>
+          </DialogHeader>
+        )}
+        <div className="flex flex-col gap-3">
+          { budgetList.length === 0 
+            ? (
+              <div className="flex col-span-4 justify-center"><span className="text-2xl">Nothing to duplicate</span></div> 
+            )
+            : (
+            <>
+              <div className="flex justify-between">
+                <Button
+                  variant="default"
+                  onClick={handleDuplicateClick}
+                  disabled={selectedBudgetUuids.length === 0}
+                >
+                  Duplicate selected
+                </Button>
+                <div>
+                  <Button variant="link" onClick={selectAllBudgets}>Select all</Button>
+                  <Button variant="link" onClick={() => setSelectedBudgetUuids([])}>Deselect all</Button>
+                </div>
+              </div>
+              <div className="grid grid-cols-4 gap-3">
+                { budgetList.map((budgetItem: DuplicateBudgetResponse) => (
+                  <div key={budgetItem.uuid}>
                     <BudgetCard
                       title={budgetItem.title}
                       date={budgetItem.date}
                       handleClick={() => handleClickBudget(budgetItem.uuid)}
                       selected={isBudgetSelected(budgetItem.uuid)}
                     />
-                  </Grid>
-                ))
-            }
-          </>
-        </Grid>
+                  </div>)
+                )}
+              </div>
+            </>
+            )
+          }
+        </div>
       </DialogContent>
     </Dialog>
   )

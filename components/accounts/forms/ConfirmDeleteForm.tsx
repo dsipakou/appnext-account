@@ -1,50 +1,56 @@
 
 import { FC, useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  Box,
-  Typography,
-  Button,
-} from '@mui/material';
+  DialogFooter,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog'
 import axios from 'axios';
 import { useSWRConfig } from 'swr';
 import { useAccounts } from '@/hooks/accounts';
+import { useToast } from '@/components/ui/use-toast'
 import { AccountResponse } from '../types';
 
 interface Types {
-  open: boolean,
-  uuid: string,
-  handleClose: () => void;
+  uuid: string
 }
 
-const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose }) => {
-  const [account, setAccount] = useState<AccountResponse | undefined>();
-  const [errors, setErrors] = useState([]);
-  const { data: accounts, isLoading, isError } = useAccounts();
+const ConfirmDeleteForm: FC<Types> = ({ uuid }) => {
+  const [account, setAccount] = useState<AccountResponse>();
+  const [open, setOpen] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const { data: accounts } = useAccounts();
+
   const { mutate } = useSWRConfig();
+  const { toast } = useToast()
 
   useEffect(() => {
-    if (isLoading) return;
+    if (!accounts) return;
 
     const _account = accounts.find((item: AccountResponse) => item.uuid === uuid);
-    setAccount(_account);
-
-    return () => setErrors([]);
-  }, [isLoading, accounts, uuid])
+    if (_account) {
+      setAccount(_account);
+    }
+  }, [accounts, uuid])
 
   const handleDelete = () => {
-    // TODO: start loading
-    setErrors([]);
+    if (!account) return
+
+    setIsLoading(true)
     axios
       .delete(`accounts/${account.uuid}`)
       .then(
         res => {
           if (res.status === 204) {
             mutate('accounts/');
-            handleClose();
+            setOpen(false)
+            toast({
+              title: "Deleted successfully"
+            })
           } else {
             // TODO: handle errors [non-empty parent,]
           }
@@ -52,37 +58,33 @@ const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose }) => {
       )
       .catch(
         (err) => {
-          setErrors(err.response.data);
+          toast({
+            title: "Please, try again"
+          })
         }
       )
       .finally(
         () => {
-          // TODO: stop-loading
+          setIsLoading(false)
         }
       );
   };
 
   return (
-    <Dialog maxWidth="sm" fullWidth={true} open={open} onClose={handleClose}>
-      <DialogTitle>Please, confirm deletion</DialogTitle>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="destructive">Delete</Button>
+      </DialogTrigger>
       <DialogContent>
-        {errors.length > 0 && (
-          <Box>
-            {errors.map((message: string) => (
-              <Typography key={message} color="red">{message}</Typography>
-            ))}
-          </Box>
-        )}
-        <Box>
-          <Typography variant="body1">
-            You are about to delete {account?.title} account
-          </Typography>
-        </Box>
+        <DialogTitle>Please, confirm deletion</DialogTitle>
+        <p className="leading-7">
+          You are about to delete {account?.title} account
+        </p>
+        <DialogFooter>
+          <Button disabled={isLoading} variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button disabled={isLoading} variant="destructive" onClick={handleDelete}>Delete</Button>
+        </DialogFooter>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button color="warning" variant="contained" onClick={handleDelete}>Delete</Button>
-      </DialogActions>
     </Dialog>
   )
 }

@@ -2,14 +2,12 @@ import { useState } from 'react';
 import Link from 'next/link';
 import {
   Box,
-  Button,
   Grid,
   Paper,
   Skeleton,
   Toolbar,
   Typography
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
 import { Category } from './types';
 import { useCategories } from '../../hooks/categories';
 import AddForm from './forms/AddForm';
@@ -46,14 +44,7 @@ const Index = () => {
       <Toolbar sx={{ pb: 1 }}>
         <Typography variant="h4" sx={{ my: 2 }}>Categories</Typography>
         <Box sx={{ flexGrow: 1 }} />
-        <Button
-          startIcon={<AddIcon />}
-          variant="contained"
-          sx={{ textTransform: 'none' }}
-          onClick={openAddCategoryForm}
-        >
-          Add category
-        </Button>
+        <AddForm />
       </Toolbar>
       <Box>
         <Grid container spacing={2}>
@@ -80,7 +71,6 @@ const Index = () => {
           }
         </Grid>
       </Box>
-      <AddForm open={isOpenAddCategory} handleClose={closeAddCategoryForm} />
     </>
   );
 };

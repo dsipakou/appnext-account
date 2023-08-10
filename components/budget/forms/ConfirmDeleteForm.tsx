@@ -1,39 +1,45 @@
 
-import { FC, useEffect, useState } from 'react';
+import React from 'react'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  Box,
-  Typography,
-  Button,
-} from '@mui/material';
+  DialogFooter,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog'
 import axios from 'axios';
 import { useSWRConfig } from 'swr';
+import { useToast } from '@/components/ui/use-toast'
 
 interface Types {
   open: boolean
+  setOpen: (open: boolean) => void
   uuid: string
-  handleClose: () => void
-  mutateBudget: () => void
+  weekUrl: string
+  monthUrl: string
+  trigger?: React.ReactElement
 }
 
-const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose, mutateBudget }) => {
-  const [budget, setBudget] = useState('');
-  const [errors, setErrors] = useState([]);
-  const { mutate } = useSWRConfig();
+const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, weekUrl, monthUrl, trigger }) => {
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+
+  const { mutate } = useSWRConfig()
+  const { toast } = useToast()
 
   const handleDelete = () => {
-    // TODO: start loading
-    setErrors([]);
+    setIsLoading(true)
     axios
       .delete(`budget/${uuid}`)
       .then(
         res => {
           if (res.status === 204) {
-            mutateBudget()
-            handleClose()
+            mutate(weekUrl)
+            mutate(monthUrl)
+            setOpen(false)
+            toast({
+              title: "Deleted successfully"
+            })
           } else {
             // TODO: handle errors [non-empty parent,]
           }
@@ -41,37 +47,34 @@ const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose, mutateB
       )
       .catch(
         (err) => {
-          setErrors(err.response.data);
+          toast({
+            title: "Please, try again"
+          })
         }
       )
       .finally(
         () => {
-          // TODO: stop-loading
+          setIsLoading(false)
         }
       );
   };
 
+  const defaultTrigger = (
+    <Button variant="destructive">Delete</Button>
+  )
+
   return (
-    <Dialog maxWidth="sm" fullWidth={true} open={open} onClose={handleClose}>
-      <DialogTitle>Please, confirm deletion</DialogTitle>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
-        {errors.length > 0 && (
-          <Box>
-            {errors.map((message: string) => (
-              <Typography key={message} color="red">{message}</Typography>
-            ))}
-          </Box>
-        )}
-        <Box>
-          <Typography variant="body1">
-            You are about to delete a budget
-          </Typography>
-        </Box>
+        <DialogTitle>Please, confirm deletion</DialogTitle>
+        <p className="leading-7">
+          You are about to delete a budget
+        </p>
+        <DialogFooter>
+          <Button disabled={isLoading} variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button disabled={isLoading} variant="destructive" onClick={handleDelete}>Delete</Button>
+        </DialogFooter>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button color="warning" variant="contained" onClick={handleDelete}>Delete</Button>
-      </DialogActions>
     </Dialog>
   )
 }

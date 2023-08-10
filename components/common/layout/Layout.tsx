@@ -1,111 +1,38 @@
 import React, { FC, ReactElement, ReactNode } from 'react'
+import { signOut, useSession } from 'next-auth/react'
 import axios from 'axios'
-import { useTheme } from '@mui/material/styles'
 import Link from 'next/link'
-import { styled, Theme, CSSObject } from '@mui/material/styles'
 import {
-  Drawer,
-  Box,
-  Button,
-  FormControl,
-  InputLabel,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  MenuItem,
+  CreditCard,
+  DollarSign,
+  GanttChart,
+  LayoutTemplate,
+  LineChart,
+  Menu,
+  ScrollText,
+  User2,
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import {
   Select,
-  Toolbar,
-  Container,
-  Typography
-} from '@mui/material'
-import AppBar, { AppBarProps } from '@mui/material/AppBar'
-import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
-import CategoryIcon from '@mui/icons-material/Category'
-import OnlinePredictionIcon from '@mui/icons-material/OnlinePrediction'
-import CreditCardIcon from '@mui/icons-material/CreditCard'
-import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
-import ShowChartIcon from '@mui/icons-material/ShowChart'
-import IconButton from '@mui/material/IconButton'
-import MenuIcon from '@mui/icons-material/Menu'
-import { Link as MuiLink } from '@mui/material'
-import { useAuth } from '@/context/auth'
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useCurrencies } from '@/hooks/currencies'
 import { Currency } from '@/components/currencies/types'
-
-const drawerWidth = 250
-
-const openedMixin = (theme: Theme): CSSObject => ({
-  width: drawerWidth,
-  transition: theme.transitions.create('width', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
-  }),
-  overflowX: 'hidden',
-})
-
-const closedMixin = (theme: Theme): CSSObject => ({
-  transition: theme.transitions.create('width', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  overflowX: 'hidden',
-  width: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up('sm')]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
-  },
-})
-
-const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    ...(open && {
-      ...openedMixin(theme),
-      '& .MuiDrawer-paper': openedMixin(theme),
-    }),
-    ...(!open && {
-      ...closedMixin(theme),
-      '& .MuiDrawer-paper': closedMixin(theme),
-    }),
-  }),
-)
-
-const AppBarStyled = styled(AppBar, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen
-    })
-  })
-}))
-
-const StyledList = styled(List)(({ theme }) => ({
-  padding: theme.spacing(1, 0),
-}))
 
 type Props = {
   children: ReactNode,
 }
 
 const Layout: FC<Props> = ({ children }) => {
-  const theme = useTheme()
-  const { isAuthenticated, user, loading, updateCurrency } = useAuth()
   const [open, setOpen] = React.useState(false)
-  const {
-    data: currencies,
-    isLoading: isCurrenciesLoading
-  } = useCurrencies()
+  const { data: currencies } = useCurrencies()
+  const { data: { user }, update: updateSession } = useSession()
 
   const handleDrawerOpen = () => {
     setOpen(true)
@@ -115,17 +42,16 @@ const Layout: FC<Props> = ({ children }) => {
     setOpen(false)
   }
 
-  const handleCurrencyChange = (e) => {
-    const selectedCurrency = e.target.value
-
-    if (selectedCurrency !== user.currency) {
+  const handleCurrencyChange = (currencyCode: string) => {
+    if (currencyCode !== user.currency) {
       axios.patch('users/currency/', {
-        currency: selectedCurrency
+        currency: currencyCode
       }).then(
         res => {
           if (res.status === 200) {
-            console.log(selectedCurrency)
-            updateCurrency(selectedCurrency)
+            // TODO: Remove this after migrating to session
+            // updateCurrency(currencyCode)
+            updateSession({ currency: currencyCode })
             // TODO: mutate something
           }
         }
@@ -137,137 +63,126 @@ const Layout: FC<Props> = ({ children }) => {
     }
   }
 
-  if (!isAuthenticated) {
-    return (
-      <Container fixed maxWidth="lg">
-        {children}
-      </Container>
-    )
-  }
-
   const menuItems = [
     {
       name: 'Accounts',
-      icon: <CreditCardIcon />,
+      icon: <CreditCard />,
       link: '/accounts/'
     },
     {
       name: 'Transactions',
-      icon: <ReceiptLongIcon />,
+      icon: <ScrollText />,
       link: '/transactions/'
     },
     {
       name: 'Categories',
-      icon: <CategoryIcon />,
+      icon: <LayoutTemplate />,
       link: '/categories/'
     },
     {
       name: 'Budget',
-      icon: <OnlinePredictionIcon />,
+      icon: <GanttChart />,
       link: '/budget/month',
     },
     {
       name: 'Currencies',
-      icon: <CurrencyExchangeIcon />,
+      icon: <DollarSign />,
       link: '/currencies/'
     },
     {
       name: 'Reports',
-      icon: <ShowChartIcon />,
+      icon: <LineChart />,
       link: '/reports/'
     },
   ]
 
+  const bottomMenuItems = [
+    {
+      name: 'Users',
+      icon: <User2 />,
+      link: '/users/'
+    },
+  ]
+
   const menuComponent = (name: string, icon: ReactElement, link: string): ReactElement => (
-    <ListItem key={name} disablePadding sx={{ display: 'block' }}>
+    <div onClick={handleDrawerClose} key={name} className="block hover:bg-slate-500 hover:text-white w-full">
       <Link href={link}>
-        <ListItemButton
-          sx={{
-            minHeight: 48,
-            justifyContent: 'initial',
-            px: 2.5,
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 0,
-              mr: 3,
-              justifyContent: 'center',
-            }}
-          >
+        <div className="flex h-12 justify-start items-center pl-5">
+          <div className="pr-5">
             {icon}
-          </ListItemIcon>
-          <ListItemText primary={name} sx={{ opacity: 1 }} />
-        </ListItemButton>
+          </div>
+          <span>{name}</span>
+        </div>
       </Link>
-    </ListItem>
+    </div>
   )
 
-  const appBar = {
-    position: 'fixed',
-    elevation: 0,
-    sx: {
-      borderBottom: `1px solid ${theme.palette.divider}`,
-    }
-  }
-
   return (
-    <>
-      <AppBarStyled {...appBar}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={open ? handleDrawerClose : handleDrawerOpen}
-            edge="start"
-            sx={{
-              marginRight: 5,
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Flying Budget
-          </Typography>
-          <Select
-            size="small"
-            value={user.currency}
-            onChange={handleCurrencyChange}
-            sx={{
-              backgroundColor: 'white',
-              width: '200px'
-            }}
-          >
-            {currencies && currencies.map((item: Currency) => (
-              <MenuItem key={item.code} value={item.code}>{item.verbalName}</MenuItem>
+    <div className="relative">
+      <header className="z-50 bg-blue-500 text-white">
+        <div className="flex mx-2 py-2 justify-between items-center">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="link"
+              className="text-white"
+              onClick={open ? handleDrawerClose : handleDrawerOpen}
+            >
+              <Menu />
+            </Button>
+            <span className="text-lg ml-1 justify-self-start">
+              Flying Budget
+            </span>
+          </div>
+          <div className="flex items-center">
+            <div className="flex w-80">
+              <Select
+                defaultValue={user.currency}
+                onValueChange={handleCurrencyChange}
+              >
+                <SelectTrigger className="relative w-full">
+                  <SelectValue placeholder="Select currency" />
+                </SelectTrigger>
+                <SelectContent className="flex bg-white w-full pt-1" position="popper">
+                  <SelectGroup>
+                    <SelectLabel>Displayed currency</SelectLabel>
+                    {currencies && currencies.map((item: Currency) => (
+                      <SelectItem key={item.code} value={item.code}>{item.verbalName}</SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+            <span className="mx-4">Hello, {user.username}</span>
+            <Button
+              variant="link"
+              className="text-white"
+              onClick={() => signOut({callbackUrl: '/login'})}
+            >
+              Logout
+            </Button>
+          </div>
+        </div>
+      </header>
+      <div className={`fixed flex flex-col justify-between drop-shadow-sm transition-all ease-in-out delay-50 bg-white overflow-hidden z-100 h-screen ${open ? 'w-60' : 'w-16'}`}>
+        <div className="flex flex-col pt-2 items-start">
+          <div className="flex flex-col w-full">
+            {menuItems.map(({ name, icon, link }) => (
+              menuComponent(name, icon, link)
             ))}
-          </Select>
-          {isAuthenticated && (
-            <Typography variant="text" sx={{ mx: 2 }}>Hello, {user.username}</Typography>
-          )}
-          {!loading && !isAuthenticated
-            ? <Link href="/login" color="inherit">Login</Link>
-            : <Link href="/logout"><Typography variant="">Logout</Typography></Link>
-          }
-        </Toolbar>
-      </AppBarStyled>
-      <StyledDrawer
-        variant="permanent"
-        open={open}
-      >
-        <Toolbar />
-        <StyledList>
-          {menuItems.map(({ name, icon, link }) => (
-            <Box key={name}>
+          </div>
+        </div>
+        <div>
+          {bottomMenuItems.map(({ name, icon, link }) => (
+            <div key={name} className="w-full">
               {menuComponent(name, icon, link)}
-            </Box>
+            </div>
           ))}
-        </StyledList>
-      </StyledDrawer>
-      <Container fixed maxWidth="lg">
+        </div>
+      </div>
+      <div className="container mx-auto max-w-screen-xl min-w-screen-lg">
         {children}
-      </Container>
-    </>
+      </div>
+    </div>
   )
 }
 

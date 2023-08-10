@@ -14,7 +14,7 @@ export interface Currency extends CurrencyRequest {
 }
 
 export interface RateItemPostRequest {
-  code: string
+  currency: string
   rate: string
 }
 

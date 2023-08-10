@@ -1,73 +1,109 @@
 import { FC, useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
 import axios from 'axios'
 import { useSWRConfig } from 'swr';
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { useForm } from 'react-hook-form'
+import { Input } from '@/components/ui/input'
 import {
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Form,
   FormControl,
-  Grid,
-  InputAdornment,
-  InputLabel,
-  MenuItem,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form"
+import {
   Select,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup
-} from '@mui/material'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { CalendarPicker } from '@mui/x-date-pickers/CalendarPicker';
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  RadioGroup,
+  RadioGroupItem
+} from '@/components/ui/radio-group'
+import { Calendar } from '@/components/ui/calendar'
+import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogContent,
+} from '@/components/ui/dialog'
+import { useToast } from '@/components/ui/use-toast'
+
 import { useUsers } from '@/hooks/users'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
 import { User } from '@/components/users/types'
-import { CategoryResponse } from '@/hooks/categories'
-import { RecurrentTypes } from '@/components/budget/types'
 import { Category, CategoryType } from '@/components/categories/types'
 import { Currency } from '@/components/currencies/types'
-import { useAuth } from '@/context/auth'
 import { getFormattedDate } from '@/utils/dateUtils'
-import { BudgetRequest } from '@/components/budget/types'
+import { Label } from '@/components/ui/label';
+
+import styles from '../style/AddForm.module.css'
 
 interface Types {
-  open: boolean
-  handleClose: () => void
   monthUrl: string
   weekUrl: string
+  date?: Date
+  customTrigger?: React.ReactElement
 }
 
-const AddForm: FC<Types> = ({ open, handleClose, monthUrl, weekUrl }) => {
+const formSchema = z.object({
+  title: z.string().min(2, {
+    message: "Title must be at least 2 characters",
+  }),
+  amount: z.coerce.number().min(0, {
+    message: "Should be positive number",
+  }),
+  currency: z.string().uuid({message: "Please, select currency"}),
+  user: z.string().uuid({message: "Please, select user"}),
+  category: z.string().uuid({message: "Please, select category"}),
+  repeatType: z.enum(["", "weekly", "monthly"]),
+  budgetDate: z.date({
+    required_error: "Budget date is required",
+  }),
+  description: z.string().optional()
+})
+
+const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
   const { mutate } = useSWRConfig()
-  const [title, setTitle] = useState<string>('')
-  const [user, setUser] = useState<string>('')
-  const [category, setCategory] = useState<string>('')
-  const [repeatType, setRepeatType] = useState<RecurrentTypes | ''>('')
   const [parentList, setParentList] = useState<Category[]>([]);
-  const [amount, setAmount] = useState<string>('')
-  const [currency, setCurrency] = useState<string>('')
-  const [budgetDate, setBudgetDate] = useState<Date>(new Date())
-  const [description, setDescription] = useState<string>('')
-  const [errors, setErrors] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [open, setOpen] = useState<boolean>(false)
 
-  const { user: authUser, isLoading: isAuthLoading } = useAuth()
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      repeatType: "",
+    },
+  })
 
-  const {
-    data: users,
-    isLoading: isUsersLoading
-  } = useUsers()
+  useEffect(() => {
+    if (open) {
+      form.setValue('budgetDate', date || new Date())
+    }
+  }, [open])
+
+  const { toast } = useToast()
+
+  const { data: { user: authUser }} = useSession()
+
+  const { data: users } = useUsers()
+
+  const { data: currencies } = useCurrencies()
 
   const {
     data: categories,
     isLoading: isCategoriesLoading
   } = useCategories()
-
-  const {
-    data: currencies,
-    isLoading: isCurrenciesLoading
-  } = useCurrencies()
 
   useEffect(() => {
     if (!categories) return;
@@ -79,221 +115,307 @@ const AddForm: FC<Types> = ({ open, handleClose, monthUrl, weekUrl }) => {
     );
     setParentList(parents);
 
-    return () => setErrors([]);
   }, [isCategoriesLoading, categories]);
 
   useEffect(() => {
-    if (!currencies) return
-
-    setCurrency(currencies.find((item: Currency) => item.isDefault)!.uuid)
-  }, [isCurrenciesLoading, currencies])
+    form.setValue('currency', getDefaultCurrency())
+  }, [currencies])
 
   useEffect(() => {
-    if (!authUser || !users) return
-
-    const _user = users.find((item: User) => item.username === authUser.username)
-    setUser(_user.uuid)
+    form.setValue('user', getDefaultUser())
   }, [authUser, users])
 
-
-  const getCurrencySign = (uuid: string): string => {
-    return currencies.find((item: Currency) => item.uuid === currency)?.sign
-  }
-
-  const handleTitleInput = (e) => {
-    setTitle(e.target.value)
-  }
-
-  const handleUserChange = (e: ChangeEvent) => {
-    setUser(e.target.value)
-  }
-
-  const handleCategoryChange = (e: ChangeEvent) => {
-    setCategory(e.target.value)
-  }
-
-  const handleRepeatTypeChange = (e) => {
-    setRepeatType(e.target.value)
-  }
-
-  const handleAmountInput = (e) => {
-    setAmount(e.target.value)
-  }
-
-  const handleCurrencyChange = (e) => {
-    setCurrency(e.target.value)
-  }
-
-  const handleDescriptionInput = (e) => {
-    setDescription(e.target.value)
-  }
-
-  const handleSave = () => {
-    setErrors([])
-    const payload: BudgetRequest = {
-      title,
-      amount,
-      currency,
-      user,
-      category,
-      recurrent: repeatType,
-      budgetDate: getFormattedDate(budgetDate),
-      description
+  const getDefaultCurrency = (): string => {
+    if (!currencies) {
+      return ""
     }
+
+    const _currency = currencies.find((item: Currency) => item.isDefault)
+    if (_currency) {
+      return _currency.uuid
+    }
+
+    return ""
+  }
+
+  const getDefaultUser = (): string => {
+    if (!authUser || !users) {
+      return ""
+    }
+
+    const _user = users.find((item: User) => item.username === authUser?.username)
+    if (_user) {
+      return _user.uuid
+    }
+
+    return ""
+  }
+
+  const getCurrencySign = (): string => {
+    return currencies.find((item: Currency) => item.uuid === form.getValues().currency)?.sign
+  }
+
+  const handleSave = (payload: z.infer<typeof formSchema>) => {
+    setIsLoading(true)
     axios.post('budget/', {
       ...payload,
+      budgetDate: getFormattedDate(payload.budgetDate),
+      recurrent: payload.repeatType,
     }).then(
       res => {
         if (res.status === 201) {
           mutate(monthUrl)
           mutate(weekUrl)
-          // TODO: mutate week and month
-          handleClose();
+          toast({
+            title: "Saved!"
+          })
         } else {
           // TODO: handle errors
         }
       }
     ).catch(
       (error) => {
+        toast({
+            variant: "destructive",
+            title: "Something went wrong",
+            description: "Please, check your fields"
+          })
         const errRes = error.response.data;
         for (const prop in errRes) {
-          setErrors(errRes[prop]);
+          // setErrors(errRes[prop]);
         }
       }
     ).finally(() => {
-      // TODO: stop loading
+      setIsLoading(false)
     })
   }
 
-  return (
-    <Dialog maxWidth="sm" fullWidth={true} open={open} onClose={handleClose}>
-      <DialogTitle>Add budget</DialogTitle>
-      <DialogContent>
-        <Grid container spacing={3}>
-          <Grid item xs={8}>
-            <TextField
-              margin="dense"
-              id="title"
-              label="Title"
-              placeholder="Budget name"
-              type="text"
-              fullWidth
-              autoFocus
-              onChange={handleTitleInput}
-            />
-          </Grid>
-          <Grid item xs={4}>
-            <TextField
-              margin="dense"
-              id="amount"
-              label="Amount"
-              type="text"
-              fullWidth
-              InputProps={{
-                startAdornment: <InputAdornment position="start">
-                  {!isCurrenciesLoading && currency && getCurrencySign(currency.uuid)}
-                </InputAdornment>
-              }}
-              onChange={handleAmountInput}
-            />
-          </Grid>
-          <Grid item xs={5}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel id="currency-select-label">Currency</InputLabel>
-                  <Select
-                    labelId="curreny-select-label"
-                    label="Currecny"
-                    fullWidth
-                    value={currency}
-                    onChange={handleCurrencyChange}
-                  >
-                    {currencies && currencies.map((item: Currency) => (
-                      <MenuItem key={item.uuid} value={item.uuid}>{item.verbalName}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel id="user-select-label">User</InputLabel>
-                  <Select
-                    labelId="user-select-label" label="User"
-                    fullWidth
-                    value={user}
-                    onChange={handleUserChange}
-                  >
-                    {users && users.map((item: User) => (
-                      <MenuItem key={item.uuid} value={item.uuid}>{item.username}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel id="category-select-label">Category</InputLabel>
-                  <Select
-                    labelId="category-select-label"
-                    label="Category"
-                    fullWidth
-                    value={category}
-                    onChange={handleCategoryChange}
-                  >
-                    {parentList.map((item: Category) => (
-                      <MenuItem key={item.uuid} value={item.uuid}>{item.name}</MenuItem>
-                    )
-                    )}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <ToggleButtonGroup
-                  value={repeatType}
-                  exclusive
-                  onChange={handleRepeatTypeChange}
-                  aria-label="text alignment"
-                >
-                  <ToggleButton value="" aria-label="left aligned">
-                    Once
-                  </ToggleButton>
-                  <ToggleButton value="weekly" aria-label="centered">
-                    Weekly
-                  </ToggleButton>
-                  <ToggleButton value="monthly" aria-label="right aligned">
-                    Monthly
-                  </ToggleButton>
-                </ToggleButtonGroup>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item xs={7}>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <CalendarPicker date={budgetDate} onChange={(newDate) => setBudgetDate(newDate)} />
-            </LocalizationProvider>
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              margin="dense"
-              id="description"
-              label="Description"
-              value={description}
-              placeholder="Description"
-              multiline
-              rows={2}
-              fullWidth
-              autoFocus
-              onChange={handleDescriptionInput}
-            />
-          </Grid>
-        </Grid>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button variant="contained" onClick={handleSave}>Save</Button>
-      </DialogActions>
-    </Dialog>
+  const clean = (open: boolean) => {
+    if (!open) {
+      form.clearErrors()
+    }
+    setOpen(open)
+  }
+
+  const defaultTrigger = (
+    <Button className="mx-2">+ Add budget</Button>
   )
+
+  return (
+    <Dialog onOpenChange={clean} open={open}>
+      <DialogTrigger asChild>
+        {customTrigger || defaultTrigger}
+      </DialogTrigger>
+      <DialogContent className="min-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>Add budget</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
+            <div className="flex flex-col gap-3">
+              <div className="flex w-full">
+                <div className="flex sm:w-3/5">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Title" disabled={isLoading} id="title" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex sm:w-1/5">
+                  <FormField
+                    control={form.control}
+                    name="amount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                        <div className="flex gap-2">
+                          <div>
+                            <Input placeholder="10" disabled={isLoading} id="amount" {...field} />
+                          </div>
+                          <span className="flex items-center text-sm">
+                            { form.watch('currency') && getCurrencySign()}
+                          </span>
+                        </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex sm:w-1/5">
+                  <FormField
+                    control={form.control}
+                    name="currency"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Select
+                            disabled={isLoading}
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger className="relative w-full">
+                              <SelectValue placeholder="Select a currency" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectLabel>Currencies</SelectLabel>
+                                {currencies && currencies.map((item: Currency) => (
+                                  <SelectItem key={item.uuid} value={item.uuid}>{item.code}</SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              <div className="flex w-full">
+                <div className="flex flex-col flex-1 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Select
+                            disabled={isLoading}
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger className="relative w-full">
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectLabel>Categories</SelectLabel>
+                                {parentList.map((item: Category) => (
+                                  <SelectItem key={item.uuid} value={item.uuid}>{item.name}</SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="user"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Select
+                            disabled={isLoading}
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger className="relative w-full">
+                              <SelectValue placeholder="Select user" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectLabel>Budget owner</SelectLabel>
+                                {users && users.map((item: User) => (
+                                  <SelectItem key={item.uuid} value={item.uuid}>{item.username}</SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="repeatType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <RadioGroup
+                            disabled={isLoading}
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className={styles.radio}
+                          >
+                            <Label className="w-full">
+                              <RadioGroupItem value="" id="r1" />
+                              <span>Do not repeat</span>
+                            </Label>
+                            <Label className="w-full">
+                              <RadioGroupItem value="weekly" id="r1" />
+                              <span>Repeat Weekly</span>
+                            </Label>
+                            <Label>
+                              <RadioGroupItem value="monthly" id="r1" />
+                              <span>Repeat Monthly</span>
+                            </Label>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Textarea
+                            disabled={isLoading}
+                            placeholder="Add description if you want"
+                            className="resize-none h-full"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex-1 w-3/5 justify-end">
+                  <FormField
+                    control={form.control}
+                    name="budgetDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Calendar
+                            disabled={isLoading}
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) => date < new Date("1900-01-01")}
+                            weekStartsOn={1}
+                            initialFocus
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+            <Button type="submit">Submit</Button>
+          </form>
+        </Form>
+        </DialogContent>
+      </Dialog>
+    )
 }
 
 export default AddForm

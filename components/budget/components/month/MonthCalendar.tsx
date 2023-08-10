@@ -1,51 +1,51 @@
-
-import React from 'react';
-import {
-  Button,
-  TextField,
-  Typography,
-} from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { add, addMonths, subMonths } from 'date-fns';
+import React from 'react'
+import { CalendarDays } from 'lucide-react'
+import { DateRange } from 'react-day-picker'
+import { format, startOfMonth, endOfMonth } from 'date-fns'
+import { Button } from '@/components/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Calendar } from '@/components/ui/calendar'
+import { addMonths, subMonths } from 'date-fns'
 
 interface Types {
   date: Date,
-  setMonthDate: () => void
+  setMonthDate: (date: Date) => void
 }
 
-const MonthCalendar: React.FC<Types> = ({ date, setMonthDate }) => {
-  const maxDate = add(new Date(), { years: 2 });
+const MonthCalendar: React.FC<Types> = ({ date: monthDate, setMonthDate }) => {
+  const range: DateRange = {
+    from: startOfMonth(monthDate),
+    to: endOfMonth(monthDate)
+  }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <div className="flex flex-end">
-        <Button
-          variant="text"
-          onClick={() => setMonthDate(subMonths(date, 1))}
-        >
-          <Typography variant="h4">&#8592;</Typography>
-        </Button>
-        <DatePicker
-          views={['year', 'month']}
-          label="Month budget"
-          openTo="month"
-          value={date}
-          maxDate={maxDate}
-          onChange={(newDate: Date): void => { setMonthDate(newDate) }}
-          renderInput={(params) => <TextField fullWidth {...params} />}
-          inputFormat="MMMM yyyy"
-        />
-        <Button
-          variant="text"
-          onClick={() => setMonthDate(addMonths(date, 1))}
-        >
-          <Typography variant="h4">&#8594;</Typography>
-        </Button>
-      </div>
-    </LocalizationProvider>
+    <div className="flex flex-row h-full items-center">
+      <Button variant="ghost" onClick={() => setMonthDate(subMonths(monthDate, 1))}>
+        <span className="text-lg">&#8592;</span>
+      </Button>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className={`w-[280px] justify-start hover:bg-white border-2 h-12 text-left font-normal" ${monthDate && 'text-muted-foreground'}`}>
+              <CalendarDays className="mr-2 h-6 w-6" />
+              {monthDate ? format(monthDate, "MMM, yyyy") : (<span>Pick a date</span>)}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="h-full w-full p-0">
+          <Calendar
+            mode="single"
+            selected={range}
+            onSelect={(date: Date | undefined) => !!date && setMonthDate(date)}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+      <Button variant="ghost" onClick={() => setMonthDate(addMonths(monthDate, 1))}>
+        <span className="text-lg">&#8594;</span>
+      </Button>
+    </div>
   )
-};
+}
 
 export default MonthCalendar;

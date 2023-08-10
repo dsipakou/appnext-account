@@ -1,13 +1,7 @@
 import { FC } from 'react'
-import {
-  Divider,
-  Grid,
-  Paper,
-  Stack,
-  Typography
-} from '@mui/material'
-import { grey, teal, green, red } from '@mui/material/colors'
 import { formatMoney } from '@/utils/numberUtils'
+import { useCurrencies } from '@/hooks/currencies'
+import { Currency } from '@/components/currencies/types'
 
 interface Types {
   title: string
@@ -18,84 +12,38 @@ interface Types {
 }
 
 const CategorySummaryButton: FC<Types> = ({ title, isActive, planned, spent, currencyCode }) => {
+  const { data: currencies } = useCurrencies()
+
   const maxValue: number = Math.max(planned, spent)
 
   const spentPercent: number = spent * 100 / maxValue
 
   const plannedPercent: number = planned * 100 / maxValue
 
+  const currencySign = currencies.find((item: Currency) => item.code === currencyCode)?.sign || ''
+
   return (
-    <Paper
-      sx={
-        {
-          height: 80,
-          width: isActive ? "91%" : "90%",
-          borderRadius: 3,
-          border: isActive ? "2px solid rgba(0, 0, 0, 0.2)" : "",
-          backgroundColor: isActive ? teal[50] : "",
-          cursor: 'pointer'
-        }
-      }
-      elevation={
-        isActive ? 0 : 3
-      }
-    >
-      <Grid container justifyContent="center">
-        <Grid item xs={12} sx={{ height: 40, mt: 1 }}>
-          <Stack
-            direction="row"
-            divider={<Divider orientation="vertical" sx={{ mx: 1 }} flexItem />}
-            sx={{ display: "flex", alignItems: "end", height: "100%" }}
-          >
-            <Grid container spacing={1}>
-              <Grid item xs={11}>
-                <Stack>
-                  <Typography align="right" sx={{ fontSize: "1.3em" }}>
-                    {formatMoney(planned, currencyCode)}
-                  </Typography>
-                </Stack>
-              </Grid>
-              <Grid item xs={1} sx={{ display: "flex", alignItems: "end" }}>
-                <Paper
-                  square
-                  elevation={0}
-                  sx={{
-                    backgroundColor: grey[400],
-                    width: "100%",
-                    height: `${plannedPercent}%`,
-                  }}
-                ></Paper>
-              </Grid>
-            </Grid>
-            <Grid container spacing={1}>
-              <Grid item xs={1} sx={{ display: "flex", alignItems: "end" }}>
-                <Paper
-                  square
-                  elevation={0}
-                  sx={{
-                    backgroundColor: spentPercent > plannedPercent ? red[500] : green[500],
-                    width: "100%",
-                    height: `${spentPercent}%`,
-                  }}
-                ></Paper>
-              </Grid>
-              <Grid item xs={11}>
-                <Stack>
-                  <Typography align="left" sx={{ fontSize: "1.3em", fontWeight: "bold" }}>
-                    {formatMoney(spent, currencyCode)}
-                  </Typography>
-                </Stack>
-              </Grid>
-            </Grid>
-          </Stack>
-        </Grid>
-        <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
-          <Typography sx={{ fontSize: "1.2em" }}>
-            {title}
-          </Typography>
-        </Grid>
-      </Grid>
-    </Paper>
+    <div className={`h-[80px] rounded-md cursor-pointer ${isActive ? 'w-[92%] border-slate-300 bg-slate-400 text-slate-50' : 'hover:drop-shadow-lg drop-shadow bg-white w-[90%]'}`}>
+      <div className="flex flex-col h-full justify-center p-2">
+        <div className="flex w-full h-1/2">
+          <div className="flex flex-1 gap-2 justify-end items-end">
+            <span className="self-right text-xl">{formatMoney(planned)} {currencySign}</span>
+            <div className={`flex w-3 ${isActive ? 'bg-white' : 'bg-gray-400'}`} style={{height: `${plannedPercent}%`}}></div>
+          </div>
+          <div className="flex flex-1 gap-2 items-end">
+            { spentPercent > plannedPercent ? (
+              <div className="flex w-3 bg-red-500" style={{height: `${spentPercent}%`}}></div>
+            ): (
+              <div className="flex w-3 bg-green-500" style={{height: `${spentPercent}%`}}></div>
+            )}
+            <span className="text-xl font-bold">{formatMoney(spent)} {currencySign}</span>
+          </div>
+        </div>
+        <div className="flex flex-1 items-top h-1/2 justify-center">
+          <span className="text-lg">{title}</span>
+        </div>
+      </div>
+    </div>
   )
 }
 

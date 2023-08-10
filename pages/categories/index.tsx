@@ -1,3 +1,9 @@
 import Index from '@/components/categories'
 
-export default Index
+Category.auth = {}
+
+export default function Category() {
+  return (
+    <Index />
+  )
+}

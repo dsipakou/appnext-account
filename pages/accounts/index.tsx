@@ -1,3 +1,10 @@
+import React from 'react'
 import Index from '@/components/accounts'
 
-export default Index
+Accounts.auth = {}
+
+export default function Accounts() {
+  return (
+    <Index />
+  )
+}

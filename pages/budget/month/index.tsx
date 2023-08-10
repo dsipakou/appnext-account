@@ -1,4 +1,9 @@
-import Container from '@/components/budget/components/month/Container'
-import withBudgetTemplate from '@/components/budget/hoc'
+import Index from '@/components/budget/month'
 
-export default withBudgetTemplate(Container)
+Month.auth = {}
+
+export default function Month() {
+  return (
+    <Index />
+  )
+}

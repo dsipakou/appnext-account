@@ -1,93 +1,96 @@
 
 import { FC, useEffect, useState } from 'react';
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogTitle,
-  DialogContent,
-  FormControlLabel,
-  Grid,
-  Switch,
-  TextField,
-  Typography,
-} from '@mui/material';
 import axios from 'axios';
 import { useSWRConfig } from 'swr';
+import * as z from 'zod'
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from 'react-hook-form'
+import { Info } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { useCurrencies } from '@/hooks/currencies';
+import { useToast } from '@/components/ui/use-toast'
 
-import { Currency, CurrencyRequest } from '../types';
+import { Currency } from '../types';
 
 interface Types {
   uuid: string
-  open: boolean,
-  handleClose: () => void,
+  open: boolean
+  setOpen: (value: boolean) => void
 }
 
-const EditForm: FC<Types> = ({ uuid, open, handleClose }) => {
+const formSchema = z.object({
+  verbalName: z.string().min(2, { message: "Must be at least 2 characters long" }),
+  code: z.string().length(3, {
+    message: "Must be 3 characters long"
+  }),
+  sign: z.string({
+    required_error: "You need to specify currency sign",
+  }),
+  isDefault: z.boolean(),
+  comments: z.string().optional(),
+})
+
+const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
   const { mutate } = useSWRConfig();
-  const [currency, setCurrency] = useState<Currency>();
-  const [verbalName, setVerbalName] = useState<string>('');
-  const [code, setCode] = useState<string>('');
-  const [sign, setSign] = useState<string>('');
-  const [isDefault, setIsDefault] = useState<boolean>(false);
-  const [comments, setComments] = useState<string>('');
-  const [errors, setErrors] = useState<string[]>([]);
-  const { data: currencies, isLoading, isError } = useCurrencies();
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const { data: currencies = [] } = useCurrencies();
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+  })
+  const { toast } = useToast()
 
   useEffect(() => {
-    if (!currencies) return;
+    if (!currencies.length) return
 
-    const _currency = currencies.find((item: Currency) => item.uuid === uuid);
-    if (!_currency) return;
+    const _currency = currencies.find((item: Currency) => item.uuid === uuid)
+    if (!_currency) return
 
-    setCurrency(_currency);
-    setVerbalName(_currency.verbalName);
-    setCode(_currency.code);
-    setSign(_currency.sign);
-    setIsDefault(_currency.isDefault);
-    setComments(_currency.comments);
+    form.setValue('verbalName', _currency.verbalName)
+    form.setValue('code', _currency.code)
+    form.setValue('sign', _currency.sign)
+    form.setValue('isDefault', _currency.isDefault)
+    form.setValue('comments', _currency.comments)
+    return () => {
+    }
+  }, [currencies, uuid])
 
-    return () => setErrors([]);
-  }, [isLoading, currencies, uuid])
-
-  const handleIsDefaultSwitch = (e: ChangeEvent) => {
-    setIsDefault(e.target.checked);
-  }
-
-  const handleVerbalNameInput = (e: ChangeEvent) => {
-    setVerbalName(e.target.value);
-  }
-
-  const handleCodeInput = (e: ChangeEvent) => {
-    setCode(e.target.value);
-  }
-
-  const handleSignInput = (e: ChangeEvent) => {
-    setSign(e.target.value);
-  }
-
-  const handleCommentsInput = (e: ChangeEvent) => {
-    setComments(e.target.value);
-  }
-
-  const handleUpdate = async (): void => {
-    setErrors([]);
-    const payload: CurrencyRequest = {
-      verbalName,
-      code,
-      sign,
-      isDefault,
-      comments,
-    };
-    axios.patch(`currencies/${currency.uuid}/`, {
+  const handleUpdate = (payload: z.infer<typeof formSchema>): void => {
+    setIsLoading(true)
+    axios.patch(`currencies/${uuid}/`, {
       ...payload,
     }).then(
       res => {
         if (res.status === 200) {
           mutate('currencies/');
-          handleClose();
+          toast({
+              title: 'Saved!'
+            })
         } else {
           // TODO: handle errors
         }
@@ -95,82 +98,154 @@ const EditForm: FC<Types> = ({ uuid, open, handleClose }) => {
     ).catch(
       (error) => {
         const errRes = error.response.data;
-        for (const prop in errRes) {
-          setErrors(errRes[prop]);
+        toast({
+            variant: "destructive",
+            title: "Cannot be updated",
+            description: errRes,
+          })
         }
-      }
-    ).finally(() => { console.log('stopLoading') })
+    ).finally(() => { 
+      setIsLoading(false)
+    })
+  }
+
+  const cleanFormErrors = (open: boolean) => {
+    if (!open) {
+      form.clearErrors()
+      form.reset()
+    }
+    setOpen(false)
   }
 
   return (
-    <Dialog maxWidth="sm" fullWidth={true} open={open} onClose={handleClose}>
-      <DialogTitle>Edit category</DialogTitle>
+    <Dialog open={open} onOpenChange={cleanFormErrors}>
       <DialogContent>
-        <Grid container spacing={3}>
-          <Grid item xs={8}>
-            {errors.map((message: string) => (
-              <Typography key={message} color="red">{message}</Typography>
-            ))}
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              margin="dense"
-              id="verbalName"
-              label="Verbal Name"
-              placeholder="US Dollar"
-              type="text"
-              fullWidth
-              autoFocus
-              value={verbalName}
-              onChange={handleVerbalNameInput}
-            />
-          </Grid>
-          <Grid item xs={3}>
-            <TextField
-              margin="dense"
-              id="code"
-              label="Code"
-              placeholder="USD"
-              type="text"
-              fullWidth
-              value={code}
-              onChange={handleCodeInput}
-            />
-          </Grid>
-          <Grid item xs={3}>
-            <TextField
-              margin="dense"
-              id="sign"
-              label="Sign"
-              placeholder="$"
-              type="text"
-              fullWidth
-              value={sign}
-              onChange={handleSignInput}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <FormControlLabel control={
-              <Switch checked={isDefault} onChange={handleIsDefaultSwitch} />
-            } label="This is default currency" />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              multiline={true}
-              rows={3}
-              id="comments"
-              label="Comments"
-              value={comments}
-              onChange={handleCommentsInput}
-            />
-          </Grid>
-        </Grid>
+        <DialogHeader>
+          <DialogTitle>Update currency details</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleUpdate)} className="space-y-8">
+            <div className="flex flex-col space-y-3">
+              <div className="flex w-full">
+                <div className="flex w-2/3">
+                  <FormField
+                    control={form.control}
+                    name="verbalName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Currency name</FormLabel>
+                        <FormControl>
+                          <Input
+                            className="w-full"
+                            disabled={isLoading}
+                            placeholder="US Dollar"
+                            id="verbalName"
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex w-1/3">
+                  <FormField
+                    control={form.control}
+                    name="sign"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Sign</FormLabel>
+                        <FormControl>
+                          <Input
+                            className="w-full"
+                            disabled={isLoading}
+                            placeholder="$"
+                            id="sign"
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              <div className="flex w-full items-end">
+                <div className="flex w-1/2">
+                  <FormField
+                    control={form.control}
+                    name="code"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Code</FormLabel>
+                        <FormControl>
+                          <Input
+                            className="w-full"
+                            disabled={isLoading}
+                            placeholder="USD"
+                            id="code"
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex w-1/2 pb-2">
+                  <FormField
+                    control={form.control}
+                    name="isDefault"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              id="isDefault"
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              disabled={isLoading}
+                            />
+                            <Label htmlFor="isDefault">make it default</Label>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Info className="text-black h-4 w-4"/>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Making this currency as default <br />will make current default currency as non-default</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              <div className="flex pt-6">
+                <FormField
+                  control={form.control}
+                  name="comments"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Any comments"
+                          className="resize-none"
+                          disabled={isLoading}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+            <Button type="submit">Save</Button>
+          </form>
+        </Form>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button variant="contained" onClick={handleUpdate}>Update</Button>
-      </DialogActions>
     </Dialog>
   )
 }

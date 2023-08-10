@@ -3,12 +3,15 @@ import {
   GridRenderEditCellParams,
   useGridApiContext
 } from '@mui/x-data-grid'
-import { SelectChangeEvent } from '@mui/material/Select'
 import {
-  FormControl,
-  MenuItem,
-  Select
-} from '@mui/material'
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   Category,
   CategoryType
@@ -34,24 +37,31 @@ const CategoryComponent: React.FC<CategoryComponentTypes> = (params) => {
     ) || []
   }
 
-  const handleChange = (event: SelectChangeEvent) => {
-    apiRef.current.setEditCellValue({ id, field, value: event.target.value })
+  const handleChange = (item: Category) => {
+    apiRef.current.setEditCellValue({ id, field, value: item })
   }
 
   return (
-    <FormControl fullWidth>
+    <div className="flex w-full h-full bg-slate-100 p-[2px] select-none items-center">
       <Select
-        fullWidth
+        onValueChange={handleChange}
         value={value}
-        onChange={handleChange}
       >
-        {parents.map((item: Category) => {
-          return getChildren(item.uuid).map((subitem: Category) => (
-            <MenuItem key={subitem.uuid} value={subitem}>{item.name} - {subitem.name}</MenuItem>
-          ))
-        })}
+        <SelectTrigger className="relative text-xs border-2 bg-white rounded-xl h-full">
+          <SelectValue placeholder="Select a category" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Category</SelectLabel>
+            {parents.map((item: Category) => {
+              return getChildren(item.uuid).map((subitem: Category) => (
+                <SelectItem key={subitem.uuid} value={subitem}>{item.name} / {subitem.name}</SelectItem>
+              ))
+            })}
+          </SelectGroup>
+        </SelectContent>
       </Select>
-    </FormControl>
+    </div>
   )
 }
 

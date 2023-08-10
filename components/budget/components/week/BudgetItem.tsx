@@ -1,27 +1,24 @@
 import * as React from 'react'
 import axios from 'axios'
+import { useSession } from 'next-auth/react'
 import { useSWRConfig } from 'swr'
+import { Check, CheckCircle, Repeat } from 'lucide-react'
 import { formatMoney } from '@/utils/numberUtils'
-import {
-  Avatar,
-  Box,
-  Button,
-  Chip,
-  LinearProgress,
-  Paper,
-  Typography
-} from '@mui/material'
-import {
-  deepOrange
-} from '@mui/material/colors'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
 import { useBudgetDetails } from '@/hooks/budget'
-import { BudgetRequest, RecurrentTypes } from '@/components/budget/types'
+import { RecurrentTypes } from '@/components/budget/types'
 import { useCurrencies } from '@/hooks/currencies'
 import { useUsers, UserResponse } from '@/hooks/users'
-import { useAuth } from '@/context/auth'
 import { Currency } from '@/components/currencies/types'
+import EditForm from '@/components/budget/forms/EditForm'
+import ConfirmDeleteForm from '@/components/budget/forms/ConfirmDeleteForm'
+import { AddForm } from '@/components/transactions/forms'
 
 interface Types {
+  index: number
   uuid: string
   title: string
   user: string
@@ -29,8 +26,8 @@ interface Types {
   spent: number
   isCompleted: boolean
   recurrent: RecurrentTypes
-  clickEdit: (uuid: string) => void
-  clickDelete: (uuid: string) => void
+  weekUrl: string
+  monthUrl: string
   mutateBudget: () => void
 }
 
@@ -42,17 +39,20 @@ const BudgetItem: React.FC<Types> = ({
   spent,
   isCompleted,
   recurrent,
-  clickEdit,
-  clickDelete,
+  weekUrl,
+  monthUrl,
   mutateBudget
 }) => {
-  const [showDetails, setShowDetails] = React.useState<boolean>(false)
   const [errors, setErrors] = React.useState<string>([])
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [isEditDialogOpened, setIsEditDialogOpened] = React.useState<boolean>(false)
+  const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] = React.useState<boolean>(false)
+  const [isAddTransactionDialogOpened, setIsAddTransactionDialogOpened] = React.useState<boolean>(false)
 
   const { data: budgetDetails, url } = useBudgetDetails(uuid)
   const { data: currencies } = useCurrencies()
   const { data: users } = useUsers()
-  const { user: authUser } = useAuth()
+  const { data: { user: authUser }} = useSession()
   const { mutate } = useSWRConfig()
 
   const percentage: number = Math.floor(spent * 100 / planned)
@@ -61,28 +61,12 @@ const BudgetItem: React.FC<Types> = ({
     (currency: Currency) => currency.code === authUser.currency
   )?.sign || '';
 
-
-  const onMouseEnterHandler = (): void => {
-    setShowDetails(true)
-  }
-
-  const onMouseLeaveHandler = (): void => {
-    setShowDetails(false)
-  }
-
-  const handleClickEdit = (): void => {
-    clickEdit(uuid)
-  }
-
-  const handleClickDelete = (): void => {
-    clickDelete(uuid)
-  }
-
   const budgetUser = users.find((item: UserResponse) => item.uuid === user)
 
   const isSameUser = budgetUser?.username === authUser?.username
 
   const handleClickComplete = (): void => {
+    setIsLoading(true)
     axios.patch(`budget/${uuid}/`, {
       isCompleted: !budgetDetails.isCompleted,
       category: budgetDetails.category
@@ -104,15 +88,15 @@ const BudgetItem: React.FC<Types> = ({
         }
       }
     ).finally(() => {
-      // TODO: stop loading
+        setIsLoading(false)
     })
   }
 
   let cssClass = recurrent ?
     recurrent === 'monthly'
-      ? 'p-2 rounded-l-xl border-l-8 border-blue-500'
-      : 'rounded-l-xl border-l-8 border-yellow-500'
-    : 'rounded-l-lg'
+      ? 'p-2 border-l-8 border-blue-400'
+      : 'border-l-8 border-yellow-400'
+    : 'border-gray-300'
 
   if (isCompleted) {
     cssClass = `bg-slate-300 ${cssClass}`
@@ -121,165 +105,138 @@ const BudgetItem: React.FC<Types> = ({
   }
 
   return (
-    <div
-      className={`p-2 rounded-md hover:w-80 hover:z-20 hover:shadow-xl w-full ${cssClass}`}
-      onMouseEnter={onMouseEnterHandler}
-      onMouseLeave={onMouseLeaveHandler}
-    >
-      <div class='flex flex-row gap-2 items-center'>
-        {!isSameUser && !showDetails && (
-          <Avatar
-            sx={{
-              width: 24,
-              height: 24,
-              bgcolor: deepOrange[500],
-            }}
-          >
-            <Typography variant='caption'>
-              {budgetUser.username.charAt(0)}
-            </Typography>
-          </Avatar>
+    <div className={`flex flex-col group p-2 h-[100px] shadow-sm justify-between rounded-md hover:w-80 border hover:border-double hover:border-2 hover:z-20 hover:shadow-xl w-full ${cssClass}`}>
+      <div className='flex flex-row gap-1 items-center'>
+        {!isSameUser && (
+          <div className="flex group-hover:hidden">
+            <Avatar className="h-6 w-6">
+              <AvatarFallback className="text-xs font-bold bg-sky-400 text-white">
+                {budgetUser.username.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+          </div>
         )}
-        {!isSameUser && showDetails && (
-          <Chip size="small" label={budgetUser.username} color="primary" />
+        {!isSameUser && (
+          <div className="justify-center text-sm font-bold">
+            <div className="hidden group-hover:flex">
+              <Badge className="bg-sky-400">{budgetUser.username}</Badge>
+            </div>
+          </div>
         )}
-        <Typography
-          align="center"
-          noWrap
-          sx={{
-            fontSize: showDetails ? '1em' : '0.9em',
-            fontWeight: 'bold'
-          }}
-        >
-          {title}
-        </Typography>
+        <div className="flex grow group-hover:text-base group-hover:ml-3 whitespace-nowrap text-ellipsis overflow-hidden text-sm font-semibold">
+          <span>{title}</span>
+        </div>
+        {isCompleted && (
+        <div className="flex-none justify-end">
+          <CheckCircle className="text-green-600 h-4" />
+        </div>
+        )}
+        {!!recurrent && (
+          <div className={`hidden group-hover:flex items-center ${recurrent === 'monthly' ? 'text-blue-500' : 'text-yellow-500'}`}>
+            <Repeat className="h-3" />
+            <span className="text-xs">
+              {recurrent}
+            </span>
+          </div>
+        )}
       </div>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center'
-        }}
-      >
-        {showDetails && (
-          <>
-            <Typography
-              sx={{
-                fontSize: '0.9em',
-                fontWeight: 'bold'
-              }}
-            >
-              {formatMoney(spent)}
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: '0.9em',
-                marginLeft: '3px'
-              }}
-            >
-              {currencySign}
-            </Typography>
-          </>
+      <div className="flex h-full justify-center items-center">
+        <div className="hidden group-hover:flex text-sm font-semibold">
+          {formatMoney(spent)}
+        </div>
+        <div className="hidden group-hover:flex ml-[3px] text-sm font-semibold">
+          {currencySign}
+        </div>
+        {
+          planned !== 0 && (
+            <div className="hidden group-hover:flex text-xs font-semibold mx-2">
+              of
+            </div>
+          )
+        }
+        { planned !== 0 && (
+          <div className="text-xs">{formatMoney(planned)}</div>
         )}
-        {showDetails && (
-          <Typography
-            sx={{
-              fontSize: '0.8em',
-              mx: 1
-            }}
-          >
-            of
-          </Typography>
-        )}
-        <>
-          <Typography
-            sx={{
-              fontSize: '0.8em'
-            }}
-          >
-            {formatMoney(planned)}
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: '0.8em',
-              marginLeft: '3px'
-            }}
-          >
-            {currencySign}
-          </Typography>
-        </>
-      </Box>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center'
-        }}
-      >
+        <div className="text-xs ml-[3px]">{
+          planned === 0 
+            ? (
+              <span className="hidden group-hover:flex ml-2">(not planned)</span>
+            ) 
+            : currencySign
+        }</div>
+      </div>
+      <div className="flex justify-center items-center">
         {planned !== 0
           ? (
             <>
-              <LinearProgress
-                variant="determinate"
-                color={percentage > 100 ? 'error' : 'success'}
+              <Progress
+                className={`h-1.5 ${percentage > 100 ? 'bg-red-200' : 'bg-gray-200'}`}
+                indicatorclassname={`${percentage > 100 ? 'bg-red-500' : 'bg-green-500'}`}
                 value={percentage > 100 ? percentage % 100 : percentage}
-                sx={{
-                  mx: 1,
-                  width: '80%'
-                }}
               />
-              <Typography
-                sx={{
-                  fontSize: '0.9em'
-                }}
-              >
-                {`${percentage}%`}
-              </Typography>
+              <div className="text-xs font-bold ml-2">{`${percentage}%`}</div>
             </>
           )
           : (
-            <Typography
-              align="center"
-              sx={{
-                fontSize: '0.8em',
-                fontWeight: 'bold',
-                width: '100%'
-              }}
-            >
-              Unplanned
-            </Typography>
+            <Badge variant="secondary" className="flex font-normal group-hover:hidden text-xs tracking-widest">
+              Not Planned
+            </Badge>
           )
         }
-      </Box>
-      {!showDetails && (
-        <Typography
-          sx={{
-            fontSize: '0.7em',
-            color: 'blue',
-            fontWeight: 'bold'
-          }}
-          align="center"
+      </div>
+      <div className="hidden h-full group-hover:flex group-hover:items-end justify-center gap-1 text-xs">
+        <Button
+          disabled={isLoading}
+          variant="outline"
+          className={`px-3 text-xs h-2 ${isCompleted ? 'bg-gray-400' : 'bg-white'}`}
+          onClick={handleClickComplete}>
+          <Check className={`h-4 ${isCompleted ? 'text-white' : 'text-gray-400'}`} />
+        </Button>
+        <Button
+          disabled={isLoading}
+          variant="outline"
+          className="px-3 text-xs h-2 bg-white"
+          onClick={() => setIsAddTransactionDialogOpened(true)}>
+          Add spending
+        </Button>
+        <Button
+          disabled={isLoading}
+          variant="outline"
+          className="px-3 text-xs h-2 bg-white"
+          onClick={() => setIsEditDialogOpened(true)}
         >
-          {isCompleted && 'Completed'}
-        </Typography>
+          Edit
+        </Button>
+        <Button
+          variant="destructive"
+          className="px-3 text-xs h-2"
+          onClick={() => setIsConfirmDeleteDialogOpened(true)}
+        >
+          Delete
+        </Button>
+      </div>
+      <EditForm 
+        open={isEditDialogOpened}
+        setOpen={setIsEditDialogOpened}
+        uuid={uuid} 
+        weekUrl={weekUrl}
+        monthUrl={monthUrl}
+      />
+      <ConfirmDeleteForm
+        open={isConfirmDeleteDialogOpened}
+        setOpen={setIsConfirmDeleteDialogOpened}
+        uuid={uuid}
+        weekUrl={weekUrl}
+        monthUrl={monthUrl}
+      />
+      {isAddTransactionDialogOpened && (
+        <AddForm
+          url={weekUrl}
+          open={isAddTransactionDialogOpened}
+          handleClose={setIsAddTransactionDialogOpened}
+          budget={uuid}
+        />
       )}
-      {showDetails && (
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'center'
-        }}>
-          <Button
-            size="small"
-            variant="contained"
-            className={isCompleted ? 'bg-red-600' : 'bg-green-600'}
-            color={budgetDetails?.isCompleted ? 'warning' : 'success'}
-            disableElevation
-            onClick={handleClickComplete}>
-            {budgetDetails?.isCompleted ? 'Un-complete' : 'Complete'}
-          </Button>
-          <Button size="small" onClick={handleClickEdit}>Edit</Button>
-          <Button size="small" onClick={handleClickDelete}>Delete</Button>
-        </Box>
-      )
-      }
     </div>
   )
 }

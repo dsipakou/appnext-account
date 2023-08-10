@@ -1,17 +1,9 @@
 import * as React from 'react'
 import { useSWRConfig } from 'swr'
-import {
-  Box,
-  Button,
-  Grid,
-  Stack,
-  Toolbar,
-  Typography
-} from '@mui/material'
-import AddIcon from '@mui/icons-material/Add';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { CalendarPicker } from '@mui/x-date-pickers/CalendarPicker';
+import { useSession } from 'next-auth/react'
+import { Plus } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
 import { useTransactions } from '@/hooks/transactions'
 import { useCurrencies } from '@/hooks/currencies'
 import {
@@ -20,21 +12,18 @@ import {
   EditForm,
   ConfirmDeleteForm
 } from '@/components/transactions/forms'
-import { useAuth } from '@/context/auth'
 import { TransactionResponse } from '@/components/transactions/types'
 import DailyChart from '@/components/transactions/components/DailyChart'
 import { formatMoney } from '@/utils/numberUtils'
 import { getFormattedDate } from '@/utils/dateUtils'
-import locale from 'date-fns/locale/ru'
 import { Currency } from '@/components/currencies/types'
-import SourceSwitcher from './components/SourceSwitcher';
 import TransactionTable from './components/TransactionTable'
 import IncomeComponent from './components/IncomeContainer'
 
 export type TransactionType = 'outcome' | 'income'
 
 const Index: React.FC = () => {
-  const { user } = useAuth();
+  const { data: { user } } = useSession()
   const { mutate } = useSWRConfig()
   const [transactionDate, setTransactionDate] = React.useState<Date>(new Date())
   const [isOpenAddTransactions, setIsOpenAddTransactions] = React.useState<boolean>(false)
@@ -42,7 +31,7 @@ const Index: React.FC = () => {
   const [isOpenEditTransactions, setIsOpenEditTransactions] = React.useState<boolean>(false)
   const [isOpenDeleteTransactions, setIsOpenDeleteTransactions] = React.useState<boolean>(false)
   const [activeTransactionUuid, setActiveTransactionUuid] = React.useState<string>('')
-  const [activeTransactionsType, setActiveTrasactionsType] = React.useState<TransactionType>('outcome')
+  const [activeType, setActiveType] = React.useState<TransactionType>('outcome')
 
   const {
     data: transactions,
@@ -56,10 +45,10 @@ const Index: React.FC = () => {
 
   const { data: currencies = [] } = useCurrencies()
 
-  const currencySign = currencies.find((item: Currency) => item.code === user?.currency)?.sign;
+  const currencySign = currencies.find((item: Currency) => item.code === user.currency)?.sign;
 
   const overallSum = transactions?.reduce((acc: number, item: TransactionResponse) => {
-    return acc + item.spentInCurrencies[user?.currency] || 0
+    return acc + item.spentInCurrencies[user.currency] || 0
   }, 0)
 
   const handleCloseModal = (): void => {
@@ -84,77 +73,87 @@ const Index: React.FC = () => {
   }
 
   return (
-    <>
-      <Toolbar sx={{ pb: 1 }}>
-        <Typography variant="h4" sx={{ my: 2 }}>Transactions</Typography>
-        <Box sx={{ flexGrow: 7 }} />
-        <SourceSwitcher
-          activeType={activeTransactionsType}
-          changeType={setActiveTrasactionsType}
-        />
-        <Box sx={{ flexGrow: 7 }} />
-        <Button
-          variant="outlined"
-          onClick={() => setIsOpenAddIncomeTransactions(true)}
-        >
-          Add income
-        </Button>
-        <Box sx={{ flexGrow: 1 }} />
-        <Button
-          startIcon={<AddIcon />}
-          variant="contained"
-          className="bg-blue-500"
-          sx={{ textTransform: 'none' }}
-          onClick={() => setIsOpenAddTransactions(true)}
-        >
-          Add transactions
-        </Button>
-      </Toolbar>
-      <Grid container spacing={2}>
-        { activeTransactionsType === 'outcome' ?
+    <div className="flex flex-col">
+      <div className="flex w-full px-6 my-3 justify-between items-center">
+        <span className="text-xl font-semibold">Transactions</span>
+        <div className="flex border bg-blue-500 rounded-md">
+          <Button
+            className="w-[180px] disabled:opacity-100 p-1"
+            disabled={activeType === 'income'}
+            variant="none"
+            onClick={() => setActiveType('income')}
+          >
+            <span className={`text-xl ${activeType === 'income' ? 'flex justify-center items-center text-xl rounded-md text-blue-500 bg-white w-full h-full' : 'text-white'}`}>
+              Income
+            </span>
+          </Button>
+          <Button
+            className="w-[180px] disabled:opacity-100 p-1"
+            disabled={activeType === 'outcome'}
+            variant="none"
+            onClick={() => setActiveType('outcome')}
+          >
+            <span className={`text-xl ${activeType === 'outcome' ? 'flex justify-center items-center text-xl rounded-md text-blue-500 bg-white w-full h-full' : 'text-white'}`}>
+              Outcome
+            </span>
+          </Button>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="text-blue-500 border-blue-500 hover:text-blue-600"
+            onClick={() => setIsOpenAddIncomeTransactions(true)}
+          >
+            Add income
+          </Button>
+          <AddForm url={transactionsUrl} />
+        </div>
+      </div>
+        { activeType === 'outcome' ?
           (
-          <>
-            <Grid item xs={8}>
+          <div className="grid grid-cols-7 gap-2">
+            <div className="col-span-5 bg-white">
               <TransactionTable
                 transactions={transactions}
                 handleDeleteClick={handleDeleteClick}
                 handleDoubleClick={handleEditClick}
               />
-            </Grid>
-            <Grid item xs={4}>
-              <Stack>
-                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
-                  <CalendarPicker date={transactionDate} onChange={(newDate) => setTransactionDate(newDate)} />
-                </LocalizationProvider>
-                <div className="flex flex-col flex-nowrap bg-white rounded-md p-3">
-                  <div className="flex flex-col">
-                    <div className="flex mb-3">
-                      <Typography variant="h4">
-                        Day summary
-                      </Typography>
+            </div>
+            <div className="col-span-2">
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-col justify-center items-center border bg-white rounded-md p-3">
+                  <span className="text-xl font-semibold mt-2">Transaction day</span>
+                  <Calendar
+                    mode="single"
+                    selected={transactionDate}
+                    onSelect={(day) => !!day && setTransactionDate(day)}
+                    weekStartsOn={1}
+                  />
+                </div>
+                <div className="flex flex-col flex-nowrap bg-white items-center justify-center rounded-md p-3">
+                  <span className="text-xl font-semibold my-2">Day summary</span>
+                  {transactions && (
+                    <div className="flex gap-2 text-md">
+                      <span className="font-semibold">{formatMoney(overallSum)}{currencySign}</span>
+                      <span>spent in</span>
+                      <span className="font-semibold">{transactions?.length}</span>
+                      <span>transactions</span>
                     </div>
-                    {transactions && (
-                      <Typography variant="subtitle">
-                        <strong>{formatMoney(overallSum)}</strong>{currencySign} spent in <strong>{transactions?.length}</strong> transactions
-                      </Typography>
-                    )}
-                  </div>
+                  )}
                   <div className="flex">
                     <DailyChart
                       transactions={transactions}
                     />
                   </div>
                 </div>
-              </Stack>
-            </Grid>
-          </>
+              </div>
+            </div>
+          </div>
         )
         :
         (
           <IncomeComponent />
         )}
-      </Grid>
-      <AddForm url={transactionsUrl} open={isOpenAddTransactions} handleClose={handleCloseModal} />
       <AddIncomeForm open={isOpenAddIncomeTransactions} handleClose={handleCloseModal} />
       {
         isOpenEditTransactions &&
@@ -171,7 +170,7 @@ const Index: React.FC = () => {
         handleClose={handleCloseModal}
         mutateTransactions={mutateTransactions}
       />
-    </>
+    </div>
   )
 }
 

@@ -1,18 +1,15 @@
 import { FC, useEffect, useState } from 'react'
-import { getDay } from 'date-fns'
-import { Grid, Stack, Typography } from '@mui/material'
+import { useSession } from 'next-auth/react'
+import { getDay, isToday, isThisWeek  } from 'date-fns'
 import { useBudgetWeek } from '@/hooks/budget'
 import { RecurrentTypes, WeekBudgetItem } from '@/components/budget/types'
-import { ConfirmDeleteForm } from '@/components/budget/forms'
 import {
   getWeekDaysWithFullDays,
   parseDate,
-  parseAndFormatDate,
   FULL_DAY_ONLY_FORMAT,
-  MONTH_DAY_FORMAT,
   WeekDayWithFullDate,
 } from '@/utils/dateUtils'
-import { useAuth } from '@/context/auth'
+import { Button } from '@/components/ui/button'
 import BudgetItem from './BudgetItem'
 import HeaderItem from './HeaderItem'
 
@@ -20,8 +17,8 @@ interface Types {
   startDate: string
   endDate: string
   user: string
-  clickEdit: (uuid: string) => void
-  clickDelete: (uuid: string) => void
+  weekUrl: string
+  monthUrl: string
   mutateBudget: () => void
 }
 
@@ -45,20 +42,19 @@ interface GroupedByWeek {
 }
 
 const header = (date: string) => {
-  const currentDay: number = (getDay(new Date()) + 6) % 7
   const daysShortFormatArray: WeekDayWithFullDate[] = getWeekDaysWithFullDays(parseDate(date))
-  const daysFullFormatArray: string[] = getWeekDaysWithFullDays(parseDate(date), FULL_DAY_ONLY_FORMAT)
 
   return (
-    <div className="grid grid-cols-8 gap-3">
+    <div className={`grid mb-3 border-x border-stone-200 ${isThisWeek(daysShortFormatArray[0].fullDate) ? 'grid-cols-8' : 'grid-cols-7'}`}>
       {daysShortFormatArray.map((item: WeekDayWithFullDate, index: number) => (
         <div
           key={index}
-          className={currentDay === index ? 'col-span-2' : ''}
+          className={isToday(item.fullDate) ? 'col-span-2' : ''}
         >
           <HeaderItem
             date={item}
             isWeekend={index > 4}
+            isToday={isToday(item.fullDate)}
           />
         </div>
       ))}
@@ -70,20 +66,19 @@ const Container: FC<Types> = ({
   startDate,
   endDate,
   user,
-  clickEdit,
-  clickDelete,
+  weekUrl,
+  monthUrl,
   mutateBudget
 }) => {
   const [weekGroup, setWeekGroup] = useState<GroupedByWeek>({});
-  const { data: budget, isLoading }: WeekBudgetResponse = useBudgetWeek(
+  const { data: budget }: WeekBudgetResponse = useBudgetWeek(
     startDate,
     endDate,
     user
   )
-  const currentDay: number = getDay(new Date())
-  const { user: authUser } = useAuth();
+  const { data: { user: authUser }} = useSession()
   const weekDaysArray: number[] = [1, 2, 3, 4, 5, 6, 0];
-
+  const daysFullFormatArray: WeekDayWithFullDate[] = getWeekDaysWithFullDays(parseDate(startDate), FULL_DAY_ONLY_FORMAT)
 
   useEffect(() => {
     if (!budget) return;
@@ -100,24 +95,33 @@ const Container: FC<Types> = ({
         spent: item.spentInCurrencies[authUser?.currency] || 0,
         recurrent: item.recurrent,
         isCompleted: item.isCompleted,
-      };
+      }
       itemsOnDate.push(compactWeekItem);
       groupedObj[dayOfWeek] = itemsOnDate;
-    });
+    })
     setWeekGroup(groupedObj);
   }, [budget]);
 
+  const addBudgetButton = (
+    <Button
+      className="mt-2 shadow-sm bg-white hover:bg-white h-[60px] w-full text-3xl text-stone-400"
+      variant="ghost"
+    >
+      +
+    </Button>
+  )
+
   return (
-    <Stack spacing={1}>
+    <div className="flex flex-col">
       {header(startDate)}
-      <div className="grid grid-cols-8 gap-3">
-        {weekDaysArray.map((i: number) => (
+      <div className={`grid gap-3 justify-center ${isThisWeek(daysFullFormatArray[0].fullDate) ? 'grid-cols-8' : 'grid-cols-7'}`}>
+        {weekDaysArray.map((day: number, weekDayIndex: number) => (
           <div
-            className={currentDay === i ? 'col-span-2' : ''}
+            className={isToday(daysFullFormatArray[weekDayIndex].fullDate) ? 'col-span-2' : ''}
           >
-            <div className="flex flex-col justify-center items-center gap-1">
-              {weekGroup[i] &&
-                weekGroup[i].map((item: CompactWeekItem) => (
+            <div className="flex flex-col justify-center items-center gap-1 relative">
+              {weekGroup[day] &&
+                weekGroup[day].map((item: CompactWeekItem) => (
                   <BudgetItem
                     key={item.uuid}
                     uuid={item.uuid}
@@ -127,8 +131,8 @@ const Container: FC<Types> = ({
                     spent={item.spent}
                     recurrent={item.recurrent}
                     isCompleted={item.isCompleted}
-                    clickEdit={clickEdit}
-                    clickDelete={clickDelete}
+                    weekUrl={weekUrl}
+                    monthUrl={monthUrl}
                     mutateBudget={mutateBudget}
                   />
                 ))}
@@ -136,7 +140,7 @@ const Container: FC<Types> = ({
           </div>
         ))}
       </div>
-    </Stack>
+    </div>
   );
 };
 

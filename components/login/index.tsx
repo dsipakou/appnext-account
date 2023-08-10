@@ -1,25 +1,35 @@
-import { FC, ChangeEvent, useState } from 'react'
-import {
-  Box,
-  Grid,
-  Link,
-  Stack,
-  TextField,
-  Typography,
-  Button
-} from '@mui/material'
+import React from 'react'
+import { signIn } from 'next-auth/react'
+import Link from 'next/link'
+import * as z from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { 
   FieldValues,
   SubmitHandler,
   useForm
 } from 'react-hook-form'
-import { useAuth } from '@/context/auth'
+import { Button } from '@/components/ui/button'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormLabel,
+  FormItem,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 
-const Index: FC = () => {
-  const { isAuthenticated, login } = useAuth()
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [email, setEmail] = useState<string>('')
-  const [password, setPassword] = useState<string>('')
+const formSchema = z.object({
+  email: z.string().email(),
+  password: z.string(),
+})
+
+const Index: React.FC = () => {
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema)
+  })
 
   const {
     register,
@@ -34,65 +44,62 @@ const Index: FC = () => {
     }
   })
 
-  const handleEmailInput = (e: ChangeEvent): void => {
-    setEmail(e.target.value)
-  }
-
-  const handlePasswordInput = (e: ChangeEvent): void => {
-    setPassword(e.target.value)
-  }
-
-  const handleLogin: SubmitHandler<FieldValues> = async (data): void => {
-    console.log(data)
+  const handleLogin = (payload: z.infer<typeof formSchema>) => {
     setIsLoading(true)
-    await login(data.email, data.password)
+
+    signIn('credentials', {
+      username: payload.email,
+      password: payload.password,
+      callbackUrl: `${window.location.origin}/accounts`,
+    })
     setIsLoading(false)
   }
 
   return (
-    <Grid container spacing={4}>
-      <Grid item xs={6}></Grid>
-      <Grid item xs={6}>
+    <div className="flex gap-4 justify-end">
+      <div className="w-1/2">
         <div className="flex flex-col gap-4 mt-10">
-          <Typography variant="h4">Welcome to Flying Budget</Typography>
-          <form onSubmit={handleSubmit(handleLogin)}>
-            <div className="flex flex-col gap-4 w-1/2">
-              <TextField
-                {...register("email", {
-                  required: "Required",
-                  pattern: {
-                    value: /\S+@\S+\.\S+/,
-                    message: "Entered value does not match email format"
-                  }
-                })}
-                autoFocus
-                error={!!errors?.email}
-                helperText={errors.email ? errors.email.message : ''}
-                id="email"
-                label="Email Address"
-                type="text"
-                disabled={isLoading}
-                fullWidth
+          <span className="text-2xl font-semibold">Login to your account</span>
+          <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-8">
+            <div className="flex flex-col gap-4 w-2/3 bg-white p-6 rounded-lg drop-shadow-lg">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input className="w-full" disabled={isLoading} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <TextField
-                {...register("password", {required: "Required"})}
-                error={!!errors?.password}
-                helperText={errors.password ? errors.password.message: ''}
-                id="password"
-                label="Password"
-                type="password"
-                fullWidth
-                disabled={isLoading}
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" className="w-full" disabled={isLoading} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Link href="/">Forgot Password?</Link>
-              </Box>
-              <Button type="submit" variant="contained">Login</Button>
+              <div className="flex justify-between">
+                <Link href="/signup" className="underline text-blue-500">Create new account</Link>
+                <Link href="/" className="underline text-blue-500">Forgot Password?</Link>
+              </div>
+              <Button type="submit">Login</Button>
             </div>
           </form>
+          </Form>
         </div>
-      </Grid>
-    </Grid>
+      </div>
+    </div>
   )
 }
 

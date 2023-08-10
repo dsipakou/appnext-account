@@ -1,11 +1,3 @@
-import { useEffect, useContext } from 'react';
-import { AuthContext } from '@/context/auth';
+import Index from '@/components/logout'
 
-const Logout = () => {
-  const { logout } = useContext(AuthContext)
-  useEffect(() => {
-    logout();
-  }, []);
-};
-
-export default Logout;
+export default Index

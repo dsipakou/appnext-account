@@ -1,13 +1,10 @@
 import * as React from 'react'
-import {
-  Box
-} from '@mui/material'
+import { useSession } from 'next-auth/react'
 import {
   GridActionsCellItem, GridRowParams
 } from '@mui/x-data-grid'
 import { DataGrid, GridRowsProp, GridRowParams, GridColDef } from '@mui/x-data-grid'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
-import { useAuth } from '@/context/auth'
 import { TransactionResponse } from '@/components/transactions/types'
 import { formatMoney } from '@/utils/numberUtils'
 
@@ -43,7 +40,7 @@ const TransactionTable: React.FC<Types> = ({ transactions, handleDeleteClick, ha
     }
   ]
 
-  const { user } = useAuth()
+  const { data: { user }} = useSession()
 
   React.useEffect(() => {
     if (!transactions) return
@@ -72,7 +69,7 @@ const TransactionTable: React.FC<Types> = ({ transactions, handleDeleteClick, ha
   }
 
   return (
-    <Box style={{ height: '80vh', width: '100%' }}>
+    <div className="flex w-full h-screen">
       <DataGrid
         rows={rows}
         columns={columns}
@@ -82,7 +79,7 @@ const TransactionTable: React.FC<Types> = ({ transactions, handleDeleteClick, ha
           ...hiddenColumns
         }}
       />
-    </Box>
+    </div>
   )
 }
 

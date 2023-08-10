@@ -1,8 +1,7 @@
 import dynamic from 'next/dynamic'
 import React from 'react'
+import { useSession } from 'next-auth/react'
 import { TransactionResponse } from '@/components/transactions/types'
-import { useAuth } from '@/context/auth'
-import { formatMoney } from '@/utils/numberUtils'
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -12,7 +11,7 @@ interface Types {
 
 const DailyChart: React.FC<Types> = ({ transactions }) => {
   const [groupedTransactions, setGroupedTransactions] = React.useState([])
-  const { user } = useAuth()
+  const { data: { user}} = useSession()
   React.useEffect(() => {
     if (!transactions) return
 
@@ -21,8 +20,6 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
       acc[item.categoryDetails.parentName] = Number(summ.toFixed(2))
       return acc
     }, {}))
-
-    console.log(groupedTransactions)
   }, [transactions])
 
   return (

@@ -1,13 +1,8 @@
 import { FC } from 'react'
-import {
-  Divider,
-  Grid,
-  Paper,
-  Stack,
-  Typography
-} from '@mui/material'
-import { blue, yellow, grey } from '@mui/material/colors'
+import { useSession} from 'next-auth/react'
 import { formatMoney } from '@/utils/numberUtils'
+import { useCurrencies } from '@/hooks/currencies'
+import { Currency } from '@/components/currencies/types'
 
 interface Types {
   title: string
@@ -16,75 +11,60 @@ interface Types {
 }
 
 const GeneralSummaryCard: FC<Types> = ({ title, planned, spent }) => {
+  const { data: currencies = [] } = useCurrencies()
+  const { data: { user: authUser }} = useSession()
+
   const maxValue: number = Math.max(planned, spent)
 
   const spentPercent = spent * 100 / maxValue
 
   const plannedPercent = planned * 100 / maxValue
+
+  const currencySign = currencies.find(
+    (currency: Currency) => currency.code === authUser?.currency
+  )?.sign || '';
+
   return (
-    <Paper
-      elevation={0}
-      sx={{ height: 80, border: '1px solid', backgroundColor: grey[700], color: "white" }}
-    >
-      <Grid container>
-        <Grid item xs={12}>
-          <Typography align="center" sx={{ color: yellow[500] }}>
-            {title.charAt(0).toUpperCase() + title.slice(1)} Summary
-          </Typography>
-        </Grid>
-        <Grid item xs={12}>
-          <Stack
-            direction="row"
-            divider={<Divider orientation="vertical" sx={{ mx: 1 }} flexItem />}
-          >
-            <Grid container spacing={1}>
-              <Grid item xs={10}>
-                <Stack>
-                  <Typography align="right" sx={{ fontSize: "1.3em", fontWeight: "bold" }}>
-                    {formatMoney(planned)}
-                  </Typography>
-                  <Typography align="right" sx={{ fontSize: "0.8em" }}>
-                    Planned
-                  </Typography>
-                </Stack>
-              </Grid>
-              <Grid item xs={2} sx={{ display: "flex", alignItems: "end" }}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    backgroundColor: yellow[700],
-                    width: "100%",
-                    height: `${plannedPercent}%`,
-                  }}
-                ></Paper>
-              </Grid>
-            </Grid>
-            <Grid container spacing={1}>
-              <Grid item xs={2} sx={{ display: "flex", alignItems: "end" }}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    backgroundColor: yellow[700],
-                    width: "100%",
-                    height: `${spentPercent}%`,
-                  }}
-                ></Paper>
-              </Grid>
-              <Grid item xs={10}>
-                <Stack>
-                  <Typography align="left" sx={{ fontSize: "1.3em", fontWeight: "bold" }}>
-                    {formatMoney(spent)}
-                  </Typography>
-                  <Typography align="left" sx={{ fontSize: "0.8em" }}>
-                    Actual
-                  </Typography>
-                </Stack>
-              </Grid>
-            </Grid>
-          </Stack>
-        </Grid>
-      </Grid>
-    </Paper >
+    <div className="flex flex-col border bg-slate-600 items-center justify-center text-white h-[80px]">
+      <div className="flex justify-center w-full">
+        <span className="text-yellow-300">
+          {title.charAt(0).toUpperCase() + title.slice(1)} Summary
+        </span>
+      </div>
+      <div className="flex w-full">
+        <div className="flex flex-1">
+          <div className="flex flex-1 justify-end">
+            <div className="flex flex-col h-full">
+              <div className="flex justify-end text-xl">
+                {formatMoney(planned)} {currencySign}
+              </div>
+              <div className="flex justify-end text-xs items-end">
+                Planned
+              </div>
+            </div>
+          </div>
+          <div className="flex items-start ml-2">
+            <div className="rounded bg-yellow-400 w-5" style={{height: `${plannedPercent}%`}}></div>
+          </div>
+        </div>
+        <div className="w-[1px] bg-gray-500 mx-1"></div>
+        <div className="flex flex-1">
+          <div className="flex items-end mr-2 h-full">
+            <div className="rounded bg-yellow-400 w-5" style={{height: `${spentPercent}%`}}></div>
+          </div>
+          <div className="flex flex-1 justify-start">
+            <div className="flex flex-col h-full">
+              <div className="flex justify-start text-xl">
+                {formatMoney(spent)} {currencySign}
+              </div>
+              <div className="flex justify-start text-xs">
+                Actual
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 

@@ -4,12 +4,15 @@ import {
   Toolbar,
   Typography
 } from '@mui/material'
+import { useStore } from '@/app/store'
 import ReportTypeSwitcher, { ReportPages } from './components/ReportTypeSwitcher'
 import ReportOverall from './components/ReportOverall'
 import ChartReport from './components/ChartReport'
 
 const Index: React.FC = () => {
-  const [reportType, setReportType] = React.useState<ReportPages>(ReportPages.Overall)
+  const reportType = useStore((state) => state.reportType)
+  const setReportType = useStore((state) => state.setReportType)
+
   console.log(reportType)
 
   return (
