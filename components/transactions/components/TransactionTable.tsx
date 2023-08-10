@@ -1,9 +1,6 @@
 import * as React from 'react'
 import { useSession } from 'next-auth/react'
 import {
-  Box
-} from '@mui/material'
-import {
   GridActionsCellItem, GridRowParams
 } from '@mui/x-data-grid'
 import { DataGrid, GridRowsProp, GridRowParams, GridColDef } from '@mui/x-data-grid'
@@ -72,7 +69,7 @@ const TransactionTable: React.FC<Types> = ({ transactions, handleDeleteClick, ha
   }
 
   return (
-    <Box style={{ height: '80vh', width: '100%' }}>
+    <div className="flex w-full h-screen">
       <DataGrid
         rows={rows}
         columns={columns}
@@ -82,7 +79,7 @@ const TransactionTable: React.FC<Types> = ({ transactions, handleDeleteClick, ha
           ...hiddenColumns
         }}
       />
-    </Box>
+    </div>
   )
 }
 

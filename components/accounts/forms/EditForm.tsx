@@ -189,7 +189,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                             defaultValue={field.value}
                             disabled={isLoading}
                           >
-                            <SelectTrigger className="w-full">
+                            <SelectTrigger className="relative w-full">
                               <SelectValue placeholder="Select user" />
                             </SelectTrigger>
                             <SelectContent>
@@ -219,7 +219,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                             defaultValue={field.value}
                             disabled={isLoading}
                           >
-                            <SelectTrigger className="w-full">
+                            <SelectTrigger className="relative w-full">
                               <SelectValue placeholder="Select category" />
                             </SelectTrigger>
                             <SelectContent>

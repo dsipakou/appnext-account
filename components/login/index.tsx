@@ -1,5 +1,6 @@
 import React from 'react'
 import { signIn } from 'next-auth/react'
+import Link from 'next/link'
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { 
@@ -7,9 +8,6 @@ import {
   SubmitHandler,
   useForm
 } from 'react-hook-form'
-import {
-  Link,
-} from '@mui/material'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -92,8 +90,8 @@ const Index: React.FC = () => {
                 )}
               />
               <div className="flex justify-between">
-                <Link href="/signup">Create new account</Link>
-                <Link href="/">Forgot Password?</Link>
+                <Link href="/signup" className="underline text-blue-500">Create new account</Link>
+                <Link href="/" className="underline text-blue-500">Forgot Password?</Link>
               </div>
               <Button type="submit">Login</Button>
             </div>

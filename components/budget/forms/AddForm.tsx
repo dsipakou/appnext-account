@@ -261,7 +261,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
-                            <SelectTrigger className="w-full">
+                            <SelectTrigger className="relative w-full">
                               <SelectValue placeholder="Select a currency" />
                             </SelectTrigger>
                             <SelectContent>
@@ -293,7 +293,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
-                            <SelectTrigger className="w-full">
+                            <SelectTrigger className="relative w-full">
                               <SelectValue placeholder="Select category" />
                             </SelectTrigger>
                             <SelectContent>
@@ -321,7 +321,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
-                            <SelectTrigger className="w-full">
+                            <SelectTrigger className="relative w-full">
                               <SelectValue placeholder="Select user" />
                             </SelectTrigger>
                             <SelectContent>
@@ -399,6 +399,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                             selected={field.value}
                             onSelect={field.onChange}
                             disabled={(date) => date < new Date("1900-01-01")}
+                            weekStartsOn={1}
                             initialFocus
                           />
                         </FormControl>

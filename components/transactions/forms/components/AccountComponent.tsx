@@ -4,10 +4,14 @@ import {
   useGridApiContext
 } from '@mui/x-data-grid'
 import {
-  FormControl,
-  MenuItem,
-  Select
-} from '@mui/material'
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { AccountResponse } from '@/components/accounts/types'
 
 
@@ -19,22 +23,29 @@ const AccountComponent: React.FC<AccountComponentTypes> = (params) => {
   const { id, field, value, accounts } = params
   const apiRef = useGridApiContext()
 
-  const handleChange = (newValue: any) => {
-    apiRef.current.setEditCellValue({ id, field, value: newValue.target.value })
+  const handleChange = (newValue: AccountResponse) => {
+    apiRef.current.setEditCellValue({ id, field, value: newValue })
   }
 
   return (
-    <FormControl fullWidth>
+    <div className="flex w-full h-full bg-slate-100 p-[2px] select-none items-center">
       <Select
-        fullWidth
+        onValueChange={handleChange}
         value={value}
-        onChange={handleChange}
       >
-        {accounts.map((item: AccountResponse) => (
-          <MenuItem key={item.uuid} value={item}>{item.title}</MenuItem>
-        ))}
+        <SelectTrigger className="relative bg-white text-xs border-2 h-full rounded-xl">
+          <SelectValue placeholder="Select an account" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Accounts</SelectLabel>
+            {accounts.map((item: AccountResponse) => (
+              <SelectItem key={item.uuid} value={item}>{item.title}</SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
       </Select>
-    </FormControl>
+    </div>
   )
 }
 

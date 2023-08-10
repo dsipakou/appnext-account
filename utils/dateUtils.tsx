@@ -35,7 +35,7 @@ export const FULL_DAY_ONLY_FORMAT = "EEEE"
 
 const formatRelativeLocale = {
   lastWeek: "'Last' eeee",
-  yesterday: "'Yesterdayt'",
+  yesterday: "'Yesterday'",
   today: "'Today'",
   tomorrow: "'Tomorrow'",
   nextWeek: "eeee",

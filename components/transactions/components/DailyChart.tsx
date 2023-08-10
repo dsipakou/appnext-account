@@ -20,8 +20,6 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
       acc[item.categoryDetails.parentName] = Number(summ.toFixed(2))
       return acc
     }, {}))
-
-    console.log(groupedTransactions)
   }, [transactions])
 
   return (

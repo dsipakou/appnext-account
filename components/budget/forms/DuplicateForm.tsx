@@ -113,7 +113,12 @@ const DuplicateForm: React.FC<Types> = ({ date, type, mutateBudget }) => {
   return (
     <Dialog onOpenChange={clearForm}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="text-blue-500 border-blue-500 hover:text-blue-600"><Copy className="mr-2" /> Duplicate</Button>
+        <Button
+          variant="outline"
+          className="text-blue-500 border-blue-500 hover:text-blue-600"
+        >
+          <Copy className="mr-2" /> Duplicate
+        </Button>
       </DialogTrigger>
       <DialogContent className="min-w-[600px]">
         { budgetList.length > 0 && (

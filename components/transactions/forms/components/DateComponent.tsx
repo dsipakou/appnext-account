@@ -1,22 +1,17 @@
 import React from 'react'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import locale from 'date-fns/locale/ru'
 import {
   addDays,
-  subDays
+  subDays,
+  format,
 } from 'date-fns'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react'
 import {
   GridRenderEditCellParams,
   useGridApiContext
 } from '@mui/x-data-grid'
-import {
-  IconButton,
-  TextField
-} from '@mui/material'
-import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
-import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Button } from '@/components/ui/button'
 
 interface Types extends GridRenderEditCellParams { }
 
@@ -33,27 +28,28 @@ const DateComponent: React.FC<Types> = (params) => {
   }, [])
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
-      <IconButton
-        variant="text"
-        size="small"
-        onClick={() => handleChange(subDays(value, 1))}
-      >
-        <ArrowLeftIcon fontSize="inherit" />
-      </IconButton>
-      <DatePicker
-        value={value}
-        onChange={handleChange}
-        renderInput={(params) => <TextField fullWidth {...params} />}
-      />
-      <IconButton
-        variant="text"
-        size="small"
-        onClick={() => handleChange(addDays(value, 1))}
-      >
-        <ArrowRightIcon fontSize="inherit" />
-      </IconButton>
-    </LocalizationProvider>
+    <div className="flex w-full h-full bg-slate-100 p-[2px] select-none items-center">
+      <ChevronLeft className="w-5 cursor-pointer" onClick={() => handleChange(subDays(value, 1))} />
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className="flex text-xs w-full justify-start rounded-xl h-full border-2 bg-white border-2 text-left font-normal">
+              <CalendarDays className="mr-2 h-4 w-4" />
+              {value ? format(value, "MMM dd") : (<span>Pick a date</span>)}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="h-full w-full p-0">
+          <Calendar
+            mode="single"
+            selected={value}
+            onSelect={(date: Date | undefined) => !!date && handleChange(date)}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+      <ChevronRight className="w-5 cursor-pointer" onClick={() => handleChange(addDays(value, 1))} />
+    </div>
   )
 }
 

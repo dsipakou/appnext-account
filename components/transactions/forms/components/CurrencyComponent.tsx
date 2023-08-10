@@ -2,12 +2,15 @@ import React from 'react'
 import {
   useGridApiContext
 } from '@mui/x-data-grid'
-import { SelectChangeEvent } from '@mui/material/Select'
 import {
-  FormControl,
-  MenuItem,
-  Select
-} from '@mui/material'
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   useCurrencies
 } from '@/hooks/currencies'
@@ -22,13 +25,9 @@ const CurrencyComponent: React.FC<any> = (params) => {
   const apiRef = useGridApiContext()
   const date = getFormattedDate(row.transactionDate || new Date())
 
-  const {
-    data: currencies = []
-  } = useCurrencies()
+  const { data: currencies = [] } = useCurrencies()
 
-  const {
-    data: availableRates = {}
-  } = useAvailableRates(date)
+  const { data: availableRates = {} } = useAvailableRates(date)
 
   React.useEffect(() => {
     if (!currencies) return
@@ -37,38 +36,34 @@ const CurrencyComponent: React.FC<any> = (params) => {
     const baseCurrency = currencies.find((item: Currency) => item.isBase)
     const newValue = availableRates[defaultCurrency?.code] ? defaultCurrency : baseCurrency
 
-    apiRef.current.setEditCellValue({ id, field, value: newValue || '' })
+    apiRef.current.setEditCellValue({ id, field, value: newValue || null })
   }, [availableRates, currencies])
 
-  const handleChange = (event: SelectChangeEvent) => {
-    apiRef.current.setEditCellValue({ id, field, value: event.target.value })
+  const handleChange = (item: Currency) => {
+    apiRef.current.setEditCellValue({ id, field, value: item })
   }
 
   return (
-    <FormControl fullWidth>
+    <div className="flex w-full h-full bg-slate-100 p-[2px] select-none items-center">
       <Select
-        fullWidth
+        onValueChange={handleChange}
         value={value}
-        onChange={handleChange}
       >
-        {currencies.map((item: Currency) => (
-          !!availableRates[item.code]
-            ? <MenuItem
-              key={item.uuid}
-              value={item}
-            >
-              {item.sign} {item.verbalName}
-            </MenuItem>
-            : <MenuItem
-              key={item.uuid}
-              value={item}
-              disabled
-            >
-              {item.sign} {item.verbalName} (unavailable)
-            </MenuItem>
-        ))}
+        <SelectTrigger className="relative border-2 bg-white rounded-xl h-full">
+          <SelectValue placeholder="Select a currency" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Currencies</SelectLabel>
+            {currencies && currencies.map((item: Currency) => (
+              !!availableRates[item.code]
+                ? <SelectItem key={item.uuid} value={item}>{item.code}</SelectItem>
+                : <SelectItem key={item.uuid} value={item} disabled>{item.code}</SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
       </Select>
-    </FormControl>
+    </div>
   )
 }
 

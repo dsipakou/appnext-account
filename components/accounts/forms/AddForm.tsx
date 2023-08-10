@@ -176,7 +176,7 @@ const AddForm: React.FC = () => {
                             defaultValue={field.value}
                             disabled={isLoading}
                           >
-                            <SelectTrigger className="w-full">
+                            <SelectTrigger className="relative w-full">
                               <SelectValue placeholder="Select user" />
                             </SelectTrigger>
                             <SelectContent>
@@ -206,7 +206,7 @@ const AddForm: React.FC = () => {
                             defaultValue={field.value}
                             disabled={isLoading}
                           >
-                            <SelectTrigger className="w-full">
+                            <SelectTrigger className="relative w-full">
                               <SelectValue placeholder="Select category" />
                             </SelectTrigger>
                             <SelectContent>

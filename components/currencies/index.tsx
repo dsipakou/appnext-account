@@ -127,7 +127,7 @@ const Index: React.FC = () => {
                       defaultValue={period || 'month'}
                       onValueChange={changeChartPeriod}
                     >
-                      <SelectTrigger className="flex bg-white w-40">
+                      <SelectTrigger className="relative bg-white w-40">
                         <SelectValue placeholder="Select period" />
                       </SelectTrigger>
                       <SelectContent>

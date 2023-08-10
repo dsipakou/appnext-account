@@ -184,7 +184,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             defaultValue="all"
             disabled={!users}
           >
-            <SelectTrigger className="w-full border-2 hover:text-black text-muted-foreground font-normal">
+            <SelectTrigger className="relative w-full border-2 hover:text-black text-muted-foreground font-normal">
               <SelectValue placeholder="User" />
             </SelectTrigger>
             <SelectContent className="h-full">

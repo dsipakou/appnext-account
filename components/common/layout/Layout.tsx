@@ -2,8 +2,16 @@ import React, { FC, ReactElement, ReactNode } from 'react'
 import { signOut, useSession } from 'next-auth/react'
 import axios from 'axios'
 import Link from 'next/link'
-import { User2 } from 'lucide-react'
-import { styled, Theme, CSSObject } from '@mui/material/styles'
+import {
+  CreditCard,
+  DollarSign,
+  GanttChart,
+  LayoutTemplate,
+  LineChart,
+  Menu,
+  ScrollText,
+  User2,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -14,86 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Drawer,
-  Box,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-} from '@mui/material'
-import AppBar from '@mui/material/AppBar'
-import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
-import CategoryIcon from '@mui/icons-material/Category'
-import OnlinePredictionIcon from '@mui/icons-material/OnlinePrediction'
-import CreditCardIcon from '@mui/icons-material/CreditCard'
-import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
-import ShowChartIcon from '@mui/icons-material/ShowChart'
-import MenuIcon from '@mui/icons-material/Menu'
 import { useCurrencies } from '@/hooks/currencies'
 import { Currency } from '@/components/currencies/types'
-
-const drawerWidth = 250
-
-const openedMixin = (theme: Theme): CSSObject => ({
-  width: drawerWidth,
-  transition: theme.transitions.create('width', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
-  }),
-  overflowX: 'hidden',
-})
-
-const closedMixin = (theme: Theme): CSSObject => ({
-  transition: theme.transitions.create('width', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  overflowX: 'hidden',
-  width: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up('sm')]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
-  },
-})
-
-const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    ...(open && {
-      ...openedMixin(theme),
-      '& .MuiDrawer-paper': openedMixin(theme),
-    }),
-    ...(!open && {
-      ...closedMixin(theme),
-      '& .MuiDrawer-paper': closedMixin(theme),
-    }),
-  }),
-)
-
-const AppBarStyled = styled(AppBar, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen
-    })
-  })
-}))
-
-const StyledList = styled(List)(({ theme }) => ({
-  padding: theme.spacing(1, 0),
-}))
 
 type Props = {
   children: ReactNode,
@@ -136,32 +66,32 @@ const Layout: FC<Props> = ({ children }) => {
   const menuItems = [
     {
       name: 'Accounts',
-      icon: <CreditCardIcon />,
+      icon: <CreditCard />,
       link: '/accounts/'
     },
     {
       name: 'Transactions',
-      icon: <ReceiptLongIcon />,
+      icon: <ScrollText />,
       link: '/transactions/'
     },
     {
       name: 'Categories',
-      icon: <CategoryIcon />,
+      icon: <LayoutTemplate />,
       link: '/categories/'
     },
     {
       name: 'Budget',
-      icon: <OnlinePredictionIcon />,
+      icon: <GanttChart />,
       link: '/budget/month',
     },
     {
       name: 'Currencies',
-      icon: <CurrencyExchangeIcon />,
+      icon: <DollarSign />,
       link: '/currencies/'
     },
     {
       name: 'Reports',
-      icon: <ShowChartIcon />,
+      icon: <LineChart />,
       link: '/reports/'
     },
   ]
@@ -175,71 +105,41 @@ const Layout: FC<Props> = ({ children }) => {
   ]
 
   const menuComponent = (name: string, icon: ReactElement, link: string): ReactElement => (
-    <ListItem onClick={handleDrawerClose} key={name} disablePadding sx={{ display: 'block' }}>
+    <div onClick={handleDrawerClose} key={name} className="block hover:bg-slate-500 hover:text-white w-full">
       <Link href={link}>
-        <ListItemButton
-          sx={{
-            minHeight: 48,
-            justifyContent: 'initial',
-            px: 2.5,
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 0,
-              mr: 3,
-              justifyContent: 'center',
-            }}
-          >
+        <div className="flex h-12 justify-start items-center pl-5">
+          <div className="pr-5">
             {icon}
-          </ListItemIcon>
-          <ListItemText primary={name} sx={{ opacity: 1 }} />
-        </ListItemButton>
+          </div>
+          <span>{name}</span>
+        </div>
       </Link>
-    </ListItem>
+    </div>
   )
 
   return (
     <div className="relative">
-      <div className={`fixed flex flex-col justify-between drop-shadow-sm transition-all ease-in-out delay-50 bg-white overflow-hidden z-100 h-screen ${open ? 'w-60' : 'w-16'}`}>
-        <div className="flex flex-col pt-2 items-start">
-          <Button
-            variant="link"
-            className="mb-3 ml-1 mt-1 text-black justify-self-left"
-            onClick={open ? handleDrawerClose : handleDrawerOpen}
-          >
-            <MenuIcon />
-          </Button>
-          <StyledList>
-            {menuItems.map(({ name, icon, link }) => (
-              <Box key={name}>
-                {menuComponent(name, icon, link)}
-              </Box>
-            ))}
-          </StyledList>
-        </div>
-        <div>
-          <StyledList>
-            {bottomMenuItems.map(({ name, icon, link }) => (
-              <div key={name} className="w-full">
-                {menuComponent(name, icon, link)}
-              </div>
-            ))}
-          </StyledList>
-        </div>
-      </div>
       <header className="z-50 bg-blue-500 text-white">
         <div className="flex mx-2 py-2 justify-between items-center">
-          <span className="text-lg ml-20">
-            Flying Budget
-          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="link"
+              className="text-white"
+              onClick={open ? handleDrawerClose : handleDrawerOpen}
+            >
+              <Menu />
+            </Button>
+            <span className="text-lg ml-1 justify-self-start">
+              Flying Budget
+            </span>
+          </div>
           <div className="flex items-center">
             <div className="flex w-80">
               <Select
                 defaultValue={user.currency}
                 onValueChange={handleCurrencyChange}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="relative w-full">
                   <SelectValue placeholder="Select currency" />
                 </SelectTrigger>
                 <SelectContent className="flex bg-white w-full pt-1" position="popper">
@@ -263,6 +163,22 @@ const Layout: FC<Props> = ({ children }) => {
           </div>
         </div>
       </header>
+      <div className={`fixed flex flex-col justify-between drop-shadow-sm transition-all ease-in-out delay-50 bg-white overflow-hidden z-100 h-screen ${open ? 'w-60' : 'w-16'}`}>
+        <div className="flex flex-col pt-2 items-start">
+          <div className="flex flex-col w-full">
+            {menuItems.map(({ name, icon, link }) => (
+              menuComponent(name, icon, link)
+            ))}
+          </div>
+        </div>
+        <div>
+          {bottomMenuItems.map(({ name, icon, link }) => (
+            <div key={name} className="w-full">
+              {menuComponent(name, icon, link)}
+            </div>
+          ))}
+        </div>
+      </div>
       <div className="container mx-auto max-w-screen-xl min-w-screen-lg">
         {children}
       </div>
