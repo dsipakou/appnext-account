@@ -3,7 +3,6 @@ import { useSession } from 'next-auth/react'
 import axios from 'axios'
 import { useSWRConfig } from 'swr'
 import { evaluate } from 'mathjs'
-import { Minus, Check, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -13,7 +12,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useToast } from '@/components/ui/use-toast'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import {
   DataGrid,
   GridRowsProp,
@@ -24,28 +22,37 @@ import {
   GridRowModesModel,
   GridToolbarContainer,
   GridRowEditStopReasons,
+  GridRenderCellParams,
 } from '@mui/x-data-grid'
 import { randomId } from '@mui/x-data-grid-generator'
 import { useAccounts } from '@/hooks/accounts'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
 import { useUsers } from '@/hooks/users'
-import { Category } from '@/components/categories/types'
 import { Currency } from '@/components/currencies/types'
 import { User } from '@/components/users/types'
-import { getFormattedDate, MONTH_DAY_FORMAT } from '@/utils/dateUtils'
+import { getFormattedDate } from '@/utils/dateUtils'
 import { formatMoney } from '@/utils/numberUtils'
 import {
   AccountComponent,
+  AccountReadComponent,
+  ActionsReadComponent,
   AmountComponent,
+  AmountReadComponent,
+  BaseAmountReadComponent,
   BudgetComponent,
+  BudgetReadComponent,
   CategoryComponent,
+  CategoryReadComponent,
   CurrencyComponent,
   DateComponent,
+  DateReadComponent,
   DescriptionComponent,
 } from './components'
 
 interface Types {
+  open: boolean
+  onOpenChange: () => void
   url: string
   budget?: string
 }
@@ -98,7 +105,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
     }))
   }
 
-  const handleDuplicateClick = () => {
+  const handleDuplicateLastClick = () => {
     setRows((oldRows) => [...oldRows, {
       ...oldRows.slice(-1)[0],
       id,
@@ -163,6 +170,8 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
     (value) => value.mode === GridRowModes.Edit
   )
 
+  const isListEmpty: boolean = rows.length === 0
+
   return (
     <GridToolbarContainer>
       <div className="grid grid-cols-3 w-full p-1 rounded-md bg-white">
@@ -178,7 +187,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
             variant="secondary"
             className="h-7"
             disabled={rows.length === 0 || isEditMode}
-            onClick={handleDuplicateClick}
+            onClick={handleDuplicateLastClick}
           >
             Duplicate last transaction
           </Button>
@@ -187,7 +196,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
           <span className="text-xl font-semibold">Transactions outcome: {formatMoney(sumOverall)}</span>
         </div>
         <div className="flex justify-end items-center">
-          <Button onClick={handleSaveClick} className="h-7" disabled={isEditMode}>
+          <Button onClick={handleSaveClick} className="h-7" disabled={isEditMode || isListEmpty}>
             Submit transactions
           </Button>
         </div>
@@ -219,9 +228,8 @@ let emptyRow = {
   saved: false
 }
 
-const AddForm: React.FC<Types> = ({ url, budget }) => {
+const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
   const [errors, setErrors] = React.useState<string>('')
-  const [open, setOpen] = React.useState<boolean>(false)
   const { data: accounts = [] } = useAccounts()
   const { data: categories = [] } = useCategories()
   const { data: currencies = [] } = useCurrencies()
@@ -229,7 +237,6 @@ const AddForm: React.FC<Types> = ({ url, budget }) => {
   const { toast } = useToast()
 
   const baseCurrencyCode = currencies.find((item: Currency) => item.isBase)?.code || ''
-  const baseCurrencySign = currencies.find((item: Currency) => item.isBase)?.sign || ''
 
   if (budget) {
     console.log(budget)
@@ -238,31 +245,21 @@ const AddForm: React.FC<Types> = ({ url, budget }) => {
     emptyRow = {...emptyRow, budget: '' }
   }
 
-  const getTrimmedCategoryName = (uuid: string): string => {
-    const categoryName = categories.find((item: Category) => item.uuid === uuid)?.name || ''
-    if (categoryName.length > 7) {
-      return categoryName.substring(0, 7) + '...'
-    }
-    return categoryName
-  }
-
   const columns: GridColDef[] = [
     {
       field: 'transactionDate',
       headerName: 'Date',
       flex: 0.8,
       editable: true,
-      renderCell: (params) => params.formattedValue
-        ? getFormattedDate(params.formattedValue, MONTH_DAY_FORMAT)
-        : null,
-      renderEditCell: (params) => <DateComponent {...params} />
+      renderCell: (params: GridRenderCellParams<Date>) => <DateReadComponent {...params} />,
+      renderEditCell: (params) => <DateComponent {...params} />,
     },
     {
       field: 'account',
       headerName: 'Account',
       flex: 0.7,
       editable: true,
-      renderCell: (params) => params.formattedValue.title,
+      renderCell: (params: GridRenderCellParams<Account>) => <AccountReadComponent {...params} />,
       renderEditCell: (params) => <AccountComponent {...params} accounts={accounts} />
     },
     {
@@ -270,24 +267,24 @@ const AddForm: React.FC<Types> = ({ url, budget }) => {
       headerName: 'Category',
       flex: 1.2,
       editable: true,
-      renderCell: (params) => `${getTrimmedCategoryName(params.formattedValue.parent)} - ${params.formattedValue.name || ''}`,
+      renderCell: (params) => <CategoryReadComponent {...params} />,
       renderEditCell: (params) => <CategoryComponent {...params} categories={categories} />
     },
     {
       field: 'budget',
       headerName: 'Budget',
-      flex: 1,
+      flex: 0.8,
       editable: true,
-      renderCell: (params) => params.formattedValue?.title || '' ,
-      renderEditCell: (params) => <BudgetComponent {...params} />
+      renderCell: (params) => <BudgetReadComponent {...params} />,
+      renderEditCell: (params) => <BudgetComponent {...params} />,
     },
     {
       field: 'amount',
       headerName: 'Outcome',
-      flex: 0.8,
+      flex: 0.5,
       editable: true,
       minWidth: 100,
-      renderCell: (params) => params.formattedValue + ' ' + params.row.currency?.sign,
+      renderCell: (params) => <AmountReadComponent {...params} />,
       renderEditCell: (params) => <AmountComponent {...params} />
     },
     {
@@ -311,21 +308,7 @@ const AddForm: React.FC<Types> = ({ url, budget }) => {
       flex: 0.5,
       headerName: `In ${baseCurrencyCode}`,
       editable: false,
-      renderCell: (params) => {
-        const isInEditMode = rowModesModel[params.id]?.mode === GridRowModes.Edit
-        if (isInEditMode) {
-          return (
-            <div className="flex w-full h-full p-0 bg-slate-100 p-2 select-none"></div>
-          )
-        }
-        return (
-          <span
-            className="italic text-slate-500"
-          >
-            {params.formattedValue && `${params.formattedValue} ${baseCurrencySign}`}
-          </span>
-        )
-      },
+      renderCell: (params) => <BaseAmountReadComponent {...params} rowModesModel={rowModesModel} />,
     },
     {
       field: 'saved',
@@ -333,51 +316,13 @@ const AddForm: React.FC<Types> = ({ url, budget }) => {
       flex: 0.5,
       minWidth: 100,
       editable: false,
-      renderCell: (params) => {
-        const isInEditMode = rowModesModel[params.id]?.mode === GridRowModes.Edit
-        if (isInEditMode) {
-          return (
-            <div className="flex gap-3 px-2 justify-end items-center w-full h-full bg-slate-100 ">
-              <div
-                className="flex items-center justify-center w-5 h-5 rounded-full text-blue-500"
-                onClick={() => handleDuplicateClick(params)}
-              >
-                <Copy />
-              </div>
-              <div
-                className="flex border-2 border-green-500 items-center justify-center w-5 h-5 rounded-full text-green-500"
-                onClick={handleSaveClick(params.id)}
-              >
-                <Check className="h-4" />
-              </div>
-              <div
-                className="flex border-2 border-red-500 items-center justify-center w-5 h-5 rounded-full text-red-500"
-                onClick={() => handleDeleteClick(params)}
-              >
-                <Minus />
-              </div>
-            </div>
-          )
-        } else if (params.formattedValue) {
-          return (
-            <div className="flex w-full justify-center items-center">
-              <CheckCircleIcon className="text-green-500" />
-            </div>
-          )
-        } else {
-          return (
-            <div className="flex w-full justify-center items-center">
-              <Button
-                variant="destructive"
-                className="h-5 text-xs"
-                onClick={() => handleDeleteClick(params)}
-              >
-                Remove
-              </Button>
-            </div>
-          )
-        }
-      },
+      renderCell: (params) => <ActionsReadComponent
+        {...params}
+        rowModesModel={rowModesModel}
+        handleSaveClick={handleSaveClick}
+        handleDeleteClick={handleDeleteClick}
+        handleDuplicateClick={handleDuplicateClick}
+      />,
     },
   ];
 
@@ -409,13 +354,10 @@ const AddForm: React.FC<Types> = ({ url, budget }) => {
 
   const id = randomId()
 
-  const handleDuplicateClick = (params): void => {
-    console.log('start duplicate')
-    params.api.stopRowEditMode({ id: params.row.id })
-    setRowModesModel({ ...rowModesModel, [params.id]: { mode: GridRowModes.View } })
-
+  const handleDuplicateClick = (params: GridRenderCellParams): void => {
+    const rowToDuplicate = rows.find((item: GridRenderCellParams) => item.id === params.id)
     setRows((oldRows) => [...oldRows, {
-      ...oldRows.slice(-1)[0],
+      ...rowToDuplicate,
       id,
       saved: false,
       baseAmount: ''
@@ -424,18 +366,21 @@ const AddForm: React.FC<Types> = ({ url, budget }) => {
       ...oldModel,
       [id]: { mode: GridRowModes.Edit, fieldToFocus: 'amount' },
     }))
-
-    console.log('stop duplicate')
   }
 
   const onClose = (open: boolean) => {
     if (open) {
-      setOpen(open)
+      onOpenChange(open)
       return
     }
 
     const canClose = rows.every((item: any) => item.saved === true)
-    if (canClose) { setErrors(''); setRows([ ]); setRowModesModel({ }); setOpen(false); } else {
+    if (canClose) {
+      setErrors('');
+      setRows([ ]);
+      setRowModesModel({ });
+      onOpenChange(false);
+    } else {
       toast({
         title: "You have unsubmitted transactions",
         variant: "warning",
@@ -450,12 +395,6 @@ const AddForm: React.FC<Types> = ({ url, budget }) => {
     }
   }
 
-  const handleRowEditCommit = (id, event) => {
-    console.log('commit')
-    console.log('commit')
-    console.log(id, event)
-  }
-
   const handleEditStart = (params, event) => {
     if (params.row.saved) {
       event.defaultMuiPrevented = true
@@ -465,7 +404,6 @@ const AddForm: React.FC<Types> = ({ url, budget }) => {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogTrigger asChild>
-        <Button>Add spendings</Button>
       </DialogTrigger>
       <DialogContent className="flex flex-col sm:max-w-full w-4/5 h-5/6 items-start mx-3">
         <DialogHeader>
@@ -480,7 +418,6 @@ const AddForm: React.FC<Types> = ({ url, budget }) => {
             rowModesModel={rowModesModel}
             onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
             onRowEditStop={handleEditStop}
-            onRowModesModelChange={handleRowEditCommit}
             onRowEditStart={handleEditStart}
             processRowUpdate={processRowUpdate}
             sx={{

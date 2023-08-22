@@ -1,78 +1,47 @@
-import { useState } from 'react';
-import Link from 'next/link';
-import {
-  Box,
-  Grid,
-  Paper,
-  Skeleton,
-  Toolbar,
-  Typography
-} from '@mui/material';
+import React from 'react'
+import Link from 'next/link'
+import Toolbar from '@/components/common/layout/Toolbar'
 import { Category } from './types';
 import { useCategories } from '../../hooks/categories';
 import AddForm from './forms/AddForm';
 
 const Index = () => {
-  const [isOpenAddCategory, setIsOpenAddCategory] = useState<boolean>(false);
-  const { data: categories, isLoading, isError } = useCategories();
-
-  if (isError) {
-    return <div>Error</div>
-  }
-
-  let content: Category[] = [];
-
-  const openAddCategoryForm = () => {
-    setIsOpenAddCategory(true);
-  };
-
-  const closeAddCategoryForm = () => {
-    setIsOpenAddCategory(false);
-  };
+  const { data: categories } = useCategories();
 
   const parentCategories = (): Category[] => {
-    const output = categories.filter((item: Category) => item.parent === null && item.type !== 'INC')
-    return output;
+    return categories?.filter((item: Category) => item.parent === null && item.type !== 'INC') || []
   }
 
   const categoriesByParent = (uuid: string): Category[] => {
-    return categories.filter((item: Category) => item.parent === uuid);
+    return categories?.filter((item: Category) => item.parent === uuid) || []
   }
 
   return (
     <>
-      <Toolbar sx={{ pb: 1 }}>
-        <Typography variant="h4" sx={{ my: 2 }}>Categories</Typography>
-        <Box sx={{ flexGrow: 1 }} />
+      <Toolbar title={'Categories'}>
         <AddForm />
       </Toolbar>
-      <Box>
-        <Grid container spacing={2}>
-          {isLoading && <Skeleton variant="circular" width={40} height={40} />}
-          {!isLoading && parentCategories().map((item: Category) => (
-            <Grid item xs={3} key={item.uuid}>
-              <Link href={`/categories/${item.uuid}`}>
-                <Paper
-                  variant="outlined"
-                  sx={{ maxWidth: 345, minHeight: 200, maxHeight: 200, overflow: 'hidden', padding: 2 }}
-                >
-                  <Typography noWrap component="div" variant="h4">{item.name}</Typography>
-                  {
-                    categoriesByParent(item.uuid).map((category: Category) => (
-                      <Typography key={category.uuid} noWrap component="div" variant="body1">
-                        {category.name}
-                      </Typography>
-                    ))
-                  }
-                </Paper>
-              </Link>
-            </Grid>
-          ))
-          }
-        </Grid>
-      </Box>
+      <div className="grid grid-cols-4 gap-3">
+        {parentCategories().map((item: Category) => (
+          <div>
+            <Link href={`/categories/${item.uuid}`}>
+              <div className="w-full bg-white rounded-lg h-[200px] overflow-hidden p-3">
+                <span className="flex flex-nowrap text-2xl font-semibold mb-2">{item.name}</span>
+                {
+                  categoriesByParent(item.uuid).map((category: Category) => (
+                    <span className="flex flex-nowrap text-sm" key={category.uuid}>
+                      {category.name}
+                    </span>
+                  ))
+                }
+              </div>
+            </Link>
+          </div>
+        ))
+        }
+      </div>
     </>
   );
 };
 
-export default Index;
+export default Index

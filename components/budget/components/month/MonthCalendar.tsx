@@ -13,6 +13,12 @@ interface Types {
 }
 
 const MonthCalendar: React.FC<Types> = ({ date: monthDate, setMonthDate }) => {
+  const [month, setMonth] = React.useState<Date>(monthDate)
+
+  React.useEffect(() => {
+    setMonth(monthDate)
+  }, [monthDate])
+
   const range: DateRange = {
     from: startOfMonth(monthDate),
     to: endOfMonth(monthDate)
@@ -35,6 +41,8 @@ const MonthCalendar: React.FC<Types> = ({ date: monthDate, setMonthDate }) => {
         <PopoverContent className="h-full w-full p-0">
           <Calendar
             mode="single"
+            month={month}
+            onMonthChange={setMonth}
             selected={range}
             onSelect={(date: Date | undefined) => !!date && setMonthDate(date)}
             initialFocus

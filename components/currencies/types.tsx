@@ -13,6 +13,10 @@ export interface Currency extends CurrencyRequest {
   modifiedAt: string
 }
 
+export interface CurrencySlim {
+  sign: string
+}
+
 export interface RateItemPostRequest {
   currency: string
   rate: string

@@ -1,16 +1,14 @@
-import { FC, useEffect, useState } from 'react'
+import React from 'react'
+import axios from 'axios';
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  Box,
-  Typography,
-  Button,
-} from '@mui/material';
-import axios from 'axios';
-import { useSWRConfig } from 'swr';
-import { TransactionResponse } from '../types';
+  DialogFooter,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog'
+import { useToast } from '@/components/ui/use-toast'
 
 interface Types {
   open: boolean
@@ -20,12 +18,11 @@ interface Types {
 }
 
 const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose, mutateTransactions }) => {
-  const [errors, setErrors] = useState([]);
-  const { mutate } = useSWRConfig();
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const { toast } = useToast()
 
   const handleDelete = () => {
-    // TODO: start loading
-    setErrors([]);
+    setIsLoading(true)
     axios
       .delete(`transactions/${uuid}`)
       .then(
@@ -40,37 +37,31 @@ const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose, mutateT
       )
       .catch(
         (err) => {
-          setErrors(err.response.data)
+          toast({
+            title: "Please, try again"
+          })
         }
       )
       .finally(
         () => {
-          // TODO: stop-loading
+          setIsLoading(false)
         }
       )
   }
 
   return (
-    <Dialog maxWidth="sm" fullWidth={true} open={open} onClose={handleClose}>
-      <DialogTitle>Please, confirm deletion</DialogTitle>
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogTrigger></DialogTrigger>
       <DialogContent>
-        {errors.length > 0 && (
-          <Box>
-            {errors.map((message: string) => (
-              <Typography key={message} color="red">{message}</Typography>
-            ))}
-          </Box>
-        )}
-        <Box>
-          <Typography variant="body1">
-            You are about to delete 1 transaction
-          </Typography>
-        </Box>
+        <DialogTitle>Please, confirm deletion</DialogTitle>
+        <p className="leading-7">
+          You are about to delete a transaction
+        </p>
+        <DialogFooter>
+          <Button disabled={isLoading} variant="secondary" onClick={handleClose}>Cancel</Button>
+          <Button disabled={isLoading} variant="destructive" onClick={handleDelete}>Delete</Button>
+        </DialogFooter>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button color="warning" variant="contained" onClick={handleDelete}>Delete</Button>
-      </DialogActions>
     </Dialog>
   )
 }

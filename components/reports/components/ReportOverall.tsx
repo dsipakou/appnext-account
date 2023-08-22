@@ -17,6 +17,8 @@ import {
 } from '@/utils/dateUtils'
 import { TransactionsReportResponse } from '@/components/transactions/types'
 import RangeSwitcher from './RangeSwitcher'
+import { useCurrencies } from '@/hooks/currencies'
+import { Currency } from '@/components/currencies/types'
 
 const ReportOverall: React.FC = () => {
   const [date, setDate] = React.useState<Date>(new Date())
@@ -28,10 +30,17 @@ const ReportOverall: React.FC = () => {
   const {
     data: reportResponse = []
   } = authUser?.currency ? useTransactionsReport(dateFrom, dateTo, authUser?.currency) : { data: [] }
+  const { data: currencies = [] } = useCurrencies()
 
+  const currencySign = currencies.find((item: Currency) => item.code === authUser.currency)?.sign || ''
 
   const columns: GridColDef[] = [
-    { field: 'day', headerName: '', width: 40 }
+    {
+      field: 'day',
+      headerName: '',
+      flex: 0.3,
+      renderCell: (params) => <span className="font-semibold">{params.value}</span>
+    }
   ]
 
   const dates = [...new Set(reportResponse.map(
@@ -43,7 +52,8 @@ const ReportOverall: React.FC = () => {
     columns.push({
       field: `month${index + 1}`,
       headerName: formatedDate,
-      width: 90
+      flex: 1,
+      renderCell: (params) => <span className="border border-slate-200 text-normal rounded-md px-1 bg-white">{Number(params.value).toFixed(2)} {currencySign}</span>
     })
   })
 
@@ -85,23 +95,23 @@ const ReportOverall: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center gap-2 h-screen">
+    <div className="flex flex-col items-center gap-2">
       <RangeSwitcher
         dateFrom={dateFrom}
         dateTo={dateTo}
         clickBack={clickBack}
         clickForward={clickForward}
       />
-      <div className="flex h-screen w-full">
+      <div className="flex bg-white rounded-md drop-shadow-sm h-full w-full">
         <DataGrid
           columns={columns}
           rows={aggregatedRows}
           rowHeight={30}
-          sx={{ height: '100%' }}
+          sx={{height: '80vh'}}
           getCellClassName={(params) => {
             const day: number = format(new Date(), 'd')
             if (params.id === Number(day)) {
-              return 'bg-slate-500 text-white'
+              return 'bg-slate-300 text-slate-800'
             }
             return ''
           }}

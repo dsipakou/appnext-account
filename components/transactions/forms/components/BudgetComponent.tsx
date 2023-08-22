@@ -3,19 +3,16 @@ import {
   GridRenderEditCellParams,
   useGridApiContext
 } from '@mui/x-data-grid'
-import { ChevronDown } from 'lucide-react'
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
   SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Divider,
-} from '@mui/material'
 import { WeekBudgetItem } from '@/components/budget/types'
 import { useBudgetWeek } from '@/hooks/budget'
 import {
@@ -34,10 +31,11 @@ const BudgetComponent: React.FC<BudgetComponentTypes> = (params) => {
   const weekStart = getStartOfWeek(transactionDate || new Date())
   const weekEnd = getEndOfWeek(transactionDate || new Date())
   const user = row.account.user
-  const { data: budgets = [] } = useBudgetWeek(weekStart, weekEnd)
+  const { data: budgets = [], isLoading: isBudgetLoading } = useBudgetWeek(weekStart, weekEnd)
 
   React.useEffect(() => {
-    if (!user || !budgets) return
+    if (isBudgetLoading || !user) return
+
     const completedBudgets = budgets.filter((item: WeekBudgetItem) => item.isCompleted && item.user === user)
     const incompletedBudgets = budgets.filter((item: WeekBudgetItem) => !item.isCompleted && item.user === user)
     const activeBudget = typeof value === 'string' 
@@ -48,7 +46,8 @@ const BudgetComponent: React.FC<BudgetComponentTypes> = (params) => {
 
     setCompletedItems(completedBudgets)
     setIncompletedItems(incompletedBudgets)
-  }, [budgets, user, transactionDate])
+    console.log(completedItems)
+  }, [budgets, isBudgetLoading, user, transactionDate])
 
   const handleChange = (item: WeekBudgetItem) => {
     apiRef.current.setEditCellValue({ id, field, value: item })
@@ -67,17 +66,26 @@ const BudgetComponent: React.FC<BudgetComponentTypes> = (params) => {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Budgets</SelectLabel>
-              {user && incompletedItems.map((item: WeekBudgetItem) => (
-                <SelectItem key={item.uuid} value={item}>{item.title}</SelectItem>
-              ))}
-              {user && completedItems.length > 0 && incompletedItems.length > 0 && <Divider />}
-              {user && completedItems.map((item: WeekBudgetItem) => (
-                <SelectItem key={item.uuid} value={item}>{item.title}</SelectItem>
-              ))
-              }
-            </SelectGroup>
+            {incompletedItems.length > 0 && (
+              <SelectGroup>
+                <SelectLabel>Budgets</SelectLabel>
+                {incompletedItems.map((item: WeekBudgetItem) => (
+                  <SelectItem key={item.uuid} value={item}>{item.title}</SelectItem>
+                ))}
+              </SelectGroup>
+            )}
+            {completedItems.length > 0 && (
+              <>
+                <SelectSeparator />
+                <SelectGroup>
+                  <SelectLabel><span className="italic">Completed budgets</span></SelectLabel>
+                  {completedItems.map((item: WeekBudgetItem) => (
+                    <SelectItem key={item.uuid} value={item}><span className="text-slate-500">{item.title}</span></SelectItem>
+                  ))
+                  }
+                </SelectGroup>
+              </>
+            )}
           </SelectContent>
         </Select>
       )}

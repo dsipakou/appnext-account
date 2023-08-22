@@ -43,7 +43,7 @@ export const useBudgetMonth = (
 export const useBudgetWeek = (
   dateFrom: string,
   dateTo: string,
-  user: string,
+  user?: string,
 ): Response<WeekBudgetItem[]> => {
   let url = `budget/weekly-usage/?dateFrom=${dateFrom}&dateTo=${dateTo}`;
   if (user && user !== 'all') url = `${url}&user=${user}`

@@ -181,6 +181,7 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
                           mode="single"
                           selected={field.value}
                           onSelect={changeDate}
+                          weekStartsOn={1}
                           initialFocus
                         />
                       </FormControl>

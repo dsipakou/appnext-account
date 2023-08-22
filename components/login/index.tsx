@@ -3,11 +3,7 @@ import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { 
-  FieldValues,
-  SubmitHandler,
-  useForm
-} from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -31,19 +27,6 @@ const Index: React.FC = () => {
     resolver: zodResolver(formSchema)
   })
 
-  const {
-    register,
-    handleSubmit,
-    formState: {
-      errors
-    }
-  } = useForm<FieldValues>({
-    defaultValues: {
-      name: '',
-      password: ''
-    }
-  })
-
   const handleLogin = (payload: z.infer<typeof formSchema>) => {
     setIsLoading(true)
 
@@ -61,41 +44,41 @@ const Index: React.FC = () => {
         <div className="flex flex-col gap-4 mt-10">
           <span className="text-2xl font-semibold">Login to your account</span>
           <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-8">
-            <div className="flex flex-col gap-4 w-2/3 bg-white p-6 rounded-lg drop-shadow-lg">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input className="w-full" disabled={isLoading} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input type="password" className="w-full" disabled={isLoading} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="flex justify-between">
-                <Link href="/signup" className="underline text-blue-500">Create new account</Link>
-                <Link href="/" className="underline text-blue-500">Forgot Password?</Link>
+            <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-8">
+              <div className="flex flex-col gap-4 w-2/3 bg-white p-6 rounded-lg drop-shadow-lg">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input className="w-full" disabled={isLoading} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input type="password" className="w-full" disabled={isLoading} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex justify-between">
+                  <Link href="/signup" className="underline text-blue-500">Create new account</Link>
+                  <Link href="/" className="underline text-blue-500">Forgot Password?</Link>
+                </div>
+                <Button type="submit">Login</Button>
               </div>
-              <Button type="submit">Login</Button>
-            </div>
-          </form>
+            </form>
           </Form>
         </div>
       </div>

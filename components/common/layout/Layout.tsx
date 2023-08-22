@@ -119,7 +119,7 @@ const Layout: FC<Props> = ({ children }) => {
 
   return (
     <div className="relative">
-      <header className="z-50 bg-blue-500 text-white">
+      <header className="fixed w-full z-50 bg-blue-500 text-white">
         <div className="flex mx-2 py-2 justify-between items-center">
           <div className="flex items-center gap-2">
             <Button
@@ -163,7 +163,7 @@ const Layout: FC<Props> = ({ children }) => {
           </div>
         </div>
       </header>
-      <div className={`fixed flex flex-col justify-between drop-shadow-sm transition-all ease-in-out delay-50 bg-white overflow-hidden z-100 h-screen ${open ? 'w-60' : 'w-16'}`}>
+      <div className={`fixed flex flex-col justify-between drop-shadow-sm transition-all ease-in-out delay-50 pt-14 bg-white overflow-hidden z-40 h-screen ${open ? 'w-60' : 'w-16'}`}>
         <div className="flex flex-col pt-2 items-start">
           <div className="flex flex-col w-full">
             {menuItems.map(({ name, icon, link }) => (
@@ -179,7 +179,7 @@ const Layout: FC<Props> = ({ children }) => {
           ))}
         </div>
       </div>
-      <div className="container mx-auto max-w-screen-xl min-w-screen-lg">
+      <div className="container mx-auto max-w-screen-xl pt-16 min-w-screen-lg">
         {children}
       </div>
     </div>

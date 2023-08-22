@@ -8,6 +8,7 @@ export interface TransactionResponse {
   amount: number
   spentInCurrencies: any
   currency: string
+  currencyDetails: any
   budget: string
   budgetDetails: any
   category: string

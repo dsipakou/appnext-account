@@ -4,7 +4,9 @@ Reports.auth = {}
 
 export default function Reports() {
   return (
-    <Index />
+    <div className="h-4/5">
+      <Index />
+    </div>
   )
 }
 

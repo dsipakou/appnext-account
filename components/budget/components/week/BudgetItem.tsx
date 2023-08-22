@@ -105,7 +105,7 @@ const BudgetItem: React.FC<Types> = ({
   }
 
   return (
-    <div className={`flex flex-col group p-2 h-[100px] shadow-sm justify-between rounded-md hover:w-80 border hover:border-double hover:border-2 hover:z-20 hover:shadow-xl w-full ${cssClass}`}>
+    <div className={`flex flex-col group p-2 h-[100px] shadow-sm justify-between rounded-md hover:scale-110 hover:w-80 border hover:border-double hover:border-2 hover:z-20 hover:shadow-xl w-full ${cssClass}`}>
       <div className='flex flex-row gap-1 items-center'>
         {!isSameUser && (
           <div className="flex group-hover:hidden">
@@ -233,7 +233,7 @@ const BudgetItem: React.FC<Types> = ({
         <AddForm
           url={weekUrl}
           open={isAddTransactionDialogOpened}
-          handleClose={setIsAddTransactionDialogOpened}
+          onOpenChange={setIsAddTransactionDialogOpened}
           budget={uuid}
         />
       )}

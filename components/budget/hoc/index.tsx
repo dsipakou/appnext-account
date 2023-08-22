@@ -13,10 +13,6 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import {
-  Box,
-  LinearProgress,
-} from '@mui/material'
 import { Button } from '@/components/ui/button'
 import { useUsers } from '@/hooks/users'
 import { useBudgetMonth, useBudgetWeek } from '@/hooks/budget'
@@ -187,7 +183,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             <SelectTrigger className="relative w-full border-2 hover:text-black text-muted-foreground font-normal">
               <SelectValue placeholder="User" />
             </SelectTrigger>
-            <SelectContent className="h-full">
+            <SelectContent>
               <SelectGroup>
                 <SelectLabel>Users</SelectLabel>
                 <SelectItem value="all">All users</SelectItem>
@@ -217,17 +213,6 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     return (
       <>
         {toolbar}
-        {!budgetMonth && (
-          <Box sx={{ position: 'relative', width: '100%' }}>
-            <LinearProgress color="primary" sx={{
-              position: 'absolute',
-              width: '100%',
-              top: -5,
-              left: 0,
-              zIndex: 2
-            }} />
-          </Box>
-        )}
         <div className="flex flex-col">
           <div className="w-full p-1 rounded shadow-sm shadow-zinc-300 bg-white">
             {header}

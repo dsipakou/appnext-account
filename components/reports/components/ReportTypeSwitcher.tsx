@@ -1,9 +1,5 @@
 import React from 'react'
-import {
-  Button,
-  ButtonGroup,
-  Typography
-} from '@mui/material'
+import { Button } from '@/components/ui/button'
 
 export enum ReportPages {
   Overall,
@@ -13,88 +9,44 @@ export enum ReportPages {
 
 interface Types {
   activePage: ReportPages
-  changeReportType: () => void
+  changeReportType: (page: ReportPages) => void
 }
 
 const ReportTypeSwitcher: React.FC<Types> = ({ activePage = ReportPages.Overall, changeReportType }) => {
   return (
-    <div className="absolute flex justify-center w-full">
-      <ButtonGroup
-        disableElevation
-        size="large"
-        aria-label="outlined primary button group"
-        sx={{ backgroundColor: "info.dark" }}
-      >
+    <div className="flex justify-center w-full">
+      <div className="flex border bg-blue-500 rounded-md">
         <Button
-          variant="contained"
-          className="w-40"
-          sx={{ padding: 0, backgroundColor: "info.dark" }}
+          variant="none"
+          className="w-[180px] disabled:opacity-100 p-1"
+          disabled={activePage === ReportPages.Overall}
           onClick={() => changeReportType(ReportPages.Overall)}
         >
-          <Typography
-            variant="h5"
-            sx={activePage === ReportPages.Overall ? {
-              display: 'flex',
-              justifyContent: 'center',
-              color: "info.dark",
-              backgroundColor: "white",
-              border: 4,
-              borderRadius: 2,
-              width: '100%',
-              height: '100%',
-              alignItems: 'center',
-            } : {}}
-          >
+          <span className={`text-xl ${activePage === ReportPages.Overall ? 'flex justify-center items-center text-xl rounded-md text-blue-500 bg-white w-full h-full' : 'text-white'}`}>
             Overall
-          </Typography>
+          </span>
         </Button>
         <Button
-          variant="contained"
-          className="w-40"
-          sx={{ padding: 0, backgroundColor: "info.dark" }}
+          variant="none"
+          className="w-[180px] disabled:opacity-100 p-1"
+          disabled={activePage === ReportPages.Chart}
           onClick={() => changeReportType(ReportPages.Chart)}
         >
-          <Typography
-            variant="h5"
-            sx={activePage === ReportPages.Chart ? {
-              display: 'flex',
-              justifyContent: 'center',
-              color: "info.dark",
-              backgroundColor: "white",
-              border: 4,
-              borderRadius: 2,
-              width: '100%',
-              height: '100%',
-              alignItems: 'center',
-            } : {}}
-          >
+          <span className={`text-xl ${activePage === ReportPages.Chart ? 'flex justify-center items-center text-xl rounded-md text-blue-500 bg-white w-full h-full' : 'text-white'}`}>
             Chart
-          </Typography>
+          </span>
         </Button>
         <Button
-          variant="contained"
-          className="w-40"
-          sx={{ padding: 0, backgroundColor: "info.dark" }}
+          variant="none"
+          className="w-[180px] disabled:opacity-100 p-1"
+          disabled={activePage === ReportPages.Details}
           onClick={() => changeReportType(ReportPages.Details)}
         >
-          <Typography
-            variant="h5"
-            sx={activePage === ReportPages.Details ? {
-              display: 'flex',
-              justifyContent: 'center',
-              color: "info.dark",
-              backgroundColor: "white",
-              border: 4,
-              borderRadius: 2,
-              width: '100%',
-              height: '100%',
-              alignItems: 'center',
-            } : {}}
-          >
+          <span className={`text-xl ${activePage === ReportPages.Details ? 'flex justify-center items-center text-xl rounded-md text-blue-500 bg-white w-full h-full' : 'text-white'}`}>
             Details
-          </Typography>
+          </span>
         </Button>
-      </ButtonGroup>
+      </div>
     </div >
   )
 }

@@ -13,6 +13,8 @@ interface Types {
 }
 
 const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
+  const [month, setMonth] = React.useState<Date>(weekDate)
+
   const range: DateRange = {
     from: startOfWeek(weekDate),
     to: endOfWeek(weekDate)
@@ -23,6 +25,10 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
       setWeekDate(date)
     }
   }
+
+  React.useEffect(() => {
+    setMonth(weekDate)
+  }, [weekDate])
 
   return (
     <div className="flex flex-row h-full items-center">
@@ -44,6 +50,8 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
         <PopoverContent className="h-full w-full p-0">
           <Calendar
             mode="single"
+            month={month}
+            onMonthChange={setMonth}
             selected={range}
             onSelect={(date: Date | undefined) => !!date && setWeekDateProxy(date)}
             showWeekNumber

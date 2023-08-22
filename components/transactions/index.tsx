@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { useSWRConfig } from 'swr'
 import { useSession } from 'next-auth/react'
-import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { useTransactions } from '@/hooks/transactions'
@@ -26,7 +25,7 @@ const Index: React.FC = () => {
   const { data: { user } } = useSession()
   const { mutate } = useSWRConfig()
   const [transactionDate, setTransactionDate] = React.useState<Date>(new Date())
-  const [isOpenAddTransactions, setIsOpenAddTransactions] = React.useState<boolean>(false)
+  const [isOpenTransactionsDialog, setIsOpenTransactionsDialog] = React.useState<boolean>(false)
   const [isOpenAddIncomeTransactions, setIsOpenAddIncomeTransactions] = React.useState<boolean>(false)
   const [isOpenEditTransactions, setIsOpenEditTransactions] = React.useState<boolean>(false)
   const [isOpenDeleteTransactions, setIsOpenDeleteTransactions] = React.useState<boolean>(false)
@@ -34,7 +33,7 @@ const Index: React.FC = () => {
   const [activeType, setActiveType] = React.useState<TransactionType>('outcome')
 
   const {
-    data: transactions,
+    data: transactions = [],
     url: transactionsUrl
   } = useTransactions({
     sorting: 'added',
@@ -52,7 +51,7 @@ const Index: React.FC = () => {
   }, 0)
 
   const handleCloseModal = (): void => {
-    setIsOpenAddTransactions(false)
+    setIsOpenTransactionsDialog(false)
     setIsOpenDeleteTransactions(false)
     setIsOpenEditTransactions(false)
     setIsOpenAddIncomeTransactions(false)
@@ -106,7 +105,9 @@ const Index: React.FC = () => {
           >
             Add income
           </Button>
-          <AddForm url={transactionsUrl} />
+          <Button onClick={() => setIsOpenTransactionsDialog(true)}>
+            Add spendings
+          </Button>
         </div>
       </div>
         { activeType === 'outcome' ?
@@ -116,7 +117,7 @@ const Index: React.FC = () => {
               <TransactionTable
                 transactions={transactions}
                 handleDeleteClick={handleDeleteClick}
-                handleDoubleClick={handleEditClick}
+                handleEditClick={handleEditClick}
               />
             </div>
             <div className="col-span-2">
@@ -132,14 +133,12 @@ const Index: React.FC = () => {
                 </div>
                 <div className="flex flex-col flex-nowrap bg-white items-center justify-center rounded-md p-3">
                   <span className="text-xl font-semibold my-2">Day summary</span>
-                  {transactions && (
-                    <div className="flex gap-2 text-md">
-                      <span className="font-semibold">{formatMoney(overallSum)}{currencySign}</span>
-                      <span>spent in</span>
-                      <span className="font-semibold">{transactions?.length}</span>
-                      <span>transactions</span>
-                    </div>
-                  )}
+                  <div className="flex gap-2 text-md">
+                    <span className="font-semibold">{formatMoney(overallSum)}{currencySign}</span>
+                    <span>spent in</span>
+                    <span className="font-semibold">{transactions?.length}</span>
+                    <span>transactions</span>
+                  </div>
                   <div className="flex">
                     <DailyChart
                       transactions={transactions}
@@ -154,12 +153,13 @@ const Index: React.FC = () => {
         (
           <IncomeComponent />
         )}
+      <AddForm open={isOpenTransactionsDialog} onOpenChange={setIsOpenTransactionsDialog}  url={transactionsUrl} />
       <AddIncomeForm open={isOpenAddIncomeTransactions} handleClose={handleCloseModal} />
       {
         isOpenEditTransactions &&
         <EditForm
           uuid={activeTransactionUuid}
-          open={isOpenEditTransactions}
+          open={true}
           url={transactionsUrl}
           handleClose={handleCloseModal}
         />

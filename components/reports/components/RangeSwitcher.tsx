@@ -1,15 +1,7 @@
 import React from 'react'
-import {
-  Grid,
-  IconButton,
-  Typography
-} from '@mui/material'
-import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft'
-import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight'
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
-import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule'
-import { parseAndFormatDate, SHORT_YEAR_MONTH_FORMAT } from '@/utils/dateUtils'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { parseAndFormatDate, REPORT_FORMAT } from '@/utils/dateUtils'
 
 interface Types {
   dateFrom: string
@@ -20,23 +12,25 @@ interface Types {
 
 const RangeSwitcher: React.FC<Types> = ({ dateFrom, dateTo, clickBack, clickForward }) => {
 
-  const formattedDateFrom = parseAndFormatDate(dateFrom, SHORT_YEAR_MONTH_FORMAT)
-  const formattedDateTo = parseAndFormatDate(dateTo, SHORT_YEAR_MONTH_FORMAT)
+  const formattedDateFrom = parseAndFormatDate(dateFrom, REPORT_FORMAT)
+  const formattedDateTo = parseAndFormatDate(dateTo, REPORT_FORMAT)
 
   return (
     <div className="flex">
       <div>
-        <IconButton onClick={clickBack}>
-          <KeyboardDoubleArrowLeftIcon />
-        </IconButton>
+        <Button variant="ghost" onClick={clickBack}>
+          <ChevronLeft className="w-6 h-6" />
+        </Button>
       </div>
-      <div className="flex items-center">
-        <Typography variant="h5">{formattedDateFrom} - {formattedDateTo}</Typography>
+      <div className="flex items-center gap-4">
+        <span className="text-xl font-light">{formattedDateFrom}</span>
+        <span>. . .</span>
+        <span className="text-xl font-light">{formattedDateTo}</span>
       </div>
       <div>
-        <IconButton onClick={clickForward}>
-          <KeyboardDoubleArrowRightIcon />
-        </IconButton>
+        <Button variant="ghost" onClick={clickForward}>
+          <ChevronRight className="w-6 h-6" />
+        </Button>
       </div>
     </div>
   )

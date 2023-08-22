@@ -78,6 +78,7 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
   const { mutate } = useSWRConfig()
   const [parentList, setParentList] = useState<Category[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
+  const [month, setMonth] = useState<Date>(new Date())
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const { toast } = useToast()
 
@@ -116,6 +117,8 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
     form.setValue('repeatType', budgetDetails.recurrent || '')
     form.setValue('budgetDate', parseDate(budgetDetails.budgetDate))
     form.setValue('description', budgetDetails.description)
+
+    setMonth(parseDate(budgetDetails.budgetDate))
   }, [budgetDetails])
 
   const getCurrencySign = (): string => {
@@ -340,11 +343,12 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
                       <FormItem>
                         <FormControl>
                           <Calendar
-                            disabled={isLoading}
                             mode="single"
+                            month={month}
+                            onMonthChange={setMonth}
                             selected={field.value}
                             onSelect={field.onChange}
-                            disabled={(date) => date < new Date("1900-01-01")}
+                            disabled={(date) => isLoading || date < new Date("1900-01-01")}
                             initialFocus
                           />
                         </FormControl>

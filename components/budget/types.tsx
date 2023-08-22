@@ -28,6 +28,10 @@ export interface MonthGroupedBudgetItem extends PlannedMap, SpentMap {
   items: MonthBudgetItem[]
 }
 
+export interface BudgetSlim {
+  title: string
+}
+
 export interface MonthBudgetItem extends PlannedMap, SpentMap {
   uuid: string
   title: string

@@ -29,7 +29,7 @@ const DateComponent: React.FC<Types> = (params) => {
 
   return (
     <div className="flex w-full h-full bg-slate-100 p-[2px] select-none items-center">
-      <ChevronLeft className="w-5 cursor-pointer" onClick={() => handleChange(subDays(value, 1))} />
+      <ChevronLeft className="w-7 cursor-pointer" onClick={() => handleChange(subDays(value, 1))} />
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -44,11 +44,12 @@ const DateComponent: React.FC<Types> = (params) => {
             mode="single"
             selected={value}
             onSelect={(date: Date | undefined) => !!date && handleChange(date)}
+            weekStartsOn={1}
             initialFocus
           />
         </PopoverContent>
       </Popover>
-      <ChevronRight className="w-5 cursor-pointer" onClick={() => handleChange(addDays(value, 1))} />
+      <ChevronRight className="w-7 cursor-pointer" onClick={() => handleChange(addDays(value, 1))} />
     </div>
   )
 }
