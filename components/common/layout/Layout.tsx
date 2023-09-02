@@ -1,3 +1,5 @@
+"use client"
+
 import React, { FC, ReactElement, ReactNode } from 'react'
 import { signOut, useSession } from 'next-auth/react'
 import axios from 'axios'
@@ -31,8 +33,14 @@ type Props = {
 
 const Layout: FC<Props> = ({ children }) => {
   const [open, setOpen] = React.useState(false)
-  const { data: currencies } = useCurrencies()
-  const { data: { user }, update: updateSession } = useSession()
+  const { data: currencies = [] } = useCurrencies()
+  const { data: session, status: authStatus, update: updateSession } = useSession()
+
+  if (authStatus === 'loading') {
+    return
+  }
+
+  const { user } = session
 
   const handleDrawerOpen = () => {
     setOpen(true)
@@ -118,7 +126,7 @@ const Layout: FC<Props> = ({ children }) => {
   )
 
   return (
-    <div className="relative">
+    <div className="relative min-h-screen">
       <header className="fixed w-full z-50 bg-blue-500 text-white">
         <div className="flex mx-2 py-2 justify-between items-center">
           <div className="flex items-center gap-2">
@@ -134,24 +142,26 @@ const Layout: FC<Props> = ({ children }) => {
             </span>
           </div>
           <div className="flex items-center">
-            <div className="flex w-80">
-              <Select
-                defaultValue={user.currency}
-                onValueChange={handleCurrencyChange}
-              >
-                <SelectTrigger className="relative w-full">
-                  <SelectValue placeholder="Select currency" />
-                </SelectTrigger>
-                <SelectContent className="flex bg-white w-full pt-1" position="popper">
-                  <SelectGroup>
-                    <SelectLabel>Displayed currency</SelectLabel>
-                    {currencies && currencies.map((item: Currency) => (
-                      <SelectItem key={item.code} value={item.code}>{item.verbalName}</SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
+            {!!currencies?.length && (
+              <div className="flex w-80">
+                <Select
+                  defaultValue={user.currency}
+                  onValueChange={handleCurrencyChange}
+                >
+                  <SelectTrigger className="relative w-full">
+                    <SelectValue placeholder="Select currency" />
+                  </SelectTrigger>
+                  <SelectContent className="flex bg-white w-full pt-1" position="popper">
+                    <SelectGroup>
+                      <SelectLabel>Displayed currency</SelectLabel>
+                      {currencies && currencies.map((item: Currency) => (
+                        <SelectItem key={item.code} value={item.code}>{item.verbalName}</SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <span className="mx-4">Hello, {user.username}</span>
             <Button
               variant="link"
@@ -179,7 +189,7 @@ const Layout: FC<Props> = ({ children }) => {
           ))}
         </div>
       </div>
-      <div className="container mx-auto max-w-screen-xl pt-16 min-w-screen-lg">
+      <div className="flex flex-col mx-auto max-w-screen-xl min-h-screen pt-16 min-w-screen-lg">
         {children}
       </div>
     </div>

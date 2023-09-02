@@ -15,20 +15,29 @@ import { AddForm as AddAccount, EditForm as EditAccount, ConfirmDeleteForm } fro
 const Index: React.FC = () => {
   const { data: users = [] } = useUsers()
 
-  const { data: accounts } = useAccounts()
+  const { data: accounts = [] } = useAccounts()
 
   const getUser = (uuid: string): User | undefined => {
     return users.find((item: User) => item.uuid === uuid)
   }
 
+  const noAccounts = (
+    <div className="flex justify-center items-center flex-1">
+      <span className="text-2xl">No accounts added</span>
+    </div>
+  )
+
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col flex-1">
       <div className="flex w-full px-6 my-3 justify-between items-center">
         <span className="text-xl font-semibold">Accounts</span>
         <AddAccount />
       </div>
+      {
+        !accounts.length && noAccounts
+      }
       <div className="grid grid-cols-3 gap-3">
-        {accounts && accounts.map((item: AccountResponse) => (
+        {!!accounts.length && accounts.map((item: AccountResponse) => (
           <div key={item.uuid}>
             <Card>
               <CardHeader>

@@ -3,13 +3,11 @@ import { useSession } from 'next-auth/react'
 import {
   DataGrid,
   GridRowsProp,
-  GridRowParams,
   GridColDef,
   GridActionsCellItem,
   GridRenderCellParams,
 } from '@mui/x-data-grid'
 import { Pen, Trash2 } from 'lucide-react'
-import { TransactionResponse } from '@/components/transactions/types'
 import { Category } from '@/components/categories/types'
 import { Currency } from '@/components/currencies/types'
 import { BudgetSlim } from '@/components/budget/types'
@@ -139,7 +137,7 @@ const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, handle
   }
 
   return (
-    <div className="flex w-full h-full">
+    <div className="flex w-full h-screen">
       <DataGrid
         rows={rows}
         columns={columns}

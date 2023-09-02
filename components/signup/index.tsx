@@ -1,7 +1,9 @@
 import React from 'react'
+import Link from 'next/link'
 import axios from 'axios'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
+import { signIn } from 'next-auth/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,54 +20,52 @@ const formSchema = z.object({
   email: z.string().email(),
   username: z.string(),
   password: z.string(),
-  passwordRepeat: z.string(),
+  repeatPassword: z.string(),
+}).refine((data) => data.password === data.repeatPassword, {
+  message: "Passwords don't match",
+  path: ["repeatPassword"],
 })
 
 const Index: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const [email, setEmail] = React.useState<string>('')
-  const [username, setUsername] = React.useState<string>('')
-  const [password, setPassword] = React.useState<string>('')
-  const [passwordRepeat, setPasswordRepeat] = React.useState<string>('')
-  const [errors, setErrors] = React.useState<string[]>([])
 
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema)
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      username: "",
+      password: "",
+      repeatPassword: "",
+    }
   })
 
-  const handleEmailInput = (e) => {
-    setEmail(e.target.value)
-  }
+  const onSubmit = (payload: z.infer<typeof formSchema>) => {
+    setIsLoading(true)
 
-  const handleUsernameInput = (e) => {
-    setUsername(e.target.value)
-  }
-
-  const handlePasswordInput = (e) => {
-    setPassword(e.target.value)
-  }
-
-  const handlePasswordRepeatInput = (e) => {
-    setPasswordRepeat(e.target.value)
-  }
-
-  const handleSignup = () => {
-    setErrors([])
-    if (password !== passwordRepeat) {
-      const error = "Please, check your password"
-      setErrors((oldErrors: string[]) => [...oldErrors, error])
+    if (payload.password !== payload.repeatPassword) {
+      setIsLoading(false)
+      return
     }
+
     axios.post('users/register/', {
-      email,
-      username,
-      password,
-      repeatPassword: passwordRepeat
+      ...payload
     }).then((res) => {
-      if (res.status === 200) {
-        console.log('Everything is ok')
+      if (res.status === 201) {
+        signIn('credentials', {
+          username: payload.email,
+          password: payload.password,
+          callbackUrl: `${window.location.origin}/`,
+        })
+        console.log('after signin')
       }
     }).catch((err) => {
-      console.log(`Something went wrong: ${err}`)
+        if (err.response.data.hasOwnProperty('password')) {
+          form.setError('password', { type: 'custom', message: err.response.data.password})
+        } else if (err.response.data.hasOwnProperty('email')) {
+          form.setError('email', { type: 'custom', message: "Most probably this email is already registered"})
+        }
+    }).finally(() => {
+      setIsLoading(false)
     })
   }
 
@@ -79,7 +79,7 @@ const Index: React.FC = () => {
       </div>
       <div className="flex-1">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSignup)} className="space-y-8 mt-20 p-5 rounded-md drop-shadow-md bg-white w-2/3">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-20 p-5 rounded-md drop-shadow-md bg-white w-2/3">
             <FormField
               control={form.control}
               name="email"
@@ -113,7 +113,7 @@ const Index: React.FC = () => {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input className="w-full" disabled={isLoading} {...field} />
+                    <Input type="password" className="w-full" disabled={isLoading} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -121,20 +121,21 @@ const Index: React.FC = () => {
             />
             <FormField
               control={form.control}
-              name="passwordRepeat"
+              name="repeatPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Repeat password</FormLabel>
+                  <FormLabel>Repeat Password</FormLabel>
                   <FormControl>
-                    <Input className="w-full" disabled={isLoading} {...field} />
+                    <Input type="password" className="w-full" disabled={isLoading} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit">
-              Create account
-            </Button>
+            <div className="flex justify-between">
+              <Link href="/login" className="underline text-blue-500">Existing account?</Link>
+            </div>
+            <Button type="submit">Join now</Button>
           </form>
         </Form>
       </div>

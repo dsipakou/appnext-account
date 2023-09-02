@@ -6,6 +6,10 @@ import {
   DialogTrigger,
   DialogContent,
 } from '@/components/ui/dialog'
+import {
+  EditForm,
+  ConfirmDeleteForm
+} from '@/components/transactions/forms'
 import TransactionTable from '@/components/transactions/components/TransactionTable'
 import { useBudgetTransactions } from '@/hooks/transactions'
 
@@ -16,7 +20,26 @@ interface Props {
 }
 
 const TransactionsForm: React.FC<Props> = ({ open, handleClose, uuid }) => {
-  const { data: budgetTransactions = [] } = useBudgetTransactions(uuid)
+  const [isOpenEditTransactions, setIsOpenEditTransactions] = React.useState<boolean>(false)
+  const [isOpenDeleteTransactions, setIsOpenDeleteTransactions] = React.useState<boolean>(false)
+  const [activeTransactionUuid, setActiveTransactionUuid] = React.useState<string>('')
+
+  const { data: budgetTransactions = [], url } = useBudgetTransactions(uuid)
+
+  const handleDeleteClick = (uuid: string): void => {
+    setActiveTransactionUuid(uuid)
+    setIsOpenDeleteTransactions(true)
+  }
+
+  const handleEditClick = (uuid: string): void => {
+    setActiveTransactionUuid(uuid)
+    setIsOpenEditTransactions(true)
+  }
+
+  const handleCloseModal = (): void => {
+    setIsOpenDeleteTransactions(false)
+    setIsOpenEditTransactions(false)
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -29,11 +52,29 @@ const TransactionsForm: React.FC<Props> = ({ open, handleClose, uuid }) => {
         <TransactionTable
           transactions={budgetTransactions}
           withDate={true}
-          handleDeleteClick={()=>{}}
-          handleEditClick={()=>{}}
+          handleDeleteClick={handleDeleteClick}
+          handleEditClick={handleEditClick}
         />
         </div>
       </DialogContent>
+      {
+        isOpenEditTransactions &&
+        <EditForm
+          uuid={activeTransactionUuid}
+          open={true}
+          url={url}
+          handleClose={handleCloseModal}
+        />
+      }
+      {
+        isOpenDeleteTransactions &&
+        <ConfirmDeleteForm
+          open={isOpenDeleteTransactions}
+          uuid={activeTransactionUuid}
+          url={url}
+          handleClose={handleCloseModal}
+        />
+      }
     </Dialog>
   )
 }

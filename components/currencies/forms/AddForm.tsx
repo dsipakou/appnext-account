@@ -1,5 +1,6 @@
 import React from 'react'
 import * as z from 'zod'
+import { useSession } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Info } from 'lucide-react'
@@ -32,8 +33,6 @@ import {
 import axios from 'axios';
 import { useSWRConfig } from 'swr';
 import { useToast } from '@/components/ui/use-toast'
-import { useCurrencies } from '@/hooks/currencies'
-import { Currency } from '@/components/currencies/types'
 
 interface Types {
   open: boolean,
@@ -54,9 +53,8 @@ const formSchema = z.object({
 
 const AddForm: React.FC<Types> = ({ handleClose }) => {
   const { mutate } = useSWRConfig();
+  const { update: updateSession } = useSession()
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
-
-  const { data: currencies = [] } = useCurrencies()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -73,6 +71,9 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
       res => {
         if (res.status === 201) {
           mutate('currencies/');
+          if (res.data.isBase) {
+            updateSession({ currency: payload.code})
+          }
           toast({
             title: "Saved!"
           })

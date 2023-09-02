@@ -96,9 +96,10 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   const { data: categories = [] } = useCategories()
   const { data: currencies = [] } = useCurrencies()
 
+  const date = form.getValues().transactionDate
   const {
     data: availableRates = {}
-  } = useAvailableRates(getFormattedDate(transactionDate))
+  } = useAvailableRates(getFormattedDate(date))
 
   const parents = categories.filter(
     (category: Category) => (
@@ -153,12 +154,9 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   }, [accountUuid, budgets])
 
   const handleSave = (payload: z.infer<typeof formSchema>): void => {
-    console.log(payload)
-    return
-
     axios.patch(`transactions/${uuid}/`, {
       ...payload,
-      transactionDate: getFormattedDate(transactionDate),
+      transactionDate: getFormattedDate(payload.transactionDate),
     }).then(
       res => {
         if (res.status === 200) {

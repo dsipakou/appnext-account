@@ -1,5 +1,6 @@
 import React from 'react'
 import axios from 'axios';
+import { useSWRConfig } from 'swr'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -13,13 +14,14 @@ import { useToast } from '@/components/ui/use-toast'
 interface Types {
   open: boolean
   uuid: string
+  url: string
   handleClose: () => void
-  mutateTransactions: () => void
 }
 
-const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose, mutateTransactions }) => {
+const ConfirmDeleteForm: React.FC<Types> = ({ open = false, uuid, url, handleClose }) => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const { toast } = useToast()
+  const { mutate } = useSWRConfig()
 
   const handleDelete = () => {
     setIsLoading(true)
@@ -28,7 +30,7 @@ const ConfirmDeleteForm: FC<Types> = ({ open = false, uuid, handleClose, mutateT
       .then(
         res => {
           if (res.status === 204) {
-            mutateTransactions()
+            mutate(url)
             handleClose()
           } else {
             // TODO: handle errors [non-empty parent,]

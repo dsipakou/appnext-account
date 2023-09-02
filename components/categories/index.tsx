@@ -6,7 +6,7 @@ import { useCategories } from '../../hooks/categories';
 import AddForm from './forms/AddForm';
 
 const Index = () => {
-  const { data: categories } = useCategories();
+  const { data: categories = [] } = useCategories();
 
   const parentCategories = (): Category[] => {
     return categories?.filter((item: Category) => item.parent === null && item.type !== 'INC') || []
@@ -16,11 +16,20 @@ const Index = () => {
     return categories?.filter((item: Category) => item.parent === uuid) || []
   }
 
+  const noCategories = (
+    <div className="flex justify-center items-center flex-1">
+      <span className="text-2xl">No categories added</span>
+    </div>
+  )
+
   return (
     <>
       <Toolbar title={'Categories'}>
         <AddForm />
       </Toolbar>
+      {
+        !categories.length && noCategories
+      }
       <div className="grid grid-cols-4 gap-3">
         {parentCategories().map((item: Category) => (
           <div>

@@ -56,7 +56,11 @@ const formSchema = z.object({
   }
 })
 
-const AddForm: React.FC<Types> = () => {
+interface Types {
+  parent?: Category | undefined
+}
+
+const AddForm: React.FC<Types> = ({ parent }) => {
   const { mutate } = useSWRConfig();
   const { data: categories } = useCategories();
 
@@ -93,6 +97,13 @@ const AddForm: React.FC<Types> = () => {
     }
   }, [watchIsParent])
 
+  React.useEffect(() => {
+    if (parent) {
+      form.setValue('isParent', true)
+      form.setValue('parentCategory', parent.uuid)
+    }
+  }, [])
+
   const handleSave = async (payload: z.infer<typeof formSchema>) => {
     setIsLoading(true)
 
@@ -126,6 +137,7 @@ const AddForm: React.FC<Types> = () => {
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
       form.clearErrors()
+      form.reset()
     }
   }
 
@@ -167,7 +179,7 @@ const AddForm: React.FC<Types> = () => {
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
-                          disabled={isLoading}
+                          disabled={isLoading || parent}
                         >
                           <SelectTrigger className="relative w-full">
                             <SelectValue placeholder="Category type" />
@@ -199,7 +211,7 @@ const AddForm: React.FC<Types> = () => {
                                 id="isParent"
                                 checked={field.value}
                                 onCheckedChange={field.onChange}
-                                disabled={isLoading}
+                                disabled={isLoading || parent}
                               />
                               <Label htmlFor="isParent">Has parent</Label>
                             </div>
@@ -221,7 +233,7 @@ const AddForm: React.FC<Types> = () => {
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
-                              disabled={isLoading}
+                              disabled={isLoading || parent}
                             >
                               <SelectTrigger className="relative w-full">
                                 <SelectValue placeholder="Choose parent category" />

@@ -1,9 +1,18 @@
 import axios from 'axios';
 
-const APP_HOST = process.env.APP_HOST || '192.168.0.10'
-const APP_PORT = process.env.APP_PORT || '8000'
+const API_HOST = process.env.NEXT_PUBLIC_API_HOST
+const API_PORT = process.env.NEXT_PUBLIC_API_PORT
+const API_SCHEMA = process.env.NEXT_PUBLIC_API_SCHEMA
 
-console.log(APP_HOST)
+let url
 
-axios.defaults.baseURL = `http://${APP_HOST}:${APP_PORT}/`
+if (process.env.NEXT_PUBLIC_ENV_TYPE === 'prod') {
+  url = `${API_SCHEMA}://${API_HOST}/`
+} else {
+  url = `${API_SCHEMA}://${API_HOST}:${API_PORT}/`
+}
+
+console.log(url)
+
+axios.defaults.baseURL = url
 

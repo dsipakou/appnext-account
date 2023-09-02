@@ -1,7 +1,6 @@
 import axios from 'axios'
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { Session } from "next-auth/core/types"
 
 export const authOptions = {
   // Configure one or more authentication providers
@@ -25,7 +24,13 @@ export const authOptions = {
       async authorize(credentials) {
         // Add logic here to look up the user from the credentials supplied
         try {
-          const url = `http://${process.env.APP_HOST}:${process.env.APP_HOST_PORT}/users/login/`
+          let url
+          if (process.env.NEXT_PUBLIC_ENV_TYPE === 'prod') {
+            url = `${process.env.NEXT_PUBLIC_API_SCHEMA}://${process.env.NEXT_PUBLIC_API_HOST}/users/login/`
+          } else {
+            url = `${process.env.NEXT_PUBLIC_API_SCHEMA}://${process.env.NEXT_PUBLIC_API_HOST}:${process.env.NEXT_PUBLIC_API_PORT}/users/login/`
+          }
+          console.log(url)
           const response = await axios.post(url, {
             email: credentials?.username, 
             password: credentials?.password

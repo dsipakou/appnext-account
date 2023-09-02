@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { useSWRConfig } from 'swr'
 import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
@@ -23,7 +22,6 @@ export type TransactionType = 'outcome' | 'income'
 
 const Index: React.FC = () => {
   const { data: { user } } = useSession()
-  const { mutate } = useSWRConfig()
   const [transactionDate, setTransactionDate] = React.useState<Date>(new Date())
   const [isOpenTransactionsDialog, setIsOpenTransactionsDialog] = React.useState<boolean>(false)
   const [isOpenAddIncomeTransactions, setIsOpenAddIncomeTransactions] = React.useState<boolean>(false)
@@ -65,10 +63,6 @@ const Index: React.FC = () => {
   const handleEditClick = (uuid: string): void => {
     setActiveTransactionUuid(uuid)
     setIsOpenEditTransactions(true)
-  }
-
-  const mutateTransactions = (): void => {
-    mutate(transactionsUrl)
   }
 
   return (
@@ -165,10 +159,10 @@ const Index: React.FC = () => {
         />
       }
       <ConfirmDeleteForm
-        open={isOpenDeleteTransactions}
         uuid={activeTransactionUuid}
+        open={isOpenDeleteTransactions}
+        url={transactionsUrl}
         handleClose={handleCloseModal}
-        mutateTransactions={mutateTransactions}
       />
     </div>
   )

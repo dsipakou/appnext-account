@@ -5,6 +5,7 @@ import { CornerUpLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useCategories } from '@/hooks/categories'
 import Toolbar from '@/components/common/layout/Toolbar'
+import AddForm from '@/components/categories/forms/AddForm'
 import EditForm from '../forms/EditForm';
 import ConfirmDeleteForm from '../forms/ConfirmDeleteForm'
 import { Category } from '../types'
@@ -72,17 +73,23 @@ const Category = () => {
 
   return (
     <>
-      <Toolbar>
+      <Toolbar className="justify-between border">
         <Button asChild variant="link">
           <Link href="/categories">
             <CornerUpLeft className="mr-2" /> Back
           </Link>
         </Button>
+        <AddForm parent={parentCategory} />
       </Toolbar>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4 justify-center">
         <div className="col-span-3">
           {parentCategory && parentCategoryCard(parentCategory)}
         </div>
+        {!childrenCategories.length && (
+        <div className="col-span-3">
+          <span className="flex w-full text-md from-indigo-400 justify-center">Please, add at least one sub-category</span>
+        </div>
+        )}
         {childrenCategories.map((item: Category) => <div key={item.uuid}>{categoryCard(item)}</div>)}
       </div>
     </>

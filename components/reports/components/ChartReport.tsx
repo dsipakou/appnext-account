@@ -23,16 +23,23 @@ import { getFormattedDate } from '@/utils/dateUtils'
 import RangeSwitcher from './RangeSwitcher'
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false })
+const ApexCharts = dynamic(() => import('apexcharts'), { ssr: false })
+
+if (typeof window !== 'undefined') window.ApexCharts = ApexCharts
+
+interface CategoryCheckbox {
+  name: string
+  checked: bool
+}
 
 const ChartReport: React.FC = () => {
   const [date, setDate] = React.useState<Date>(new Date())
   const [upToDay, setUpToDay] = React.useState<string>(getDate(new Date()))
   const [showUpToDay, setShowUpToDay] = React.useState<boolean>(false)
+  const [categoryCheckboxes, setCategoryCheckboxes] = React.useState<CategoryCheckbox[]>([])
 
   const [options, setOptions] = React.useState({});
   const [series, setSeries] = React.useState([]);
-  const [categoriesList, setCategoriesList] = React.useState<string[]>([])
-  const [disabledCategories, setDisabledCategories] = React.useState<string[]>([])
   const { data: { user: authUser }} = useSession()
 
   const dateFrom = getFormattedDate(startOfMonth(subMonths(date, 11)))
@@ -51,6 +58,16 @@ const ChartReport: React.FC = () => {
       chart: {
         id: "main-chart",
         stacked: true,
+        events: {
+          legendClick: (chartContext, seriesIndex, config) => {
+            clickCategory(config.config.series[seriesIndex].name)
+          }
+        },
+        legend: {
+          onItemClick: {
+            toggleDataSeries: false
+          }
+        },
         animations: {
           enabled: true,
           easing: 'linear',
@@ -97,16 +114,14 @@ const ChartReport: React.FC = () => {
         }
       },
       noData: {
-        text: "Please wait...",
+        text: "",
       }
     })
 
     const groupByCategory = chartData.reduce((acc, curr) => {
       curr.categories.forEach((category: unknown) => {
-        if (!disabledCategories.includes(category.name)) {
-          acc[category.name] = acc[category.name] || []
-          acc[category.name].push(category.value.toFixed(2))
-        }
+        acc[category.name] = acc[category.name] || []
+        acc[category.name].push(category.value.toFixed(2))
       })
       return acc
     }, {})
@@ -123,26 +138,48 @@ const ChartReport: React.FC = () => {
     )
 
     setCategoriesList(chartData[0].categories.map((item: unknown) => item.name))
-  }, [chartData, disabledCategories])
+
+    setCategoryCheckboxes(chartData[0].categories.map((item: unknown) => ({name: item.name, checked: true})))
+
+  }, [chartData])
+
+  React.useEffect(() => {
+
+  }, [categoryCheckboxes])
 
   const monthDayArray = Array.from({ length: 31 }, (_, i) => i + 1);
 
   const clickCategory = (categoryName: string) => {
-    const index = disabledCategories.indexOf(categoryName)
-
-    if (index > -1) {
-      const newItems = disabledCategories.filter((item: string) => item !== categoryName)
-      setDisabledCategories(newItems)
-    } else {
-      setDisabledCategories([...disabledCategories, categoryName])
-    }
+    console.log(categoryName)
+    const result = window.ApexCharts.exec('main-chart', 'toggleSeries', categoryName)
+    console.log(result)
+    setCategoryCheckboxes((oldValue: CategoryCheckbox[]) => oldValue.map((item: CategoryCheckbox) => {
+      if (item.name === categoryName) {
+        return {
+          name: item.name,
+          checked: !item.checked,
+        }
+      } else {
+        return item
+      }
+    }))
   }
 
   const selectAll = () => {
-    if (categoriesList.length === disabledCategories.length) {
-      setDisabledCategories([])
+    if (categoryCheckboxes.every((item: CategoryCheckbox) => item.checked)) {
+      setCategoryCheckboxes((oldValues: CategoryCheckbox[]) => oldValues.map((item: CategoryCheckbox) => (
+        {
+          name: item.name,
+          checked: false,
+        }
+      )))
     } else {
-      setDisabledCategories(categoriesList)
+      setCategoryCheckboxes((oldValues: CategoryCheckbox[]) => oldValues.map((item: CategoryCheckbox) => (
+        {
+          name: item.name,
+          checked: true,
+        }
+      )))
     }
   }
 
@@ -180,8 +217,8 @@ const ChartReport: React.FC = () => {
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Day</SelectLabel>
-                  {monthDayArray.map((day: number) => (
-                    <SelectItem value={day}>{day}</SelectItem>
+                  {monthDayArray.map((day: number, index: number) => (
+                    <SelectItem value={day} key={index}>{day}</SelectItem>
                   ))}
                 </SelectGroup>
               </SelectContent>
@@ -198,20 +235,20 @@ const ChartReport: React.FC = () => {
             type="bar"
             width="900"
             height="680"
+            onClick={(event) => console.log(event)}
           />
           <div className="flex flex-col gap-2">
             <div className="flex gap-2">
               <Checkbox
-                checked={disabledCategories.length === 0}
-                indeterminate={disabledCategories.length > 0 && disabledCategories.length !== categoriesList.length}
+                checked={categoryCheckboxes.every((item: CategoryCheckbox) => item.checked)}
                 onClick={selectAll}
               />
               <span className="text-sm">Select/Unselect all</span>
             </div>
             <div className="flex flex-col w-full pl-3 gap-2">
-            {chartData[0].categories.map((item: unknown) => (
-              <div className="flex items-center gap-2">
-                <Checkbox checked={!disabledCategories.includes(item.name)} onClick={() => clickCategory(item.name)} />
+            {categoryCheckboxes.map((item: CategoryCheckbox, index: number) => (
+              <div className="flex items-center gap-2" key={index}>
+                <Checkbox checked={item.checked} onClick={() => clickCategory(item.name)} />
                 <span className="text-sm">{item.name}</span>
               </div>
             ))}
