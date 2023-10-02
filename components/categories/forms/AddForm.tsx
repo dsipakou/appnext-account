@@ -102,7 +102,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
       form.setValue('isParent', true)
       form.setValue('parentCategory', parent.uuid)
     }
-  }, [])
+  }, [parent])
 
   const handleSave = async (payload: z.infer<typeof formSchema>) => {
     setIsLoading(true)

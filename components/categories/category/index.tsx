@@ -73,7 +73,7 @@ const Category = () => {
 
   return (
     <>
-      <Toolbar className="justify-between border">
+      <Toolbar>
         <Button asChild variant="link">
           <Link href="/categories">
             <CornerUpLeft className="mr-2" /> Back

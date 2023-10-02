@@ -14,10 +14,6 @@ export default function Home () {
 
 
       <main className="flex flex-col flex-1 justify-center items-center">
-        <h1 className={styles.title}>
-          Welcome to Flying Budget
-        </h1>
-
         <p className={styles.description}>
           Dashboard page is under construction
         </p>

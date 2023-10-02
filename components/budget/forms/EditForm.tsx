@@ -130,6 +130,7 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
     axios.patch(`budget/${uuid}/`, {
       ...payload,
       budgetDate: getFormattedDate(payload.budgetDate),
+      recurrent: payload.repeatType,
     }).then(
       res => {
         if (res.status === 200) {
@@ -349,6 +350,7 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
                             selected={field.value}
                             onSelect={field.onChange}
                             disabled={(date) => isLoading || date < new Date("1900-01-01")}
+                            weekStartsOn={1}
                             initialFocus
                           />
                         </FormControl>

@@ -12,7 +12,5 @@ if (process.env.NEXT_PUBLIC_ENV_TYPE === 'prod') {
   url = `${API_SCHEMA}://${API_HOST}:${API_PORT}/`
 }
 
-console.log(url)
-
 axios.defaults.baseURL = url
 

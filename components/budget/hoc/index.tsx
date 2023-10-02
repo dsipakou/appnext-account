@@ -61,7 +61,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const { data: users } = useUsers();
 
     const { data: budgetMonth = [], url: monthUrl } = useBudgetMonth(startOfMonth, endOfMonth, user)
-    const { data: budgetWeek = [], url: weekUrl } = useBudgetWeek(startOfWeek, endOfWeek, user)
+    const { data: budgetWeek = [], url: weekUrl, isLoading: isWeekBudgetLoading } = useBudgetWeek(startOfWeek, endOfWeek, user)
 
     const handleClickTransactions = (uuid: string): void => {
       setActiveBudgetUuid(uuid)
@@ -210,6 +210,12 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
       </div>
     )
 
+    const loadingState = (
+      <div className="flex f-full h-full pt-20 justify-center items-center">
+        <span className="text-2xl">Loading budget...</span>
+      </div>
+    )
+
     return (
       <>
         {toolbar}
@@ -220,9 +226,9 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           <div className="w-full mt-5">
             { 
               (activeType === 'month' && !budgetMonth.length) || (activeType === 'week' && !budgetWeek.length) 
-              ? (
-                emptyState
-              ) 
+              ? isWeekBudgetLoading ? (
+                loadingState
+              ) : (emptyState)
               : (
                 <Component
                   startDate={startDate}

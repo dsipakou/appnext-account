@@ -37,6 +37,7 @@ const ChartReport: React.FC = () => {
   const [upToDay, setUpToDay] = React.useState<string>(getDate(new Date()))
   const [showUpToDay, setShowUpToDay] = React.useState<boolean>(false)
   const [categoryCheckboxes, setCategoryCheckboxes] = React.useState<CategoryCheckbox[]>([])
+  const [categoriesList, setCategoriesList] = React.useState<Category[]>([])
 
   const [options, setOptions] = React.useState({});
   const [series, setSeries] = React.useState([]);

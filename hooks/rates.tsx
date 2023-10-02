@@ -63,7 +63,7 @@ export const useRatesOnDate = (date: string): Response<RateResponse[]> => {
 }
 
 export const useAvailableRates = (date: string): Response<AvailableRates> => {
-  const { data, error, isValidating } = useSWR(`rates/available?date=${date}`, fetcher)
+  const { data, error, isValidating } = useSWR(date ? `rates/available?date=${date}` : null, fetcher)
 
   return {
     data,

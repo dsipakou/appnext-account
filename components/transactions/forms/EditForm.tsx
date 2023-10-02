@@ -96,10 +96,9 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   const { data: categories = [] } = useCategories()
   const { data: currencies = [] } = useCurrencies()
 
-  const date = form.getValues().transactionDate
   const {
     data: availableRates = {}
-  } = useAvailableRates(getFormattedDate(date))
+  } = useAvailableRates(transaction?.transactionDate)
 
   const parents = categories.filter(
     (category: Category) => (

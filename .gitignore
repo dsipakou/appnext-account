@@ -38,3 +38,9 @@ next-env.d.ts
 
 # editor
 .vscode
+
+# fly
+Dockerfile.backup
+fly.toml
+.dockerignore
+.env-prod

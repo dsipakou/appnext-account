@@ -17,6 +17,7 @@ import { getFormattedDate } from '@/utils/dateUtils'
 import { Currency } from '@/components/currencies/types'
 import TransactionTable from './components/TransactionTable'
 import IncomeComponent from './components/IncomeContainer'
+import LastAdded from './forms/LastAdded'
 
 export type TransactionType = 'outcome' | 'income'
 
@@ -92,6 +93,7 @@ const Index: React.FC = () => {
           </Button>
         </div>
         <div className="flex gap-2">
+          <LastAdded />
           <Button
             variant="outline"
             className="text-blue-500 border-blue-500 hover:text-blue-600"

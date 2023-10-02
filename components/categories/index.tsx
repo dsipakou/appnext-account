@@ -34,14 +34,23 @@ const Index = () => {
         {parentCategories().map((item: Category) => (
           <div>
             <Link href={`/categories/${item.uuid}`}>
-              <div className="w-full bg-white rounded-lg h-[200px] overflow-hidden p-3">
-                <span className="flex flex-nowrap text-2xl font-semibold mb-2">{item.name}</span>
-                {
-                  categoriesByParent(item.uuid).map((category: Category) => (
-                    <span className="flex flex-nowrap text-sm" key={category.uuid}>
-                      {category.name}
-                    </span>
-                  ))
+              <div className={`w-full bg-white rounded-lg h-[200px] overflow-hidden hover:drop-shadow p-3 ${!categoriesByParent(item.uuid).length && 'border-2 border-red-400'}`}>
+                <span className="flex flex-nowrap text-2xl font-semibold">{item.name}</span>
+                { !!categoriesByParent(item.uuid).length
+                  ? (
+                    <>
+                      <span className="text-xs pl-3">{categoriesByParent(item.uuid).length} categories</span>
+                      { categoriesByParent(item.uuid).map((category: Category) => (
+                        <span className="flex flex-nowrap text-sm" key={category.uuid}>
+                          - {category.name}
+                        </span>
+                      ))}
+                    </>
+                  )
+                  : 
+                  <div className="flex h-full w-full p-5 justify-center text-slate-300">
+                    <span className="text-center">Need to add at least one subcategory</span>
+                  </div>
                 }
               </div>
             </Link>
