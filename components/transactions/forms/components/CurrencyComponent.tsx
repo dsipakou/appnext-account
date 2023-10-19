@@ -45,24 +45,28 @@ const CurrencyComponent: React.FC<any> = (params) => {
 
   return (
     <div className="flex w-full h-full bg-slate-100 p-[2px] select-none items-center">
-      <Select
-        onValueChange={handleChange}
-        value={value}
-      >
-        <SelectTrigger className="relative border-2 bg-white rounded-xl h-full">
-          <SelectValue placeholder="Select a currency" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel>Currencies</SelectLabel>
-            {currencies && currencies.map((item: Currency) => (
-              !!availableRates[item.code]
-                ? <SelectItem key={item.uuid} value={item}>{item.code}</SelectItem>
-                : <SelectItem key={item.uuid} value={item} disabled>{item.code}</SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+      {!currencies.length ? (
+        <span className="italic text-red-500">No currency</span>
+      ) : (
+        <Select
+          onValueChange={handleChange}
+          value={value}
+        >
+          <SelectTrigger className="relative border-2 bg-white rounded-xl h-full">
+            <SelectValue placeholder="Select a currency" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Currencies</SelectLabel>
+              {currencies && currencies.map((item: Currency) => (
+                !!availableRates[item.code]
+                  ? <SelectItem key={item.uuid} value={item}>{item.code}</SelectItem>
+                  : <SelectItem key={item.uuid} value={item} disabled>{item.code}</SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      )}
     </div>
   )
 }

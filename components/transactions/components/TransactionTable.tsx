@@ -35,6 +35,7 @@ interface Types {
 
 const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, handleDeleteClick, handleEditClick }) => {
   const [rows, setRows] = React.useState<GridRowsProp>([])
+  const [page, setPage] = React.useState<number>(1)
 
   const { data: accounts = [] } = useAccounts()
   const { data: categories = [] } = useCategories()
@@ -136,6 +137,11 @@ const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, handle
     transactionDate: !!withDate,
   }
 
+  const changePage = (page: number) => {
+    console.log(page)
+    setPage(page)
+  }
+
   return (
     <div className="flex w-full h-screen">
       <DataGrid
@@ -145,6 +151,8 @@ const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, handle
         columnVisibilityModel={{
           ...hiddenColumns
         }}
+        page={page}
+        onPageChange={changePage}
       />
     </div>
   )

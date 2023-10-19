@@ -49,12 +49,12 @@ const TransactionsForm: React.FC<Props> = ({ open, handleClose, uuid }) => {
           <DialogTitle>Transactions for selected budget</DialogTitle>
         </DialogHeader>
         <div className="h-full">
-        <TransactionTable
-          transactions={budgetTransactions}
-          withDate={true}
-          handleDeleteClick={handleDeleteClick}
-          handleEditClick={handleEditClick}
-        />
+          <TransactionTable
+            transactions={budgetTransactions}
+            withDate={true}
+            handleDeleteClick={handleDeleteClick}
+            handleEditClick={handleEditClick}
+          />
         </div>
       </DialogContent>
       {

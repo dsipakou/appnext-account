@@ -23,9 +23,9 @@ const RangeSwitcher: React.FC<Types> = ({ dateFrom, dateTo, clickBack, clickForw
         </Button>
       </div>
       <div className="flex items-center gap-4">
-        <span className="text-xl font-light">{formattedDateFrom}</span>
-        <span>. . .</span>
-        <span className="text-xl font-light">{formattedDateTo}</span>
+        <span className="font-light">{formattedDateFrom}</span>
+        <span>-</span>
+        <span className="font-light">{formattedDateTo}</span>
       </div>
       <div>
         <Button variant="ghost" onClick={clickForward}>

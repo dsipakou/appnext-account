@@ -223,7 +223,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           <div className="w-full p-1 rounded shadow-sm shadow-zinc-300 bg-white">
             {header}
           </div>
-          <div className="w-full mt-5">
+          <div className="w-full mt-5 h-window">
             { 
               (activeType === 'month' && !budgetMonth.length) || (activeType === 'week' && !budgetWeek.length) 
               ? isWeekBudgetLoading ? (

@@ -114,10 +114,10 @@ const Container: FC<Types> = ({
   return (
     <div className="flex flex-col">
       {header(startDate)}
-      <div className={`grid gap-3 justify-center ${isThisWeek(daysFullFormatArray[0].fullDate) ? 'grid-cols-8' : 'grid-cols-7'}`}>
+      <div className={`grid gap-3 h-full justify-center ${isThisWeek(daysFullFormatArray[0].fullDate) ? 'grid-cols-8' : 'grid-cols-7'}`}>
         {weekDaysArray.map((day: number, weekDayIndex: number) => (
           <div
-            className={isToday(daysFullFormatArray[weekDayIndex].fullDate) ? 'col-span-2' : ''}
+            className={isToday(daysFullFormatArray[weekDayIndex].fullDate) ? 'col-span-2 bg-white' : ''}
           >
             <div className="flex flex-col justify-center items-center gap-1 relative">
               {weekGroup[day] &&

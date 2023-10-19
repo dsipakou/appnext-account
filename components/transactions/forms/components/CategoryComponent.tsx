@@ -43,24 +43,28 @@ const CategoryComponent: React.FC<CategoryComponentTypes> = (params) => {
 
   return (
     <div className="flex w-full h-full bg-slate-100 p-[2px] select-none items-center">
-      <Select
-        onValueChange={handleChange}
-        value={value}
-      >
-        <SelectTrigger className="relative text-xs border-2 bg-white rounded-xl h-full">
-          <SelectValue placeholder="Select a category" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel>Category</SelectLabel>
-            {parents.map((item: Category) => {
-              return getChildren(item.uuid).map((subitem: Category) => (
-                <SelectItem key={subitem.uuid} value={subitem}>{item.name} / {subitem.name}</SelectItem>
-              ))
-            })}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+      {!parents.length ? (
+        <span className="italic text-red-500">No categories found</span>
+      ) : (
+        <Select
+          onValueChange={handleChange}
+          value={value}
+        >
+          <SelectTrigger className="relative text-xs border-2 bg-white rounded-xl h-full">
+            <SelectValue placeholder="Select a category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Category</SelectLabel>
+              {parents.map((item: Category) => {
+                return getChildren(item.uuid).map((subitem: Category) => (
+                  <SelectItem key={subitem.uuid} value={subitem}>{item.name} / {subitem.name}</SelectItem>
+                ))
+              })}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      )}
     </div>
   )
 }
