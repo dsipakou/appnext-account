@@ -33,6 +33,8 @@ import { Currency } from '@/components/currencies/types'
 import { User } from '@/components/users/types'
 import { getFormattedDate } from '@/utils/dateUtils'
 import { formatMoney } from '@/utils/numberUtils'
+import { Account } from '@/components/accounts/types'
+import { Currency } from '@/componnents/currencies/types'
 import {
   AccountComponent,
   AccountReadComponent,
@@ -54,7 +56,7 @@ interface Types {
   open: boolean
   onOpenChange: () => void
   url: string
-  budget?: string
+  budget?: unknown
 }
 
 interface EditToolbarProps {
@@ -117,6 +119,11 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
       ...oldModel,
       [id]: { mode: GridRowModes.Edit, fieldToFocus: 'amount' },
     }))
+  }
+
+  const handleClearClick = (): void => {
+    setRows([])
+    setRowModesModel({})
   }
 
   const handleSaveClick = (): void => {
@@ -197,7 +204,10 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
         <div className="flex justify-center">
           <span className="text-xl font-semibold">Transactions outcome: {formatMoney(sumOverall)}</span>
         </div>
-        <div className="flex justify-end items-center">
+        <div className="flex justify-end items-center gap-2">
+          <Button variant="destructive" onClick={handleClearClick} className="h-7" disabled={isLoading || isEditMode || isListEmpty}>
+            Clear list
+          </Button>
           <Button onClick={handleSaveClick} className="h-7" disabled={isLoading || isEditMode || isListEmpty}>
             Submit transactions
           </Button>
@@ -239,10 +249,14 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
   const { toast } = useToast()
 
   const baseCurrencyCode = currencies.find((item: Currency) => item.isBase)?.code || ''
-
+  
   if (budget) {
-    console.log(budget)
-    emptyRow = {...emptyRow, budget }
+    emptyRow = {
+      ...emptyRow,
+      account: accounts.find((item: Account) => item.user === budget.user),
+      budget: budget.uuid,
+      amount: String(budget.amount),
+    }
   } else {
     emptyRow = {...emptyRow, budget: '' }
   }

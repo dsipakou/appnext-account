@@ -9,3 +9,11 @@ export interface User {
   isStaff: boolean
   dateJoined: string
 }
+
+export interface Invite {
+  uuid: string
+  inviteOwner: string
+  inviteReciever: string
+  workspace: string
+  isAccepted: boolean
+}

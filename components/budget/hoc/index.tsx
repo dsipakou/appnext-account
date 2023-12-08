@@ -33,6 +33,7 @@ import {
 import {
   AddForm,
   DuplicateForm,
+  SavedForLaterForm,
   TransactionsForm
 } from '@/components/budget/forms'
 
@@ -156,6 +157,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           </Button>
         </div>
         <div className="flex items-center">
+          <SavedForLaterForm />
           <DuplicateForm
             type={activeType}
             date={activeType === 'month' ? monthDate : weekDate}
@@ -223,8 +225,8 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           <div className="w-full p-1 rounded shadow-sm shadow-zinc-300 bg-white">
             {header}
           </div>
-          <div className="w-full mt-5 h-window">
-            { 
+          <div className="w-full mt-5">
+            {
               (activeType === 'month' && !budgetMonth.length) || (activeType === 'week' && !budgetWeek.length) 
               ? isWeekBudgetLoading ? (
                 loadingState

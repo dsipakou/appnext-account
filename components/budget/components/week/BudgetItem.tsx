@@ -234,7 +234,7 @@ const BudgetItem: React.FC<Types> = ({
           url={weekUrl}
           open={isAddTransactionDialogOpened}
           onOpenChange={setIsAddTransactionDialogOpened}
-          budget={uuid}
+          budget={budgetDetails}
         />
       )}
     </div>

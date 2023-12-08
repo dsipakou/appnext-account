@@ -1,6 +1,7 @@
 import axios from 'axios';
 import useSWR from 'swr';
 import { Response } from './types';
+import { Invite } from '@/components/users/types'
 
 export interface UserResponse {
   uuid: string
@@ -26,3 +27,14 @@ export const useUsers = (): Response<UserResponse[]> => {
     isError: error,
   } as Response<UserResponse[]>;
 };
+
+export const useInvites = (): Response<Invite[]> => {
+  const url = 'users/invite/'
+  const { data, error, isValidating } = useSWR(url, fetcher)
+
+  return {
+    data, 
+    isLoading: !data && !error,
+    isError: error,
+  } as Response<Invite[]>
+}

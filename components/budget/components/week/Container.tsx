@@ -2,7 +2,9 @@ import { FC, useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { getDay, isToday, isThisWeek  } from 'date-fns'
 import { useBudgetWeek } from '@/hooks/budget'
+import { useCurrencies } from '@/hooks/currencies'
 import { RecurrentTypes, WeekBudgetItem } from '@/components/budget/types'
+import { Currency } from '@/components/currencies/types'
 import {
   getWeekDaysWithFullDays,
   parseDate,
@@ -76,9 +78,13 @@ const Container: FC<Types> = ({
     endDate,
     user
   )
+  const { data: currencies } = useCurrencies()
   const { data: { user: authUser }} = useSession()
   const weekDaysArray: number[] = [1, 2, 3, 4, 5, 6, 0];
   const daysFullFormatArray: WeekDayWithFullDate[] = getWeekDaysWithFullDays(parseDate(startDate), FULL_DAY_ONLY_FORMAT)
+  const currencySign = currencies.find(
+    (currency: Currency) => currency.code === authUser.currency
+  )?.sign || '';
 
   useEffect(() => {
     if (!budget) return;
@@ -112,12 +118,12 @@ const Container: FC<Types> = ({
   )
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col flex-1">
       {header(startDate)}
-      <div className={`grid gap-3 h-full justify-center ${isThisWeek(daysFullFormatArray[0].fullDate) ? 'grid-cols-8' : 'grid-cols-7'}`}>
+      <div className={`grid gap-3 flex-1 pb-3 justify-center ${isThisWeek(daysFullFormatArray[0].fullDate) ? 'grid-cols-8' : 'grid-cols-7'}`}>
         {weekDaysArray.map((day: number, weekDayIndex: number) => (
           <div
-            className={isToday(daysFullFormatArray[weekDayIndex].fullDate) ? 'col-span-2 bg-white' : ''}
+            className={isToday(daysFullFormatArray[weekDayIndex].fullDate) ? 'col-span-2 bg-sky-100 rounded p-1' : ''}
           >
             <div className="flex flex-col justify-center items-center gap-1 relative">
               {weekGroup[day] &&
@@ -137,6 +143,17 @@ const Container: FC<Types> = ({
                   />
                 ))}
             </div>
+            {
+              weekGroup[day] && (
+                <>
+                  <div className="flex justify-center p-1 text-xs mt-2 gap-1">
+                    <span className="font-semibold">{weekGroup[day].reduce((acc: number, item: CompactWeekItem) => acc + item.spent, 0).toFixed(2)}</span>
+                    <span>/</span>
+                    <span>{weekGroup[day].reduce((acc: number, item: CompactWeekItem) => acc + item.planned, 0).toFixed(2)} {currencySign}</span>
+                  </div>
+                </>
+              )
+            }
           </div>
         ))}
       </div>
@@ -144,4 +161,4 @@ const Container: FC<Types> = ({
   );
 };
 
-export default Container;
+export default Container

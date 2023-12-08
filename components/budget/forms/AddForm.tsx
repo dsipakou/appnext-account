@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
+import { Switch } from '@/components/ui/switch'
 import {
   Form,
   FormControl,
@@ -48,6 +49,7 @@ import { getFormattedDate } from '@/utils/dateUtils'
 import { Label } from '@/components/ui/label';
 
 import styles from '../style/AddForm.module.css'
+import { isSameDay } from 'date-fns';
 
 interface Types {
   monthUrl: string
@@ -76,6 +78,7 @@ const formSchema = z.object({
 const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
   const { mutate } = useSWRConfig()
   const [parentList, setParentList] = useState<Category[]>([]);
+  const [isSomeDay, setIsSomeDay] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [open, setOpen] = useState<boolean>(false)
 
@@ -159,7 +162,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
     setIsLoading(true)
     axios.post('budget/', {
       ...payload,
-      budgetDate: getFormattedDate(payload.budgetDate),
+      budgetDate: isSomeDay ? null : getFormattedDate(payload.budgetDate),
       recurrent: payload.repeatType,
     }).then(
       res => {
@@ -396,12 +399,31 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                           <Calendar
                             disabled={isLoading}
                             mode="single"
-                            selected={field.value}
+                            selected={isSomeDay ? null : field.value}
                             onSelect={field.onChange}
-                            disabled={(date) => date < new Date("1900-01-01")}
+                            disabled={(date) => date < new Date("1900-01-01") || isSomeDay}
                             weekStartsOn={1}
                             initialFocus
                           />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="isSomeday"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div className="flex gap-2 mt-1 items-center">
+                            <Switch
+                              id="isSomeday"
+                              checked={isSomeDay}
+                              onClick={() => setIsSomeDay(!isSomeDay)}
+                            />
+                            <Label htmlFor="isSomeday">Someday</Label>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
