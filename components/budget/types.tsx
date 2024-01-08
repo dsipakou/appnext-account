@@ -22,10 +22,16 @@ export interface GroupedByCategoryBudget extends PlannedMap, SpentMap {
   budgets: MonthGroupedBudgetItem[]
 }
 
-export interface MonthGroupedBudgetItem extends PlannedMap, SpentMap {
+export interface MonthGroupedBudgetItem {
   uuid: string
   title: string
   items: MonthBudgetItem[]
+  planned: number
+  spent: number
+  isAnotherCategory: boolean
+  isAnotherMonth: boolean
+  spentInCurrencies: CurrencyMap
+  plannedInCurrencies: CurrencyMap
 }
 
 export interface BudgetSlim {

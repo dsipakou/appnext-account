@@ -57,6 +57,18 @@ export const useBudgetWeek = (
   } as Response<WeekBudgetItem[]>;
 }
 
+export const usePendingBudget = (): Response<WeekBudgetItem[]> => {
+  const url = 'budget/pending/'
+  const { data, error } = useSWR(url, fetcher)
+
+  return {
+    data,
+    isLoading: !data && !error,
+    isError: error,
+    url,
+  } as Response<WeekBudgetItem[]>
+}
+
 export const useBudgetDuplicate = (
   type: "month" | "week",
   date: string

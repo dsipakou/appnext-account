@@ -22,6 +22,7 @@ interface Types {
   weekUrl: string
   monthUrl: string
   mutateBudget: () => void
+  clickShowTransactions: (uuid: string) => void
 }
 
 interface WeekBudgetResponse {
@@ -70,7 +71,8 @@ const Container: FC<Types> = ({
   user,
   weekUrl,
   monthUrl,
-  mutateBudget
+  mutateBudget,
+  clickShowTransactions,
 }) => {
   const [weekGroup, setWeekGroup] = useState<GroupedByWeek>({});
   const { data: budget }: WeekBudgetResponse = useBudgetWeek(
@@ -140,6 +142,7 @@ const Container: FC<Types> = ({
                     weekUrl={weekUrl}
                     monthUrl={monthUrl}
                     mutateBudget={mutateBudget}
+                    clickShowTransactions={clickShowTransactions}
                   />
                 ))}
             </div>

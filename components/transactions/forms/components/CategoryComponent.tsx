@@ -22,14 +22,21 @@ interface CategoryComponentTypes extends GridRenderEditCellParams {
 }
 
 const CategoryComponent: React.FC<CategoryComponentTypes> = (params) => {
-  const { id, field, value, categories } = params
+  const { id, field, value, row, categories } = params
   const apiRef = useGridApiContext()
+  const budgetCategory = row.budget?.category
 
   const parents = categories.filter(
     (category: Category) => (
       category.parent === null && category.type === CategoryType.Expense
     )
   )
+
+  const getPlannedCategory = (uuid: string): Category | undefined => {
+    return parents.find((category: Category) => (
+      category.uuid === uuid
+    ))
+  }
 
   const getChildren = (uuid: string): Category[] => {
     return categories.filter(
@@ -54,8 +61,20 @@ const CategoryComponent: React.FC<CategoryComponentTypes> = (params) => {
             <SelectValue placeholder="Select a category" />
           </SelectTrigger>
           <SelectContent>
+              {
+                budgetCategory && getPlannedCategory(budgetCategory) && (
+                  <SelectGroup>
+                    <SelectLabel>Planned for</SelectLabel>
+                    {
+                      getChildren(getPlannedCategory(budgetCategory).uuid).map((subitem: Category) => (
+                        <SelectItem key={subitem.uuid} value={subitem}>{getPlannedCategory(budgetCategory).name} / {subitem.name}</SelectItem>
+                      ))
+                    }
+                  </SelectGroup>
+                )
+              }
             <SelectGroup>
-              <SelectLabel>Category</SelectLabel>
+              <SelectLabel>Categories</SelectLabel>
               {parents.map((item: Category) => {
                 return getChildren(item.uuid).map((subitem: Category) => (
                   <SelectItem key={subitem.uuid} value={subitem}>{item.name} / {subitem.name}</SelectItem>

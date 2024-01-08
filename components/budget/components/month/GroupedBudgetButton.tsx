@@ -1,6 +1,6 @@
 import { FC } from 'react'
 import { useSession } from 'next-auth/react'
-import { CheckCircle, Repeat2 } from 'lucide-react'
+import { AlertTriangle, CheckCircle, Repeat2 } from 'lucide-react'
 import { getDate, format } from 'date-fns'
 import { Progress } from '@/components/ui/progress'
 import {
@@ -13,9 +13,11 @@ import { Badge } from '@/components/ui/badge'
 import { MonthGroupedBudgetItem } from '@/components/budget/types'
 import { formatMoney } from '@/utils/numberUtils'
 import { useCurrencies } from '@/hooks/currencies'
+import { useCategories } from '@/hooks/categories'
 import { Currency } from '@/components/currencies/types'
 import { MonthBudgetItem } from '@/components/budget/types'
-import { parseDate } from '@/utils/dateUtils'
+import { parseDate, getFormattedDate, SHORT_YEAR_MONTH_FORMAT } from '@/utils/dateUtils'
+import { Category } from '@/components/categories/types'
 
 interface Types {
   item: MonthGroupedBudgetItem
@@ -25,6 +27,7 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
   const { data: { user }} = useSession()
 
   const { data: currencies } = useCurrencies()
+  const { data: categories } = useCategories()
 
   const repeatedFor: number = item.items.length
 
@@ -35,11 +38,9 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
 
   const currencySign = currencies.find((item: Currency) => item.code === user.currency)?.sign || ''
 
-  const progressColor: string = planned === 0 ?
-    "secondary" :
-    Math.floor(percentage) > 100 ?
-      "error" :
-      "primary"
+  const getCategoryName = (uuid: string) => (
+    categories.find((item: Category) => item.uuid === uuid)?.name || ''
+  )
 
   const getRepeatDay = (item: MonthBudgetItem) => {
     if (item.recurrent === 'monthly') {
@@ -58,6 +59,61 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
       : 'border-l-8 border-yellow-400'
     : 'border-gray-300'
 
+  const regularProgress = () => {
+    return (
+      <>
+        <Progress
+          className={`h-8 rounded-sm ${percentage > 100 ? 'bg-red-200' : 'bg-gray-300'}`}
+          indicatorclassname={`${percentage > 100 ? 'bg-red-500' : 'bg-blue-500'}`}
+          value={percentage > 100 ? percentage % 100 : percentage}
+        />
+        <div className="absolute top-0 w-full h-full">
+          <span className="flex text-white text-lg font-semibold h-full items-center justify-center">
+            <div className="flex gap-2 items-center">
+              {
+                planned === 0 ? 'Not planned' : `${percentage}%`
+              }
+            </div>
+          </span>
+        </div>
+      </>
+    )
+  }
+
+  const anotherCategoryProgress = () => (
+    <>
+      <Progress
+        className="h-8 rounded-sm bg-slate-100"
+        indicatorclassname="bg-slate-100"
+      />
+      <div className="absolute top-0 w-full h-full">
+        <span className="flex text-blue-400 text-lg font-semibold h-full items-center justify-center">
+          <div className="flex gap-2 items-center">
+            <AlertTriangle className="h-4 w-4"/>
+            <span>Budget from another category</span>
+          </div>
+        </span>
+      </div>
+    </>
+  )
+
+  const anotherMonthProgress = () => (
+    <>
+      <Progress
+        className="h-8 rounded-sm bg-slate-100"
+        indicatorclassname="bg-slate-100"
+      />
+      <div className="absolute top-0 w-full h-full">
+        <span className="flex text-blue-400 text-lg font-semibold h-full items-center justify-center">
+          <div className="flex gap-2 items-center">
+            <AlertTriangle className="h-4 w-4"/>
+            <span>Budget from another month</span>
+          </div>
+        </span>
+      </div>
+    </>
+  )
+
   return (
     <div className={`${cssClass} h-[172px] border cursor-pointer p-2 rounded-lg ${isCompleted ? 'bg-slate-200 text-slate-500' : 'drop-shadow outline-zinc-200 bg-slate-50'}`}>
       <div className="flex flex-col gap-3">
@@ -66,7 +122,21 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
             <span className="text-lg">{item.title}</span>
             {repeatedFor > 1 && <span className="absolute px-1 text-xs rounded-full bg-sky-500 text-white">{`x${repeatedFor}`}</span>}
           </div>
-          {isCompleted && (
+          {
+            item.isAnotherCategory && (
+              <Badge variant="outline" className="flex justify-center whitespace-nowrap overflow-hidden bg-blue-400 text-white w-24">
+                {getCategoryName(item.items[0].category)}
+              </Badge>
+            )
+          }
+          {
+            item.isAnotherMonth && (
+              <Badge variant="outline" className="flex justify-center whitespace-nowrap overflow-hidden bg-blue-400 text-white w-24">
+                {getFormattedDate(parseDate(item.items[0].budgetDate), SHORT_YEAR_MONTH_FORMAT)}
+              </Badge>
+            )
+          }
+          {isCompleted && !item.isAnotherCategory && !item.isAnotherMonth && (
             <>
               <TooltipProvider>
                 <Tooltip>
@@ -91,17 +161,11 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
           )}
         </div>
         <div className="relative">
-          <Progress
-            className={`h-8 rounded-sm ${percentage > 100 ? 'bg-red-200' : 'bg-gray-300'}`}
-            indicatorclassname={`${percentage > 100 ? 'bg-red-500' : 'bg-blue-500'}`}
-            color={progressColor}
-            value={percentage > 100 ? percentage % 100 : percentage}
-          />
-          <div className="absolute top-0 w-full h-full">
-            <span className="flex text-white text-lg font-semibold h-full items-center justify-center">
-              {planned === 0 ? 'Not planned' : `${percentage}%`}
-            </span>
-          </div>
+          {
+            item.isAnotherMonth ? anotherMonthProgress() :
+              item.isAnotherCategory ? anotherCategoryProgress() :
+              regularProgress()
+          }
         </div>
         <div className="flex w-full">
           <div className="flex-1 justify-end">

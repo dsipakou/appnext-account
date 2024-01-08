@@ -33,7 +33,7 @@ import { Currency } from '@/components/currencies/types'
 import { User } from '@/components/users/types'
 import { getFormattedDate } from '@/utils/dateUtils'
 import { formatMoney } from '@/utils/numberUtils'
-import { Account } from '@/components/accounts/types'
+import { Account, AccountResponse } from '@/components/accounts/types'
 import { Currency } from '@/componnents/currencies/types'
 import {
   AccountComponent,
@@ -51,12 +51,13 @@ import {
   DateReadComponent,
   DescriptionComponent,
 } from './components'
+import { WeekBudgetItem } from '@/components/budget/types'
 
 interface Types {
   open: boolean
-  onOpenChange: () => void
+  onOpenChange: (open: boolean) => void
   url: string
-  budget?: unknown
+  budget?: WeekBudgetItem
 }
 
 interface EditToolbarProps {
@@ -79,6 +80,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   const { mutate } = useSWRConfig()
   const { data: { user: authUser } } = useSession()
 
+  const { data: accounts = [] } = useAccounts()
   const { data: users = [] } = useUsers()
 
   const { data: currencies = [] } = useCurrencies()
@@ -89,6 +91,14 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
     const _user = users.find((item: User) => item.username === authUser.username)!
     setUser(_user.uuid)
   }, [authUser, users])
+
+  const getDefaultAccountForCurrentUser = (): AccountResponse | undefined => {
+    if (user) {
+      return accounts.find((item: Account) => item.user === user && item.isMain)
+    }
+    return undefined
+  }
+
 
   React.useEffect(() => {
     setBaseCurrency(currencies.find((item: Currency) => item.isBase)?.code)
@@ -101,7 +111,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   }, 0)
 
   const handleClick = () => {
-    setRows((oldRows) => [...oldRows, { ...emptyRow, id }])
+    setRows((oldRows) => [...oldRows, { ...emptyRowTemplate, id, account: getDefaultAccountForCurrentUser() }])
     setRowModesModel((oldModel) => ({
       ...oldModel,
       [id]: { mode: GridRowModes.Edit, fieldToFocus: 'amount' },
@@ -226,7 +236,7 @@ const FooterWithError: React.FC = (props) => {
   )
 }
 
-let emptyRow = {
+const emptyRowTemplate = {
   account: '',
   category: '',
   budget: '',
@@ -240,6 +250,8 @@ let emptyRow = {
   saved: false
 }
 
+let emptyRow = emptyRowTemplate
+
 const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
   const [errors, setErrors] = React.useState<string>('')
   const { data: accounts = [] } = useAccounts()
@@ -249,17 +261,11 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
   const { toast } = useToast()
 
   const baseCurrencyCode = currencies.find((item: Currency) => item.isBase)?.code || ''
-  
-  if (budget) {
-    emptyRow = {
-      ...emptyRow,
-      account: accounts.find((item: Account) => item.user === budget.user),
-      budget: budget.uuid,
-      amount: String(budget.amount),
-    }
-  } else {
-    emptyRow = {...emptyRow, budget: '' }
+
+  const getAccountForBudget = (budget: WeekBudgetItem): Account | undefined => {
+    return accounts.find((item: Account) => item.user === budget.user && item.isMain)
   }
+  
 
   const columns: GridColDef[] = [
     {
@@ -346,6 +352,25 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>({});
 
   React.useEffect(() => {
+    console.log('render')
+    const id = randomId()
+
+    if (budget) {
+      emptyRow = {
+        ...emptyRow,
+        id,
+        account: getAccountForBudget(budget) || '',
+        budget: budget.uuid,
+        amount: String(budget.amount),
+      }
+      setRows(() => [emptyRow])
+      setRowModesModel(() => ({
+        [id]: { mode: GridRowModes.Edit, fieldToFocus: 'amount' },
+      }))
+    }
+  }, [])
+
+  React.useEffect(() => {
     setErrors('')
   }, [rows])
 
@@ -393,7 +418,7 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
     const canClose = rows.every((item: any) => item.saved === true)
     if (canClose) {
       setErrors('');
-      setRows([ ]);
+      setRows([]);
       setRowModesModel({ });
       onOpenChange(false);
     } else {

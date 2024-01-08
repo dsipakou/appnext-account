@@ -16,7 +16,7 @@ const CategorySummaryCard: FC<Types> = ({ item }) => {
 
   const planned = item.plannedInCurrencies[user?.currency]
   const spent = item.spentInCurrencies[user?.currency]
-  const percentage: number = Math.floor(spent * 100 / planned)
+  const percentage: number = Math.floor(spent * 100 / planned) || 0
 
   const currencySign = currencies.find((item: Currency) => item.code === user.currency)?.sign || ''
 

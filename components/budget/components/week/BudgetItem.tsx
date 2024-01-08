@@ -2,7 +2,7 @@ import * as React from 'react'
 import axios from 'axios'
 import { useSession } from 'next-auth/react'
 import { useSWRConfig } from 'swr'
-import { Check, CheckCircle, Repeat } from 'lucide-react'
+import { Check, CheckCircle, Edit, Plus, Repeat, ScrollText, Trash } from 'lucide-react'
 import { formatMoney } from '@/utils/numberUtils'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -29,6 +29,7 @@ interface Types {
   weekUrl: string
   monthUrl: string
   mutateBudget: () => void
+  clickShowTransactions: (uuid: string) => void
 }
 
 const BudgetItem: React.FC<Types> = ({
@@ -41,7 +42,8 @@ const BudgetItem: React.FC<Types> = ({
   recurrent,
   weekUrl,
   monthUrl,
-  mutateBudget
+  mutateBudget,
+  clickShowTransactions,
 }) => {
   const [errors, setErrors] = React.useState<string>([])
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
@@ -195,9 +197,17 @@ const BudgetItem: React.FC<Types> = ({
         <Button
           disabled={isLoading}
           variant="outline"
-          className="px-3 text-xs h-2 bg-white"
+          className="px-3 text-xs h-2 bg-slate-200 w-full"
           onClick={() => setIsAddTransactionDialogOpened(true)}>
-          Add spending
+          <Plus className="h-4 w-4"/>
+        </Button>
+        <Button
+          disabled={isLoading}
+          variant="outline"
+          className="px-3 text-xs h-2 bg-white"
+          onClick={() => clickShowTransactions(uuid)}
+        >
+          <ScrollText className="h-4 w-4" />
         </Button>
         <Button
           disabled={isLoading}
@@ -205,14 +215,14 @@ const BudgetItem: React.FC<Types> = ({
           className="px-3 text-xs h-2 bg-white"
           onClick={() => setIsEditDialogOpened(true)}
         >
-          Edit
+          <Edit className="h-4 w-4" />
         </Button>
         <Button
           variant="destructive"
-          className="px-3 text-xs h-2"
+          className="px-3 h-2 border-2 border-red-500"
           onClick={() => setIsConfirmDeleteDialogOpened(true)}
         >
-          Delete
+          <Trash className="h-4 w-4" />
         </Button>
       </div>
       <EditForm 
