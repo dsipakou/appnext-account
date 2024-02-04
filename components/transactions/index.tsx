@@ -1,9 +1,9 @@
 import * as React from 'react'
+import { useStore } from '@/app/store'
 import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { useTransactions } from '@/hooks/transactions'
-import { useCurrencies } from '@/hooks/currencies'
 import {
   AddForm,
   AddIncomeForm,
@@ -14,7 +14,6 @@ import { TransactionResponse } from '@/components/transactions/types'
 import DailyChart from '@/components/transactions/components/DailyChart'
 import { formatMoney } from '@/utils/numberUtils'
 import { getFormattedDate } from '@/utils/dateUtils'
-import { Currency } from '@/components/currencies/types'
 import TransactionTable from './components/TransactionTable'
 import IncomeComponent from './components/IncomeContainer'
 import LastAdded from './forms/LastAdded'
@@ -30,6 +29,7 @@ const Index: React.FC = () => {
   const [isOpenDeleteTransactions, setIsOpenDeleteTransactions] = React.useState<boolean>(false)
   const [activeTransactionUuid, setActiveTransactionUuid] = React.useState<string>('')
   const [activeType, setActiveType] = React.useState<TransactionType>('outcome')
+  const currencySign = useStore((state) => state.currencySign)
 
   const {
     data: transactions = [],
@@ -40,10 +40,6 @@ const Index: React.FC = () => {
     dateFrom: getFormattedDate(transactionDate),
     dateTo: getFormattedDate(transactionDate)
   })
-
-  const { data: currencies = [] } = useCurrencies()
-
-  const currencySign = currencies.find((item: Currency) => item.code === user.currency)?.sign;
 
   const overallSum = transactions?.reduce((acc: number, item: TransactionResponse) => {
     return acc + item.spentInCurrencies[user.currency] || 0

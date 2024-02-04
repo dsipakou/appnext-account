@@ -76,7 +76,6 @@ const DetailsCalendar: React.FC<Types> = ({title, items, date, weekUrl, monthUrl
             item={budgetOnDate}
             date={currentDate}
             currency={user.currency}
-            currencies={currencies}
             weekUrl={weekUrl}
             monthUrl={monthUrl}
             clickShowTransactions={clickShowTransactions}

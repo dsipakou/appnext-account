@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useStore } from '@/app/store'
 import axios from 'axios'
 import { useSession } from 'next-auth/react'
 import { useSWRConfig } from 'swr'
@@ -10,9 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { useBudgetDetails } from '@/hooks/budget'
 import { RecurrentTypes } from '@/components/budget/types'
-import { useCurrencies } from '@/hooks/currencies'
 import { useUsers, UserResponse } from '@/hooks/users'
-import { Currency } from '@/components/currencies/types'
 import EditForm from '@/components/budget/forms/EditForm'
 import ConfirmDeleteForm from '@/components/budget/forms/ConfirmDeleteForm'
 import { AddForm } from '@/components/transactions/forms'
@@ -52,16 +51,13 @@ const BudgetItem: React.FC<Types> = ({
   const [isAddTransactionDialogOpened, setIsAddTransactionDialogOpened] = React.useState<boolean>(false)
 
   const { data: budgetDetails, url } = useBudgetDetails(uuid)
-  const { data: currencies } = useCurrencies()
   const { data: users } = useUsers()
   const { data: { user: authUser }} = useSession()
   const { mutate } = useSWRConfig()
 
   const percentage: number = Math.floor(spent * 100 / planned)
 
-  const currencySign = currencies.find(
-    (currency: Currency) => currency.code === authUser.currency
-  )?.sign || '';
+  const currencySign = useStore((state) => state.currencySign)
 
   const budgetUser = users.find((item: UserResponse) => item.uuid === user)
 
@@ -143,11 +139,11 @@ const BudgetItem: React.FC<Types> = ({
         )}
       </div>
       <div className="flex h-full justify-center items-center">
-        <div className="hidden group-hover:flex text-sm font-semibold">
-          {formatMoney(spent)}
-        </div>
-        <div className="hidden group-hover:flex ml-[3px] text-sm font-semibold">
-          {currencySign}
+        <div className="group-hover:flex text-sm font-semibold">
+          <span>{formatMoney(spent)}</span>
+          <span>
+            {currencySign}
+          </span>
         </div>
         {
           planned !== 0 && (
@@ -157,15 +153,22 @@ const BudgetItem: React.FC<Types> = ({
           )
         }
         { planned !== 0 && (
-          <div className="text-xs">{formatMoney(planned)}</div>
+          <div className="flex text-xs">
+            <span className="group-hover:hidden pl-1">(</span>
+            <span>
+              {formatMoney(planned)}
+            </span>
+            <span className="group-hover:hidden">)</span>
+            <span className="hidden group-hover:flex">{currencySign}</span>
+          </div>
         )}
         <div className="text-xs ml-[3px]">{
           planned === 0 
-            ? (
+            && (
               <span className="hidden group-hover:flex ml-2">(not planned)</span>
-            ) 
-            : currencySign
-        }</div>
+            )
+        }
+        </div>
       </div>
       <div className="flex justify-center items-center">
         {planned !== 0
@@ -225,20 +228,28 @@ const BudgetItem: React.FC<Types> = ({
           <Trash className="h-4 w-4" />
         </Button>
       </div>
-      <EditForm 
-        open={isEditDialogOpened}
-        setOpen={setIsEditDialogOpened}
-        uuid={uuid} 
-        weekUrl={weekUrl}
-        monthUrl={monthUrl}
-      />
-      <ConfirmDeleteForm
-        open={isConfirmDeleteDialogOpened}
-        setOpen={setIsConfirmDeleteDialogOpened}
-        uuid={uuid}
-        weekUrl={weekUrl}
-        monthUrl={monthUrl}
-      />
+      {
+        isEditDialogOpened && (
+          <EditForm 
+            open={isEditDialogOpened}
+            setOpen={setIsEditDialogOpened}
+            uuid={uuid} 
+            weekUrl={weekUrl}
+            monthUrl={monthUrl}
+          />
+        )
+      }
+      {
+        isConfirmDeleteDialogOpened && (
+          <ConfirmDeleteForm
+            open={isConfirmDeleteDialogOpened}
+            setOpen={setIsConfirmDeleteDialogOpened}
+            uuid={uuid}
+            weekUrl={weekUrl}
+            monthUrl={monthUrl}
+          />
+        )
+      }
       {isAddTransactionDialogOpened && (
         <AddForm
           url={weekUrl}

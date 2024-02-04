@@ -157,7 +157,10 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           </Button>
         </div>
         <div className="flex items-center">
-          <SavedForLaterForm />
+          <SavedForLaterForm
+            weekUrl={weekUrl}
+            monthUrl={monthUrl}
+          />
           <DuplicateForm
             type={activeType}
             date={activeType === 'month' ? monthDate : weekDate}

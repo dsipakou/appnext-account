@@ -1,4 +1,6 @@
 import { FC } from 'react'
+import { useStore } from '@/app/store'
+import { Currency } from '@/components/currencies/types'
 import { useSession } from 'next-auth/react'
 import { AlertTriangle, CheckCircle, Repeat2 } from 'lucide-react'
 import { getDate, format } from 'date-fns'
@@ -12,11 +14,9 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { MonthGroupedBudgetItem } from '@/components/budget/types'
 import { formatMoney } from '@/utils/numberUtils'
-import { useCurrencies } from '@/hooks/currencies'
 import { useCategories } from '@/hooks/categories'
-import { Currency } from '@/components/currencies/types'
 import { MonthBudgetItem } from '@/components/budget/types'
-import { parseDate, getFormattedDate, SHORT_YEAR_MONTH_FORMAT } from '@/utils/dateUtils'
+import { parseDate, getFormattedDate, LONG_YEAR_SHORT_MONTH_FORMAT } from '@/utils/dateUtils'
 import { Category } from '@/components/categories/types'
 
 interface Types {
@@ -26,7 +26,6 @@ interface Types {
 const GroupedBudgetButton: FC<Types> = ({ item }) => {
   const { data: { user }} = useSession()
 
-  const { data: currencies } = useCurrencies()
   const { data: categories } = useCategories()
 
   const repeatedFor: number = item.items.length
@@ -36,7 +35,7 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
   const percentage: number = Math.floor(spent * 100 / planned)
   const isCompleted: boolean = item.items.every((_item: MonthBudgetItem) => _item.isCompleted)
 
-  const currencySign = currencies.find((item: Currency) => item.code === user.currency)?.sign || ''
+  const currencySign = useStore((state) => state.currencySign)
 
   const getCategoryName = (uuid: string) => (
     categories.find((item: Category) => item.uuid === uuid)?.name || ''
@@ -82,12 +81,8 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
 
   const anotherCategoryProgress = () => (
     <>
-      <Progress
-        className="h-8 rounded-sm bg-slate-100"
-        indicatorclassname="bg-slate-100"
-      />
-      <div className="absolute top-0 w-full h-full">
-        <span className="flex text-blue-400 text-lg font-semibold h-full items-center justify-center">
+      <div className="flex justify-center w-full h-8">
+        <span className="flex text-blue-500 font-semibold h-full items-center justify-center">
           <div className="flex gap-2 items-center">
             <AlertTriangle className="h-4 w-4"/>
             <span>Budget from another category</span>
@@ -99,12 +94,8 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
 
   const anotherMonthProgress = () => (
     <>
-      <Progress
-        className="h-8 rounded-sm bg-slate-100"
-        indicatorclassname="bg-slate-100"
-      />
-      <div className="absolute top-0 w-full h-full">
-        <span className="flex text-blue-400 text-lg font-semibold h-full items-center justify-center">
+      <div className="flex justify-center w-full h-8">
+        <span className="flex text-blue-500 font-semibold h-full items-center justify-center">
           <div className="flex gap-2 items-center">
             <AlertTriangle className="h-4 w-4"/>
             <span>Budget from another month</span>
@@ -123,16 +114,16 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
             {repeatedFor > 1 && <span className="absolute px-1 text-xs rounded-full bg-sky-500 text-white">{`x${repeatedFor}`}</span>}
           </div>
           {
-            item.isAnotherCategory && (
-              <Badge variant="outline" className="flex justify-center whitespace-nowrap overflow-hidden bg-blue-400 text-white w-24">
+            item.isAnotherCategory && !item.isAnotherMonth && (
+              <Badge variant="outline" className="flex justify-center whitespace-nowrap overflow-hidden bg-sky-500 h-5 text-white w-24">
                 {getCategoryName(item.items[0].category)}
               </Badge>
             )
           }
           {
             item.isAnotherMonth && (
-              <Badge variant="outline" className="flex justify-center whitespace-nowrap overflow-hidden bg-blue-400 text-white w-24">
-                {getFormattedDate(parseDate(item.items[0].budgetDate), SHORT_YEAR_MONTH_FORMAT)}
+              <Badge variant="outline" className="flex justify-center whitespace-nowrap overflow-hidden bg-sky-500 h-5 text-white w-24">
+                {getFormattedDate(parseDate(item.items[0].budgetDate), LONG_YEAR_SHORT_MONTH_FORMAT)}
               </Badge>
             )
           }

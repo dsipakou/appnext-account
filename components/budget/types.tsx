@@ -91,3 +91,8 @@ export interface DuplicateBudgetResponse {
   title: string
   date: string
 }
+
+export interface MonthSummedUsage {
+  month: string
+  amount: number
+}

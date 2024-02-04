@@ -1,8 +1,6 @@
 import { FC } from 'react'
-import { useSession} from 'next-auth/react'
+import { useStore } from '@/app/store'
 import { formatMoney } from '@/utils/numberUtils'
-import { useCurrencies } from '@/hooks/currencies'
-import { Currency } from '@/components/currencies/types'
 
 interface Types {
   title: string
@@ -11,18 +9,12 @@ interface Types {
 }
 
 const GeneralSummaryCard: FC<Types> = ({ title, planned, spent }) => {
-  const { data: currencies = [] } = useCurrencies()
-  const { data: { user: authUser }} = useSession()
+  const currencySign = useStore((state) => state.currencySign)
 
   const maxValue: number = Math.max(planned, spent)
-
   const spentPercent = spent * 100 / maxValue
-
   const plannedPercent = planned * 100 / maxValue
 
-  const currencySign = currencies.find(
-    (currency: Currency) => currency.code === authUser?.currency
-  )?.sign || '';
 
   return (
     <div className="flex flex-col border bg-slate-600 items-center justify-center text-white h-[80px]">

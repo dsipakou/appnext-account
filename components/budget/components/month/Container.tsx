@@ -30,7 +30,6 @@ const Container: React.FC<Types> = ({
     if (!budget.length) return
 
     if (!activeCategoryUuid) {
-      console.log(budget)
       setActiveCategoryUuid(budget[0].uuid)
     }
   }, [budget])

@@ -45,6 +45,8 @@ export const authOptions = {
             // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
           }
         } catch(e) {
+          console.log("after")
+          console.log(e)
           return null
         }
       }

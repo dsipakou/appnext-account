@@ -1,4 +1,5 @@
 import React from 'react'
+import { useStore } from '@/app/store'
 import { MoreVertical, Pencil, Trash2 } from 'lucide-react'
 import { isSameDay, format } from 'date-fns'
 import { Progress } from '@/components/ui/progress'
@@ -19,7 +20,6 @@ interface Types {
   item: MonthBudgetItem | undefined
   date: Date
   currency: string
-  currencies: Currency[]
   weekUrl: string
   monthUrl: string
   clickShowTransactions: (uuid: string) => void
@@ -29,7 +29,6 @@ const CalendarBudgetItem: React.FC<Types> = ({
   item,
   date,
   currency,
-  currencies,
   weekUrl,
   monthUrl,
   clickShowTransactions,
@@ -58,7 +57,7 @@ const CalendarBudgetItem: React.FC<Types> = ({
 
   const percentage: number = Math.floor(spent * 100 / planned) || 0
 
-  const currencySign = currencies.find((item: Currency) => item.code === currency)?.sign || ''
+  const currencySign = useStore((state) => state.currencySign)
 
   const handleClickTransactions = (): void => {
     clickShowTransactions(item.uuid)
@@ -92,21 +91,22 @@ const CalendarBudgetItem: React.FC<Types> = ({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-        <div className="flex flex-col justify-center items-center w-full">
-          <span className="text-xs">{formatMoney(spent)} {currencySign}</span>
-          <div className="relative w-full">
-            <Progress
-              className={`h-5 rounded-sm ${percentage > 100 ? 'bg-red-200' : 'bg-gray-200'}`}
-              indicatorclassname={`${percentage > 100 ? 'bg-red-500' : 'bg-green-500'}`}
-              value={percentage > 100 ? percentage % 100 : percentage}
-            />
-            <div className="absolute top-0 w-full h-full">
-              <span className="flex text-white text-xs font-semibold h-full items-center justify-center">
-                {planned === 0 ? 'Not planned' : `${percentage}%`}
-              </span>
-            </div>
+      <div className="flex flex-col justify-center items-center w-full">
+        <span className="text-xs">{formatMoney(spent)} {currencySign}</span>
+        <div className="relative w-full">
+          <Progress
+            className={`h-5 rounded-sm ${percentage > 100 ? 'bg-red-200' : 'bg-gray-200'}`}
+            indicatorclassname={`${percentage > 100 ? 'bg-red-500' : 'bg-green-500'}`}
+            value={percentage > 100 ? percentage % 100 : percentage}
+          />
+          <div className="absolute top-0 w-full h-full">
+            <span className="flex text-white text-xs font-semibold h-full items-center justify-center">
+              {planned === 0 ? 'Not planned' : `${percentage}%`}
+            </span>
           </div>
         </div>
+      </div>
+      { isEditDialogOpened && (
         <EditForm
           uuid={item.uuid}
           weekUrl={weekUrl}
@@ -114,6 +114,8 @@ const CalendarBudgetItem: React.FC<Types> = ({
           open={isEditDialogOpened}
           setOpen={setIsEditDialogOpened}
         />
+      )}
+      { isConfirmDeleteDialogOpened && (
         <ConfirmDeleteForm
           uuid={item.uuid}
           open={isConfirmDeleteDialogOpened}
@@ -121,6 +123,7 @@ const CalendarBudgetItem: React.FC<Types> = ({
           weekUrl={weekUrl}
           monthUrl={monthUrl}
         />
+      )}
     </div>
   )
 }

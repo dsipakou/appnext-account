@@ -93,7 +93,7 @@ const DetailsPanel: FC<Types> = ({
                 <CategorySummaryCard item={activeCategory} />
               </div>
               <div>
-                <PreviousMonthsCard />
+                <PreviousMonthsCard month={startDate} category={activeCategoryUuid} />
               </div>
               {categoryBudgets.map((item: MonthGroupedBudgetItem) => (
                 <div key={item.uuid} onClick={() => setActiveBudgetUuid(item.uuid)}>

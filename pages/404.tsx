@@ -4,4 +4,6 @@ const Default404 = () => {
   )
 }
 
+Default404.auth = {}
+
 export default Default404

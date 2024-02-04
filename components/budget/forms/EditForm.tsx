@@ -37,11 +37,12 @@ import { Calendar } from '@/components/ui/calendar'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch'
 import { useToast } from '@/components/ui/use-toast'
 import { useUsers } from '@/hooks/users'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
-import { useBudgetDetails } from '@/hooks/budget'
+import { useBudgetDetails, usePendingBudget } from '@/hooks/budget'
 import { User } from '@/components/users/types'
 import { Category, CategoryType } from '@/components/categories/types'
 import { Currency } from '@/components/currencies/types'
@@ -71,7 +72,7 @@ const formSchema = z.object({
   budgetDate: z.date({
     required_error: "Budget date is required",
   }),
-  description: z.string().optional()
+  description: z.string().or(z.null())
 })
 
 const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
@@ -80,19 +81,23 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
   const [errors, setErrors] = useState<string[]>([]);
   const [month, setMonth] = useState<Date>(new Date())
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isSomeDay, setIsSomeDay] = useState<boolean>(false)
   const { toast } = useToast()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       repeatType: "",
+      amount: 0,
+      title: "",
     },
   })
 
-  const { data: users } = useUsers()
-  const { data: categories } = useCategories()
-  const { data: currencies } = useCurrencies()
+  const { data: users = [] } = useUsers()
+  const { data: categories = [] } = useCategories()
+  const { data: currencies = [] } = useCurrencies()
   const { data: budgetDetails } = useBudgetDetails(uuid)
+  const { url: pendingUrl } = usePendingBudget()
 
   useEffect(() => {
     if (!categories) return;
@@ -106,20 +111,22 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
   }, [categories]);
 
   useEffect(() => {
-    if (!budgetDetails) return
+    if (!budgetDetails || !parentList.length) return
+
+    setIsSomeDay(!budgetDetails.budgetDate)
 
     form.setValue('category', budgetDetails.category)
     form.setValue('user', budgetDetails.user)
     form.setValue('currency', budgetDetails.currency)
-    form.setValue('amount', budgetDetails.amount)
-    form.setValue('title', budgetDetails.title)
+    form.setValue('amount', budgetDetails.amount || '')
+    form.setValue('title', budgetDetails.title || '')
     form.setValue('category', budgetDetails.category)
     form.setValue('repeatType', budgetDetails.recurrent || '')
-    form.setValue('budgetDate', parseDate(budgetDetails.budgetDate))
-    form.setValue('description', budgetDetails.description)
+    form.setValue('budgetDate', budgetDetails.budgetDate ? parseDate(budgetDetails.budgetDate) : new Date())
+    form.setValue('description', budgetDetails.description || '')
 
     setMonth(parseDate(budgetDetails.budgetDate))
-  }, [budgetDetails])
+  }, [budgetDetails, parentList])
 
   const getCurrencySign = (): string => {
     return currencies.find((item: Currency) => item.uuid === form.getValues().currency)?.sign
@@ -129,13 +136,14 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
     setIsLoading(true)
     axios.patch(`budget/${uuid}/`, {
       ...payload,
-      budgetDate: getFormattedDate(payload.budgetDate),
+      budgetDate: isSomeDay ? null : getFormattedDate(payload.budgetDate),
       recurrent: payload.repeatType,
     }).then(
       res => {
         if (res.status === 200) {
           mutate(monthUrl)
           mutate(weekUrl)
+          mutate(pendingUrl)
           toast({
               title: 'Saved!'
             })
@@ -178,7 +186,7 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
           <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
             <div className="flex flex-col gap-3">
               <div className="flex w-full">
-                <div className="flex sm:w-2/3">
+                <div className="flex sm:w-3/5">
                   <FormField
                     control={form.control}
                     name="title"
@@ -193,7 +201,7 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
                     )}
                   />
                 </div>
-                <div className="flex sm:w-1/3">
+                <div className="flex sm:w-1/5">
                   <FormField
                     control={form.control}
                     name="amount"
@@ -215,9 +223,7 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
                     )}
                   />
                 </div>
-              </div>
-              <div className="flex w-full">
-                <div className="flex flex-col w-2/5 gap-4">
+                <div className="flex sm:w-1/5">
                   <FormField
                     control={form.control}
                     name="currency"
@@ -228,7 +234,7 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
                           <Select
                             disabled={isLoading}
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            value={field.value}
                           >
                             <SelectTrigger className="relative w-full">
                               <SelectValue placeholder="Select currency" />
@@ -246,6 +252,10 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
                       </FormItem>
                     )}
                   />
+                </div>
+              </div>
+              <div className="flex w-full justify-between">
+                <div className="flex flex-col w-2/5 gap-4">
                   <FormField
                     control={form.control}
                     name="category"
@@ -254,9 +264,9 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
                         <FormLabel>Category</FormLabel>
                         <FormControl>
                           <Select
-                            disabled={isLoading}
+                            disabled={isLoading || !parentList.length}
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            value={field.value}
                           >
                             <SelectTrigger className="relative w-[180px]">
                               <SelectValue placeholder="Select category" />
@@ -285,7 +295,7 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
                           <Select
                             disabled={isLoading}
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            value={field.value}
                           >
                             <SelectTrigger className="relative w-[180px]">
                               <SelectValue placeholder="Select user" />
@@ -309,12 +319,11 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
                     name="repeatType"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Repeat</FormLabel>
                         <FormControl>
                           <RadioGroup
                             disabled={isLoading}
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            value={field.value}
                             className={styles.radio}
                           >
                             <Label>
@@ -323,11 +332,11 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
                             </Label>
                             <Label>
                               <RadioGroupItem value="weekly" id="r1" />
-                              <span>Weekly</span>
+                              <span>Repeat Weekly</span>
                             </Label>
                             <Label>
                               <RadioGroupItem value="monthly" id="r1" />
-                              <span>Monthly</span>
+                              <span>Repeat Monthly</span>
                             </Label>
                           </RadioGroup>
                         </FormControl>
@@ -335,50 +344,77 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
                       </FormItem>
                     )}
                   />
-                </div>
-                <div className="flex w-3/5 justify-end">
                   <FormField
                     control={form.control}
-                    name="budgetDate"
+                    name="isSomeday"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex justify-center">
                         <FormControl>
-                          <Calendar
-                            mode="single"
-                            month={month}
-                            onMonthChange={setMonth}
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) => isLoading || date < new Date("1900-01-01")}
-                            weekStartsOn={1}
-                            initialFocus
-                          />
+                          <div className="flex gap-2 mt-1 items-center">
+                            <Switch
+                              id="isSomeday"
+                              checked={isSomeDay}
+                              onClick={() => setIsSomeDay(!isSomeDay)}
+                            />
+                            <Label htmlFor="isSomeday">Save for later</Label>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
+                <div className="flex-1 w-3/5">
+                  {
+                    isSomeDay ? (
+                      <div className="flex flex-col items-center pt-10">
+                        <span className="font-semibold text-lg">Someday later</span>
+                        <span className="">This budget will appear in 'Saved for later' list</span>
+                      </div>
+                    ) : !isLoading && (
+                      <FormField
+                        control={form.control}
+                        name="budgetDate"
+                        render={({ field }) => (
+                          <FormItem className="flex justify-center">
+                            <FormControl>
+                              <Calendar
+                                mode="single"
+                                className="justify-center"
+                                selected={isSomeDay ? null : field.value}
+                                onSelect={field.onChange}
+                                disabled={(date) => isLoading || date < new Date("1900-01-01") || isSomeDay}
+                                weekStartsOn={1}
+                                initialFocus
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )
+                  }
+                </div>
               </div>
-              <div>
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Textarea
-                          disabled={isLoading}
-                          placeholder="Add description if you want"
-                          className="resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+            </div>
+            <div className="flex">
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Textarea
+                        disabled={isLoading}
+                        placeholder="Add description if you want"
+                        className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
             <Button type="submit">Submit</Button>
           </form>

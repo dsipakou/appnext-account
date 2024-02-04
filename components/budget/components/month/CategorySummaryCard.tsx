@@ -1,10 +1,9 @@
 import { FC } from 'react'
+import { useStore } from '@/app/store'
 import { useSession } from 'next-auth/react'
-import { useCurrencies } from '@/hooks/currencies'
 import { Progress } from '@/components/ui/progress'
 import { formatMoney } from '@/utils/numberUtils'
 import { GroupedByCategoryBudget } from '@/components/budget/types'
-import { Currency } from '@/components/currencies/types'
 
 interface Types {
   item: GroupedByCategoryBudget
@@ -12,13 +11,12 @@ interface Types {
 
 const CategorySummaryCard: FC<Types> = ({ item }) => {
   const { data: { user }} = useSession()
-  const { data: currencies } = useCurrencies()
 
   const planned = item.plannedInCurrencies[user?.currency]
   const spent = item.spentInCurrencies[user?.currency]
   const percentage: number = Math.floor(spent * 100 / planned) || 0
 
-  const currencySign = currencies.find((item: Currency) => item.code === user.currency)?.sign || ''
+  const currencySign = useStore((state) => state.currencySign)
 
   return (
     <div className="flex h-full">

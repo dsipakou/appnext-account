@@ -1,7 +1,6 @@
 import { FC } from 'react'
+import { useStore } from '@/app/store'
 import { formatMoney } from '@/utils/numberUtils'
-import { useCurrencies } from '@/hooks/currencies'
-import { Currency } from '@/components/currencies/types'
 
 interface Types {
   title: string
@@ -12,15 +11,13 @@ interface Types {
 }
 
 const CategorySummaryButton: FC<Types> = ({ title, isActive, planned, spent, currencyCode }) => {
-  const { data: currencies } = useCurrencies()
-
   const maxValue: number = Math.max(planned, spent)
 
   const spentPercent: number = spent * 100 / maxValue
 
   const plannedPercent: number = planned * 100 / maxValue
 
-  const currencySign = currencies.find((item: Currency) => item.code === currencyCode)?.sign || ''
+  const currencySign = useStore((state) => state.currencySign)
 
   return (
     <div className={`h-[80px] rounded-md cursor-pointer ${isActive ? 'w-[92%] border-slate-300 bg-slate-400 text-slate-50' : 'hover:drop-shadow-lg drop-shadow bg-white w-[90%]'}`}>

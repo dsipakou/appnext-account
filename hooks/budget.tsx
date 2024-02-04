@@ -3,7 +3,8 @@ import useSWR from 'swr';
 import {
   GroupedByCategoryBudget,
   WeekBudgetItem,
-  DuplicateBudgetResponse
+  DuplicateBudgetResponse,
+  MonthSummedUsage,
 } from '@/components/budget/types';
 import { Response } from './types';
 
@@ -86,4 +87,19 @@ export const useBudgetDuplicate = (
     isError: error,
     url
   } as Response<DuplicateBudgetResponse[]>
+}
+
+export const useBudgetLastMonthsUsage = (
+  month: string,
+  category?: string,
+): Response<MonthSummedUsage[]> => {
+  let url = `budget/last-months/?category=${category}&month=${month}`
+  const { data, error } = useSWR(category ? url : null, fetcher)
+
+  return {
+    data,
+    isLoading: !data && !error,
+    isError: error,
+    url
+  } as Response<MonthSummedUsage[]>
 }

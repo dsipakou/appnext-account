@@ -2,6 +2,7 @@
 
 import React, { FC, ReactElement, ReactNode } from 'react'
 import { signOut, useSession } from 'next-auth/react'
+import { useStore } from '@/app/store'
 import axios from 'axios'
 import Link from 'next/link'
 import {
@@ -33,14 +34,20 @@ type Props = {
 
 const Layout: FC<Props> = ({ children }) => {
   const [open, setOpen] = React.useState(false)
+  const setCurrencySign = useStore((state) => state.setCurrencySign)
   const { data: currencies = [] } = useCurrencies()
   const { data: session, status: authStatus, update: updateSession } = useSession()
 
-  if (authStatus === 'loading') {
+  if (authStatus === 'loading' || authStatus === 'unauthenticated') {
     return
   }
 
   const { user } = session
+  const sessionCurrencySign = currencies.find((item: Currency) => item.code === user.currency)?.sign;
+
+  React.useEffect(() => {
+    setCurrencySign(sessionCurrencySign)
+  }, [sessionCurrencySign])
 
   const handleDrawerOpen = () => {
     setOpen(true)

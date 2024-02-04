@@ -1,4 +1,5 @@
 import React from 'react'
+import { useStore } from '@/app/store'
 import { useSession } from 'next-auth/react'
 import {
   format,
@@ -17,8 +18,6 @@ import {
 } from '@/utils/dateUtils'
 import { TransactionsReportResponse } from '@/components/transactions/types'
 import RangeSwitcher from './RangeSwitcher'
-import { useCurrencies } from '@/hooks/currencies'
-import { Currency } from '@/components/currencies/types'
 
 const ReportOverall: React.FC = () => {
   const [date, setDate] = React.useState<Date>(new Date())
@@ -30,9 +29,8 @@ const ReportOverall: React.FC = () => {
   const {
     data: reportResponse = []
   } = authUser?.currency ? useTransactionsReport(dateFrom, dateTo, authUser?.currency) : { data: [] }
-  const { data: currencies = [] } = useCurrencies()
 
-  const currencySign = currencies.find((item: Currency) => item.code === authUser.currency)?.sign || ''
+  const currencySign = useStore((state) => state.currencySign)
 
   const columns: GridColDef[] = [
     {

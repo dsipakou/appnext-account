@@ -4,7 +4,6 @@ import React, { lazy } from 'react'
 import type { AppProps } from 'next/app'
 import { useRouter } from 'next/router'
 import typography from '../theme/typography'
-import { Toolbar } from '@mui/material'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import '@/plugins/axios'
 import axios from 'axios'
@@ -71,6 +70,7 @@ function Auth({ children }: AuthProps) {
   }
 
   axios.defaults.headers.common['Authorization'] = `Token ${session.user.token}`;
+
 
   return children
 }

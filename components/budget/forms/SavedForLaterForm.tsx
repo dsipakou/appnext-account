@@ -1,24 +1,47 @@
 import React from 'react'
-import { Pencil, Trash } from 'lucide-react'
+import { useStore } from '@/app/store'
+import { Info, Pencil, Trash } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger
 } from '@/components/ui/dialog'
 import { usePendingBudget } from '@/hooks/budget'
 import { useCategories } from '@/hooks/categories'
-import { Info } from 'lucide-react'
+import EditForm from '@/components/budget/forms/EditForm'
+import ConfirmDeleteForm from '@/components/budget/forms/ConfirmDeleteForm'
 import { Category } from '@/components/categories/types'
 import { WeekBudgetItem } from '@/components/budget/types'
 
-const SavedForLaterForm: React.FC = () => {
+interface Types {
+  weekUrl: string
+  monthUrl: string
+}
+
+const SavedForLaterForm: React.FC<Types> = ({weekUrl, monthUrl}) => {
+  const [isEditDialogOpened, setIsEditDialogOpened] = React.useState<boolean>(false)
+  const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] = React.useState<boolean>(false)
+  const [activeBudgetUuid, setActiveBudgetUuid] = React.useState<string>("")
+
   const { data: pendingBudget = [] } = usePendingBudget()
   const { data: categories = [] } = useCategories()
+
+  const currencySign = useStore((state) => state.currencySign)
 
   const clearForm = () => {
   }
 
   const getCategoryName = (uuid: string): string => {
-    return categories.find((item: Category) => item.uuid === uuid)?.name
+    return categories.find((item: Category) => item.uuid === uuid)?.name || ''
+  }
+
+  const clickEdit = (uuid: string) => {
+    setActiveBudgetUuid(uuid)
+    setIsEditDialogOpened(!isEditDialogOpened)
+  }
+
+  const clickDelete = (uuid: string) => {
+    setActiveBudgetUuid(uuid)
+    setIsConfirmDeleteDialogOpened(!isConfirmDeleteDialogOpened)
   }
 
   return (
@@ -42,7 +65,7 @@ const SavedForLaterForm: React.FC = () => {
             ? (
               <div className="flex flex-col col-span-4 justify-center">
                 <span className="text-2xl mb-2">You have no pending items</span>
-                <div class="flex">
+                <div className="flex">
                   <Info className="h-4 w-4 text-blue-500 mr-1" />
                   <div className="flex flex-col">
                     <span className="text-m flex">If you want to plan something but haven't decided on a date yet</span>
@@ -54,26 +77,54 @@ const SavedForLaterForm: React.FC = () => {
             : (
               <>
                 { pendingBudget.map((budgetItem: WeekBudgetItem) => (
-                  <div className="flex gap-3 justify-between items-center rounded px-4 py-2 border border-slate-400" key={budgetItem.uuid}>
-                    <div className="flex w-3/5 flex-col h-full justify-center">
-                      <div>
-                        <span className="text-xl">{budgetItem.title}</span>
+                  <div key={budgetItem.uuid}>
+                    <div className="flex gap-3 justify-between items-center rounded px-4 py-2 border border-slate-200" key={budgetItem.uuid}>
+                      <div className="flex w-3/5 flex-col h-full justify-center">
+                        <div>
+                          <span className="text-xl">{budgetItem.title}</span>
+                        </div>
+                        <div>
+                          <span className="text-sm rounded bg-blue-400 text-white px-2 py-1">{getCategoryName(budgetItem.category)}</span>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-sm rounded bg-blue-400 text-white px-2 py-1">{getCategoryName(budgetItem.category)}</span>
+                      <div className="flex w-1/5 items-center">
+                        <span className="text-lg">{budgetItem.amount} {currencySign(budgetItem.currency)}</span>
+                      </div>
+                      <div className="flex items-center h-full justify-end">
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          onClick={() => clickEdit(budgetItem.uuid)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          onClick={() => clickDelete(budgetItem.uuid)}
+                        >
+                          <Trash className="h-4 w-4 text-red-600" />
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex w-1/5 items-center">
-                      <span className="text-lg">2,345 PLN</span>
-                    </div>
-                    <div className="flex flex-col justify-between h-full">
-                      <Button variant="ghost">
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="destructive">
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    { isEditDialogOpened && (
+                      <EditForm 
+                        open={isEditDialogOpened}
+                        setOpen={() => clickEdit(budgetItem.uuid)}
+                        uuid={activeBudgetUuid} 
+                        weekUrl={weekUrl}
+                        monthUrl={monthUrl}
+                      />
+                    )}
+                    { isConfirmDeleteDialogOpened && (
+                      <ConfirmDeleteForm
+                        open={isConfirmDeleteDialogOpened}
+                        setOpen={() => clickDelete(budgetItem.uuid)}
+                        uuid={activeBudgetUuid}
+                        weekUrl={weekUrl}
+                        monthUrl={monthUrl}
+                      />
+                    )}
                   </div>
                   )
                 )}

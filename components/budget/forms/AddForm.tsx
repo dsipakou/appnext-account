@@ -42,6 +42,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { useUsers } from '@/hooks/users'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
+import { usePendingBudget } from '@/hooks/budget'
 import { User } from '@/components/users/types'
 import { Category, CategoryType } from '@/components/categories/types'
 import { Currency } from '@/components/currencies/types'
@@ -80,6 +81,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
   const [isSomeDay, setIsSomeDay] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [open, setOpen] = useState<boolean>(false)
+  const { url: pendingUrl } = usePendingBudget()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -108,7 +110,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
   } = useCategories()
 
   useEffect(() => {
-    if (!categories) return;
+    if (!categories) return
 
     const parents = categories.filter(
       (category: Category) => (
@@ -168,6 +170,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
         if (res.status === 201) {
           mutate(monthUrl)
           mutate(weekUrl)
+          mutate(pendingUrl)
           toast({
             title: "Saved!"
           })
@@ -283,7 +286,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                 </div>
               </div>
               <div className="flex w-full">
-                <div className="flex flex-col flex-1 gap-4">
+                <div className="flex flex-col w-2/5 gap-4">
                   <FormField
                     control={form.control}
                     name="category"
@@ -388,19 +391,19 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                     )}
                   />
                 </div>
-                <div className="flex-1 w-3/5 justify-end">
+                <div className="flex-1 w-3/5">
                   <FormField
                     control={form.control}
                     name="budgetDate"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex justify-center">
                         <FormControl>
                           <Calendar
-                            disabled={isLoading}
                             mode="single"
+                            className="justify-center"
                             selected={isSomeDay ? null : field.value}
                             onSelect={field.onChange}
-                            disabled={(date) => date < new Date("1900-01-01") || isSomeDay}
+                            disabled={(date) => isLoading || date < new Date("1900-01-01") || isSomeDay}
                             weekStartsOn={1}
                             initialFocus
                           />

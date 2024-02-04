@@ -6,11 +6,11 @@ import {
   DialogContent,
   DialogFooter,
   DialogTitle,
-  DialogTrigger
 } from '@/components/ui/dialog'
 import axios from 'axios';
 import { useSWRConfig } from 'swr';
 import { useToast } from '@/components/ui/use-toast'
+import { usePendingBudget } from '@/hooks/budget';
 
 interface Types {
   open: boolean
@@ -24,6 +24,8 @@ interface Types {
 const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, weekUrl, monthUrl, trigger }) => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
+  const { url: pendingUrl } = usePendingBudget()
+
   const { mutate } = useSWRConfig()
   const { toast } = useToast()
 
@@ -36,6 +38,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, weekUrl, mont
           if (res.status === 204) {
             mutate(weekUrl)
             mutate(monthUrl)
+            mutate(pendingUrl)
             setOpen(false)
             toast({
               title: "Deleted successfully"
