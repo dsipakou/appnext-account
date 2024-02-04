@@ -14,7 +14,6 @@ import {
 import { formatMoney } from '@/utils/numberUtils'
 import { ConfirmDeleteForm, EditForm } from '@/components/budget/forms'
 import { MonthBudgetItem } from '@/components/budget/types'
-import { Currency } from '@/components/currencies/types'
 
 interface Types {
   item: MonthBudgetItem | undefined
@@ -36,6 +35,8 @@ const CalendarBudgetItem: React.FC<Types> = ({
   const [isEditDialogOpened, setIsEditDialogOpened] = React.useState<boolean>(false)
   const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] = React.useState<boolean>(false)
 
+  const currencySign = useStore((state) => state.currencySign)
+
   if (!item) {
     return (
       <div className="flex flex-col w-full gap-2">
@@ -50,14 +51,12 @@ const CalendarBudgetItem: React.FC<Types> = ({
     )
   }
 
-
   const spent: number = item.spentInCurrencies[currency]
   
   const planned: number = item.plannedInCurrencies[currency]
 
   const percentage: number = Math.floor(spent * 100 / planned) || 0
 
-  const currencySign = useStore((state) => state.currencySign)
 
   const handleClickTransactions = (): void => {
     clickShowTransactions(item.uuid)

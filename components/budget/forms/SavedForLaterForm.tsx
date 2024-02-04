@@ -1,5 +1,4 @@
 import React from 'react'
-import { useStore } from '@/app/store'
 import { Info, Pencil, Trash } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -7,10 +6,12 @@ import {
 } from '@/components/ui/dialog'
 import { usePendingBudget } from '@/hooks/budget'
 import { useCategories } from '@/hooks/categories'
+import { useCurrencies } from '@/hooks/currencies'
 import EditForm from '@/components/budget/forms/EditForm'
 import ConfirmDeleteForm from '@/components/budget/forms/ConfirmDeleteForm'
 import { Category } from '@/components/categories/types'
 import { WeekBudgetItem } from '@/components/budget/types'
+import { Currency } from '@/components/currencies/types'
 
 interface Types {
   weekUrl: string
@@ -24,8 +25,12 @@ const SavedForLaterForm: React.FC<Types> = ({weekUrl, monthUrl}) => {
 
   const { data: pendingBudget = [] } = usePendingBudget()
   const { data: categories = [] } = useCategories()
+  const { data: currencies = [] } = useCurrencies()
 
-  const currencySign = useStore((state) => state.currencySign)
+  const getCurrencySign = (currency: Currency) => {
+    return currencies.find((item: Currency) => item == currency)?.sign || ''
+  }
+
 
   const clearForm = () => {
   }
@@ -88,7 +93,7 @@ const SavedForLaterForm: React.FC<Types> = ({weekUrl, monthUrl}) => {
                         </div>
                       </div>
                       <div className="flex w-1/5 items-center">
-                        <span className="text-lg">{budgetItem.amount} {currencySign(budgetItem.currency)}</span>
+                        <span className="text-lg">{budgetItem.amount} {getCurrencySign(budgetItem.currency)}</span>
                       </div>
                       <div className="flex items-center h-full justify-end">
                         <Button
