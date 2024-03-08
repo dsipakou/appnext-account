@@ -2,6 +2,7 @@ import React from 'react'
 import { useStore } from '@/app/store'
 import ReportTypeSwitcher, { ReportPages } from './components/ReportTypeSwitcher'
 import ReportOverall from './components/ReportOverall'
+import EChartReport from './components/EChartReport'
 import ChartReport from './components/ChartReport'
 import Toolbar from '@/components/common/layout/Toolbar'
 
@@ -15,7 +16,8 @@ const Index: React.FC = () => {
         <ReportTypeSwitcher activePage={reportType} changeReportType={setReportType} />
       </Toolbar>
       {reportType === ReportPages.Overall && <ReportOverall />}
-      {reportType === ReportPages.Chart && <ChartReport />}
+      {reportType === ReportPages.Chart && <EChartReport />}
+      {reportType === ReportPages.Details && <ChartReport />}
     </>
   )
 }

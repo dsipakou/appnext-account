@@ -1,47 +1,80 @@
-import { FC } from 'react'
+import React from 'react'
+import ReactECharts from 'echarts-for-react'
+import { useStore } from '@/app/store'
 import { useBudgetLastMonthsUsage } from '@/hooks/budget'
-import { useSession } from 'next-auth/react'
 import { MonthSummedUsage } from '../../types'
 import { parseAndFormatDate, MONTH_ONLY_FORMAT } from '@/utils/dateUtils'
-import { calculatePercentage } from '@/utils/numberUtils'
 
 interface Types {
   month: string
   category: string
 }
 
-const PreviousMonthsCard: FC<Types> = ({month, category}) => {
+const PreviousMonthsCard: React.FC<Types> = ({month, category}) => {
+  const [options, setOptions] = React.useState({});
   const {
     data: lastMonths = [],
   } = useBudgetLastMonthsUsage(month, category)
+  const currencySign = useStore((state) => state.currencySign)
 
-  const minValue = Math.min(...lastMonths.map((item: MonthSummedUsage) => item.amount)) || 1
-  const maxValue = Math.max(...lastMonths.map((item: MonthSummedUsage) => item.amount)) || 1
+  React.useEffect(() => {
+    const optionsLocal = {
+      xAxis: {
+        type: 'category',
+        data: lastMonths.map((item: MonthSummedUsage) => parseAndFormatDate(item.month, MONTH_ONLY_FORMAT)),
+      },
+      yAxis: {
+        type: 'value',
+        minInterval: 200,
+        maxInterval: 20000,
+        splitNumber: 20,
+      },
+      grid: {
+        top: '10%',
+        left: '3%',
+        right: '3%',
+        bottom: '3%',
+        containLabel: true,
+      },
+      series: {
+        name: 'Spent',
+        data: lastMonths.map((item: MonthSummedUsage) => item.amount),
+        type: 'bar',
+        emphasis: {
+          focus: 'series',
+          itemStyle: {
+            shadowBlur: 10,
+            shadowColor: 'rgba(0,0,0,0.3)'
+          }
+        },
+        label: {
+          show: true,
+          fontSize: 10,
+          formatter: (params) => params.value > 1000 ? Number(params.value / 1000).toFixed(2) + 'k ' + currencySign : Number(params.value).toFixed(0) + ' ' + currencySign,
+          textBorderColor: 'black',
+          textBorderWidth: 2,
+          color: 'white',
+        },
+        itemStyle: {
+          color: '#93c5fd',
+          borderRadius: [8, 8, 0, 0],
+        },
+      },
+      tooltip: {
+        formatter: '{b}:  {c}' + currencySign,
+      },
+    }
+
+    setOptions(optionsLocal)
+  }, [lastMonths])
 
   return (
     <div className="flex flex-col w-full h-full">
       <div>
         <span className="text-xl font-semibold">Previous 6 months</span>
       </div>
-      <div className="flex h-full justify-center align-bottom">
-        {lastMonths.map((item: MonthSummedUsage, index: number) => (
-          <div className="flex flex-col h-full" key={index}>
-            <div className="flex flex-col h-full justify-end items-center">
-              <div className="flex flex-col h-full justify-end items-center text-yellow-100">
-                <span className="flex text-xs h-0 z-10">
-                  <span className="font-semibold">{item.amount}</span>
-                </span>
-                <div
-                  className="flex w-8 bg-yellow-400 mx-1 rounded-t-lg rounded-b-sm"
-                  style={{height: `${calculatePercentage(item.amount, minValue, maxValue)}%`}}
-                ></div>
-              </div>
-              <span className="flex text-xs font-semibold justify-center">
-                {parseAndFormatDate(item.month, MONTH_ONLY_FORMAT)}
-              </span>
-            </div>
-          </div>
-        ))}
+      <div className="flex h-44 justify-center w-full align-center">
+        <ReactECharts style={{height: '100%', width: '100%'}} option={options} notMerge={true} />
       </div>
     </div>
   )

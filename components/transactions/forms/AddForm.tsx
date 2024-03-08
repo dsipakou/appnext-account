@@ -29,7 +29,6 @@ import { useAccounts } from '@/hooks/accounts'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
 import { useUsers } from '@/hooks/users'
-import { Currency } from '@/components/currencies/types'
 import { User } from '@/components/users/types'
 import { getFormattedDate } from '@/utils/dateUtils'
 import { formatMoney } from '@/utils/numberUtils'
@@ -352,7 +351,6 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>({});
 
   React.useEffect(() => {
-    console.log('render')
     const id = randomId()
 
     if (budget) {

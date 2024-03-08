@@ -29,11 +29,12 @@ import {
 interface Types {
   transactions: TransactionResponse[]
   withDate?: boolean
+  showBudget?: boolean
   handleDeleteClick: (uuid: string) => void
   handleEditClick: (uuid: string) => void
 }
 
-const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, handleDeleteClick, handleEditClick }) => {
+const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, showBudget = true, handleDeleteClick, handleEditClick }) => {
   const [rows, setRows] = React.useState<GridRowsProp>([])
   const [page, setPage] = React.useState<number>(1)
 
@@ -76,7 +77,7 @@ const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, handle
     {
       field: 'budget',
       headerName: 'Budget',
-      flex: 0.8,
+      flex: 0.6,
       renderCell: (params: GridRenderCellParams<BudgetSlim>) => <BudgetReadComponent {...params} />,
     },
     {
@@ -112,7 +113,6 @@ const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, handle
     }
   ]
 
-
   React.useEffect(() => {
     if (!accounts.length || !categories.length) return
 
@@ -135,6 +135,7 @@ const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, handle
   const hiddenColumns = {
     currency: false,
     transactionDate: !!withDate,
+    budget: !!showBudget,
   }
 
   const changePage = (page: number) => {

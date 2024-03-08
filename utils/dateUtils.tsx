@@ -27,6 +27,7 @@ export interface WeekDayWithFullDate {
 }
 
 export const DATE_FORMAT = "yyyy-MM-dd"
+export const DAY_MONTH_YEAR_FORMAT = "dd-MMM yyyy"
 export const MONTH_DAY_FORMAT = "MMM dd"
 export const MONTH_ONLY_FORMAT = "MMM"
 export const REPORT_FORMAT = "yyyy-MMMM"

@@ -2,6 +2,7 @@ import axios from 'axios';
 import useSWR from 'swr';
 import { Response } from './types';
 import { TransactionsReportResponse } from '@/components/transactions/types'
+import { ChartData } from '@/components/reports/types'
 
 import {
   Sorting,
@@ -63,7 +64,7 @@ export const useTransactionsMonthlyReport = (
   dateTo: string,
   currency: string,
   numberOfDays?: number,
-): Response<unknown[]> => {
+): Response<ChartData[]> => {
   let url = `transactions/report-monthly?dateFrom=${dateFrom}&dateTo=${dateTo}&currency=${currency}`
 
   if (numberOfDays) {
@@ -77,7 +78,7 @@ export const useTransactionsMonthlyReport = (
     isLoading: !data && !error,
     isError: error,
     url
-  } as Response<unknown[]>
+  } as Response<ChartData[]>
 }
 
 export const useBudgetTransactions = (

@@ -93,7 +93,6 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
       form.clearErrors()
-      form.reset()
     }
   }
 

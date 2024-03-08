@@ -33,20 +33,15 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { useTransaction } from '@/hooks/transactions'
 import { useAccounts } from '@/hooks/accounts'
-import { useBudgetWeek } from '@/hooks/budget'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
 import { useAvailableRates } from '@/hooks/rates'
 import { AccountResponse } from '@/components/accounts/types'
-import { WeekBudgetItem } from '@/components/budget/types'
 import { Category, CategoryType } from '@/components/categories/types'
 import {
-  getStartOfWeek,
-  getEndOfWeek,
   getFormattedDate,
   parseDate,
 } from '@/utils/dateUtils'
-import { Account } from '@/components/accounts/types'
 import { Currency } from '@/components/currencies/types'
 
 interface Types {
@@ -61,7 +56,6 @@ const formSchema = z.object({
   amount: z.coerce.number().min(0, {
     message: "Should be positive number",
   }),
-  budget: z.string().uuid({message: "Please, select budget"}),
   category: z.string().uuid({message: "Please, select category"}),
   currency: z.string().uuid({message: "Please, select currency"}),
   description: z.string().optional(),
@@ -70,13 +64,9 @@ const formSchema = z.object({
   }),
 })
 
-const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
+const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   const { mutate } = useSWRConfig()
-  const [accountUuid, setAccountUuid] = React.useState<string>('')
-  const [weekStart, setWeekStart] = React.useState<string>(getStartOfWeek(new Date()))
-  const [weekEnd, setWeekEnd] = React.useState<string>(getEndOfWeek(new Date()))
   const [month, setMonth] = React.useState<Date>(new Date())
-  const [filteredBudgets, setFilteredBudgets] = React.useState<WeekBudgetItem[]>([])
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -86,22 +76,19 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
     }
   })
 
-  const watchAccount = form.watch('account')
-  const watchCalendar = form.watch('transactionDate')
-
-  const { data: transaction } = useTransaction(uuid)
+  const { data: transaction, isLoading: isTransactionLoading } = useTransaction(uuid)
   const { data: accounts = [] } = useAccounts()
-  const { data: budgets = [], isLoading: isBudgetLoading } = useBudgetWeek(weekStart, weekEnd)
   const { data: categories = [] } = useCategories()
   const { data: currencies = [] } = useCurrencies()
 
   const {
-    data: availableRates = {}
+    data: availableRates = {},
+    isLoading: isRatesLoading,
   } = useAvailableRates(transaction?.transactionDate)
 
-  const parents = categories.filter(
+  const incomeCategories = categories.filter(
     (category: Category) => (
-      category.parent === null && category.type === CategoryType.Expense
+      category.parent === null && category.type === CategoryType.Income
     )
   )
 
@@ -114,42 +101,9 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
     form.setValue('currency', transaction.currency)
     form.setValue('description', transaction.description)
     form.setValue('transactionDate', parseDate(transaction.transactionDate))
-    form.setValue('budget', transaction.budget)
 
     setMonth(parseDate(transaction.transactionDate))
   }, [transaction])
-
-  const getChildren = (uuid: string): Category[] => {
-    return categories.filter(
-      (item: Category) => item.parent === uuid
-    ) || []
-  }
-
-  React.useEffect(() => {
-    if (isBudgetLoading) return
-
-    const _account = accounts.find((item: WeekBudgetItem) => item.uuid === form.getValues().account)
-
-    if (_account) {
-      setFilteredBudgets(budgets.filter((item: WeekBudgetItem) => item.user === _account.user))
-    }
-  }, [isBudgetLoading, budgets, accounts, watchAccount])
-
-  React.useEffect(() => {
-    const date = form.getValues().transactionDate
-
-    if (date) {
-      setWeekStart(getStartOfWeek(form.getValues().transactionDate))
-      setWeekEnd(getEndOfWeek(form.getValues().transactionDate))
-    }
-  }, [watchCalendar])
-
-  React.useEffect(() => {
-    if (!accountUuid || !budgets) return
-
-    const _account = accounts.find((item: Account) => item.uuid === accountUuid)
-    setFilteredBudgets(budgets.filter((item: WeekBudgetItem) => item.user === _account.user))
-  }, [accountUuid, budgets])
 
   const handleSave = (payload: z.infer<typeof formSchema>): void => {
     setIsLoading(true)
@@ -184,7 +138,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
     <Dialog open={open} onOpenChange={cleanFormErrors}>
       <DialogContent className="min-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Update transaction details</DialogTitle>
+          <DialogTitle>Update income details</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
@@ -198,7 +152,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                       <FormItem>
                         <FormLabel>Amount</FormLabel>
                         <FormControl>
-                          <Input disabled={isLoading} id="amount" autoFocus {...field} />
+                          <Input disabled={isLoading || isTransactionLoading || isRatesLoading} id="amount" autoFocus {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -214,7 +168,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                         <FormLabel>Currency</FormLabel>
                         <FormControl>
                           <Select
-                            disabled={isLoading}
+                            disabled={isLoading || isTransactionLoading || isRatesLoading}
                             onValueChange={field.onChange}
                             value={field.value}
                           >
@@ -249,7 +203,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                         <FormLabel>Category</FormLabel>
                         <FormControl>
                           <Select
-                            disabled={isLoading}
+                            disabled={isLoading || isTransactionLoading || isRatesLoading}
                             onValueChange={field.onChange}
                             value={field.value}
                           >
@@ -259,39 +213,8 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                             <SelectContent>
                               <SelectGroup>
                                 <SelectLabel>Categories</SelectLabel>
-                                {parents.map((item: Category) => {
-                                  return getChildren(item.uuid).map((subitem: Category) => (
-                                    <SelectItem key={subitem.uuid} value={subitem.uuid}>{item.name} / {subitem.name}</SelectItem>
-                                  ))
-                                })}
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="budget"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Budget</FormLabel>
-                        <FormControl>
-                          <Select
-                            disabled={isLoading || isBudgetLoading}
-                            onValueChange={(value) => value && field.onChange(value)}
-                            value={field.value}
-                          >
-                            <SelectTrigger className="relative w-[180px]">
-                              <SelectValue placeholder="Select budget" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectLabel>Budget list</SelectLabel>
-                                {filteredBudgets.map((item: WeekBudgetItem) => (
-                                  <SelectItem key={item.uuid} value={item.uuid}>{item.title}</SelectItem>
+                                {incomeCategories.map((item: Category) => (
+                                  <SelectItem key={item.uuid} value={item.uuid}>{item.name}</SelectItem>
                                 ))}
                               </SelectGroup>
                             </SelectContent>
@@ -309,7 +232,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                         <FormLabel>Account</FormLabel>
                         <FormControl>
                           <Select
-                            disabled={isLoading}
+                            disabled={isLoading || isTransactionLoading || isRatesLoading}
                             onValueChange={field.onChange}
                             value={field.value}
                           >
@@ -342,7 +265,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            disabled={(date) => isLoading || date < new Date("1900-01-01")}
+                            disabled={(date) => isLoading || isTransactionLoading || isRatesLoading || date < new Date("1900-01-01")}
                             month={month}
                             onMonthChange={setMonth}
                             weekStartsOn={1}
@@ -363,7 +286,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                     <FormItem>
                       <FormControl>
                         <Textarea
-                          disabled={isLoading}
+                          disabled={isLoading || isTransactionLoading || isRatesLoading}
                           placeholder="Any notes for the transaction"
                           className="resize-none"
                           {...field}
@@ -383,4 +306,4 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   )
 }
 
-export default EditForm
+export default EditIncomeForm

@@ -9,6 +9,7 @@ import {
   CreditCard,
   DollarSign,
   GanttChart,
+  LayoutDashboard,
   LayoutTemplate,
   LineChart,
   Menu,
@@ -79,6 +80,11 @@ const Layout: FC<Props> = ({ children }) => {
   }
 
   const menuItems = [
+    {
+      name: 'Dashboard',
+      icon: <LayoutDashboard />,
+      link: '/'
+    },
     {
       name: 'Accounts',
       icon: <CreditCard />,

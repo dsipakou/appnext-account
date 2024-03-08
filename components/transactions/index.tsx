@@ -11,7 +11,7 @@ import {
   ConfirmDeleteForm
 } from '@/components/transactions/forms'
 import { TransactionResponse } from '@/components/transactions/types'
-import DailyChart from '@/components/transactions/components/DailyChart'
+import EDailyChart from '@/components/transactions/components/EDailyChart'
 import { formatMoney } from '@/utils/numberUtils'
 import { getFormattedDate } from '@/utils/dateUtils'
 import TransactionTable from './components/TransactionTable'
@@ -23,6 +23,7 @@ export type TransactionType = 'outcome' | 'income'
 const Index: React.FC = () => {
   const { data: { user } } = useSession()
   const [transactionDate, setTransactionDate] = React.useState<Date>(new Date())
+  const [incomeYear, setIncomeYear] = React.useState<number>(new Date().getFullYear())
   const [isOpenTransactionsDialog, setIsOpenTransactionsDialog] = React.useState<boolean>(false)
   const [isOpenAddIncomeTransactions, setIsOpenAddIncomeTransactions] = React.useState<boolean>(false)
   const [isOpenEditTransactions, setIsOpenEditTransactions] = React.useState<boolean>(false)
@@ -39,6 +40,18 @@ const Index: React.FC = () => {
     limit: 50,
     dateFrom: getFormattedDate(transactionDate),
     dateTo: getFormattedDate(transactionDate)
+  })
+
+  const {
+    data: incomeTransactions = [],
+    isLoading: isIncomeTransactionsLoading,
+    url: incomeTransactionsUrl,
+  } = useTransactions({
+    sorting: 'added',
+    limit: 100,
+    type: 'income',
+    dateFrom: getFormattedDate(new Date(incomeYear, 0, 1)),
+    dateTo: getFormattedDate(new Date(incomeYear, 11, 31)),
   })
 
   const overallSum = transactions?.reduce((acc: number, item: TransactionResponse) => {
@@ -131,8 +144,8 @@ const Index: React.FC = () => {
                     <span className="font-semibold">{transactions?.length}</span>
                     <span>transactions</span>
                   </div>
-                  <div className="flex">
-                    <DailyChart
+                  <div className="flex w-full">
+                    <EDailyChart
                       transactions={transactions}
                     />
                   </div>
@@ -143,15 +156,20 @@ const Index: React.FC = () => {
         )
         :
         (
-          <IncomeComponent />
+          <IncomeComponent
+            transactions={incomeTransactions}
+            isLoading={isIncomeTransactionsLoading}
+            year={incomeYear}
+            setYear={setIncomeYear}
+          />
         )}
       <AddForm open={isOpenTransactionsDialog} onOpenChange={setIsOpenTransactionsDialog}  url={transactionsUrl} />
-      <AddIncomeForm open={isOpenAddIncomeTransactions} handleClose={handleCloseModal} />
+      <AddIncomeForm open={isOpenAddIncomeTransactions} url={incomeTransactionsUrl} handleClose={handleCloseModal} />
       {
         isOpenEditTransactions &&
         <EditForm
           uuid={activeTransactionUuid}
-          open={true}
+          open={isOpenEditTransactions}
           url={transactionsUrl}
           handleClose={handleCloseModal}
         />

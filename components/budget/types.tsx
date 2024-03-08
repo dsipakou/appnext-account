@@ -68,6 +68,21 @@ export interface WeekBudgetItem extends PlannedMap, SpentMap {
   modifiedAt: string
 }
 
+export interface WeekBudgetResponse {
+  data: WeekBudgetItem[]
+  isLoading: boolean
+}
+
+export interface CompactWeekItem {
+  uuid: string
+  title: string
+  user: string
+  planned: number
+  spent: number
+  recurrent: RecurrentTypes
+  isCompleted: boolean
+}
+
 export interface TransactionItem extends SpentMap {
   uuid: string
   currency: string

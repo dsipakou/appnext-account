@@ -3,7 +3,7 @@ import { useStore } from '@/app/store'
 import { useSession } from 'next-auth/react'
 import { getDay, isToday, isThisWeek  } from 'date-fns'
 import { useBudgetWeek } from '@/hooks/budget'
-import { RecurrentTypes, WeekBudgetItem } from '@/components/budget/types'
+import { CompactWeekItem, WeekBudgetItem, WeekBudgetResponse } from '@/components/budget/types'
 import {
   getWeekDaysWithFullDays,
   parseDate,
@@ -22,21 +22,6 @@ interface Types {
   monthUrl: string
   mutateBudget: () => void
   clickShowTransactions: (uuid: string) => void
-}
-
-interface WeekBudgetResponse {
-  data: WeekBudgetItem[]
-  isLoading: boolean
-}
-
-interface CompactWeekItem {
-  uuid: string
-  title: string
-  user: string
-  planned: number
-  spent: number
-  recurrent: RecurrentTypes
-  isCompleted: boolean
 }
 
 interface GroupedByWeek {

@@ -1,24 +1,11 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import styles from '../styles/Home.module.css'
+import Index from '@/components/dashboard'
 
 Home.auth = {}
 
 export default function Home () {
   return (
-    <div className="flex flex-1 justify-center items-center">
-      <Head>
-        <title>Flying Budget</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-
-      <main className="flex flex-col flex-1 justify-center items-center">
-        <p className={styles.description}>
-          Dashboard page is under construction
-        </p>
-
-      </main>
-    </div>
+    <main className="grid grid-cols-4 gap-3">
+      <Index />
+    </main>
   )
 }

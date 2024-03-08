@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/select'
 import { getFormattedDate } from '@/utils/dateUtils'
 import RangeSwitcher from './RangeSwitcher'
+import { ChartCategory, ChartData } from '../types'
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false })
 const ApexCharts = dynamic(() => import('apexcharts'), { ssr: false })
@@ -58,6 +59,7 @@ const ChartReport: React.FC = () => {
     setOptions({
       chart: {
         id: "main-chart",
+        type: "bar",
         stacked: true,
         events: {
           legendClick: (chartContext, seriesIndex, config) => {
@@ -83,64 +85,62 @@ const ChartReport: React.FC = () => {
           }
         }
       },
+      dataLabels: {
+        formatter: (value: number) => value > 1000 ? (Number(value) / 1000).toFixed(2) + 'k' : value,
+      },
+      fill: {
+        opacity: 1
+      },
       plotOptions: {
         bar: {
-          borderRadius: 1,
-          columnWidth: '95%',
+          horizontal: false,
           dataLabels: {
             position: 'center',
             total: {
               enabled: true,
-              formatter: (value) => Number(value).toFixed(2),
+              formatter: (value: number) => value.toFixed(0),
               style: {
-                fontWeight: 400,
+                fontWeight: 200,
               },
             },
           },
-        }
+        },
       },
       stroke: {
-        curve: "smooth",
-      },
-      fill: {
-        opacity: 0.9,
+        width: 1,
+        colors: ['#fff']
       },
       xaxis: {
-        categories: chartData.map((item: unknown) => item.date),
+        categories: chartData.map((item: ChartData) => item.date),
         type: "string",
-        labels: {
-          rotateAlways: false,
-          hideOverlappingLabels: true,
-          rotate: -30
-        }
       },
       noData: {
         text: "",
       }
     })
 
-    const groupByCategory = chartData.reduce((acc, curr) => {
-      curr.categories.forEach((category: unknown) => {
+    const groupByCategory = chartData.reduce((acc, curr: ChartData) => {
+      curr.categories.forEach((category: ChartCategory) => {
         acc[category.name] = acc[category.name] || []
         acc[category.name].push(category.value.toFixed(2))
       })
       return acc
     }, {})
 
-    setSeries(
-      chartData[0].categories.map(
-        (item: unknown) => (
-          {
-            name: item.name,
-            data: groupByCategory[item.name] || []
-          }
-        )
+    const formattedSeries = chartData[0].categories.map(
+      (item: ChartCategory) => (
+        {
+          name: item.name,
+          data: groupByCategory[item.name] || [],
+        }
       )
     )
 
-    setCategoriesList(chartData[0].categories.map((item: unknown) => item.name))
+    setSeries(formattedSeries)
 
-    setCategoryCheckboxes(chartData[0].categories.map((item: unknown) => ({name: item.name, checked: true})))
+    setCategoriesList(chartData[0].categories.map((item: ChartCategory) => item.name))
+
+    setCategoryCheckboxes(chartData[0].categories.map((item: ChartCategory) => ({name: item.name, checked: true})))
 
   }, [chartData])
 
@@ -151,9 +151,7 @@ const ChartReport: React.FC = () => {
   const monthDayArray = Array.from({ length: 31 }, (_, i) => i + 1);
 
   const clickCategory = (categoryName: string) => {
-    console.log(categoryName)
     const result = window.ApexCharts.exec('main-chart', 'toggleSeries', categoryName)
-    console.log(result)
     setCategoryCheckboxes((oldValue: CategoryCheckbox[]) => oldValue.map((item: CategoryCheckbox) => {
       if (item.name === categoryName) {
         return {
@@ -233,9 +231,9 @@ const ChartReport: React.FC = () => {
           <Chart
             options={options}
             series={series}
-            type="bar"
             width="900"
             height="680"
+            type="bar"
             onClick={(event) => console.log(event)}
           />
           <div className="flex flex-col gap-2">

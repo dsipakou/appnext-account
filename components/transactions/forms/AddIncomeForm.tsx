@@ -1,226 +1,320 @@
 import React from 'react'
-import axios from 'axios'
+import * as z from 'zod'
+import { useSWRConfig } from 'swr';
 import { useSession } from 'next-auth/react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import axios from 'axios'
+import { useUsers } from '@/hooks/users'
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
 import {
-  Button,
   Dialog,
-  DialogActions,
   DialogContent,
-  DialogTitle,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
+import {
+  Form,
   FormControl,
-  InputLabel,
-  MenuItem,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import {
   Select,
-  TextField,
-  Typography,
-} from '@mui/material'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { StaticDatePicker } from '@mui/x-date-pickers'
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 import { getFormattedDate } from '@/utils/dateUtils'
-import { useRatesOnDate } from '@/hooks/rates'
 import { useAvailableRates } from '@/hooks/rates'
 import { useAccounts } from '@/hooks/accounts'
 import { useCurrencies } from '@/hooks/currencies'
 import { useCategories } from '@/hooks/categories'
-import { useUsers } from '@/hooks/users'
 import { Currency } from '@/components/currencies/types'
 import { Category } from '@/components/categories/types'
-import { Account } from '@/components/accounts/types'
+import { useToast } from '@/components/ui/use-toast'
 import { User } from '@/components/users/types'
 
 interface Types {
   open: boolean,
+  url: string,
   handleClose: () => void,
 }
 
-const AddIncomeForm: React.FC<Types> = ({ open, handleClose }) => {
-  const [selectedDate, setSelectedDate] = React.useState<string>(getFormattedDate(new Date()))
-  const [currency, setCurrency] = React.useState<string>('')
-  const [category, setCategory] = React.useState<string>('')
-  const [amount, setAmount] = React.useState<string>('')
-  const [description, setDescription] = React.useState<string>('')
-  const [errors, setErrors] = React.useState<string[]>([])
+const formSchema = z.object({
+  account: z.string().uuid({message: "Please, select account"}),
+  amount: z.coerce.number().min(0, {
+    message: "Should be positive number",
+  }),
+  category: z.string().uuid({message: "Please, select category"}),
+  currency: z.string().uuid({message: "Please, select currency"}),
+  description: z.string().optional(),
+  transactionDate: z.date({
+    required_error: "Transaction date is required",
+  }),
+})
 
-  const { data: ratesOnDate, isLoading, url } = useRatesOnDate(selectedDate)
+const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
+  const [user, setUser] = React.useState('')
+  const [selectedDate, setSelectedDate] = React.useState<Date>(new Date())
+  const [month, setMonth] = React.useState<Date>(new Date())
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
-  const { data: categories = [] } = useCategories()
+  const { mutate } = useSWRConfig();
+  const { toast } = useToast()
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      amount: "",
+      transactionDate: selectedDate,
+    }
+  })
+
   const { data: accounts = [] } = useAccounts()
-  const incomeCategories: Category[] = categories.filter((item: Category) => item.type === 'INC')
-
+  const { data: categories = [] } = useCategories()
   const { data: currencies = [] } = useCurrencies()
-
-  const { data: availableRates = {} } = useAvailableRates(selectedDate)
-  const { data: { user: authUser }} = useSession()
   const { data: users = [] } = useUsers()
 
-  const handleDateChange = (date: Date | null): void => {
-    if (date !== null) setSelectedDate(getFormattedDate(date));
-    setCurrency('')
-  }
+  const incomeCategories: Category[] = categories.filter((item: Category) => item.type === 'INC')
 
-  const handleAmountInput = (e) => {
-    setAmount(e.target.value)
-  }
+  const watchCalendar = form.watch('transactionDate')
 
-  const handleCategoryChange = (e) => {
-    setCategory(e.target.value)
-  }
+  const { data: availableRates = {} } = useAvailableRates(getFormattedDate(selectedDate))
+  const { data: { user: authUser } } = useSession()
 
-  const handleCurrency = (e) => {
-    setCurrency(e.target.value)
-  }
+  React.useEffect(() => {
+    const date = form.getValues().transactionDate
+    if (!date) return
+    setSelectedDate(date)
+  }, [watchCalendar])
 
-  const handleDescription = (e) => {
-    setDescription(e.target.value)
-  }
+  React.useEffect(() => {
+    if (!authUser || !users.length) return
 
-  const handleSave = () => {
-    setErrors([])
-    const targetAccount = accounts.find((item: Account) => item.category === category)?.uuid
-    const user = users.find((item: User) => item.username === authUser.username)?.uuid
+    const _user = users.find((item: User) => item.username === authUser.username)!
+    setUser(_user.uuid)
+  }, [authUser, users])
 
-    const payload = {
-      account: targetAccount,
-      amount,
-      currency,
-      description,
-      transactionDate: selectedDate,
-      category,
-      user,
-    }
+  const handleSave = (payload: z.infer<typeof formSchema>) => {
+    setIsLoading(true)
 
     axios.post('transactions/', {
       ...payload,
+      transactionDate: getFormattedDate(payload.transactionDate),
+      user,
     }).then(
       res => {
         if (res.status === 201) {
-          console.log('All good')
-          // TODO: mutate transactions
-          // mutate(url)
+          mutate(url);
+          toast({
+            title: "Saved!"
+          })
+          handleClose();
+        } else {
+          // TODO: handle errors
         }
       }
     ).catch(
       (error) => {
-        const errRes = error.response.data
-        const errorList = []
+        const errRes = error.response.data;
         for (const prop in errRes) {
-          errorList.push(prop)
+          toast({
+            variant: "destructive",
+            title: "Something went wrong",
+            description: prop
+          })
         }
-        setErrors(errorList)
       }
     ).finally(() => {
-      // TODO: stop loading
+      setIsLoading(false)
     })
-    console.log(payload)
+  }
+
+  const cleanFormErrors = (open: boolean) => {
+    if (!open) {
+      form.clearErrors()
+      form.reset()
+    }
+    handleClose()
   }
 
   return (
-    <Dialog maxWidth="sm" fullWidth open={open} onClose={handleClose}>
-      <DialogTitle>Add your income</DialogTitle>
-      <DialogContent>
-        <div className="grid grid-cols-5 gap-3">
-          <div className="col-span-5">
-            {errors.map((message: string) => (
-              <Typography key={message} color="red">{message}</Typography>
-            ))}
-          </div>
-          <div className="flex flex-col gap-3 col-span-2">
-            <div className="flex w-full">
-              <FormControl fullWidth>
-                <TextField
-                  label="Amount"
-                  margin="dense"
-                  value={amount}
-                  fullWidth
-                  onChange={handleAmountInput}
+    <Dialog open={open} onOpenChange={cleanFormErrors}>
+      <DialogContent className="min-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>Save your income</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
+            <div className="flex">
+              <div className="flex flex-col gap-3 w-1/2">
+                <div className="flex sm:w-full">
+                  <FormField
+                    control={form.control}
+                    name="amount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Amount</FormLabel>
+                        <FormControl>
+                          <Input disabled={isLoading} id="amount" autoFocus {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex w-full">
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Source</FormLabel>
+                        <FormControl>
+                          <Select
+                            disabled={isLoading}
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="relative w-full">
+                              <SelectValue placeholder="Select source of income" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectLabel>Source</SelectLabel>
+                                {incomeCategories.map((item: Category) => (
+                                  <SelectItem key={item.uuid} value={item.uuid}>{item.name}</SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div>
+                  <FormField
+                    control={form.control}
+                    name="account"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Account</FormLabel>
+                        <FormControl>
+                          <Select
+                            disabled={isLoading}
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="relative">
+                              <SelectValue placeholder="Select income account" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectLabel>Accounts</SelectLabel>
+                                {accounts.map((item: AccountResponse) => (
+                                  <SelectItem key={item.uuid} value={item.uuid}>{item.title}</SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex">
+                  <FormField
+                    control={form.control}
+                    name="currency"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Currency</FormLabel>
+                        <FormControl>
+                          <Select
+                            disabled={isLoading}
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="relative w-full">
+                              <SelectValue placeholder="Select currency" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectLabel>Currencies</SelectLabel>
+                                {currencies && currencies.map((item: Currency) => (
+                                  !!availableRates[item.code]
+                                    ? <SelectItem key={item.uuid} value={item.uuid}>{item.code}</SelectItem>
+                                    : <SelectItem key={item.uuid} value={item.uuid} disabled>{item.code}</SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex w-full">
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Textarea
+                            disabled={isLoading}
+                            placeholder="Any notes for the income transaction"
+                            className="resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              <div className="flex w-1/2">
+                <FormField
+                  control={form.control}
+                  name="transactionDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) => isLoading || date < new Date("1900-01-01")}
+                          month={month}
+                          onMonthChange={setMonth}
+                          weekStartsOn={1}
+                          initialFocus
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </FormControl>
+              </div>
             </div>
-            <div className="flex w-full">
-              <FormControl fullWidth>
-                <InputLabel id="account-label">Source</InputLabel>
-                <Select
-                  labelId="account-label"
-                  label="Source"
-                  fullWidth
-                  value={category}
-                  onChange={handleCategoryChange}
-                >
-                  {incomeCategories.map((item: Category) => (
-                    <MenuItem
-                      key={item.uuid}
-                      value={item.uuid}
-                    >
-                      {item.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </div>
-            <div className="flex w-full">
-              <FormControl fullWidth>
-                <InputLabel id="currency-label">Currency</InputLabel>
-                <Select
-                  labelId="currency-label"
-                  label="Currency"
-                  fullWidth
-                  value={currency}
-                  onChange={handleCurrency}
-                >
-                  {currencies.map((item: Currency) => (
-                    !!availableRates[item.code]
-                      ? <MenuItem
-                        key={item.uuid}
-                        value={item.uuid}
-                      >
-                        {item.sign} {item.verbalName}
-                      </MenuItem>
-                      : <MenuItem
-                        key={item.uuid}
-                        value={item}
-                        disabled
-                      >
-                        {item.sign} {item.verbalName} (unavailable)
-                      </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </div>
-            <div>
-              <TextField
-                margin="dense"
-                id="description"
-                label="Description"
-                value={description}
-                placeholder="Description"
-                multiline
-                rows={2}
-                fullWidth
-                autoFocus
-                onChange={handleDescription}
-              />
-            </div>
-          </div>
-          <div className="col-span-3">
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <StaticDatePicker
-                displayStaticWrapperAs="desktop"
-                disabled={isLoading}
-                openTo="day"
-                value={selectedDate}
-                onChange={handleDateChange}
-                renderInput={(params) => <TextField {...params}
-                />}
-              >
-              </StaticDatePicker>
-            </LocalizationProvider>
-          </div>
-        </div>
+            <Button type="submit">Save</Button>
+          </form>
+        </Form>
       </DialogContent>
-      <DialogActions>
-        <Button variant="contained" onClick={handleSave}>Save</Button>
-      </DialogActions>
     </Dialog>
   )
 }

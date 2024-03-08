@@ -12,7 +12,7 @@ const AmountReadComponent: React.FC<Types> = (params) => {
 
   return (
     <div className="flex w-full pl-2 items-center gap-2">
-      <span className="text-sm">{params.value} {currencySign}</span>
+      <span className="text-sm font-semibold">{params.value}</span><span>{currencySign}</span>
     </div>
   )
 
