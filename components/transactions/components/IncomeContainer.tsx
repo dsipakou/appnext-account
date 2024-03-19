@@ -4,35 +4,35 @@ import {
   ConfirmDeleteForm
 } from '@/components/transactions/forms'
 import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui/select'
 import TransactionTable from './TransactionTable'
 import { TransactionResponse } from '../types'
 
 interface Types {
-  transactions: TransactionResponse[],
-  isLoading: boolean,
-  year: number,
-  setYear: (value: number) => void,
+  transactions: TransactionResponse[]
+  isLoading: boolean
+  year: number
+  setYear: (value: number) => void
 }
 
-const IncomeComponent: React.FC<Types> = ({transactions = [], isLoading, year, setYear}) => {
+const IncomeComponent: React.FC<Types> = ({ transactions = [], isLoading, year, setYear }) => {
   const [isOpenEditIncome, setIsOpenEditIncome] = React.useState<boolean>(false)
   const [isOpenDeleteIncome, setIsOpenDeleteIncome] = React.useState<boolean>(false)
   const [activeIncomeUuid, setActiveIncomeUuid] = React.useState<string>('')
 
-  const currentYear = new Date().getFullYear();
-  const startYear = 2000;
-  const years = [];
+  const currentYear = new Date().getFullYear()
+  const startYear = 2000
+  const years = []
 
   for (let year = currentYear; year >= startYear; year--) {
-      years.push(year);
+    years.push(year)
   }
 
   const handleEditClick = (uuid: string): void => {

@@ -1,6 +1,6 @@
 import React from 'react'
 import axios from 'axios'
-import { useSWRConfig } from 'swr';
+import { useSWRConfig } from 'swr'
 import { useSession } from 'next-auth/react'
 import {
   Button
@@ -10,7 +10,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from '@/components/ui/dialog'
 import TransactionTable from '@/components/transactions/components/TransactionTable'
 import { useLastAddedTransactions } from '@/hooks/transactions'
@@ -21,16 +21,16 @@ const LastAdded: React.FC = () => {
   const [user, setUser] = React.useState()
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
-  const { mutate } = useSWRConfig();
+  const { mutate } = useSWRConfig()
 
-  const { data: transactions = [], url } = useLastAddedTransactions() 
+  const { data: transactions = [], url } = useLastAddedTransactions()
   const { data: users = [] } = useUsers()
   const { data: { user: authUser } } = useSession()
 
   const { toast } = useToast()
 
   React.useEffect(() => {
-    if (!authUser || !users.length) return
+    if (!authUser || (users.length === 0)) return
 
     const _user = users.find((item: User) => item.username === authUser.username)!
     setUser(_user.uuid)
@@ -52,17 +52,17 @@ const LastAdded: React.FC = () => {
         if (res.status === 201) {
           mutate(url)
           toast({
-            title: "Transactions marked as viewed"
+            title: 'Transactions marked as viewed'
           })
         }
       }
     ).catch(
       (error) => {
-        const errRes = error.response.data;
+        const errRes = error.response.data
         for (const prop in errRes) {
           toast({
-            variant: "destructive",
-            title: "Something went wrong",
+            variant: 'destructive',
+            title: 'Something went wrong'
           })
         }
       }
@@ -80,7 +80,7 @@ const LastAdded: React.FC = () => {
         <DialogHeader>
           <div className="flex justify-between pr-7">
             <DialogTitle>Transactions added since your last visit</DialogTitle>
-            <Button disabled={isLoading || !transactions.length} onClick={handleMarkAsSeenClick}>Mark as seen</Button>
+            <Button disabled={isLoading || (transactions.length === 0)} onClick={handleMarkAsSeenClick}>Mark as seen</Button>
           </div>
         </DialogHeader>
         <div className="h-full">

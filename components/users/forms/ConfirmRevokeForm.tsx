@@ -1,47 +1,36 @@
-
 import React from 'react'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
-  DialogTitle
+  DialogTitle,
+  DialogTrigger
 } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import axios from 'axios'
 import { useSWRConfig } from 'swr'
 import { useToast } from '@/components/ui/use-toast'
-import { usePendingBudget } from '@/hooks/budget'
 
 interface Types {
-  open: boolean
-  setOpen: (open: boolean) => void
   uuid: string
-  weekUrl: string
-  monthUrl: string
-  trigger?: React.ReactElement
 }
 
-const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, weekUrl, monthUrl, trigger }) => {
+const ConfirmRevokeForm: React.FC<Types> = ({ uuid }) => {
+  const [open, setOpen] = React.useState<boolean>(false)
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
-
-  const { url: pendingUrl } = usePendingBudget()
-
   const { mutate } = useSWRConfig()
   const { toast } = useToast()
 
-  const handleDelete = () => {
+  const handleRevoke = (): void => {
     setIsLoading(true)
     axios
-      .delete(`budget/${uuid}`)
+      .delete(`users/invite/${uuid}`)
       .then(
         res => {
           if (res.status === 204) {
-            mutate(weekUrl)
-            mutate(monthUrl)
-            mutate(pendingUrl)
-            setOpen(false)
+            mutate('users/invite/')
             toast({
-              title: 'Deleted successfully'
+              title: 'Invite revoked!'
             })
           } else {
             // TODO: handle errors [non-empty parent,]
@@ -51,7 +40,8 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, weekUrl, mont
       .catch(
         (err) => {
           toast({
-            title: 'Please, try again'
+            variant: 'destructive',
+            title: 'Something went wrong'
           })
         }
       )
@@ -62,24 +52,23 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, weekUrl, mont
       )
   }
 
-  const defaultTrigger = (
-    <Button variant="destructive">Delete</Button>
-  )
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="link">Revoke</Button>
+      </DialogTrigger>
       <DialogContent>
-        <DialogTitle>Please, confirm deletion</DialogTitle>
+        <DialogTitle>Please, confirm revoking</DialogTitle>
         <p className="leading-7">
-          You are about to delete a budget
+          Are you sure you want to revoke the invite?
         </p>
         <DialogFooter>
           <Button disabled={isLoading} variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
-          <Button disabled={isLoading} variant="destructive" onClick={handleDelete}>Delete</Button>
+          <Button disabled={isLoading} variant="destructive" onClick={handleRevoke}>Revoke</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   )
 }
 
-export default ConfirmDeleteForm
+export default ConfirmRevokeForm

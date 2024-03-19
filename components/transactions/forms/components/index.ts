@@ -27,5 +27,5 @@ export {
   CurrencyComponent,
   DateComponent,
   DateReadComponent,
-  DescriptionComponent,
+  DescriptionComponent
 }

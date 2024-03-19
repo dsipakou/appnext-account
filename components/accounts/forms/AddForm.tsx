@@ -1,16 +1,16 @@
 import * as React from 'react'
 import axios from 'axios'
-import * as z from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { useSWRConfig } from 'swr';
+import { useSWRConfig } from 'swr'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from '@/components/ui/dialog'
 import {
   Form,
@@ -18,7 +18,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -40,12 +40,12 @@ import { useToast } from '@/components/ui/use-toast'
 
 const formSchema = z.object({
   title: z.string().min(2, {
-    message: "Title must be at least 2 characters",
+    message: 'Title must be at least 2 characters'
   }),
-  user: z.string().uuid({message: "Please, select user"}),
+  user: z.string().uuid({ message: 'Please, select user' }),
   category: z.union([z.string().uuid(), z.string().length(0)]).optional(),
   isMain: z.boolean(),
-  description: z.string().optional(),
+  description: z.string().optional()
 })
 
 const AddForm: React.FC = () => {
@@ -57,7 +57,7 @@ const AddForm: React.FC = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
-      isMain: false,
+      isMain: false
     }
   })
 
@@ -76,14 +76,14 @@ const AddForm: React.FC = () => {
   const handleSave = (payload: z.infer<typeof formSchema>) => {
     setIsLoading(true)
     axios.post('accounts/', {
-      ...payload,
+      ...payload
     }).then(
       res => {
         if (res.status === 201) {
           mutate('accounts/')
           toast({
-              title: "Saved!"
-            })
+            title: 'Saved!'
+          })
         } else {
           // TODO
         }
@@ -91,11 +91,11 @@ const AddForm: React.FC = () => {
     ).catch(
       (error) => {
         toast({
-            variant: "destructive",
-            title: "Something went wrong",
-            description: "Please, check your fields"
-          })
-        const errRes = error.response.data;
+          variant: 'destructive',
+          title: 'Something went wrong',
+          description: 'Please, check your fields'
+        })
+        const errRes = error.response.data
         for (const prop in errRes) {
           // setErrors(errRes[prop]);
         }

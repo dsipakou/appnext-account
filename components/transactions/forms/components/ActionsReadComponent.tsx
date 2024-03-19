@@ -4,18 +4,18 @@ import {
   CheckCheck,
   Minus,
   Split,
-  Trash2,
+  Trash2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   GridRenderCellParams,
   GridRowModesModel,
   GridRowModes,
-  GridRowId,
+  GridRowId
 } from '@mui/x-data-grid'
 
 interface Types extends GridRenderCellParams {
-  rowModesModel: GridRowModesModel,
+  rowModesModel: GridRowModesModel
   handleDeleteClick: (params: GridRenderCellParams) => void
   handleSaveClick: (id: GridRowId) => void
   handleDuplicateClick: (params: GridRenderCellParams) => void

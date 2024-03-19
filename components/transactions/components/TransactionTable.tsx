@@ -5,7 +5,7 @@ import {
   GridRowsProp,
   GridColDef,
   GridActionsCellItem,
-  GridRenderCellParams,
+  GridRenderCellParams
 } from '@mui/x-data-grid'
 import { Pen, Trash2 } from 'lucide-react'
 import { Category } from '@/components/categories/types'
@@ -23,8 +23,8 @@ import {
   AmountReadComponent,
   BudgetReadComponent,
   CategoryReadComponent,
-  DateReadComponent,
-} from '../forms/components';
+  DateReadComponent
+} from '../forms/components'
 
 interface Types {
   transactions: TransactionResponse[]
@@ -41,7 +41,7 @@ const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, showBu
   const { data: accounts = [] } = useAccounts()
   const { data: categories = [] } = useCategories()
   const { data: currencies = [] } = useCurrencies()
-  const { data: { user }} = useSession()
+  const { data: { user } } = useSession()
 
   const getAccount = (uuid: string): AccountResponse | undefined => {
     return accounts.find((item: AccountResponse) => item.uuid === uuid)
@@ -60,35 +60,35 @@ const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, showBu
       field: 'transactionDate',
       headerName: 'Date',
       flex: 0.5,
-      renderCell: (params) => <DateReadComponent {...params} />,
+      renderCell: (params) => <DateReadComponent {...params} />
     },
     {
       field: 'account',
       headerName: 'Account',
       flex: 0.7,
-      renderCell: (params: GridRenderCellParams<AccountResponse>) => <AccountReadComponent {...params} />,
+      renderCell: (params: GridRenderCellParams<AccountResponse>) => <AccountReadComponent {...params} />
     },
     {
       field: 'category',
       headerName: 'Category',
       flex: 1.5,
-      renderCell: (params) => <CategoryReadComponent {...params} />,
+      renderCell: (params) => <CategoryReadComponent {...params} />
     },
     {
       field: 'budget',
       headerName: 'Budget',
       flex: 0.6,
-      renderCell: (params: GridRenderCellParams<BudgetSlim>) => <BudgetReadComponent {...params} />,
+      renderCell: (params: GridRenderCellParams<BudgetSlim>) => <BudgetReadComponent {...params} />
     },
     {
       field: 'amount',
       headerName: 'Amount',
       type: 'number',
       flex: 0.4,
-      renderCell: (params) => <AmountReadComponent {...params} />,
+      renderCell: (params) => <AmountReadComponent {...params} />
     },
     {
-      field: 'currency',
+      field: 'currency'
     },
     {
       field: 'actions',
@@ -114,7 +114,7 @@ const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, showBu
   ]
 
   React.useEffect(() => {
-    if (!accounts.length || !categories.length) return
+    if ((accounts.length === 0) || (categories.length === 0)) return
 
     setRows(transactions.map(
       (item: TransactionResponse, index: number) => (
@@ -126,7 +126,7 @@ const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, showBu
           category: getCategory(item.category),
           account: getAccount(item.account),
           currency: getCurrency(user?.currency),
-          budget: item.budgetDetails,
+          budget: item.budgetDetails
         }
       )
     ))
@@ -135,7 +135,7 @@ const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, showBu
   const hiddenColumns = {
     currency: false,
     transactionDate: !!withDate,
-    budget: !!showBudget,
+    budget: !!showBudget
   }
 
   const changePage = (page: number) => {

@@ -39,12 +39,12 @@ import {
 
 type BudgetType = 'month' | 'week'
 
-function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
-  return (hocProps: Omit<T, "activeType">) => {
+function withBudgetTemplate<T> (Component: React.ComponentType<T>) {
+  return (hocProps: Omit<T, 'activeType'>) => {
     const activeType = hocProps.activeType || 'month'
     const router = useRouter()
     const { mutate } = useSWRConfig()
-    const { data: { user: userConfig }} = useSession()
+    const { data: { user: userConfig } } = useSession()
     const [user, setUser] = useState<string>('all')
     const [monthDate, setMonthDate] = useState<Date>(new Date())
     const [weekDate, setWeekDate] = useState<Date>(new Date())
@@ -59,7 +59,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const startDate = activeType === 'month' ? startOfMonth : startOfWeek
     const endDate = activeType === 'month' ? endOfMonth : endOfWeek
 
-    const { data: users } = useUsers();
+    const { data: users } = useUsers()
 
     const { data: budgetMonth = [], url: monthUrl } = useBudgetMonth(startOfMonth, endOfMonth, user)
     const { data: budgetWeek = [], url: weekUrl, isLoading: isWeekBudgetLoading } = useBudgetWeek(startOfWeek, endOfWeek, user)
@@ -118,7 +118,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     }
 
     const changeUser = (userId: string): void => {
-      setUser(userId);
+      setUser(userId)
     }
 
     const handleCloseModal = () => {
@@ -201,9 +201,9 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           </Select>
         </div>
         <div className="w-1/3 h-auto">
-          {activeType === "month" ?
-            <MonthCalendar date={monthDate} setMonthDate={setMonthDate} /> :
-            <WeekCalendar date={weekDate} setWeekDate={setWeekDate} />
+          {activeType === 'month'
+            ? <MonthCalendar date={monthDate} setMonthDate={setMonthDate} />
+            : <WeekCalendar date={weekDate} setWeekDate={setWeekDate} />
           }
         </div>
       </div>
@@ -230,11 +230,13 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           </div>
           <div className="w-full mt-5">
             {
-              (activeType === 'month' && !budgetMonth.length) || (activeType === 'week' && !budgetWeek.length) 
-              ? isWeekBudgetLoading ? (
-                loadingState
-              ) : (emptyState)
-              : (
+              (activeType === 'month' && (budgetMonth.length === 0)) || (activeType === 'week' && (budgetWeek.length === 0))
+                ? isWeekBudgetLoading
+                  ? (
+                      loadingState
+                    )
+                  : (emptyState)
+                : (
                 <Component
                   startDate={startDate}
                   endDate={endDate}
@@ -244,7 +246,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
                   weekUrl={weekUrl}
                   monthUrl={monthUrl}
                 />
-              )
+                  )
             }
           </div>
         </div>
@@ -263,4 +265,4 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
   }
 }
 
-export default withBudgetTemplate;
+export default withBudgetTemplate

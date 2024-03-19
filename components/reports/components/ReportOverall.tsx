@@ -21,7 +21,7 @@ import RangeSwitcher from './RangeSwitcher'
 
 const ReportOverall: React.FC = () => {
   const [date, setDate] = React.useState<Date>(new Date())
-  const { data: { user: authUser }} = useSession()
+  const { data: { user: authUser } } = useSession()
 
   const dateFrom = getFormattedDate(startOfMonth(subMonths(date, 11)))
   const dateTo = getFormattedDate(endOfMonth(date))
@@ -105,7 +105,7 @@ const ReportOverall: React.FC = () => {
           columns={columns}
           rows={aggregatedRows}
           rowHeight={30}
-          sx={{height: '80vh'}}
+          sx={{ height: '80vh' }}
           getCellClassName={(params) => {
             const day: number = format(new Date(), 'd')
             if (params.id === Number(day)) {

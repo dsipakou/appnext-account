@@ -1,16 +1,17 @@
 import { FC, useEffect, useState } from 'react'
 import { useStore } from '@/app/store'
 import { useSession } from 'next-auth/react'
-import { getDay, isToday, isThisWeek  } from 'date-fns'
+import { getDay, isToday, isThisWeek } from 'date-fns'
 import { useBudgetWeek } from '@/hooks/budget'
 import { CompactWeekItem, WeekBudgetItem, WeekBudgetResponse } from '@/components/budget/types'
 import {
   getWeekDaysWithFullDays,
   parseDate,
   FULL_DAY_ONLY_FORMAT,
-  WeekDayWithFullDate,
+  WeekDayWithFullDate
 } from '@/utils/dateUtils'
 import { Button } from '@/components/ui/button'
+import { AddForm } from '@/components/budget/forms'
 import BudgetItem from './BudgetItem'
 import HeaderItem from './HeaderItem'
 
@@ -36,7 +37,7 @@ const header = (date: string) => {
       {daysShortFormatArray.map((item: WeekDayWithFullDate, index: number) => (
         <div
           key={index}
-          className={isToday(item.fullDate) ? 'col-span-2' : ''}
+          className={`${isToday(item.fullDate) && 'col-span-2'}`}
         >
           <HeaderItem
             date={item}
@@ -56,26 +57,26 @@ const Container: FC<Types> = ({
   weekUrl,
   monthUrl,
   mutateBudget,
-  clickShowTransactions,
+  clickShowTransactions
 }) => {
-  const [weekGroup, setWeekGroup] = useState<GroupedByWeek>({});
+  const [weekGroup, setWeekGroup] = useState<GroupedByWeek>({})
   const { data: budget }: WeekBudgetResponse = useBudgetWeek(
     startDate,
     endDate,
     user
   )
-  const { data: { user: authUser }} = useSession()
-  const weekDaysArray: number[] = [1, 2, 3, 4, 5, 6, 0];
+  const { data: { user: authUser } } = useSession()
+  const weekDaysArray: number[] = [1, 2, 3, 4, 5, 6, 0]
   const daysFullFormatArray: WeekDayWithFullDate[] = getWeekDaysWithFullDays(parseDate(startDate), FULL_DAY_ONLY_FORMAT)
   const currencySign = useStore((state) => state.currencySign)
 
   useEffect(() => {
-    if (!budget) return;
-    const groupedObj: GroupedByWeek = {};
+    if (!budget) return
+    const groupedObj: GroupedByWeek = {}
 
     budget.forEach((item: WeekBudgetItem) => {
-      const dayOfWeek: number = getDay(parseDate(item.budgetDate));
-      const itemsOnDate: CompactWeekItem[] = groupedObj[dayOfWeek] || [];
+      const dayOfWeek: number = getDay(parseDate(item.budgetDate))
+      const itemsOnDate: CompactWeekItem[] = groupedObj[dayOfWeek] || []
       const compactWeekItem: CompactWeekItem = {
         uuid: item.uuid,
         title: item.title,
@@ -83,13 +84,13 @@ const Container: FC<Types> = ({
         planned: item.plannedInCurrencies[authUser?.currency],
         spent: item.spentInCurrencies[authUser?.currency] || 0,
         recurrent: item.recurrent,
-        isCompleted: item.isCompleted,
+        isCompleted: item.isCompleted
       }
-      itemsOnDate.push(compactWeekItem);
-      groupedObj[dayOfWeek] = itemsOnDate;
+      itemsOnDate.push(compactWeekItem)
+      groupedObj[dayOfWeek] = itemsOnDate
     })
-    setWeekGroup(groupedObj);
-  }, [budget]);
+    setWeekGroup(groupedObj)
+  }, [budget])
 
   const addBudgetButton = (
     <Button
@@ -107,7 +108,7 @@ const Container: FC<Types> = ({
         {weekDaysArray.map((day: number, weekDayIndex: number) => (
           <div
             key={day}
-            className={isToday(daysFullFormatArray[weekDayIndex].fullDate) ? 'col-span-2 bg-sky-100 rounded p-1' : ''}
+            className={`flex flex-col group/col ${isToday(daysFullFormatArray[weekDayIndex].fullDate) && 'col-span-2 bg-sky-100 rounded p-1'}`}
           >
             <div className="flex flex-col justify-center items-center gap-1 relative">
               {weekGroup[day] &&
@@ -138,11 +139,14 @@ const Container: FC<Types> = ({
                 </>
               )
             }
+            <div className="group-hover/col:flex hidden self-center w-4/5 h-15 text-2xl">
+              <AddForm date={daysFullFormatArray[weekDayIndex].fullDate} weekUrl={weekUrl} monthUrl={monthUrl} customTrigger={addBudgetButton} />
+            </div>
           </div>
         ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
 export default Container

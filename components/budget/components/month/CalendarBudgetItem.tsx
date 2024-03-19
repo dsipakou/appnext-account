@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { formatMoney } from '@/utils/numberUtils'
 import { ConfirmDeleteForm, EditForm } from '@/components/budget/forms'
@@ -30,21 +30,21 @@ const CalendarBudgetItem: React.FC<Types> = ({
   currency,
   weekUrl,
   monthUrl,
-  clickShowTransactions,
+  clickShowTransactions
 }) => {
   const [isEditDialogOpened, setIsEditDialogOpened] = React.useState<boolean>(false)
   const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] = React.useState<boolean>(false)
 
   const currencySign = useStore((state) => state.currencySign)
 
-  if (!item) {
+  if (item == null) {
     return (
       <div className="flex flex-col w-full gap-2">
         <div className="flex w-full">
           <span
             className={isSameDay(date, new Date()) && 'text-white font-bold bg-blue-500 rounded-full px-1'}
           >
-            {format(date, "d")}
+            {format(date, 'd')}
           </span>
         </div>
       </div>
@@ -52,11 +52,10 @@ const CalendarBudgetItem: React.FC<Types> = ({
   }
 
   const spent: number = item.spentInCurrencies[currency]
-  
+
   const planned: number = item.plannedInCurrencies[currency]
 
   const percentage: number = Math.floor(spent * 100 / planned) || 0
-
 
   const handleClickTransactions = (): void => {
     clickShowTransactions(item.uuid)
@@ -68,7 +67,7 @@ const CalendarBudgetItem: React.FC<Types> = ({
         <span
           className={isSameDay(date, new Date()) && 'text-white font-bold bg-blue-500 rounded-full px-1'}
         >
-          {format(date, "d")}
+          {format(date, 'd')}
         </span>
         <DropdownMenu>
           <DropdownMenuTrigger>

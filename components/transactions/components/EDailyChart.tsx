@@ -16,7 +16,7 @@ interface ChartData {
 
 const DailyChart: React.FC<Types> = ({ transactions }) => {
   const [options, setOptions] = React.useState<object>({})
-  const { data: { user }} = useSession()
+  const { data: { user } } = useSession()
   const currencySign = useStore((state) => state.currencySign)
 
   React.useEffect(() => {
@@ -30,7 +30,7 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
 
     const chartData: ChartData[] = Object.keys(groupedTransactions).map(key => {
       return { name: key, value: Number(groupedTransactions[key].toFixed(2)) }
-    });
+    })
 
     setOptions({
       tooltip: {
@@ -42,7 +42,7 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
       },
       label: {
         show: true,
-        position: 'outside',
+        position: 'outside'
       },
       series: [
         {
@@ -52,7 +52,7 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
           avoidLabelOverlap: false,
           padAngle: 2,
           itemStyle: {
-            borderRadius: 3 
+            borderRadius: 3
           },
           label: {
             show: true,
@@ -71,7 +71,7 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
           labelLine: {
             show: false
           },
-          data: chartData,
+          data: chartData
         }
       ]
     })
@@ -79,7 +79,7 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
 
   return (
     <div className="flex w-full">
-      <ReactECharts style={{width: '100%'}} option={options} notMerge={true} />
+      <ReactECharts style={{ width: '100%' }} option={options} notMerge={true} />
     </div>
   )
 }

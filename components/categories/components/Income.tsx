@@ -1,14 +1,14 @@
 import React from 'react'
-import { useCategories } from '@/hooks/categories';
-import { Category } from '@/components/categories/types';
-import EditForm from '@/components/categories/forms/EditForm';
+import { useCategories } from '@/hooks/categories'
+import { Category } from '@/components/categories/types'
+import EditForm from '@/components/categories/forms/EditForm'
 
 interface Types {
 
 }
 
 const Income: React.FC<Types> = () => {
-  const { data: categories = [] } = useCategories();
+  const { data: categories = [] } = useCategories()
 
   const filteredCategories = categories.filter((item: Category) => item.type === 'INC')
 

@@ -2,8 +2,8 @@
 import { FC, useEffect, useState } from 'react'
 import axios from 'axios'
 import * as z from 'zod'
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useSWRConfig } from 'swr';
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useSWRConfig } from 'swr'
 import { useForm } from 'react-hook-form'
 import {
   Dialog,
@@ -36,7 +36,7 @@ import {
 import { Calendar } from '@/components/ui/calendar'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label';
+import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { useToast } from '@/components/ui/use-toast'
 import { useUsers } from '@/hooks/users'
@@ -60,25 +60,25 @@ interface Types {
 
 const formSchema = z.object({
   title: z.string().min(2, {
-    message: "Title must be at least 2 characters",
+    message: 'Title must be at least 2 characters'
   }),
   amount: z.coerce.number().min(0, {
-    message: "Should be positive number",
+    message: 'Should be positive number'
   }),
-  currency: z.string().uuid({message: "Please, select currency"}),
-  user: z.string().uuid({message: "Please, select user"}),
-  category: z.string().uuid({message: "Please, select category"}),
-  repeatType: z.enum(["", "weekly", "monthly"]),
+  currency: z.string().uuid({ message: 'Please, select currency' }),
+  user: z.string().uuid({ message: 'Please, select user' }),
+  category: z.string().uuid({ message: 'Please, select category' }),
+  repeatType: z.enum(['', 'weekly', 'monthly']),
   budgetDate: z.date({
-    required_error: "Budget date is required",
+    required_error: 'Budget date is required'
   }),
   description: z.string().or(z.null())
 })
 
 const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
   const { mutate } = useSWRConfig()
-  const [parentList, setParentList] = useState<Category[]>([]);
-  const [errors, setErrors] = useState<string[]>([]);
+  const [parentList, setParentList] = useState<Category[]>([])
+  const [errors, setErrors] = useState<string[]>([])
   const [month, setMonth] = useState<Date>(new Date())
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isSomeDay, setIsSomeDay] = useState<boolean>(false)
@@ -87,10 +87,10 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      repeatType: "",
+      repeatType: '',
       amount: 0,
-      title: "",
-    },
+      title: ''
+    }
   })
 
   const { data: users = [] } = useUsers()
@@ -100,18 +100,18 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
   const { url: pendingUrl } = usePendingBudget()
 
   useEffect(() => {
-    if (!categories) return;
+    if (!categories) return
 
     const parents = categories.filter(
       (category: Category) => (
         category.parent === null && category.type === CategoryType.Expense
       )
-    );
-    setParentList(parents);
-  }, [categories]);
+    )
+    setParentList(parents)
+  }, [categories])
 
   useEffect(() => {
-    if (!budgetDetails || !parentList.length) return
+    if (!budgetDetails || (parentList.length === 0)) return
 
     setIsSomeDay(!budgetDetails.budgetDate)
 
@@ -137,7 +137,7 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
     axios.patch(`budget/${uuid}/`, {
       ...payload,
       budgetDate: isSomeDay ? null : getFormattedDate(payload.budgetDate),
-      recurrent: payload.repeatType,
+      recurrent: payload.repeatType
     }).then(
       res => {
         if (res.status === 200) {
@@ -145,26 +145,26 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
           mutate(weekUrl)
           mutate(pendingUrl)
           toast({
-              title: 'Saved!'
-            })
+            title: 'Saved!'
+          })
         } else {
           // TODO: handle errors
         }
       }
     ).catch(
       (error) => {
-        const errRes = error.response.data;
+        const errRes = error.response.data
         toast({
-            variant: "destructive",
-            title: "Cannot be updated",
-            description: errRes,
-          })
+          variant: 'destructive',
+          title: 'Cannot be updated',
+          description: errRes
+        })
         for (const prop in errRes) {
-          setErrors(errRes[prop]);
+          setErrors(errRes[prop])
         }
       }
     ).finally(() => {
-        setIsLoading(false)
+      setIsLoading(false)
     })
   }
 
@@ -264,7 +264,7 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
                         <FormLabel>Category</FormLabel>
                         <FormControl>
                           <Select
-                            disabled={isLoading || !parentList.length}
+                            disabled={isLoading || (parentList.length === 0)}
                             onValueChange={field.onChange}
                             value={field.value}
                           >
@@ -366,12 +366,14 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
                 </div>
                 <div className="flex-1 w-3/5">
                   {
-                    isSomeDay ? (
+                    isSomeDay
+                      ? (
                       <div className="flex flex-col items-center pt-10">
                         <span className="font-semibold text-lg">Someday later</span>
                         <span className="">This budget will appear in 'Saved for later' list</span>
                       </div>
-                    ) : !isLoading && (
+                        )
+                      : !isLoading && (
                       <FormField
                         control={form.control}
                         name="budgetDate"
@@ -383,7 +385,7 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
                                 className="justify-center"
                                 selected={isSomeDay ? null : field.value}
                                 onSelect={field.onChange}
-                                disabled={(date) => isLoading || date < new Date("1900-01-01") || isSomeDay}
+                                disabled={(date) => isLoading || date < new Date('1900-01-01') || isSomeDay}
                                 weekStartsOn={1}
                                 initialFocus
                               />
@@ -392,7 +394,7 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
                           </FormItem>
                         )}
                       />
-                    )
+                        )
                   }
                 </div>
               </div>

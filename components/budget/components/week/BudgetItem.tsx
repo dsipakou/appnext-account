@@ -3,7 +3,7 @@ import { useStore } from '@/app/store'
 import axios from 'axios'
 import { useSession } from 'next-auth/react'
 import { useSWRConfig } from 'swr'
-import { Check, CheckCircle, Edit, Plus, Repeat, ScrollText, Trash } from 'lucide-react'
+import { Check, CheckCircle, Edit, Loader, Plus, Repeat, ScrollText, Trash } from 'lucide-react'
 import { formatMoney } from '@/utils/numberUtils'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -42,7 +42,7 @@ const BudgetItem: React.FC<Types> = ({
   weekUrl,
   monthUrl,
   mutateBudget,
-  clickShowTransactions,
+  clickShowTransactions
 }) => {
   const [errors, setErrors] = React.useState<string>([])
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
@@ -52,7 +52,7 @@ const BudgetItem: React.FC<Types> = ({
 
   const { data: budgetDetails, url } = useBudgetDetails(uuid)
   const { data: users } = useUsers()
-  const { data: { user: authUser }} = useSession()
+  const { data: { user: authUser } } = useSession()
   const { mutate } = useSWRConfig()
 
   const percentage: number = Math.floor(spent * 100 / planned)
@@ -79,19 +79,19 @@ const BudgetItem: React.FC<Types> = ({
       }
     ).catch(
       (error) => {
-        const errRes = error.response.data;
+        const errRes = error.response.data
         for (const prop in errRes) {
-          setErrors(errRes[prop]);
+          setErrors(errRes[prop])
           // TODO: Show errors somewhere
         }
       }
     ).finally(() => {
-        setIsLoading(false)
+      setIsLoading(false)
     })
   }
 
-  let cssClass = recurrent ?
-    recurrent === 'monthly'
+  let cssClass = recurrent
+    ? recurrent === 'monthly'
       ? 'p-2 border-l-8 border-blue-400'
       : 'border-l-8 border-yellow-400'
     : 'border-gray-300'
@@ -163,8 +163,8 @@ const BudgetItem: React.FC<Types> = ({
           </div>
         )}
         <div className="text-xs ml-[3px]">{
-          planned === 0 
-            && (
+          planned === 0 &&
+            (
               <span className="hidden group-hover:flex ml-2">(not planned)</span>
             )
         }
@@ -181,12 +181,12 @@ const BudgetItem: React.FC<Types> = ({
               />
               <div className="text-xs font-bold ml-2">{`${percentage}%`}</div>
             </>
-          )
+            )
           : (
             <Badge variant="secondary" className="flex font-normal group-hover:hidden text-xs tracking-widest">
               Not Planned
             </Badge>
-          )
+            )
         }
       </div>
       <div className="hidden h-full group-hover:flex group-hover:items-end justify-center gap-1 text-xs">
@@ -195,7 +195,8 @@ const BudgetItem: React.FC<Types> = ({
           variant="outline"
           className={`px-3 text-xs h-2 ${isCompleted ? 'bg-gray-400' : 'bg-white'}`}
           onClick={handleClickComplete}>
-          <Check className={`h-4 ${isCompleted ? 'text-white' : 'text-gray-400'}`} />
+          {!isLoading && <Check className={`h-4 ${isCompleted ? 'text-white' : 'text-gray-400'}`} />}
+          {isLoading && <Loader className={`h-4 ${isCompleted ? 'text-white' : 'text-gray-400'}`} />}
         </Button>
         <Button
           disabled={isLoading}
@@ -230,10 +231,10 @@ const BudgetItem: React.FC<Types> = ({
       </div>
       {
         isEditDialogOpened && (
-          <EditForm 
+          <EditForm
             open={isEditDialogOpened}
             setOpen={setIsEditDialogOpened}
-            uuid={uuid} 
+            uuid={uuid}
             weekUrl={weekUrl}
             monthUrl={monthUrl}
           />

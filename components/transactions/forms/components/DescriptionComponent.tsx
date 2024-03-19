@@ -1,7 +1,7 @@
 import React from 'react'
 import {
   useGridApiContext,
-  GridRenderEditCellParams,
+  GridRenderEditCellParams
 } from '@mui/x-data-grid'
 import { Input } from '@/components/ui/input'
 

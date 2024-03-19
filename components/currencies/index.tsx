@@ -8,7 +8,7 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/select'
 import CurrencyCard from './CurrencyCard'
 import { useCurrencies } from '@/hooks/currencies'
@@ -20,22 +20,21 @@ import ConfirmDeleteForm from './forms/ConfirmDeleteForm'
 import AddRatesForm from './forms/AddRatesForm'
 
 const Index: React.FC = () => {
-
   const [selectedCurrencies, setSelectedCurrencies] = React.useState<Currency[]>([])
   const [isAddCurrencyOpen, setIsAddCurrencyOpen] = React.useState<boolean>(false)
   const [isEditCurrencyOpen, setIsEditCurrencyOpen] = React.useState<boolean>(false)
   const [isDeleteCurrencyOpen, setIsDeleteCurrencyOpen] = React.useState<boolean>(false)
-  const [period, setPeriod] = React.useState<ChartPeriod>("month")
+  const [period, setPeriod] = React.useState<ChartPeriod>('month')
   const [activeCurrency, setActiveCurrency] = React.useState<string>()
   const { data: currencies = [] } = useCurrencies()
   const {
     data: chartRates = [],
-    isLoading: isChartLoading,
+    isLoading: isChartLoading
   } = useRatesChart(ChartPeriodMap[period])
   const { data: rates = [] } = useRates(2)
 
   const selectCurrency = (code: string): void => {
-    if (!selectedCurrencies.find((item: Currency) => item.code === code)) {
+    if (selectedCurrencies.find((item: Currency) => item.code === code) == null) {
       setSelectedCurrencies([...selectedCurrencies, currencies.find(
         (item: Currency) => item.code === code)]
       )
@@ -51,28 +50,28 @@ const Index: React.FC = () => {
   const regularCurrencies = currencies.filter((item: Currency) => !item.isBase)
 
   const unselectCurrency = (code: string): void => {
-    if (selectedCurrencies.find((item: Currency) => item.code === code)) {
-      setSelectedCurrencies(selectedCurrencies.filter((item: Currency) => item.code !== code));
+    if (selectedCurrencies.find((item: Currency) => item.code === code) != null) {
+      setSelectedCurrencies(selectedCurrencies.filter((item: Currency) => item.code !== code))
     }
   }
 
   const openDeleteCurrencyForm = (uuid: string): void => {
-    setActiveCurrency(uuid);
-    setIsDeleteCurrencyOpen(true);
+    setActiveCurrency(uuid)
+    setIsDeleteCurrencyOpen(true)
   }
 
   const openEditCurrencyForm = (uuid: string): void => {
-    setActiveCurrency(uuid);
-    setIsEditCurrencyOpen(true);
+    setActiveCurrency(uuid)
+    setIsEditCurrencyOpen(true)
   }
 
   const closeAddCurrencyForm = (): void => {
-    setIsAddCurrencyOpen(false);
-  };
+    setIsAddCurrencyOpen(false)
+  }
 
   const handleCloseModals = (): void => {
-    setIsEditCurrencyOpen(false);
-    setIsDeleteCurrencyOpen(false);
+    setIsEditCurrencyOpen(false)
+    setIsDeleteCurrencyOpen(false)
   }
 
   const currencyCard = (item: Currency, index: number) => (
@@ -103,8 +102,9 @@ const Index: React.FC = () => {
           <AddForm open={isAddCurrencyOpen} handleClose={closeAddCurrencyForm} />
         </div>
       </div>
-      { !currencies.length ? noCurrencies
-      : (
+      { !currencies.length
+        ? noCurrencies
+        : (
         <div className="flex flex-col items-center">
           <div className="flex items-center w-2/3 justify-center gap-3 p-1 mb-2 bg-white border rounded">
             <span className="text-xl">Base currency:</span>
@@ -119,7 +119,8 @@ const Index: React.FC = () => {
             </div>
           )}
           {
-            !!selectedCurrencies.length ? (
+            (selectedCurrencies.length > 0)
+              ? (
               <div className="flex flex-col mt-10 justify-center w-full">
                 <div className="flex justify-between">
                   <div className="flex gap-2 items-center pl-10">
@@ -150,15 +151,16 @@ const Index: React.FC = () => {
                     currencies={selectedCurrencies}
                     period={period}
                     changePeriod={changeChartPeriod}
-                  /> 
+                  />
                 </div>
               </div>
-            ) : !!regularCurrencies.length && (
+                )
+              : !!regularCurrencies.length && (
               <span className="text-xl mt-10">Click on currency to view the chart</span>
-            )
+                )
           }
         </div>
-      )}
+          )}
       <EditForm uuid={activeCurrency} open={isEditCurrencyOpen} setOpen={handleCloseModals} />
       <ConfirmDeleteForm uuid={activeCurrency} open={isDeleteCurrencyOpen} handleClose={handleCloseModals} />
     </div>

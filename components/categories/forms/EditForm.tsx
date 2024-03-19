@@ -10,14 +10,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormControl,
+  FormControl
 } from '@/components/ui/form'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTrigger,
-  DialogTitle,
+  DialogTitle
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import {
@@ -26,7 +26,7 @@ import {
   SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/components/ui/use-toast'
@@ -35,22 +35,22 @@ import { Category, CategoryResponse } from '@/components/categories/types'
 import { useCategories } from '@/hooks/categories'
 
 interface Types {
-  uuid: string,
+  uuid: string
 }
 
 const formSchema = z.object({
   name: z.string().min(2),
   parent: z.string().uuid().nullable(),
-  description: z.string().optional(),
+  description: z.string().optional()
 })
 
 const EditForm: React.FC<Types> = ({ uuid }) => {
-  const { mutate } = useSWRConfig();
-  const { data: categories } = useCategories();
+  const { mutate } = useSWRConfig()
+  const { data: categories } = useCategories()
   const { toast } = useToast()
 
-  const [parentList, setParentList] = React.useState<Category[]>([]);
-  const [errors, setErrors] = React.useState<string[]>([]);
+  const [parentList, setParentList] = React.useState<Category[]>([])
+  const [errors, setErrors] = React.useState<string[]>([])
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -62,29 +62,27 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
 
     const _category = categories.find((item: CategoryResponse) => item.uuid === uuid)
 
-    if (!_category) return
+    if (_category == null) return
 
     const _parentCategories = categories.filter(
-      (item: any) => item.parent === null && item.type === _category.type,
-    );
+      (item: any) => item.parent === null && item.type === _category.type
+    )
 
     form.setValue('name', _category.name)
     form.setValue('parent', _category.parent)
     form.setValue('description', _category.description)
 
-    setParentList(_parentCategories);
-  }, [categories, uuid]);
+    setParentList(_parentCategories)
+  }, [categories, uuid])
 
   const handleSave = (payload: z.infer<typeof formSchema>) => {
     setIsLoading(true)
 
-    console.log(payload)
-
     axios
-      .patch(`categories/${uuid}/`, {...payload})
+      .patch(`categories/${uuid}/`, { ...payload })
       .then((res) => {
         if (res.status === 200) {
-          mutate('categories/');
+          mutate('categories/')
           toast({
             title: 'Category updated'
           })
@@ -93,14 +91,14 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
         }
       })
       .catch((error) => {
-        const errRes = error.response.data;
+        const errRes = error.response.data
         for (const prop in errRes) {
-          setErrors(errRes[prop]);
+          setErrors(errRes[prop])
         }
         toast({
-          variant: "destructive",
-          title: "Something went wrong",
-          description: errors.toString(),
+          variant: 'destructive',
+          title: 'Something went wrong',
+          description: errors.toString()
         })
       })
       .finally(() => {

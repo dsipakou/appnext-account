@@ -10,10 +10,10 @@ interface Types {
   category: string
 }
 
-const PreviousMonthsCard: React.FC<Types> = ({month, category}) => {
-  const [options, setOptions] = React.useState({});
+const PreviousMonthsCard: React.FC<Types> = ({ month, category }) => {
+  const [options, setOptions] = React.useState({})
   const {
-    data: lastMonths = [],
+    data: lastMonths = []
   } = useBudgetLastMonthsUsage(month, category)
   const currencySign = useStore((state) => state.currencySign)
 
@@ -21,20 +21,20 @@ const PreviousMonthsCard: React.FC<Types> = ({month, category}) => {
     const optionsLocal = {
       xAxis: {
         type: 'category',
-        data: lastMonths.map((item: MonthSummedUsage) => parseAndFormatDate(item.month, MONTH_ONLY_FORMAT)),
+        data: lastMonths.map((item: MonthSummedUsage) => parseAndFormatDate(item.month, MONTH_ONLY_FORMAT))
       },
       yAxis: {
         type: 'value',
-        minInterval: 200,
+        minInterval: 100,
         maxInterval: 20000,
-        splitNumber: 20,
+        splitNumber: 5
       },
       grid: {
         top: '10%',
         left: '3%',
         right: '3%',
         bottom: '3%',
-        containLabel: true,
+        containLabel: true
       },
       series: {
         name: 'Spent',
@@ -51,18 +51,18 @@ const PreviousMonthsCard: React.FC<Types> = ({month, category}) => {
           show: true,
           fontSize: 10,
           formatter: (params) => params.value > 1000 ? Number(params.value / 1000).toFixed(2) + 'k ' + currencySign : Number(params.value).toFixed(0) + ' ' + currencySign,
-          textBorderColor: 'black',
-          textBorderWidth: 2,
-          color: 'white',
+          textBorderColor: 'white',
+          textBorderWidth: 3,
+          color: 'black'
         },
         itemStyle: {
           color: '#93c5fd',
-          borderRadius: [8, 8, 0, 0],
-        },
+          borderRadius: [8, 8, 0, 0]
+        }
       },
       tooltip: {
-        formatter: '{b}:  {c}' + currencySign,
-      },
+        formatter: '{b}:  {c}' + currencySign
+      }
     }
 
     setOptions(optionsLocal)
@@ -74,7 +74,7 @@ const PreviousMonthsCard: React.FC<Types> = ({month, category}) => {
         <span className="text-xl font-semibold">Previous 6 months</span>
       </div>
       <div className="flex h-44 justify-center w-full align-center">
-        <ReactECharts style={{height: '100%', width: '100%'}} option={options} notMerge={true} />
+        <ReactECharts style={{ height: '100%', width: '100%' }} option={options} notMerge={true} />
       </div>
     </div>
   )

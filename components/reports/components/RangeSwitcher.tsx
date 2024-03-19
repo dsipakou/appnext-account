@@ -11,7 +11,6 @@ interface Types {
 }
 
 const RangeSwitcher: React.FC<Types> = ({ dateFrom, dateTo, clickBack, clickForward }) => {
-
   const formattedDateFrom = parseAndFormatDate(dateFrom, REPORT_FORMAT)
   const formattedDateTo = parseAndFormatDate(dateTo, REPORT_FORMAT)
 

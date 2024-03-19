@@ -4,7 +4,7 @@ import { useBudgetMonth } from '@/hooks/budget'
 import {
   GroupedByCategoryBudget,
   MonthGroupedBudgetItem,
-  MonthBudgetItem,
+  MonthBudgetItem
 } from '@/components/budget/types'
 import CategorySummaryCard from './CategorySummaryCard'
 import PreviousMonthsCard from './PreviousMonthsCard'
@@ -27,7 +27,7 @@ const DetailsPanel: FC<Types> = ({
   user,
   weekUrl,
   monthUrl,
-  clickShowTransactions,
+  clickShowTransactions
 }) => {
   const [budgetTitle, setBudgetTitle] = useState<string | undefined>()
   const [budgetItems, setBudgetItems] = useState<MonthBudgetItem[]>([])
@@ -35,7 +35,7 @@ const DetailsPanel: FC<Types> = ({
   const {
     data: budgetList = [],
     isLoading: isBudgetLoading
-  } = useBudgetMonth(startDate, endDate, user);
+  } = useBudgetMonth(startDate, endDate, user)
 
   const activeCategory = budgetList.length > 0
     ? budgetList.find(
@@ -43,16 +43,16 @@ const DetailsPanel: FC<Types> = ({
     )
     : null
 
-  const categoryBudgets = activeCategory
+  const categoryBudgets = (activeCategory != null)
     ? activeCategory.budgets
     : []
 
   const title = activeCategory?.categoryName || 'Choose category'
 
   useEffect(() => {
-    if (!categoryBudgets || isBudgetLoading || !activeBudgetUuid) return;
+    if (!categoryBudgets || isBudgetLoading || !activeBudgetUuid) return
 
-    if (!activeCategory) {
+    if (activeCategory == null) {
       setActiveBudgetUuid(null)
       return
     }
@@ -61,7 +61,7 @@ const DetailsPanel: FC<Types> = ({
       (item: MonthBudgetItem) => item.uuid === activeBudgetUuid
     )
 
-    if (!_budget) {
+    if (_budget == null) {
       setActiveBudgetUuid(null)
       return
     }
@@ -77,8 +77,8 @@ const DetailsPanel: FC<Types> = ({
   return (
     <div className="flex h-min-full flex-col p-2 rounded-lg bg-white border">
       <span className="text-2xl font-semibold p-2 self-center">{title}</span>
-        {activeBudgetUuid ?
-          <DetailsCalendar
+        {activeBudgetUuid
+          ? <DetailsCalendar
             title={budgetTitle}
             items={budgetItems}
             date={startDate}
@@ -86,8 +86,8 @@ const DetailsPanel: FC<Types> = ({
             clickShowTransactions={clickShowTransactions}
             weekUrl={weekUrl}
             monthUrl={monthUrl}
-          /> :
-          activeCategory && (
+          />
+          : (activeCategory != null) && (
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <CategorySummaryCard item={activeCategory} />
@@ -101,7 +101,7 @@ const DetailsPanel: FC<Types> = ({
                 </div>
               ))}
             </div>
-          )
+            )
         }
     </div>
   )

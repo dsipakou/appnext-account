@@ -5,9 +5,12 @@ import { CornerUpLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useCategories } from '@/hooks/categories'
 import Toolbar from '@/components/common/layout/Toolbar'
-import AddForm from '@/components/categories/forms/AddForm'
-import EditForm from '../forms/EditForm';
-import ConfirmDeleteForm from '../forms/ConfirmDeleteForm'
+import {
+  AddForm,
+  ConfirmDeleteForm,
+  EditForm,
+  ReassignTransactionsForm
+} from '@/components/categories/forms'
 import { Category } from '../types'
 
 const Category = () => {
@@ -64,6 +67,7 @@ const Category = () => {
             <div className="flex flex-col items-end">
               <EditForm uuid={category.uuid} />
               <ConfirmDeleteForm uuid={category.uuid} />
+              <ReassignTransactionsForm uuid={category.uuid} />
             </div>
           </div>
         </div>
@@ -83,9 +87,9 @@ const Category = () => {
       </Toolbar>
       <div className="grid grid-cols-3 gap-4 justify-center">
         <div className="col-span-3">
-          {parentCategory && parentCategoryCard(parentCategory)}
+          {(parentCategory != null) && parentCategoryCard(parentCategory)}
         </div>
-        {!childrenCategories.length && (
+        {(childrenCategories.length === 0) && (
         <div className="col-span-3">
           <span className="flex w-full text-md from-indigo-400 justify-center">Please, add at least one sub-category</span>
         </div>

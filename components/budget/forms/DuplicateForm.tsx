@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTrigger,
   DialogTitle,
-  DialogContent,
+  DialogContent
 } from '@/components/ui/dialog'
 import { useBudgetDuplicate } from '@/hooks/budget'
 import { getFormattedDate } from '@/utils/dateUtils'
@@ -24,7 +24,7 @@ interface BudgetCardTypes {
 
 interface Types {
   date: Date
-  type: "month" | "week"
+  type: 'month' | 'week'
   mutateBudget: () => void
 }
 
@@ -43,7 +43,7 @@ const BudgetCard: React.FC<BudgetCardTypes> = ({
         <div className="flex justify-between">
           <span className="text-xs">{date}</span>
           { selected && <Check className="h-4 w-4" /> }
-        </div> 
+        </div>
         <span className="text-md font-semibold">{title}</span>
       </div>
     </div>
@@ -85,22 +85,22 @@ const DuplicateForm: React.FC<Types> = ({ date, type, mutateBudget }) => {
 
   const handleDuplicateClick = (): void => {
     axios.post('budget/duplicate/', {
-      uuids: selectedBudgetUuids,
+      uuids: selectedBudgetUuids
     }).then(
       res => {
         if (res.status === 201) {
           mutate(urlToMutate)
           mutateBudget()
           toast({
-            title: "Successfully duplicated"
+            title: 'Successfully duplicated'
           })
         }
       }
     ).catch(
       (error) => {
         toast({
-          variant: "destructive",
-          title: "Something went wrong",
+          variant: 'destructive',
+          title: 'Something went wrong'
         })
         // TODO: Handle errors
       })
@@ -127,10 +127,10 @@ const DuplicateForm: React.FC<Types> = ({ date, type, mutateBudget }) => {
           </DialogHeader>
         )}
         <div className="flex flex-col gap-3">
-          { budgetList.length === 0 
+          { budgetList.length === 0
             ? (
-              <div className="flex col-span-4 justify-center"><span className="text-2xl">Nothing to duplicate</span></div> 
-            )
+              <div className="flex col-span-4 justify-center"><span className="text-2xl">Nothing to duplicate</span></div>
+              )
             : (
             <>
               <div className="flex justify-between">
@@ -159,7 +159,7 @@ const DuplicateForm: React.FC<Types> = ({ date, type, mutateBudget }) => {
                 )}
               </div>
             </>
-            )
+              )
           }
         </div>
       </DialogContent>

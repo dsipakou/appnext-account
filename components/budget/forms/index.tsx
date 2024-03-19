@@ -11,5 +11,5 @@ export {
   ConfirmDeleteForm,
   DuplicateForm,
   TransactionsForm,
-  SavedForLaterForm,
+  SavedForLaterForm
 }

@@ -15,7 +15,6 @@ const GeneralSummaryCard: FC<Types> = ({ title, planned, spent }) => {
   const spentPercent = spent * 100 / maxValue
   const plannedPercent = planned * 100 / maxValue
 
-
   return (
     <div className="flex flex-col border bg-slate-600 items-center justify-center text-white h-[80px]">
       <div className="flex justify-center w-full">
@@ -36,13 +35,13 @@ const GeneralSummaryCard: FC<Types> = ({ title, planned, spent }) => {
             </div>
           </div>
           <div className="flex items-start ml-2">
-            <div className="rounded bg-yellow-400 w-5" style={{height: `${plannedPercent}%`}}></div>
+            <div className="rounded bg-yellow-400 w-5" style={{ height: `${plannedPercent}%` }}></div>
           </div>
         </div>
         <div className="w-[1px] bg-gray-500 mx-1"></div>
         <div className="flex flex-1">
           <div className="flex items-end mr-2 h-full">
-            <div className="rounded bg-yellow-400 w-5" style={{height: `${spentPercent}%`}}></div>
+            <div className="rounded bg-yellow-400 w-5" style={{ height: `${spentPercent}%` }}></div>
           </div>
           <div className="flex flex-1 justify-start">
             <div className="flex flex-col h-full">
@@ -60,4 +59,4 @@ const GeneralSummaryCard: FC<Types> = ({ title, planned, spent }) => {
   )
 }
 
-export default GeneralSummaryCard;
+export default GeneralSummaryCard

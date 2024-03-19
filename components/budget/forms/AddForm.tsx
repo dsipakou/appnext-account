@@ -1,8 +1,8 @@
 import { FC, useEffect, useState } from 'react'
-import { useSession } from 'next-auth/react'
 import axios from 'axios'
-import { useSWRConfig } from 'swr';
-import { zodResolver } from "@hookform/resolvers/zod"
+import { useSession } from 'next-auth/react'
+import { useSWRConfig } from 'swr'
+import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
@@ -12,8 +12,8 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormMessage,
-} from "@/components/ui/form"
+  FormMessage
+} from '@/components/ui/form'
 import {
   Select,
   SelectContent,
@@ -21,7 +21,7 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/select'
 import {
   RadioGroup,
@@ -35,7 +35,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogContent,
+  DialogContent
 } from '@/components/ui/dialog'
 import { useToast } from '@/components/ui/use-toast'
 
@@ -47,7 +47,7 @@ import { User } from '@/components/users/types'
 import { Category, CategoryType } from '@/components/categories/types'
 import { Currency } from '@/components/currencies/types'
 import { getFormattedDate } from '@/utils/dateUtils'
-import { Label } from '@/components/ui/label';
+import { Label } from '@/components/ui/label'
 
 import styles from '../style/AddForm.module.css'
 
@@ -60,24 +60,24 @@ interface Types {
 
 const formSchema = z.object({
   title: z.string().min(2, {
-    message: "Title must be at least 2 characters",
+    message: 'Title must be at least 2 characters'
   }),
   amount: z.coerce.number().min(0, {
-    message: "Should be positive number",
+    message: 'Should be positive number'
   }),
-  currency: z.string().uuid({message: "Please, select currency"}),
-  user: z.string().uuid({message: "Please, select user"}),
-  category: z.string().uuid({message: "Please, select category"}),
-  repeatType: z.enum(["", "weekly", "monthly"]),
+  currency: z.string().uuid({ message: 'Please, select currency' }),
+  user: z.string().uuid({ message: 'Please, select user' }),
+  category: z.string().uuid({ message: 'Please, select category' }),
+  repeatType: z.enum(['', 'weekly', 'monthly']),
   budgetDate: z.date({
-    required_error: "Budget date is required",
+    required_error: 'Budget date is required'
   }),
   description: z.string().optional()
 })
 
 const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
   const { mutate } = useSWRConfig()
-  const [parentList, setParentList] = useState<Category[]>([]);
+  const [parentList, setParentList] = useState<Category[]>([])
   const [isSomeDay, setIsSomeDay] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [open, setOpen] = useState<boolean>(false)
@@ -86,19 +86,19 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      repeatType: "",
-    },
+      repeatType: ''
+    }
   })
 
   useEffect(() => {
     if (open) {
-      form.setValue('budgetDate', date || new Date())
+      form.setValue('budgetDate', (date != null) || new Date())
     }
   }, [open])
 
   const { toast } = useToast()
 
-  const { data: { user: authUser }} = useSession()
+  const { data: { user: authUser } } = useSession()
 
   const { data: users } = useUsers()
 
@@ -116,10 +116,9 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
       (category: Category) => (
         category.parent === null && category.type === CategoryType.Expense
       )
-    );
-    setParentList(parents);
-
-  }, [isCategoriesLoading, categories]);
+    )
+    setParentList(parents)
+  }, [isCategoriesLoading, categories])
 
   useEffect(() => {
     form.setValue('currency', getDefaultCurrency())
@@ -131,7 +130,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
 
   const getDefaultCurrency = (): string => {
     if (!currencies) {
-      return ""
+      return ''
     }
 
     const _currency = currencies.find((item: Currency) => item.isDefault)
@@ -139,20 +138,20 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
       return _currency.uuid
     }
 
-    return ""
+    return ''
   }
 
   const getDefaultUser = (): string => {
     if (!authUser || !users) {
-      return ""
+      return ''
     }
 
     const _user = users.find((item: User) => item.username === authUser?.username)
-    if (_user) {
+    if (_user != null) {
       return _user.uuid
     }
 
-    return ""
+    return ''
   }
 
   const getCurrencySign = (): string => {
@@ -164,7 +163,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
     axios.post('budget/', {
       ...payload,
       budgetDate: isSomeDay ? null : getFormattedDate(payload.budgetDate),
-      recurrent: payload.repeatType,
+      recurrent: payload.repeatType
     }).then(
       res => {
         if (res.status === 201) {
@@ -172,7 +171,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
           mutate(weekUrl)
           mutate(pendingUrl)
           toast({
-            title: "Saved!"
+            title: 'Saved!'
           })
         } else {
           // TODO: handle errors
@@ -181,11 +180,11 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
     ).catch(
       (error) => {
         toast({
-            variant: "destructive",
-            title: "Something went wrong",
-            description: "Please, check your fields"
-          })
-        const errRes = error.response.data;
+          variant: 'destructive',
+          title: 'Something went wrong',
+          description: 'Please, check your fields'
+        })
+        const errRes = error.response.data
         for (const prop in errRes) {
           // setErrors(errRes[prop]);
         }
@@ -209,7 +208,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
   return (
     <Dialog onOpenChange={clean} open={open}>
       <DialogTrigger asChild>
-        {customTrigger || defaultTrigger}
+        {(customTrigger != null) || defaultTrigger}
       </DialogTrigger>
       <DialogContent className="min-w-[600px]">
         <DialogHeader>
@@ -403,7 +402,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                             className="justify-center"
                             selected={isSomeDay ? null : field.value}
                             onSelect={field.onChange}
-                            disabled={(date) => isLoading || date < new Date("1900-01-01") || isSomeDay}
+                            disabled={(date) => isLoading || date < new Date('1900-01-01') || isSomeDay}
                             weekStartsOn={1}
                             initialFocus
                           />
@@ -439,7 +438,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
         </Form>
         </DialogContent>
       </Dialog>
-    )
+  )
 }
 
 export default AddForm

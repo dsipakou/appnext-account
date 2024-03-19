@@ -9,7 +9,7 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/select'
 import {
   useCurrencies
@@ -45,9 +45,11 @@ const CurrencyComponent: React.FC<any> = (params) => {
 
   return (
     <div className="flex w-full h-full bg-slate-100 p-[2px] select-none items-center">
-      {!currencies.length ? (
+      {!currencies.length
+        ? (
         <span className="italic text-red-500">No currency</span>
-      ) : (
+          )
+        : (
         <Select
           onValueChange={handleChange}
           value={value}
@@ -59,14 +61,14 @@ const CurrencyComponent: React.FC<any> = (params) => {
             <SelectGroup>
               <SelectLabel>Currencies</SelectLabel>
               {currencies && currencies.map((item: Currency) => (
-                !!availableRates[item.code]
+                availableRates[item.code]
                   ? <SelectItem key={item.uuid} value={item}>{item.code}</SelectItem>
                   : <SelectItem key={item.uuid} value={item} disabled>{item.code}</SelectItem>
               ))}
             </SelectGroup>
           </SelectContent>
         </Select>
-      )}
+          )}
     </div>
   )
 }

@@ -15,7 +15,6 @@ const AmountReadComponent: React.FC<Types> = (params) => {
       <span className="text-sm font-semibold">{params.value}</span><span>{currencySign}</span>
     </div>
   )
-
 }
 
 export default AmountReadComponent

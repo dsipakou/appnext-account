@@ -10,10 +10,9 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/select'
 import { AccountResponse } from '@/components/accounts/types'
-
 
 interface AccountComponentTypes extends GridRenderEditCellParams {
   accounts: AccountResponse[]
@@ -29,9 +28,11 @@ const AccountComponent: React.FC<AccountComponentTypes> = (params) => {
 
   return (
     <div className="flex w-full h-full bg-slate-100 p-[2px] select-none items-center">
-      {!accounts.length ? (
+      {(accounts.length === 0)
+        ? (
         <span className="italic text-red-500">No accounts found</span>
-      ) : (
+          )
+        : (
         <Select
           onValueChange={handleChange}
           value={value}
@@ -48,7 +49,7 @@ const AccountComponent: React.FC<AccountComponentTypes> = (params) => {
             </SelectGroup>
           </SelectContent>
         </Select>
-      )}
+          )}
     </div>
   )
 }

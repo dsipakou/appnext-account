@@ -2,8 +2,8 @@ import React from 'react'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import * as z from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import {
@@ -12,13 +12,13 @@ import {
   FormField,
   FormLabel,
   FormItem,
-  FormMessage,
+  FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
 const formSchema = z.object({
   email: z.string().email(),
-  password: z.string(),
+  password: z.string()
 })
 
 const Index: React.FC = () => {
@@ -30,8 +30,8 @@ const Index: React.FC = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: ''
     }
   })
 
@@ -45,7 +45,7 @@ const Index: React.FC = () => {
     signIn('credentials', {
       username: payload.email,
       password: payload.password,
-      callbackUrl: `${window.location.origin}/`,
+      callbackUrl: `${window.location.origin}/`
     })
     setIsLoading(false)
   }

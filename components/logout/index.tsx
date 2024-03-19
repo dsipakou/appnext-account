@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import React from 'react'
 import { signOut } from 'next-auth/react'
@@ -8,7 +8,7 @@ const Index = () => {
     signOut({
       callbackUrl: '/login'
     })
-  }, []);
-};
+  }, [])
+}
 
 export default Index

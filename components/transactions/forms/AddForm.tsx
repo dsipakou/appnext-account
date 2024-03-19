@@ -9,7 +9,7 @@ import {
   DialogTrigger,
   DialogContent,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from '@/components/ui/dialog'
 import { useToast } from '@/components/ui/use-toast'
 import {
@@ -22,7 +22,7 @@ import {
   GridRowModesModel,
   GridToolbarContainer,
   GridRowEditStopReasons,
-  GridRenderCellParams,
+  GridRenderCellParams
 } from '@mui/x-data-grid'
 import { randomId } from '@mui/x-data-grid-generator'
 import { useAccounts } from '@/hooks/accounts'
@@ -48,7 +48,7 @@ import {
   CurrencyComponent,
   DateComponent,
   DateReadComponent,
-  DescriptionComponent,
+  DescriptionComponent
 } from './components'
 import { WeekBudgetItem } from '@/components/budget/types'
 
@@ -60,11 +60,11 @@ interface Types {
 }
 
 interface EditToolbarProps {
-  rows: GridRowsProp,
+  rows: GridRowsProp
   setRows: (
     newRows: (oldRows: GridRowsProp) => GridRowsProp
   ) => void
-  rowModesModel: GridRowModesModel,
+  rowModesModel: GridRowModesModel
   setRowModesModel: (
     newModel: (oldModel: GridRowModesModel) => GridRowModesModel,
   ) => void
@@ -85,7 +85,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   const { data: currencies = [] } = useCurrencies()
 
   React.useEffect(() => {
-    if (!authUser || !users.length) return
+    if (!authUser || (users.length === 0)) return
 
     const _user = users.find((item: User) => item.username === authUser.username)!
     setUser(_user.uuid)
@@ -97,7 +97,6 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
     }
     return undefined
   }
-
 
   React.useEffect(() => {
     setBaseCurrency(currencies.find((item: Currency) => item.isBase)?.code)
@@ -113,7 +112,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
     setRows((oldRows) => [...oldRows, { ...emptyRowTemplate, id, account: getDefaultAccountForCurrentUser() }])
     setRowModesModel((oldModel) => ({
       ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'amount' },
+      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'amount' }
     }))
   }
 
@@ -126,7 +125,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
     }])
     setRowModesModel((oldModel) => ({
       ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'amount' },
+      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'amount' }
     }))
   }
 
@@ -150,22 +149,22 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
         currency: row.currency.uuid,
         description: row.description,
         transactionDate: getFormattedDate(row.transactionDate),
-        type: "outcome",
-        user: user
+        type: 'outcome',
+        user
       }
 
       axios.post('transactions/', {
-        ...payload,
+        ...payload
       }).then(
         res => {
           if (res.status === 201) {
             setRows((oldRows) => oldRows.map(
               (item) => item.id === row.id
                 ? {
-                  ...item,
-                  saved: true,
-                  baseAmount: formatMoney(res.data.spentInCurrencies[baseCurrency])
-                }
+                    ...item,
+                    saved: true,
+                    baseAmount: formatMoney(res.data.spentInCurrencies[baseCurrency])
+                  }
                 : item
             ))
             mutate(url)
@@ -179,7 +178,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
           }
         }
       ).finally(() => {
-          setIsLoading(false)
+        setIsLoading(false)
       })
     })
   }
@@ -264,7 +263,6 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
   const getAccountForBudget = (budget: WeekBudgetItem): Account | undefined => {
     return accounts.find((item: Account) => item.user === budget.user && item.isMain)
   }
-  
 
   const columns: GridColDef[] = [
     {
@@ -273,7 +271,7 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
       flex: 0.8,
       editable: true,
       renderCell: (params: GridRenderCellParams<Date>) => <DateReadComponent {...params} />,
-      renderEditCell: (params) => <DateComponent {...params} />,
+      renderEditCell: (params) => <DateComponent {...params} />
     },
     {
       field: 'account',
@@ -297,7 +295,7 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
       flex: 0.8,
       editable: true,
       renderCell: (params) => <BudgetReadComponent {...params} />,
-      renderEditCell: (params) => <BudgetComponent {...params} />,
+      renderEditCell: (params) => <BudgetComponent {...params} />
     },
     {
       field: 'amount',
@@ -329,7 +327,7 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
       flex: 0.5,
       headerName: `In ${baseCurrencyCode}`,
       editable: false,
-      renderCell: (params) => <BaseAmountReadComponent {...params} rowModesModel={rowModesModel} />,
+      renderCell: (params) => <BaseAmountReadComponent {...params} rowModesModel={rowModesModel} />
     },
     {
       field: 'saved',
@@ -343,27 +341,27 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
         handleSaveClick={handleSaveClick}
         handleDeleteClick={handleDeleteClick}
         handleDuplicateClick={handleDuplicateClick}
-      />,
-    },
-  ];
+      />
+    }
+  ]
 
   const [rows, setRows] = React.useState<[]>([])
-  const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>({});
+  const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>({})
 
   React.useEffect(() => {
     const id = randomId()
 
-    if (budget) {
+    if (budget != null) {
       emptyRow = {
         ...emptyRow,
         id,
-        account: getAccountForBudget(budget) || '',
+        account: (getAccountForBudget(budget) != null) || '',
         budget: budget.uuid,
-        amount: String(budget.amount),
+        amount: String(budget.amount)
       }
       setRows(() => [emptyRow])
       setRowModesModel(() => ({
-        [id]: { mode: GridRowModes.Edit, fieldToFocus: 'amount' },
+        [id]: { mode: GridRowModes.Edit, fieldToFocus: 'amount' }
       }))
     }
   }, [])
@@ -403,7 +401,7 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
     }])
     setRowModesModel((oldModel) => ({
       ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'amount' },
+      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'amount' }
     }))
   }
 
@@ -415,15 +413,15 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
 
     const canClose = rows.every((item: any) => item.saved === true)
     if (canClose) {
-      setErrors('');
-      setRows([]);
-      setRowModesModel({ });
-      onOpenChange(false);
+      setErrors('')
+      setRows([])
+      setRowModesModel({ })
+      onOpenChange(false)
     } else {
       toast({
-        title: "You have unsubmitted transactions",
-        variant: "warning",
-        description: "Please, remove or submit them",
+        title: 'You have unsubmitted transactions',
+        variant: 'warning',
+        description: 'Please, remove or submit them'
       })
     }
   }
@@ -461,10 +459,10 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
             processRowUpdate={processRowUpdate}
             sx={{
               '& .MuiDataGrid-cell.MuiDataGrid-cell--editable': {
-                padding: 0,
+                padding: 0
               },
               '& .MuiDataGrid-cell': {
-                padding: 0,
+                padding: 0
               }
             }}
             components={{

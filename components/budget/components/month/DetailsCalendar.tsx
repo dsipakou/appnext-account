@@ -8,15 +8,13 @@ import {
   startOfMonth,
   startOfWeek,
   endOfMonth,
-  endOfWeek,
+  endOfWeek
 } from 'date-fns'
 import { X } from 'lucide-react'
-import { parseDate } from '@/utils/dateUtils'
-import { getFormattedDate } from '@/utils/dateUtils'
+import { parseDate, getFormattedDate } from '@/utils/dateUtils'
 import { MonthBudgetItem } from '@/components/budget/types'
 import { useCurrencies } from '@/hooks/currencies'
 import CalendarBudgetItem from './CalendarBudgetItem'
-
 
 interface Types {
   title: string
@@ -28,33 +26,33 @@ interface Types {
   clickShowTransactions: (uuid: string) => void
 }
 
-const DetailsCalendar: React.FC<Types> = ({title, items, date, weekUrl, monthUrl, handleClose, clickShowTransactions}) => {
-  const { data: { user }} = useSession()
+const DetailsCalendar: React.FC<Types> = ({ title, items, date, weekUrl, monthUrl, handleClose, clickShowTransactions }) => {
+  const { data: { user } } = useSession()
   const { data: currencies } = useCurrencies()
 
   const generateWeeksForCurrentMonth = () => {
     const parsedDate = parseDate(date)
-    const startOfTheSelectedMonth = startOfMonth(parsedDate);
-    const endOfTheSelectedMonth = endOfMonth(parsedDate);
-    const startDate = startOfWeek(startOfTheSelectedMonth);
-    const endDate = endOfWeek(endOfTheSelectedMonth);
+    const startOfTheSelectedMonth = startOfMonth(parsedDate)
+    const endOfTheSelectedMonth = endOfMonth(parsedDate)
+    const startDate = startOfWeek(startOfTheSelectedMonth)
+    const endDate = endOfWeek(endOfTheSelectedMonth)
 
-    let firstDayOfWeek = startDate;
+    let firstDayOfWeek = startDate
 
-    const allWeeks = [];
+    const allWeeks = []
 
     while (firstDayOfWeek <= endDate) {
       allWeeks.push(
         generateDatesForCurrentWeek(firstDayOfWeek, parsedDate)
-      );
-      firstDayOfWeek = addDays(firstDayOfWeek, 7);
+      )
+      firstDayOfWeek = addDays(firstDayOfWeek, 7)
     }
 
     return allWeeks
   }
 
   const generateDatesForCurrentWeek = (startDate: Date, activeDate: Date) => {
-    let currentDate = startDate;
+    let currentDate = startDate
 
     const getBudgetOnDate = (date: Date) => {
       return items.find((item: MonthBudgetItem) => item.budgetDate === getFormattedDate(date))
@@ -67,9 +65,9 @@ const DetailsCalendar: React.FC<Types> = ({title, items, date, weekUrl, monthUrl
       week.push(
         <div
           className={`flex p-1 h-24 border 
-            ${isSameMonth(currentDate, activeDate) ? "" : "bg-slate-100" } 
-            ${isWeekend(currentDate) && !isSameWeek(currentDate, new Date()) && isSameMonth(currentDate, activeDate) && "bg-red-50"}
-            ${isSameWeek(currentDate, new Date()) ? "bg-sky-100" : ""}
+            ${isSameMonth(currentDate, activeDate) ? '' : 'bg-slate-100'} 
+            ${isWeekend(currentDate) && !isSameWeek(currentDate, new Date()) && isSameMonth(currentDate, activeDate) && 'bg-red-50'}
+            ${isSameWeek(currentDate, new Date()) ? 'bg-sky-100' : ''}
           `}
         >
           <CalendarBudgetItem

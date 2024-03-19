@@ -4,7 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogContent,
+  DialogContent
 } from '@/components/ui/dialog'
 import {
   EditForm,

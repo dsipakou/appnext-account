@@ -1,33 +1,32 @@
 import dynamic from 'next/dynamic'
-import { FC, useEffect, useState } from "react"
+import { FC, useEffect, useState } from 'react'
 import { ChartRates, ChartRate, ChartPeriod, Currency } from './types'
 import ApexCharts from 'apexcharts'
 
-const Chart = dynamic(() => import('react-apexcharts'), { ssr: false })
+const Chart = dynamic(async () => await import('react-apexcharts'), { ssr: false })
 
 interface Types {
   data: ChartRates[]
-  isLoading: boolean,
-  currencies: Currency[],
-  period: ChartPeriod,
+  isLoading: boolean
+  currencies: Currency[]
+  period: ChartPeriod
 }
-
 
 const CurrencyChart: FC<Types> = ({
   data: chartData = [{ data: [] }],
   isLoading,
   currencies,
-  period,
+  period
 }) => {
-  const [options, setOptions] = useState({});
-  const [series, setSeries] = useState([]);
+  const [options, setOptions] = useState({})
+  const [series, setSeries] = useState([])
 
   useEffect(() => {
-    if (!chartData || isLoading) return;
+    if (!chartData || isLoading) return
 
     setOptions({
       chart: {
-        id: "main-chart",
+        id: 'main-chart',
         animations: {
           enabled: true,
           easing: 'linear',
@@ -43,11 +42,11 @@ const CurrencyChart: FC<Types> = ({
         }
       },
       stroke: {
-        curve: "smooth",
+        curve: 'smooth'
       },
       xaxis: {
         categories: chartData[0].data.map((item: ChartRate) => item.rateDate).reverse(),
-        type: "datetime",
+        type: 'datetime',
         labels: {
           rotateAlways: false,
           hideOverlappingLabels: true,
@@ -55,9 +54,9 @@ const CurrencyChart: FC<Types> = ({
         }
       },
       noData: {
-        text: "Please, select at least one currency",
+        text: 'Please, select at least one currency'
       }
-    });
+    })
 
     setSeries(
       currencies?.map(
@@ -66,12 +65,12 @@ const CurrencyChart: FC<Types> = ({
             name: _currency.code,
             data: chartData.find(
               (_chartRates: ChartRates) => _chartRates.currencyUuid === _currency.uuid
-            )?.data.map((_rate: ChartRate) => _rate.rate).reverse(),
+            )?.data.map((_rate: ChartRate) => _rate.rate).reverse()
           }
         )
       )
     )
-  }, [currencies, period, isLoading]);
+  }, [currencies, period, isLoading])
 
   return (
     <Chart
@@ -81,7 +80,7 @@ const CurrencyChart: FC<Types> = ({
       width="1000"
       height="380"
     />
-  );
+  )
 }
 
-export default CurrencyChart;
+export default CurrencyChart

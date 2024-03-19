@@ -37,37 +37,36 @@ import { useBudgetWeek } from '@/hooks/budget'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
 import { useAvailableRates } from '@/hooks/rates'
-import { AccountResponse } from '@/components/accounts/types'
+import { AccountResponse, Account } from '@/components/accounts/types'
 import { WeekBudgetItem } from '@/components/budget/types'
 import { Category, CategoryType } from '@/components/categories/types'
 import {
   getStartOfWeek,
   getEndOfWeek,
   getFormattedDate,
-  parseDate,
+  parseDate
 } from '@/utils/dateUtils'
-import { Account } from '@/components/accounts/types'
 import { Currency } from '@/components/currencies/types'
 
 interface Types {
-  uuid: string,
-  open: boolean,
-  url: string,
-  handleClose: () => void,
+  uuid: string
+  open: boolean
+  url: string
+  handleClose: () => void
 }
 
 const formSchema = z.object({
-  account: z.string().uuid({message: "Please, select account"}),
+  account: z.string().uuid({ message: 'Please, select account' }),
   amount: z.coerce.number().min(0, {
-    message: "Should be positive number",
+    message: 'Should be positive number'
   }),
-  budget: z.string().uuid({message: "Please, select budget"}),
-  category: z.string().uuid({message: "Please, select category"}),
-  currency: z.string().uuid({message: "Please, select currency"}),
+  budget: z.string().uuid({ message: 'Please, select budget' }),
+  category: z.string().uuid({ message: 'Please, select category' }),
+  currency: z.string().uuid({ message: 'Please, select currency' }),
   description: z.string().optional(),
   transactionDate: z.date({
-    required_error: "Transaction date is required",
-  }),
+    required_error: 'Transaction date is required'
+  })
 })
 
 const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
@@ -82,7 +81,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      amount: "",
+      amount: ''
     }
   })
 
@@ -106,7 +105,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   )
 
   React.useEffect(() => {
-    if (!transaction || !accounts.length) return
+    if (!transaction || (accounts.length === 0)) return
 
     form.setValue('account', transaction.account)
     form.setValue('amount', transaction.amount)
@@ -130,7 +129,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
 
     const _account = accounts.find((item: WeekBudgetItem) => item.uuid === form.getValues().account)
 
-    if (_account) {
+    if (_account != null) {
       setFilteredBudgets(budgets.filter((item: WeekBudgetItem) => item.user === _account.user))
     }
   }, [isBudgetLoading, budgets, accounts, watchAccount])
@@ -155,7 +154,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
     setIsLoading(true)
     axios.patch(`transactions/${uuid}/`, {
       ...payload,
-      transactionDate: getFormattedDate(payload.transactionDate),
+      transactionDate: getFormattedDate(payload.transactionDate)
     }).then(
       res => {
         if (res.status === 200) {
@@ -167,8 +166,8 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
         console.log(`cannot update: ${error}`)
       }
     ).finally(() => {
-        setIsLoading(false)
-      }
+      setIsLoading(false)
+    }
     )
   }
 
@@ -225,7 +224,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                               <SelectGroup>
                                 <SelectLabel>Currencies</SelectLabel>
                                 {currencies && currencies.map((item: Currency) => (
-                                  !!availableRates[item.code]
+                                  availableRates[item.code]
                                     ? <SelectItem key={item.uuid} value={item.uuid}>{item.code}</SelectItem>
                                     : <SelectItem key={item.uuid} value={item.uuid} disabled>{item.code}</SelectItem>
                                 ))}
@@ -342,7 +341,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            disabled={(date) => isLoading || date < new Date("1900-01-01")}
+                            disabled={(date) => isLoading || date < new Date('1900-01-01')}
                             month={month}
                             onMonthChange={setMonth}
                             weekStartsOn={1}

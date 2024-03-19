@@ -1,5 +1,5 @@
 import React from 'react'
-import axios from 'axios';
+import axios from 'axios'
 import { useSWRConfig } from 'swr'
 import { Button } from '@/components/ui/button'
 import {
@@ -40,7 +40,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open = false, uuid, url, handleClo
       .catch(
         (err) => {
           toast({
-            title: "Please, try again"
+            title: 'Please, try again'
           })
         }
       )

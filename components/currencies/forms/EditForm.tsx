@@ -1,9 +1,9 @@
 
-import { FC, useEffect, useState } from 'react';
-import axios from 'axios';
-import { useSWRConfig } from 'swr';
+import { FC, useEffect, useState } from 'react'
+import axios from 'axios'
+import { useSWRConfig } from 'swr'
 import * as z from 'zod'
-import { zodResolver } from "@hookform/resolvers/zod"
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -11,7 +11,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from '@/components/ui/dialog'
 import {
   Form,
@@ -19,7 +19,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -29,13 +29,13 @@ import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 
-import { useCurrencies } from '@/hooks/currencies';
+import { useCurrencies } from '@/hooks/currencies'
 import { useToast } from '@/components/ui/use-toast'
 
-import { Currency } from '../types';
+import { Currency } from '../types'
 
 interface Types {
   uuid: string
@@ -44,24 +44,24 @@ interface Types {
 }
 
 const formSchema = z.object({
-  verbalName: z.string().min(2, { message: "Must be at least 2 characters long" }),
+  verbalName: z.string().min(2, { message: 'Must be at least 2 characters long' }),
   code: z.string().length(3, {
-    message: "Must be 3 characters long"
+    message: 'Must be 3 characters long'
   }),
   sign: z.string({
-    required_error: "You need to specify currency sign",
+    required_error: 'You need to specify currency sign'
   }),
   isDefault: z.boolean(),
-  comments: z.string().optional(),
+  comments: z.string().optional()
 })
 
 const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
-  const { mutate } = useSWRConfig();
+  const { mutate } = useSWRConfig()
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const { data: currencies = [] } = useCurrencies();
+  const { data: currencies = [] } = useCurrencies()
 
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema)
   })
   const { toast } = useToast()
 
@@ -83,28 +83,28 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
   const handleUpdate = (payload: z.infer<typeof formSchema>): void => {
     setIsLoading(true)
     axios.patch(`currencies/${uuid}/`, {
-      ...payload,
+      ...payload
     }).then(
       res => {
         if (res.status === 200) {
-          mutate('currencies/');
+          mutate('currencies/')
           toast({
-              title: 'Saved!'
-            })
+            title: 'Saved!'
+          })
         } else {
           // TODO: handle errors
         }
       }
     ).catch(
       (error) => {
-        const errRes = error.response.data;
+        const errRes = error.response.data
         toast({
-            variant: "destructive",
-            title: "Cannot be updated",
-            description: errRes,
-          })
-        }
-    ).finally(() => { 
+          variant: 'destructive',
+          title: 'Cannot be updated',
+          description: errRes
+        })
+      }
+    ).finally(() => {
       setIsLoading(false)
     })
   }
@@ -250,4 +250,4 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
   )
 }
 
-export default EditForm;
+export default EditForm

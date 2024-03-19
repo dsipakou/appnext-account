@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import React, { FC, ReactElement, ReactNode } from 'react'
 import { signOut, useSession } from 'next-auth/react'
@@ -14,7 +14,7 @@ import {
   LineChart,
   Menu,
   ScrollText,
-  User2,
+  User2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -24,13 +24,13 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/select'
 import { useCurrencies } from '@/hooks/currencies'
 import { Currency } from '@/components/currencies/types'
 
-type Props = {
-  children: ReactNode,
+interface Props {
+  children: ReactNode
 }
 
 const Layout: FC<Props> = ({ children }) => {
@@ -44,7 +44,7 @@ const Layout: FC<Props> = ({ children }) => {
   }
 
   const { user } = session
-  const sessionCurrencySign = currencies.find((item: Currency) => item.code === user.currency)?.sign;
+  const sessionCurrencySign = currencies.find((item: Currency) => item.code === user.currency)?.sign
 
   React.useEffect(() => {
     setCurrencySign(sessionCurrencySign)
@@ -103,7 +103,7 @@ const Layout: FC<Props> = ({ children }) => {
     {
       name: 'Budget',
       icon: <GanttChart />,
-      link: '/budget/month',
+      link: '/budget/month'
     },
     {
       name: 'Currencies',
@@ -114,7 +114,7 @@ const Layout: FC<Props> = ({ children }) => {
       name: 'Reports',
       icon: <LineChart />,
       link: '/reports/'
-    },
+    }
   ]
 
   const bottomMenuItems = [
@@ -122,7 +122,7 @@ const Layout: FC<Props> = ({ children }) => {
       name: 'Users',
       icon: <User2 />,
       link: '/users/'
-    },
+    }
   ]
 
   const menuComponent = (name: string, icon: ReactElement, link: string): ReactElement => (
@@ -179,7 +179,7 @@ const Layout: FC<Props> = ({ children }) => {
             <Button
               variant="link"
               className="text-white"
-              onClick={() => signOut({callbackUrl: '/login'})}
+              onClick={async () => await signOut({ callbackUrl: '/login' })}
             >
               Logout
             </Button>

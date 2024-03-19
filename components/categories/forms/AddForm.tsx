@@ -1,18 +1,19 @@
-import React from 'react';
-import axios from 'axios';
+import React from 'react'
+import axios from 'axios'
 import * as z from 'zod'
+import EmojiPicker from 'emoji-picker-react'
 
-import { useSWRConfig } from 'swr';
-import { zodResolver } from "@hookform/resolvers/zod"
+import { useSWRConfig } from 'swr'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { useCategories } from '@/hooks/categories';
+import { useCategories } from '@/hooks/categories'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from '@/components/ui/dialog'
 import {
   Form,
@@ -20,7 +21,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -36,11 +37,11 @@ import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/components/ui/use-toast'
 
-import { Category, CategoryType  } from '../types';
+import { Category, CategoryType } from '../types'
 
 const formSchema = z.object({
   title: z.string().min(2, {
-    message: "Must be at least 2 characters long"
+    message: 'Must be at least 2 characters long'
   }),
   type: z.nativeEnum(CategoryType),
   isParent: z.boolean(),
@@ -49,7 +50,7 @@ const formSchema = z.object({
 }).superRefine((values, ctx) => {
   if (values.type === CategoryType.Expense && values.isParent && !values.parentCategory) {
     ctx.addIssue({
-      message: "Non-parent category should have parent selected",
+      message: 'Non-parent category should have parent selected',
       code: z.ZodIssueCode.custom,
       path: ['parentCategory']
     })
@@ -61,10 +62,10 @@ interface Types {
 }
 
 const AddForm: React.FC<Types> = ({ parent }) => {
-  const { mutate } = useSWRConfig();
-  const { data: categories } = useCategories();
+  const { mutate } = useSWRConfig()
+  const { data: categories } = useCategories()
 
-  const [parentList, setParentList] = React.useState<Category[]>([]);
+  const [parentList, setParentList] = React.useState<Category[]>([])
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
   const { toast } = useToast()
@@ -74,7 +75,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
     defaultValues: {
       title: '',
       type: CategoryType.Expense,
-      isParent: false,
+      isParent: false
     }
   })
 
@@ -85,11 +86,10 @@ const AddForm: React.FC<Types> = ({ parent }) => {
     if (!categories) return
 
     const parents = categories.filter(
-      (category: Category) => category.parent === null && category.type === CategoryType.Expense,
+      (category: Category) => category.parent === null && category.type === CategoryType.Expense
     )
     setParentList(parents)
-
-  }, [categories]);
+  }, [categories])
 
   React.useEffect(() => {
     if (!watchIsParent) {
@@ -98,7 +98,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
   }, [watchIsParent])
 
   React.useEffect(() => {
-    if (parent) {
+    if (parent != null) {
       form.setValue('isParent', true)
       form.setValue('parentCategory', parent.uuid)
     }
@@ -111,14 +111,14 @@ const AddForm: React.FC<Types> = ({ parent }) => {
       name: payload.title,
       parent: payload.parentCategory || '',
       type: payload.type,
-      description: payload.description,
+      description: payload.description
     }).then(
       res => {
         if (res.status === 201) {
-          mutate('categories/');
+          mutate('categories/')
           toast({
-              title: "Saved!"
-            })
+            title: 'Saved!'
+          })
         } else {
           // TODO: handle errors
         }
@@ -126,12 +126,12 @@ const AddForm: React.FC<Types> = ({ parent }) => {
     ).catch(
       (error) => {
         toast({
-            variant: "destructive",
-            title: "Something went wrong",
-            description: "Please, check your fields"
-          })
+          variant: 'destructive',
+          title: 'Something went wrong',
+          description: 'Please, check your fields'
+        })
       }
-    ).finally(() => {setIsLoading(false)})
+    ).finally(() => { setIsLoading(false) })
   }
 
   const cleanFormErrors = (open: boolean) => {
@@ -150,6 +150,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
         <DialogHeader>
           <DialogTitle>Add category</DialogTitle>
         </DialogHeader>
+        <EmojiPicker onEmojiClick={(event) => console.log(event)}/>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
             <div className="flex flex-col space-y-3">
@@ -282,4 +283,4 @@ const AddForm: React.FC<Types> = ({ parent }) => {
   )
 }
 
-export default AddForm;
+export default AddForm

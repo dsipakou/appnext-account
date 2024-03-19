@@ -45,13 +45,13 @@ const Index: React.FC = () => {
   const {
     data: incomeTransactions = [],
     isLoading: isIncomeTransactionsLoading,
-    url: incomeTransactionsUrl,
+    url: incomeTransactionsUrl
   } = useTransactions({
     sorting: 'added',
     limit: 100,
     type: 'income',
     dateFrom: getFormattedDate(new Date(incomeYear, 0, 1)),
-    dateTo: getFormattedDate(new Date(incomeYear, 11, 31)),
+    dateTo: getFormattedDate(new Date(incomeYear, 11, 31))
   })
 
   const overallSum = transactions?.reduce((acc: number, item: TransactionResponse) => {
@@ -115,8 +115,8 @@ const Index: React.FC = () => {
           </Button>
         </div>
       </div>
-        { activeType === 'outcome' ?
-          (
+        { activeType === 'outcome'
+          ? (
           <div className="grid grid-cols-7 gap-2">
             <div className="col-span-5 bg-white">
               <TransactionTable
@@ -132,7 +132,7 @@ const Index: React.FC = () => {
                   <Calendar
                     mode="single"
                     selected={transactionDate}
-                    onSelect={(day) => !!day && setTransactionDate(day)}
+                    onSelect={(day) => !(day == null) && setTransactionDate(day)}
                     weekStartsOn={1}
                   />
                 </div>
@@ -153,17 +153,16 @@ const Index: React.FC = () => {
               </div>
             </div>
           </div>
-        )
-        :
-        (
+            )
+          : (
           <IncomeComponent
             transactions={incomeTransactions}
             isLoading={isIncomeTransactionsLoading}
             year={incomeYear}
             setYear={setIncomeYear}
           />
-        )}
-      <AddForm open={isOpenTransactionsDialog} onOpenChange={setIsOpenTransactionsDialog}  url={transactionsUrl} />
+            )}
+      <AddForm open={isOpenTransactionsDialog} onOpenChange={setIsOpenTransactionsDialog} url={transactionsUrl} />
       <AddIncomeForm open={isOpenAddIncomeTransactions} url={incomeTransactionsUrl} handleClose={handleCloseModal} />
       {
         isOpenEditTransactions &&

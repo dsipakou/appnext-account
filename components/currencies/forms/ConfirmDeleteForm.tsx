@@ -1,6 +1,6 @@
 import React from 'react'
-import axios from 'axios';
-import { useSWRConfig } from 'swr';
+import axios from 'axios'
+import { useSWRConfig } from 'swr'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -10,13 +10,13 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog'
 import { useToast } from '@/components/ui/use-toast'
-import { useCurrencies } from '@/hooks/currencies';
-import { Currency } from '../types';
+import { useCurrencies } from '@/hooks/currencies'
+import { Currency } from '../types'
 
 interface Types {
-  uuid: string,
-  open: boolean,
-  handleClose: () => void;
+  uuid: string
+  open: boolean
+  handleClose: () => void
 }
 
 const ConfirmDeleteForm: React.FC<Types> = ({ open = false, uuid, handleClose }) => {
@@ -34,7 +34,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open = false, uuid, handleClose })
   }, [currencies, uuid])
 
   const handleDelete = () => {
-    if (!currency) return
+    if (currency == null) return
 
     setIsLoading(true)
     axios
@@ -45,7 +45,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open = false, uuid, handleClose })
             mutate('currencies/')
             handleClose()
             toast({
-              title: "Deleted successfully"
+              title: 'Deleted successfully'
             })
           } else {
             // TODO: handle errors [non-empty parent,]
@@ -55,7 +55,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open = false, uuid, handleClose })
       .catch(
         (err) => {
           toast({
-            title: "Please, try again"
+            title: 'Please, try again'
           })
         }
       )

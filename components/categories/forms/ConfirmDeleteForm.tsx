@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 import {
   Dialog,
   DialogContent,
@@ -7,35 +7,34 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import axios from 'axios';
-import { useSWRConfig } from 'swr';
-import { useRouter } from 'next/router';
+import axios from 'axios'
+import { useSWRConfig } from 'swr'
+import { useRouter } from 'next/router'
 import { useToast } from '@/components/ui/use-toast'
-import { CategoryResponse, useCategories } from '../../../hooks/categories';
+import { CategoryResponse, useCategories } from '../../../hooks/categories'
 
 interface Types {
-  uuid: string,
+  uuid: string
 }
 
 const ConfirmDeleteForm: React.FC<Types> = ({ uuid }) => {
-  const [category, setCategory] = React.useState<CategoryResponse>();
+  const [category, setCategory] = React.useState<CategoryResponse>()
   const [open, setOpen] = React.useState<boolean>(false)
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const { mutate } = useSWRConfig();
-  const router = useRouter();
+  const { mutate } = useSWRConfig()
+  const router = useRouter()
   const { toast } = useToast()
 
-  const { data: categories } = useCategories();
-  const { uuid: queryUuid } = router.query;
+  const { data: categories } = useCategories()
+  const { uuid: queryUuid } = router.query
 
   React.useEffect(() => {
-    if (!categories) return;
+    if (!categories) return
 
-    const _category = categories.find((category: CategoryResponse) => category.uuid === uuid);
-    if (_category) {
+    const _category = categories.find((category: CategoryResponse) => category.uuid === uuid)
+    if (_category != null) {
       setCategory(_category)
     }
-
   }, [categories, uuid])
 
   const handleDelete = () => {
@@ -46,9 +45,9 @@ const ConfirmDeleteForm: React.FC<Types> = ({ uuid }) => {
         res => {
           if (res.status === 204) {
             if (category!.uuid === queryUuid) {
-              router.push('/categories/');
+              router.push('/categories/')
             }
-            mutate('categories/');
+            mutate('categories/')
             setOpen(false)
             toast({
               title: `Category '${category?.name}' deleted!`
@@ -60,18 +59,28 @@ const ConfirmDeleteForm: React.FC<Types> = ({ uuid }) => {
       )
       .catch(
         (err) => {
-          toast({
-            variant: 'destructive',
-            title: 'Something went wrong'
-          })
+          console.log(err.response?.data[0])
+          const errMessage = err.response?.data[0]
+          if (errMessage.includes('There are transactions assigned')) {
+            toast({
+              variant: 'destructive',
+              title: 'This category contains transactions',
+              description: 'You need to choose different category to re-assign transactions'
+            })
+          } else {
+            toast({
+              variant: 'destructive',
+              title: 'Something went wrong'
+            })
+          }
         }
       )
       .finally(
         () => {
           setIsLoading(false)
         }
-      );
-  };
+      )
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -92,4 +101,4 @@ const ConfirmDeleteForm: React.FC<Types> = ({ uuid }) => {
   )
 }
 
-export default ConfirmDeleteForm;
+export default ConfirmDeleteForm

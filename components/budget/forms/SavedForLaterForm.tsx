@@ -18,10 +18,10 @@ interface Types {
   monthUrl: string
 }
 
-const SavedForLaterForm: React.FC<Types> = ({weekUrl, monthUrl}) => {
+const SavedForLaterForm: React.FC<Types> = ({ weekUrl, monthUrl }) => {
   const [isEditDialogOpened, setIsEditDialogOpened] = React.useState<boolean>(false)
   const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] = React.useState<boolean>(false)
-  const [activeBudgetUuid, setActiveBudgetUuid] = React.useState<string>("")
+  const [activeBudgetUuid, setActiveBudgetUuid] = React.useState<string>('')
 
   const { data: pendingBudget = [] } = usePendingBudget()
   const { data: categories = [] } = useCategories()
@@ -30,7 +30,6 @@ const SavedForLaterForm: React.FC<Types> = ({weekUrl, monthUrl}) => {
   const getCurrencySign = (currency: Currency) => {
     return currencies.find((item: Currency) => item == currency)?.sign || ''
   }
-
 
   const clearForm = () => {
   }
@@ -66,7 +65,7 @@ const SavedForLaterForm: React.FC<Types> = ({weekUrl, monthUrl}) => {
           </DialogHeader>
         )}
         <div className="flex flex-col gap-3">
-          { pendingBudget.length === 0 
+          { pendingBudget.length === 0
             ? (
               <div className="flex flex-col col-span-4 justify-center">
                 <span className="text-2xl mb-2">You have no pending items</span>
@@ -77,8 +76,8 @@ const SavedForLaterForm: React.FC<Types> = ({weekUrl, monthUrl}) => {
                     <span className="text-sm">just create a budget and don't specify a date for it.</span>
                   </div>
                 </div>
-              </div> 
-            )
+              </div>
+              )
             : (
               <>
                 { pendingBudget.map((budgetItem: WeekBudgetItem) => (
@@ -113,10 +112,10 @@ const SavedForLaterForm: React.FC<Types> = ({weekUrl, monthUrl}) => {
                       </div>
                     </div>
                     { isEditDialogOpened && (
-                      <EditForm 
+                      <EditForm
                         open={isEditDialogOpened}
                         setOpen={() => clickEdit(budgetItem.uuid)}
-                        uuid={activeBudgetUuid} 
+                        uuid={activeBudgetUuid}
                         weekUrl={weekUrl}
                         monthUrl={monthUrl}
                       />
@@ -131,10 +130,10 @@ const SavedForLaterForm: React.FC<Types> = ({weekUrl, monthUrl}) => {
                       />
                     )}
                   </div>
-                  )
+                )
                 )}
               </>
-            ) 
+              )
           }
         </div>
       </DialogContent>

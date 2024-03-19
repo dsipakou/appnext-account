@@ -1,7 +1,7 @@
-import React from 'react';
-import InputMask from 'react-input-mask';
-import axios from 'axios';
-import { useSWRConfig } from 'swr';
+import React from 'react'
+import InputMask from 'react-input-mask'
+import axios from 'axios'
+import { useSWRConfig } from 'swr'
 import { useForm } from 'react-hook-form'
 import { useToast } from '@/components/ui/use-toast'
 import { Button } from '@/components/ui/button'
@@ -11,7 +11,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from '@/components/ui/dialog'
 import {
   Form,
@@ -19,13 +19,12 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { useRatesOnDate } from '@/hooks/rates';
-import { getFormattedDate } from '@/utils/dateUtils';
-import { RateResponse } from '@/hooks/rates';
-import { Currency, RatePostRequest, RateItemPostRequest } from '../types';
+import { useRatesOnDate, RateResponse } from '@/hooks/rates'
+import { getFormattedDate } from '@/utils/dateUtils'
+import { Currency, RatePostRequest, RateItemPostRequest } from '../types'
 
 interface Types {
   currencies: Currency[]
@@ -37,32 +36,32 @@ interface FormData {
 }
 
 const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
-  const { mutate } = useSWRConfig();
-  const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
-  const [errors, setErrors] = React.useState<string[]>([]);
+  const { mutate } = useSWRConfig()
+  const [selectedDate, setSelectedDate] = React.useState<Date>(new Date())
+  const [errors, setErrors] = React.useState<string[]>([])
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const form = useForm<FormData>()
-  const { data: ratesOnDate = [], url } = useRatesOnDate(getFormattedDate(selectedDate));
+  const { data: ratesOnDate = [], url } = useRatesOnDate(getFormattedDate(selectedDate))
 
   const { toast } = useToast()
 
   React.useEffect(() => {
     form.setValue('rateDate', selectedDate)
-    if (currencies.length) {
+    if (currencies.length > 0) {
       currencies.forEach((item: Currency) => {
         form.setValue(item.uuid, '')
       })
     }
 
-    if (!ratesOnDate.length) return
+    if (ratesOnDate.length === 0) return
 
-    ratesOnDate.forEach( (item: RateResponse) => {
+    ratesOnDate.forEach((item: RateResponse) => {
       form.setValue(item.currency, item.rate)
     })
   }, [selectedDate, ratesOnDate])
 
   const changeDate = (day: Date | undefined) => {
-    if (!!day) {
+    if (day != null) {
       setSelectedDate(day)
     }
   }
@@ -75,38 +74,38 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
     const requestPayload: RatePostRequest = {
       baseCurrency: getBaseCurrency().uuid,
       items: [],
-      rateDate: getFormattedDate(formData.rateDate),
+      rateDate: getFormattedDate(formData.rateDate)
     }
 
     Object.keys(formData).forEach((uuid: string) => {
       if (uuid === 'rateDate') return
 
-      const normalizedRate: number = typeof formData[uuid] === 'number' ?
-        Number(formData[uuid]) :
-        Number(String(formData[uuid]).replace(/[^0-9.]/g, ''))
+      const normalizedRate: number = typeof formData[uuid] === 'number'
+        ? Number(formData[uuid])
+        : Number(String(formData[uuid]).replace(/[^0-9.]/g, ''))
       const rateItem: RateItemPostRequest = {
         currency: uuid,
         rate: String(normalizedRate)
       }
-      if (normalizedRate !== 0) requestPayload.items.push(rateItem);
-    });
+      if (normalizedRate !== 0) requestPayload.items.push(rateItem)
+    })
 
-    return requestPayload;
+    return requestPayload
   }
 
   const handleSave = (formData: FormData): void => {
     setIsLoading(true)
 
-    const payload = prepareSaveRequest(formData);
+    const payload = prepareSaveRequest(formData)
 
     axios.post('rates/batched/', {
-      ...payload,
+      ...payload
     }).then(
       res => {
         if (res.status === 200) {
           mutate(url)
           toast({
-            title: "Saved!"
+            title: 'Saved!'
           })
         } else {
           // TODO: handle errors
@@ -114,18 +113,18 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
       }
     ).catch(
       (error) => {
-        const errRes = error.response.data;
+        const errRes = error.response.data
         for (const prop in errRes) {
-        toast({
-            variant: "destructive",
-            title: "Something went wrong",
-            description: prop,
+          toast({
+            variant: 'destructive',
+            title: 'Something went wrong',
+            description: prop
           })
-          setErrors(errRes[prop]);
+          setErrors(errRes[prop])
         }
       }
     ).finally(() => {
-        setIsLoading(false)
+      setIsLoading(false)
     })
   }
 
@@ -199,4 +198,4 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
   )
 }
 
-export default AddRatesForm;
+export default AddRatesForm

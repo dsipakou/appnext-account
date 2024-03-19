@@ -2,7 +2,7 @@ import React from 'react'
 import * as z from 'zod'
 import { useSession } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from "@hookform/resolvers/zod"
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,7 +10,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from '@/components/ui/dialog'
 import {
   Form,
@@ -18,7 +18,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -28,36 +28,36 @@ import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import axios from 'axios';
-import { useSWRConfig } from 'swr';
+  TooltipTrigger
+} from '@/components/ui/tooltip'
+import axios from 'axios'
+import { useSWRConfig } from 'swr'
 import { useToast } from '@/components/ui/use-toast'
 
 interface Types {
-  open: boolean,
-  handleClose: () => void,
+  open: boolean
+  handleClose: () => void
 }
 
 const formSchema = z.object({
-  verbalName: z.string().min(2, { message: "Must be at least 2 characters long" }),
+  verbalName: z.string().min(2, { message: 'Must be at least 2 characters long' }),
   code: z.string().length(3, {
-    message: "Must be 3 characters long"
+    message: 'Must be 3 characters long'
   }),
   sign: z.string({
-    required_error: "You need to specify currency sign",
+    required_error: 'You need to specify currency sign'
   }),
   isDefault: z.boolean().optional(),
-  comments: z.string().optional(),
+  comments: z.string().optional()
 })
 
 const AddForm: React.FC<Types> = ({ handleClose }) => {
-  const { mutate } = useSWRConfig();
+  const { mutate } = useSWRConfig()
   const { update: updateSession } = useSession()
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema)
   })
 
   const { toast } = useToast()
@@ -66,29 +66,29 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
     setIsLoading(true)
 
     axios.post('currencies/', {
-      ...payload,
+      ...payload
     }).then(
       res => {
         if (res.status === 201) {
-          mutate('currencies/');
+          mutate('currencies/')
           if (res.data.isBase) {
-            updateSession({ currency: payload.code})
+            updateSession({ currency: payload.code })
           }
           toast({
-            title: "Saved!"
+            title: 'Saved!'
           })
-          handleClose();
+          handleClose()
         } else {
           // TODO: handle errors
         }
       }
     ).catch(
       (error) => {
-        const errRes = error.response.data;
+        const errRes = error.response.data
         for (const prop in errRes) {
           toast({
-            variant: "destructive",
-            title: "Something went wrong",
+            variant: 'destructive',
+            title: 'Something went wrong',
             description: prop
           })
         }
@@ -240,4 +240,4 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
   )
 }
 
-export default AddForm;
+export default AddForm

@@ -1,6 +1,5 @@
 import { FC } from 'react'
 import { useStore } from '@/app/store'
-import { Currency } from '@/components/currencies/types'
 import { useSession } from 'next-auth/react'
 import { AlertTriangle, CheckCircle, Repeat2 } from 'lucide-react'
 import { getDate, format } from 'date-fns'
@@ -9,13 +8,12 @@ import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 import { Badge } from '@/components/ui/badge'
-import { MonthGroupedBudgetItem } from '@/components/budget/types'
+import { MonthGroupedBudgetItem, MonthBudgetItem } from '@/components/budget/types'
 import { formatMoney } from '@/utils/numberUtils'
 import { useCategories } from '@/hooks/categories'
-import { MonthBudgetItem } from '@/components/budget/types'
 import { parseDate, getFormattedDate, LONG_YEAR_SHORT_MONTH_FORMAT } from '@/utils/dateUtils'
 import { Category } from '@/components/categories/types'
 
@@ -24,7 +22,7 @@ interface Types {
 }
 
 const GroupedBudgetButton: FC<Types> = ({ item }) => {
-  const { data: { user }} = useSession()
+  const { data: { user } } = useSession()
 
   const { data: categories } = useCategories()
 
@@ -52,8 +50,8 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
 
   const recurrent = item.items[0].recurrent
 
-  const cssClass = !!recurrent ?
-    recurrent === 'monthly'
+  const cssClass = recurrent
+    ? recurrent === 'monthly'
       ? 'p-2 border-l-8 border-blue-400'
       : 'border-l-8 border-yellow-400'
     : 'border-gray-300'
@@ -153,9 +151,11 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
         </div>
         <div className="relative">
           {
-            item.isAnotherMonth ? anotherMonthProgress() :
-              item.isAnotherCategory ? anotherCategoryProgress() :
-              regularProgress()
+            item.isAnotherMonth
+              ? anotherMonthProgress()
+              : item.isAnotherCategory
+                ? anotherCategoryProgress()
+                : regularProgress()
           }
         </div>
         <div className="flex w-full">
@@ -173,4 +173,4 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
   )
 }
 
-export default GroupedBudgetButton;
+export default GroupedBudgetButton

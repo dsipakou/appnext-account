@@ -10,7 +10,7 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/select'
 import {
   Category,
@@ -50,9 +50,11 @@ const CategoryComponent: React.FC<CategoryComponentTypes> = (params) => {
 
   return (
     <div className="flex w-full h-full bg-slate-100 p-[2px] select-none items-center">
-      {!parents.length ? (
+      {!parents.length
+        ? (
         <span className="italic text-red-500">No categories found</span>
-      ) : (
+          )
+        : (
         <Select
           onValueChange={handleChange}
           value={value}
@@ -61,18 +63,18 @@ const CategoryComponent: React.FC<CategoryComponentTypes> = (params) => {
             <SelectValue placeholder="Select a category" />
           </SelectTrigger>
           <SelectContent>
-              {
-                budgetCategory && getPlannedCategory(budgetCategory) && (
-                  <SelectGroup>
-                    <SelectLabel>Planned for</SelectLabel>
-                    {
-                      getChildren(getPlannedCategory(budgetCategory).uuid).map((subitem: Category) => (
-                        <SelectItem key={subitem.uuid} value={subitem}>{getPlannedCategory(budgetCategory).name} / {subitem.name}</SelectItem>
-                      ))
-                    }
-                  </SelectGroup>
-                )
-              }
+            {
+              budgetCategory && (getPlannedCategory(budgetCategory) != null) && (
+                <SelectGroup>
+                  <SelectLabel>Planned for</SelectLabel>
+                  {
+                    getChildren(getPlannedCategory(budgetCategory).uuid).map((subitem: Category) => (
+                      <SelectItem key={subitem.uuid} value={subitem}>{getPlannedCategory(budgetCategory).name} / {subitem.name}</SelectItem>
+                    ))
+                  }
+                </SelectGroup>
+              )
+            }
             <SelectGroup>
               <SelectLabel>Categories</SelectLabel>
               {parents.map((item: Category) => {
@@ -83,7 +85,7 @@ const CategoryComponent: React.FC<CategoryComponentTypes> = (params) => {
             </SelectGroup>
           </SelectContent>
         </Select>
-      )}
+          )}
     </div>
   )
 }

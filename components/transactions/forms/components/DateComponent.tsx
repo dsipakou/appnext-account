@@ -2,7 +2,7 @@ import React from 'react'
 import {
   addDays,
   subDays,
-  format,
+  format
 } from 'date-fns'
 import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react'
 import {
@@ -36,14 +36,14 @@ const DateComponent: React.FC<Types> = (params) => {
             variant="outline"
             className="flex text-xs w-full justify-start rounded-xl h-full border-2 bg-white border-2 text-left font-normal">
               <CalendarDays className="mr-2 h-4 w-4" />
-              {value ? format(value, "MMM dd") : (<span>Pick a date</span>)}
+              {value ? format(value, 'MMM dd') : (<span>Pick a date</span>)}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="h-full w-full p-0">
           <Calendar
             mode="single"
             selected={value}
-            onSelect={(date: Date | undefined) => !!date && handleChange(date)}
+            onSelect={(date: Date | undefined) => !(date == null) && handleChange(date)}
             weekStartsOn={1}
             initialFocus
           />

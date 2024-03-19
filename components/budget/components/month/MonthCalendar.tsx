@@ -1,14 +1,13 @@
 import React from 'react'
 import { CalendarDays } from 'lucide-react'
 import { DateRange } from 'react-day-picker'
-import { format, startOfMonth, endOfMonth } from 'date-fns'
+import { format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Calendar } from '@/components/ui/calendar'
-import { addMonths, subMonths } from 'date-fns'
 
 interface Types {
-  date: Date,
+  date: Date
   setMonthDate: (date: Date) => void
 }
 
@@ -35,7 +34,7 @@ const MonthCalendar: React.FC<Types> = ({ date: monthDate, setMonthDate }) => {
             variant="outline"
             className={`w-[280px] justify-start hover:bg-white border-2 h-12 text-left font-normal" ${monthDate && 'text-muted-foreground'}`}>
               <CalendarDays className="mr-2 h-6 w-6" />
-              {monthDate ? format(monthDate, "MMM, yyyy") : (<span>Pick a date</span>)}
+              {monthDate ? format(monthDate, 'MMM, yyyy') : (<span>Pick a date</span>)}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="h-full w-full p-0">
@@ -44,7 +43,7 @@ const MonthCalendar: React.FC<Types> = ({ date: monthDate, setMonthDate }) => {
             month={month}
             onMonthChange={setMonth}
             selected={range}
-            onSelect={(date: Date | undefined) => !!date && setMonthDate(date)}
+            onSelect={(date: Date | undefined) => !(date == null) && setMonthDate(date)}
             initialFocus
           />
         </PopoverContent>
@@ -56,4 +55,4 @@ const MonthCalendar: React.FC<Types> = ({ date: monthDate, setMonthDate }) => {
   )
 }
 
-export default MonthCalendar;
+export default MonthCalendar

@@ -1,9 +1,10 @@
 import React from 'react'
 import axios from 'axios'
 import * as z from 'zod'
+import { useSWRConfig } from 'swr'
 import { useForm } from 'react-hook-form'
 import { useToast } from '@/components/ui/use-toast'
-import { zodResolver } from "@hookform/resolvers/zod"
+import { zodResolver } from '@hookform/resolvers/zod'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -11,14 +12,14 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
+  FormLabel
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
@@ -34,6 +35,7 @@ const AddForm: React.FC = () => {
   })
 
   const { toast } = useToast()
+  const { mutate } = useSWRConfig()
 
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
@@ -45,31 +47,30 @@ const AddForm: React.FC = () => {
     setIsLoading(true)
 
     axios.post('users/invite/', {
-      ...payload,
+      ...payload
     }).then(
       res => {
         if (res.status === 201) {
-          // mutate
+          mutate('users/invite/')
         }
         toast({
-          title: "Saved!"
+          title: 'Saved!'
         })
       }
     ).catch(
       (error) => {
-        const errRes = error.response.data;
+        const errRes = error.response.data
         for (const prop in errRes) {
-          if (prop === "nonFieldErrors" && errRes[prop].indexOf("unique set")) {
+          if (prop === 'nonFieldErrors' && errRes[prop].indexOf('unique set')) {
             toast({
-              variant: "destructive",
-              title: "You have already sent invite for this user",
+              variant: 'destructive',
+              title: 'You have already sent invite for this user'
             })
-          }
-          else {
+          } else {
             toast({
-              variant: "destructive",
-              title: "Something went wrong",
-              description: errRes[prop],
+              variant: 'destructive',
+              title: 'Something went wrong',
+              description: errRes[prop]
             })
           }
         }

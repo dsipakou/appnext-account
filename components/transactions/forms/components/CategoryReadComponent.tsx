@@ -16,7 +16,7 @@ const CategoryReadComponent: React.FC<Types> = (params) => {
     return categoryName
   }
 
-  if (!params.value) {
+  if (params.value == null) {
     return
   }
 

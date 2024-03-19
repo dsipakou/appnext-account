@@ -2,13 +2,13 @@ import React from 'react'
 import {
   GridRenderCellParams,
   GridRowModesModel,
-  GridRowModes,
+  GridRowModes
 } from '@mui/x-data-grid'
 import { useCurrencies } from '@/hooks/currencies'
 import { Currency } from '@/components/currencies/types'
 
 interface Types extends GridRenderCellParams {
-  rowModesModel: GridRowModesModel,
+  rowModesModel: GridRowModesModel
 }
 
 const BaseAmountReadComponent: React.FC<Types> = (params) => {

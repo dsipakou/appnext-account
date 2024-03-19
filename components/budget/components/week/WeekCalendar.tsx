@@ -1,14 +1,13 @@
 import * as React from 'react'
-import { startOfWeek, endOfWeek, getWeekOfMonth, format } from 'date-fns'
+import { startOfWeek, endOfWeek, getWeekOfMonth, format, addDays, subDays } from 'date-fns'
 import { DateRange } from 'react-day-picker'
 import { CalendarDays } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { addDays, subDays } from 'date-fns'
 
 interface Types {
-  date: Date,
+  date: Date
   setWeekDate: (date: Date) => void
 }
 
@@ -21,7 +20,7 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
   }
 
   const setWeekDateProxy = (date: Date | undefined) => {
-    if (date) {
+    if (date != null) {
       setWeekDate(date)
     }
   }
@@ -44,7 +43,7 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
             variant="outline"
             className={`w-[280px] justify-start hover:bg-white border-2 h-12 text-left font-normal" ${weekDate && 'text-muted-foreground'}`}>
             <CalendarDays className="mr-2 h-6 w-6" />
-            {weekDate ? `Week ${getWeekOfMonth(weekDate)} of ${format(weekDate, "MMM, yyyy")}` : <span>Pick a date</span>}
+            {weekDate ? `Week ${getWeekOfMonth(weekDate)} of ${format(weekDate, 'MMM, yyyy')}` : <span>Pick a date</span>}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="h-full w-full p-0">
@@ -53,7 +52,7 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
             month={month}
             onMonthChange={setMonth}
             selected={range}
-            onSelect={(date: Date | undefined) => !!date && setWeekDateProxy(date)}
+            onSelect={(date: Date | undefined) => !(date == null) && setWeekDateProxy(date)}
             showWeekNumber
             ISOWeek
             initialFocus
@@ -70,4 +69,4 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
   )
 }
 
-export default WeekCalendar;
+export default WeekCalendar

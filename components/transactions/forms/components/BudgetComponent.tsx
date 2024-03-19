@@ -11,7 +11,7 @@ import {
   SelectLabel,
   SelectSeparator,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/select'
 import { WeekBudgetItem } from '@/components/budget/types'
 import { useBudgetWeek } from '@/hooks/budget'
@@ -38,8 +38,8 @@ const BudgetComponent: React.FC<BudgetComponentTypes> = (params) => {
 
     const completedBudgets = budgets.filter((item: WeekBudgetItem) => item.isCompleted && item.user === user)
     const incompletedBudgets = budgets.filter((item: WeekBudgetItem) => !item.isCompleted && item.user === user)
-    const activeBudget = typeof value === 'string' 
-      ? budgets.find((item: WeekBudgetItem) => item.uuid === value) 
+    const activeBudget = typeof value === 'string'
+      ? budgets.find((item: WeekBudgetItem) => item.uuid === value)
       : value
 
     apiRef.current.setEditCellValue({ id, field, value: row.account.user === activeBudget?.user ? activeBudget : null })
@@ -55,12 +55,14 @@ const BudgetComponent: React.FC<BudgetComponentTypes> = (params) => {
 
   return (
     <div className="flex w-full h-full bg-slate-100 justify-center p-[2px] select-none items-center">
-      {!user ? (
+      {!user
+        ? (
         <span className="italic">No account selected</span>
-      ) : (
+          )
+        : (
         <Select
           onValueChange={handleChange}
-          value={!![...completedItems, ...incompletedItems].length ? value : ''}
+          value={([...completedItems, ...incompletedItems].length > 0) ? value : ''}
         >
           <SelectTrigger className="relative bg-white text-xs rounded-xl h-full border-2">
             <SelectValue />
@@ -88,7 +90,7 @@ const BudgetComponent: React.FC<BudgetComponentTypes> = (params) => {
             )}
           </SelectContent>
         </Select>
-      )}
+          )}
     </div>
   )
 }

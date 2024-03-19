@@ -10,7 +10,12 @@ import { useAccounts } from '@/hooks/accounts'
 import { useUsers } from '@/hooks/users'
 import { AccountResponse } from './types'
 import { User } from '@/components/users/types'
-import { AddForm as AddAccount, EditForm as EditAccount, ConfirmDeleteForm } from './forms'
+import {
+  AddForm as AddAccount,
+  EditForm as EditAccount,
+  ConfirmDeleteForm,
+  ReassignTransactionsForm
+} from './forms'
 
 const Index: React.FC = () => {
   const { data: users = [] } = useUsers()
@@ -34,10 +39,10 @@ const Index: React.FC = () => {
         <AddAccount />
       </div>
       {
-        !accounts.length && noAccounts
+        (accounts.length === 0) && noAccounts
       }
       <div className="grid grid-cols-3 gap-3">
-        {!!accounts.length && accounts.map((item: AccountResponse) => (
+        {!(accounts.length === 0) && accounts.map((item: AccountResponse) => (
           <div key={item.uuid}>
             <Card>
               <CardHeader>
@@ -47,6 +52,7 @@ const Index: React.FC = () => {
                 <p>{getUser(item.user)?.username}</p>
               </CardContent>
               <CardFooter className="flex justify-end">
+                <ReassignTransactionsForm uuid={item.uuid} />
                 <EditAccount uuid={item.uuid} />
                 <ConfirmDeleteForm uuid={item.uuid} />
               </CardFooter>

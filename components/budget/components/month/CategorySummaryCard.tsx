@@ -10,7 +10,7 @@ interface Types {
 }
 
 const CategorySummaryCard: FC<Types> = ({ item }) => {
-  const { data: { user }} = useSession()
+  const { data: { user } } = useSession()
 
   const planned = item.plannedInCurrencies[user?.currency]
   const spent = item.spentInCurrencies[user?.currency]

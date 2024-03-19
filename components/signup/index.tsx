@@ -13,17 +13,17 @@ import {
   FormField,
   FormLabel,
   FormItem,
-  FormMessage,
+  FormMessage
 } from '@/components/ui/form'
 
 const formSchema = z.object({
   email: z.string().email(),
   username: z.string(),
   password: z.string(),
-  repeatPassword: z.string(),
+  repeatPassword: z.string()
 }).refine((data) => data.password === data.repeatPassword, {
   message: "Passwords don't match",
-  path: ["repeatPassword"],
+  path: ['repeatPassword']
 })
 
 const Index: React.FC = () => {
@@ -32,10 +32,10 @@ const Index: React.FC = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      username: "",
-      password: "",
-      repeatPassword: "",
+      email: '',
+      username: '',
+      password: '',
+      repeatPassword: ''
     }
   })
 
@@ -54,16 +54,16 @@ const Index: React.FC = () => {
         signIn('credentials', {
           username: payload.email,
           password: payload.password,
-          callbackUrl: `${window.location.origin}/`,
+          callbackUrl: `${window.location.origin}/`
         })
         console.log('after signin')
       }
     }).catch((err) => {
-        if (err.response.data.hasOwnProperty('password')) {
-          form.setError('password', { type: 'custom', message: err.response.data.password})
-        } else if (err.response.data.hasOwnProperty('email')) {
-          form.setError('email', { type: 'custom', message: "Most probably this email is already registered"})
-        }
+      if (err.response.data.hasOwnProperty('password')) {
+        form.setError('password', { type: 'custom', message: err.response.data.password })
+      } else if (err.response.data.hasOwnProperty('email')) {
+        form.setError('email', { type: 'custom', message: 'Most probably this email is already registered' })
+      }
     }).finally(() => {
       setIsLoading(false)
     })

@@ -15,7 +15,7 @@ const Layout = lazy(async () => await import('../components/common/layout/Layout
 
 const App = ({
   Component,
-  pageProps: { session, ...pageProps },
+  pageProps: { session, ...pageProps }
 }: AppProps<{ session: Session }>) => {
   const themeOptions = { typography }
 
@@ -35,42 +35,43 @@ const App = ({
     <SessionProvider session={session}>
       <ThemeProvider theme={theme}>
         <Toaster />
-        {Component.auth ? (
+        {Component.auth
+          ? (
           <Auth>
             <Layout>
               <Component {...pageProps} />
             </Layout>
           </Auth>
-        ) : (
+            )
+          : (
           <Layout>
             <Component {...pageProps} />
           </Layout>
-        )}
+            )}
       </ThemeProvider>
     </SessionProvider>
   )
 }
 
-type AuthProps = {
+interface AuthProps {
   children: React.ReactNode
 }
 
-function Auth({ children }: AuthProps) {
+function Auth ({ children }: AuthProps) {
   const router = useRouter()
 
   const { data: session, status } = useSession({
     required: true,
-    onUnauthenticated() {
+    onUnauthenticated () {
       router.push('/login')
     }
   })
 
-  if (status === "loading") {
+  if (status === 'loading') {
     return
   }
 
-  axios.defaults.headers.common['Authorization'] = `Token ${session.user.token}`;
-
+  axios.defaults.headers.common.Authorization = `Token ${session.user.token}`
 
   return children
 }

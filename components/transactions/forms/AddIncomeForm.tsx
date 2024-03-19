@@ -1,6 +1,6 @@
 import React from 'react'
 import * as z from 'zod'
-import { useSWRConfig } from 'swr';
+import { useSWRConfig } from 'swr'
 import { useSession } from 'next-auth/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -44,22 +44,22 @@ import { useToast } from '@/components/ui/use-toast'
 import { User } from '@/components/users/types'
 
 interface Types {
-  open: boolean,
-  url: string,
-  handleClose: () => void,
+  open: boolean
+  url: string
+  handleClose: () => void
 }
 
 const formSchema = z.object({
-  account: z.string().uuid({message: "Please, select account"}),
+  account: z.string().uuid({ message: 'Please, select account' }),
   amount: z.coerce.number().min(0, {
-    message: "Should be positive number",
+    message: 'Should be positive number'
   }),
-  category: z.string().uuid({message: "Please, select category"}),
-  currency: z.string().uuid({message: "Please, select currency"}),
+  category: z.string().uuid({ message: 'Please, select category' }),
+  currency: z.string().uuid({ message: 'Please, select currency' }),
   description: z.string().optional(),
   transactionDate: z.date({
-    required_error: "Transaction date is required",
-  }),
+    required_error: 'Transaction date is required'
+  })
 })
 
 const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
@@ -68,14 +68,14 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
   const [month, setMonth] = React.useState<Date>(new Date())
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
-  const { mutate } = useSWRConfig();
+  const { mutate } = useSWRConfig()
   const { toast } = useToast()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      amount: "",
-      transactionDate: selectedDate,
+      amount: '',
+      transactionDate: selectedDate
     }
   })
 
@@ -98,7 +98,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
   }, [watchCalendar])
 
   React.useEffect(() => {
-    if (!authUser || !users.length) return
+    if (!authUser || (users.length === 0)) return
 
     const _user = users.find((item: User) => item.username === authUser.username)!
     setUser(_user.uuid)
@@ -110,26 +110,26 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
     axios.post('transactions/', {
       ...payload,
       transactionDate: getFormattedDate(payload.transactionDate),
-      user,
+      user
     }).then(
       res => {
         if (res.status === 201) {
-          mutate(url);
+          mutate(url)
           toast({
-            title: "Saved!"
+            title: 'Saved!'
           })
-          handleClose();
+          handleClose()
         } else {
           // TODO: handle errors
         }
       }
     ).catch(
       (error) => {
-        const errRes = error.response.data;
+        const errRes = error.response.data
         for (const prop in errRes) {
           toast({
-            variant: "destructive",
-            title: "Something went wrong",
+            variant: 'destructive',
+            title: 'Something went wrong',
             description: prop
           })
         }
@@ -254,7 +254,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                               <SelectGroup>
                                 <SelectLabel>Currencies</SelectLabel>
                                 {currencies && currencies.map((item: Currency) => (
-                                  !!availableRates[item.code]
+                                  availableRates[item.code]
                                     ? <SelectItem key={item.uuid} value={item.uuid}>{item.code}</SelectItem>
                                     : <SelectItem key={item.uuid} value={item.uuid} disabled>{item.code}</SelectItem>
                                 ))}
@@ -298,7 +298,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          disabled={(date) => isLoading || date < new Date("1900-01-01")}
+                          disabled={(date) => isLoading || date < new Date('1900-01-01')}
                           month={month}
                           onMonthChange={setMonth}
                           weekStartsOn={1}

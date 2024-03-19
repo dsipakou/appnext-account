@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as z from 'zod'
-import { zodResolver } from "@hookform/resolvers/zod"
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import { Button } from '@/components/ui/button'
@@ -9,7 +9,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from '@/components/ui/dialog'
 import {
   Form,
@@ -17,7 +17,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -45,12 +45,12 @@ interface Types {
 
 const formSchema = z.object({
   title: z.string().min(2, {
-    message: "Title must be at least 2 characters",
+    message: 'Title must be at least 2 characters'
   }),
-  user: z.string().uuid({message: "Please, select user"}),
+  user: z.string().uuid({ message: 'Please, select user' }),
   category: z.union([z.string().uuid(), z.string().length(0)]).optional().nullable(),
   isMain: z.boolean(),
-  description: z.string().optional(),
+  description: z.string().optional()
 })
 
 const EditForm: React.FC<Types> = ({ uuid }) => {
@@ -62,7 +62,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      isMain: false,
+      isMain: false
     }
   })
 
@@ -73,13 +73,13 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
   const { data: categories = [] } = useCategories()
 
   React.useEffect(() => {
-    if (!categories.length) return
+    if (categories.length === 0) return
 
     setIncomeCategories(categories.filter((item: Category) => item.type === CategoryType.Income))
   }, [categories])
 
   React.useEffect(() => {
-    if (!accounts.length) return
+    if (accounts.length === 0) return
 
     const _account = accounts.find((_item: AccountResponse) => _item.uuid === uuid)!
 
@@ -99,21 +99,21 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
   const handleSave = (payload: z.infer<typeof formSchema>) => {
     setIsLoading(true)
     axios.patch(`accounts/${uuid}/`, {
-      ...payload,
+      ...payload
     }).then(
       res => {
         if (res.status === 200) {
           mutate('accounts/')
           toast({
-              title: 'Saved!'
-            })
+            title: 'Saved!'
+          })
         } else {
           // TODO: handle errors
         }
       }
     ).catch(
       (error) => {
-        const errRes = error.response.data;
+        const errRes = error.response.data
         for (const prop in errRes) {
           // setErrors(errRes[prop]);
         }
@@ -193,7 +193,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                {users.length && users.map((item: unknown) => (
+                                {(users.length > 0) && users.map((item: unknown) => (
                                   <SelectItem key={item.uuid} value={item.uuid}>{item.username}</SelectItem>
                                 ))}
                               </SelectGroup>

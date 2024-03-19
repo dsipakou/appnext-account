@@ -4,20 +4,20 @@ import { useSession } from 'next-auth/react'
 import { useStore } from '@/app/store'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui/select'
 import { useTransactionsMonthlyReport } from '@/hooks/transactions'
 import { getFormattedDate } from '@/utils/dateUtils'
 import {
-    addMonths,
-    endOfMonth,
-    getDate, startOfMonth, subMonths
+  addMonths,
+  endOfMonth,
+  getDate, startOfMonth, subMonths
 } from 'date-fns'
 import { ChartCategory, ChartData } from '../types'
 import RangeSwitcher from './RangeSwitcher'
@@ -32,21 +32,21 @@ const EChartReport: React.FC = () => {
   const [upToDay, setUpToDay] = React.useState<number>(getDate(new Date()))
   const [showUpToDay, setShowUpToDay] = React.useState<boolean>(false)
   const [showIncome, setShowIncome] = React.useState<boolean>(false)
-  const [options, setOptions] = React.useState({});
+  const [options, setOptions] = React.useState({})
 
   const dateFrom = getFormattedDate(startOfMonth(subMonths(date, 11)))
   const dateTo = getFormattedDate(endOfMonth(date))
 
-  const { data: { user: authUser }} = useSession()
+  const { data: { user: authUser } } = useSession()
   const { data: chartData = [] } = useTransactionsMonthlyReport(
     dateFrom,
     dateTo,
     authUser?.currency,
-    showUpToDay ? upToDay : undefined,
+    showUpToDay ? upToDay : undefined
   )
   const currencySign = useStore((state) => state.currencySign)
 
-  const monthDayArray = Array.from({ length: 31 }, (_, i) => i + 1);
+  const monthDayArray = Array.from({ length: 31 }, (_, i) => i + 1)
 
   React.useEffect(() => {
     if (chartData.length === 0) return
@@ -63,11 +63,11 @@ const EChartReport: React.FC = () => {
     const incomeCategories = chartData[0].categories.filter((item: ChartCategory) => item.categoryType === 'INC')
     const diffArray = chartData.map((item: ChartData) => {
       const outcome = item.categories.reduce((acc: number, category: ChartCategory) => {
-        if (category.categoryType === "EXP") acc += category.value
+        if (category.categoryType === 'EXP') acc += category.value
         return acc
       }, 0)
       const income = item.categories.reduce((acc: number, category: ChartCategory) => {
-        if (category.categoryType === "INC") acc += category.value
+        if (category.categoryType === 'INC') acc += category.value
         return acc
       }, 0)
       return income - outcome
@@ -94,7 +94,7 @@ const EChartReport: React.FC = () => {
             formatter: (params) => params.value > 1000 ? '-' + Number(params.value / 1000).toFixed(2) + 'k' : '-' + Number(params.value).toFixed(0),
             textBorderColor: 'black',
             textBorderWidth: 2,
-            color: 'white',
+            color: 'white'
           }
         }
       )
@@ -116,7 +116,7 @@ const EChartReport: React.FC = () => {
                 itemStyle: {
                   shadowBlur: 10,
                   shadowColor: 'rgba(0,0,0,0.3)'
-                },
+                }
               },
               label: {
                 show: true,
@@ -124,23 +124,23 @@ const EChartReport: React.FC = () => {
                 fontSize: 10,
                 textBorderColor: 'white',
                 textBorderWidth: 2,
-                color: 'black',
+                color: 'black'
               }
             }
           )
         )
       )
-    } 
+    }
 
     // Add difference
     if (showIncome) {
       formattedSeries.push(
         {
-          name: "Difference",
+          name: 'Difference',
           data: diffArray || [],
           stack: 'difference',
           itemStyle: {
-            color: "#ddd",
+            color: '#ddd'
           },
           type: 'bar',
           emphasis: {
@@ -148,7 +148,7 @@ const EChartReport: React.FC = () => {
             itemStyle: {
               shadowBlur: 10,
               shadowColor: 'rgba(0,0,0,0.3)'
-            },
+            }
           },
           label: {
             show: true,
@@ -156,35 +156,35 @@ const EChartReport: React.FC = () => {
             fontSize: 10,
             textBorderColor: 'white',
             textBorderWidth: 2,
-            color: 'black',
+            color: 'black'
           }
         }
       )
-    } 
+    }
 
     const optionsLocal = {
       xAxis: {
         type: 'category',
-        data: chartData.map((item: ChartData) => item.date),
+        data: chartData.map((item: ChartData) => item.date)
       },
       yAxis: {
         type: 'value',
         minInterval: 100,
         maxInterval: 20000,
-        splitNumber: 20,
+        splitNumber: 20
       },
       grid: {
         left: '3%',
         bottom: '3%',
         containLabel: true,
-        width: '80%',
+        width: '80%'
       },
       legend: {
         data: outcomeCategories.map((item: ChartCategory) => item.name),
         orient: 'vertical',
         top: 'center',
         right: 10,
-        width: '20%',
+        width: '20%'
       },
       series: formattedSeries,
       tooltip: {
@@ -211,7 +211,7 @@ const EChartReport: React.FC = () => {
             if (!showIncome) {
               output += '</tbody></table>'
               return output
-            } 
+            }
             const incomeTotal = params.reduce((acc: unknown, item: unknown) => {
               if (incomeCategories.map((category: ChartCategory) => category.name).includes(item.seriesName)) {
                 acc += item.value
@@ -227,15 +227,15 @@ const EChartReport: React.FC = () => {
             }, '')
             params.forEach((item: unknown) => {
               if (item.seriesName === 'Difference') {
-                  output += `<tr><td class="py-2 font-bold"><div class="flex items-center"><div style="background-color: ${item.color}" class="h-4 w-4 mr-3"></div>Balance</div></td><td class="font-bold italic text-right text-lg">${Number(item.value).toFixed(2)} ${currencySign}</td></tr>`
+                output += `<tr><td class="py-2 font-bold"><div class="flex items-center"><div style="background-color: ${item.color}" class="h-4 w-4 mr-3"></div>Balance</div></td><td class="font-bold italic text-right text-lg">${Number(item.value).toFixed(2)} ${currencySign}</td></tr>`
               }
             })
             output += '</tbody></table>'
             return output
           }
           return params.seriesName + ' ' + params.value.toFixed(2)
-        },
-      },
+        }
+      }
     }
 
     setOptions(optionsLocal)
@@ -289,7 +289,7 @@ const EChartReport: React.FC = () => {
         </div>
       </div>
       <div>
-        <ReactECharts style={{height: '650px'}} option={options} notMerge={true} />
+        <ReactECharts style={{ height: '650px' }} option={options} notMerge={true} />
       </div>
     </div>
   )

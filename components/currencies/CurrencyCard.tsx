@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 import { ArrowBigUpDash, MoreVertical, Pencil, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -7,15 +7,15 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuLabel,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 
 // assets
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react'
 
-import { getRelativeDate } from '@/utils/dateUtils';
+import { getRelativeDate } from '@/utils/dateUtils'
 
-import { Currency, Rate } from './types';
+import { Currency, Rate } from './types'
 
 interface Types {
   currency: Currency
@@ -32,7 +32,7 @@ const CurrencyCard: React.FC<Types> = ({
   selectCurrency,
   unselectCurrency,
   handleDeleteClick,
-  handleEditClick,
+  handleEditClick
 }) => {
   const [selected, setSelected] = React.useState<boolean>(false)
 
@@ -74,8 +74,8 @@ const CurrencyCard: React.FC<Types> = ({
   const getDelta: number = () => {
     const today = getRate(currency.uuid)
     const yesterday = getRate(currency.uuid, 1)
-    
-    if (today && yesterday) {
+
+    if ((today != null) && (yesterday != null)) {
       return (today.rate - yesterday.rate).toFixed(4)
     }
     return 0
@@ -149,7 +149,7 @@ const CurrencyCard: React.FC<Types> = ({
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default CurrencyCard;
+export default CurrencyCard

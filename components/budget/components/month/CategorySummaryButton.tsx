@@ -25,14 +25,16 @@ const CategorySummaryButton: FC<Types> = ({ title, isActive, planned, spent, cur
         <div className="flex w-full h-1/2">
           <div className="flex flex-1 gap-2 justify-end items-end">
             <span className="self-right text-xl">{formatMoney(planned)} {currencySign}</span>
-            <div className={`flex w-3 ${isActive ? 'bg-white' : 'bg-gray-400'}`} style={{height: `${plannedPercent}%`}}></div>
+            <div className={`flex w-3 ${isActive ? 'bg-white' : 'bg-gray-400'}`} style={{ height: `${plannedPercent}%` }}></div>
           </div>
           <div className="flex flex-1 gap-2 items-end">
-            { spentPercent > plannedPercent ? (
-              <div className="flex w-3 bg-red-500" style={{height: `${spentPercent}%`}}></div>
-            ): (
-              <div className="flex w-3 bg-green-500" style={{height: `${spentPercent}%`}}></div>
-            )}
+            { spentPercent > plannedPercent
+              ? (
+              <div className="flex w-3 bg-red-500" style={{ height: `${spentPercent}%` }}></div>
+                )
+              : (
+              <div className="flex w-3 bg-green-500" style={{ height: `${spentPercent}%` }}></div>
+                )}
             <span className="text-xl font-bold">{formatMoney(spent)} {currencySign}</span>
           </div>
         </div>

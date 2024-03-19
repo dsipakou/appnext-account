@@ -6,7 +6,7 @@ import {
   endOfMonth,
   getDate,
   subMonths,
-  startOfMonth,
+  startOfMonth
 } from 'date-fns'
 import { useTransactionsMonthlyReport } from '@/hooks/transactions'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -17,14 +17,14 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/select'
 import { getFormattedDate } from '@/utils/dateUtils'
 import RangeSwitcher from './RangeSwitcher'
 import { ChartCategory, ChartData } from '../types'
 
-const Chart = dynamic(() => import('react-apexcharts'), { ssr: false })
-const ApexCharts = dynamic(() => import('apexcharts'), { ssr: false })
+const Chart = dynamic(async () => await import('react-apexcharts'), { ssr: false })
+const ApexCharts = dynamic(async () => await import('apexcharts'), { ssr: false })
 
 if (typeof window !== 'undefined') window.ApexCharts = ApexCharts
 
@@ -40,9 +40,9 @@ const ChartReport: React.FC = () => {
   const [categoryCheckboxes, setCategoryCheckboxes] = React.useState<CategoryCheckbox[]>([])
   const [categoriesList, setCategoriesList] = React.useState<Category[]>([])
 
-  const [options, setOptions] = React.useState({});
-  const [series, setSeries] = React.useState([]);
-  const { data: { user: authUser }} = useSession()
+  const [options, setOptions] = React.useState({})
+  const [series, setSeries] = React.useState([])
+  const { data: { user: authUser } } = useSession()
 
   const dateFrom = getFormattedDate(startOfMonth(subMonths(date, 11)))
   const dateTo = getFormattedDate(endOfMonth(date))
@@ -50,7 +50,7 @@ const ChartReport: React.FC = () => {
     dateFrom,
     dateTo,
     authUser?.currency,
-    showUpToDay ? upToDay : undefined,
+    showUpToDay ? upToDay : undefined
   )
 
   React.useEffect(() => {
@@ -58,8 +58,8 @@ const ChartReport: React.FC = () => {
 
     setOptions({
       chart: {
-        id: "main-chart",
-        type: "bar",
+        id: 'main-chart',
+        type: 'bar',
         stacked: true,
         events: {
           legendClick: (chartContext, seriesIndex, config) => {
@@ -86,7 +86,7 @@ const ChartReport: React.FC = () => {
         }
       },
       dataLabels: {
-        formatter: (value: number) => value > 1000 ? (Number(value) / 1000).toFixed(2) + 'k' : value,
+        formatter: (value: number) => value > 1000 ? (Number(value) / 1000).toFixed(2) + 'k' : value
       },
       fill: {
         opacity: 1
@@ -100,11 +100,11 @@ const ChartReport: React.FC = () => {
               enabled: true,
               formatter: (value: number) => value.toFixed(0),
               style: {
-                fontWeight: 200,
-              },
-            },
-          },
-        },
+                fontWeight: 200
+              }
+            }
+          }
+        }
       },
       stroke: {
         width: 1,
@@ -112,10 +112,10 @@ const ChartReport: React.FC = () => {
       },
       xaxis: {
         categories: chartData.map((item: ChartData) => item.date),
-        type: "string",
+        type: 'string'
       },
       noData: {
-        text: "",
+        text: ''
       }
     })
 
@@ -131,7 +131,7 @@ const ChartReport: React.FC = () => {
       (item: ChartCategory) => (
         {
           name: item.name,
-          data: groupByCategory[item.name] || [],
+          data: groupByCategory[item.name] || []
         }
       )
     )
@@ -140,15 +140,14 @@ const ChartReport: React.FC = () => {
 
     setCategoriesList(chartData[0].categories.map((item: ChartCategory) => item.name))
 
-    setCategoryCheckboxes(chartData[0].categories.map((item: ChartCategory) => ({name: item.name, checked: true})))
-
+    setCategoryCheckboxes(chartData[0].categories.map((item: ChartCategory) => ({ name: item.name, checked: true })))
   }, [chartData])
 
   React.useEffect(() => {
 
   }, [categoryCheckboxes])
 
-  const monthDayArray = Array.from({ length: 31 }, (_, i) => i + 1);
+  const monthDayArray = Array.from({ length: 31 }, (_, i) => i + 1)
 
   const clickCategory = (categoryName: string) => {
     const result = window.ApexCharts.exec('main-chart', 'toggleSeries', categoryName)
@@ -156,7 +155,7 @@ const ChartReport: React.FC = () => {
       if (item.name === categoryName) {
         return {
           name: item.name,
-          checked: !item.checked,
+          checked: !item.checked
         }
       } else {
         return item
@@ -169,14 +168,14 @@ const ChartReport: React.FC = () => {
       setCategoryCheckboxes((oldValues: CategoryCheckbox[]) => oldValues.map((item: CategoryCheckbox) => (
         {
           name: item.name,
-          checked: false,
+          checked: false
         }
       )))
     } else {
       setCategoryCheckboxes((oldValues: CategoryCheckbox[]) => oldValues.map((item: CategoryCheckbox) => (
         {
           name: item.name,
-          checked: true,
+          checked: true
         }
       )))
     }

@@ -24,3 +24,13 @@ export const useCategories = (): Response<CategoryResponse[]> => {
     isError: error,
   } as Response<CategoryResponse[]>;
 };
+
+export const useCategory = (uuid: string | undefined): Response<CategoryResponse> => {
+  const { data, error, isValidating } = useSWR(uuid ? `categories/${uuid}/` : null, fetcher)
+
+  return {
+    data,
+    isLoading: !data && !error,
+    isError: error,
+  } as Response<CategoryResponse>
+}
