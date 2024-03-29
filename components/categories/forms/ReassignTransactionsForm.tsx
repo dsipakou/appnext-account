@@ -1,5 +1,6 @@
 import React from 'react'
 import * as z from 'zod'
+import { Repeat } from 'lucide-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
@@ -49,7 +50,7 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
   const { data: categories } = useCategories()
 
   const parentCategories = categories.filter((item: Category) => item.parent === null && item.type === CategoryType.Expense)
-  const { data: sourceCategory } = useCategory(uuid)
+  const sourceCategory = categories.find((item: Category) => item.uuid === uuid)
 
   const getChildren = (parentUuid: string) => (
     categories.filter((item: Category) => item.parent === parentUuid && item.uuid !== uuid)
@@ -60,7 +61,9 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="link">Manage</Button>
+        <Button size="sm" variant="ghost">
+          <Repeat className="w-4 h-4" />
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

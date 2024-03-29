@@ -1,4 +1,5 @@
 import React from 'react'
+import { Trash } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -85,7 +86,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ uuid }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="link">Delete</Button>
+        <Button variant="ghost"><Trash className="w-5 h-5 text-red-500" /></Button>
       </DialogTrigger>
       <DialogContent>
         <DialogTitle>Please, confirm deletion</DialogTitle>

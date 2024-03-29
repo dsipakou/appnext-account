@@ -1,5 +1,4 @@
-
-import { FC, useEffect, useState } from 'react'
+import React from 'react'
 import axios from 'axios'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -75,13 +74,14 @@ const formSchema = z.object({
   description: z.string().or(z.null())
 })
 
-const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
+const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
+  console.log('render')
   const { mutate } = useSWRConfig()
-  const [parentList, setParentList] = useState<Category[]>([])
-  const [errors, setErrors] = useState<string[]>([])
-  const [month, setMonth] = useState<Date>(new Date())
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [isSomeDay, setIsSomeDay] = useState<boolean>(false)
+  const [parentList, setParentList] = React.useState<Category[]>([])
+  const [errors, setErrors] = React.useState<string[]>([])
+  const [month, setMonth] = React.useState<Date>(new Date())
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [isSomeDay, setIsSomeDay] = React.useState<boolean>(false)
   const { toast } = useToast()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -99,7 +99,7 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
   const { data: budgetDetails } = useBudgetDetails(uuid)
   const { url: pendingUrl } = usePendingBudget()
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!categories) return
 
     const parents = categories.filter(
@@ -110,7 +110,7 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
     setParentList(parents)
   }, [categories])
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!budgetDetails || (parentList.length === 0)) return
 
     setIsSomeDay(!budgetDetails.budgetDate)
@@ -426,4 +426,4 @@ const EditForm: FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
   )
 }
 
-export default EditForm
+export default React.memo(EditForm)
