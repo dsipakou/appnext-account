@@ -6,6 +6,7 @@ import { Invite } from '@/components/users/types'
 export interface UserResponse {
   uuid: string
   email: string
+  role: string
   username: string
   firstName: string
   lastName: string
