@@ -26,6 +26,7 @@ interface RoleMap {
 const Index: React.FC = () => {
   const [selectedRoles, setSelectedRoles] = React.useState<RoleMap[]>({})
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [errors, setErrors] = React.useState<string>('')
   const { data: users = [] } = useUsers()
   const { data: { user: authUser } } = useSession()
   const { data: roles = []} = useRoles()
@@ -75,7 +76,7 @@ const Index: React.FC = () => {
       }
       toast({
         variant: 'destructive',
-        title: 'Something went wrong',
+        title: 'Failed',
         description: errors.toString()
       })
     })

@@ -9,18 +9,40 @@ import {
   SelectGroup,
   SelectItem,
   SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { AccountResponse } from '@/components/accounts/types'
+import { useAccounts } from '@/hooks/accounts'
+import { Account, AccountResponse } from '@/components/accounts/types'
 
 interface AccountComponentTypes extends GridRenderEditCellParams {
-  accounts: AccountResponse[]
+  user: string
 }
 
 const AccountComponent: React.FC<AccountComponentTypes> = (params) => {
-  const { id, field, value, accounts } = params
+  const { id, field, value, user } = params
   const apiRef = useGridApiContext()
+  const { data: accounts = [] } = useAccounts()
+
+  const getDefaultAccountForCurrentUser = (): AccountResponse | undefined => {
+    if (user) {
+      return accounts.find((item: Account) => item.user === user && item.isMain)
+    }
+    return undefined
+  }
+
+  React.useEffect(() => {
+    if (!accounts.length) return
+
+    const defaultValue = getDefaultAccountForCurrentUser()
+    if (defaultValue) {
+      apiRef.current.setEditCellValue({ id, field, value: getDefaultAccountForCurrentUser() })
+    }
+  }, [accounts])
+
+  const yourAccounts = accounts.filter((item: Account) => item.user === user)
+  const otherAccounts = accounts.filter((item: Account) => item.user !== user)
 
   const handleChange = (newValue: AccountResponse) => {
     apiRef.current.setEditCellValue({ id, field, value: newValue })
@@ -42,8 +64,15 @@ const AccountComponent: React.FC<AccountComponentTypes> = (params) => {
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectLabel>Accounts</SelectLabel>
-              {accounts.map((item: AccountResponse) => (
+              <SelectLabel>Your Accounts</SelectLabel>
+              {yourAccounts.map((item: AccountResponse) => (
+                <SelectItem key={item.uuid} value={item}>{item.title}</SelectItem>
+              ))}
+            </SelectGroup>
+            <SelectSeparator />
+            <SelectGroup>
+              <SelectLabel>Other Accounts</SelectLabel>
+              {otherAccounts.map((item: AccountResponse) => (
                 <SelectItem key={item.uuid} value={item}>{item.title}</SelectItem>
               ))}
             </SelectGroup>

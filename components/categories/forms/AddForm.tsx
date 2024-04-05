@@ -24,6 +24,11 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -67,6 +72,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
 
   const [parentList, setParentList] = React.useState<Category[]>([])
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [selectedEmoji, setSelectedEmoji] = React.useState<string>('')
 
   const { toast } = useToast()
 
@@ -103,6 +109,10 @@ const AddForm: React.FC<Types> = ({ parent }) => {
       form.setValue('parentCategory', parent.uuid)
     }
   }, [parent])
+
+  React.useEffect(() => {
+    console.log(selectedEmoji)
+  }, [selectedEmoji])
 
   const handleSave = async (payload: z.infer<typeof formSchema>) => {
     setIsLoading(true)
@@ -150,10 +160,25 @@ const AddForm: React.FC<Types> = ({ parent }) => {
         <DialogHeader>
           <DialogTitle>Add category</DialogTitle>
         </DialogHeader>
-        <EmojiPicker onEmojiClick={(event) => console.log(event)}/>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
             <div className="flex flex-col space-y-3">
+              <div className="self-end">
+                {selectedEmoji}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline">Choose emoji</Button>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <div className="w-full h-full">
+                      <EmojiPicker
+                        skinTonesDisabled={true}
+                        onEmojiClick={(event) => setSelectedEmoji(event.emoji)}
+                      />
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
               <div className="flex w-full">
                 <FormField
                   control={form.control}

@@ -109,7 +109,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   }, 0)
 
   const handleClick = () => {
-    setRows((oldRows) => [...oldRows, { ...emptyRowTemplate, id, account: getDefaultAccountForCurrentUser() }])
+    setRows((oldRows) => [...oldRows, { ...emptyRowTemplate, id }])
     setRowModesModel((oldModel) => ({
       ...oldModel,
       [id]: { mode: GridRowModes.Edit, fieldToFocus: 'amount' }
@@ -251,11 +251,14 @@ const emptyRowTemplate = {
 let emptyRow = emptyRowTemplate
 
 const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
+  const [user, setUser] = React.useState('')
   const [errors, setErrors] = React.useState<string>('')
   const { data: accounts = [] } = useAccounts()
   const { data: categories = [] } = useCategories()
   const { data: currencies = [] } = useCurrencies()
+  const { data: users = [] } = useUsers()
 
+  const { data: { user: authUser } } = useSession()
   const { toast } = useToast()
 
   const baseCurrencyCode = currencies.find((item: Currency) => item.isBase)?.code || ''
@@ -263,6 +266,13 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
   const getAccountForBudget = (budget: WeekBudgetItem): Account | undefined => {
     return accounts.find((item: Account) => item.user === budget.user && item.isMain)
   }
+
+  React.useEffect(() => {
+    if (!authUser || (users.length === 0)) return
+
+    const _user = users.find((item: User) => item.username === authUser.username)!
+    setUser(_user.uuid)
+  }, [authUser, users])
 
   const columns: GridColDef[] = [
     {
@@ -279,7 +289,7 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
       flex: 0.7,
       editable: true,
       renderCell: (params: GridRenderCellParams<Account>) => <AccountReadComponent {...params} />,
-      renderEditCell: (params) => <AccountComponent {...params} accounts={accounts} />
+      renderEditCell: (params) => <AccountComponent {...params} user={user} />
     },
     {
       field: 'category',

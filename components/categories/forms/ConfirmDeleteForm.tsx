@@ -60,13 +60,24 @@ const ConfirmDeleteForm: React.FC<Types> = ({ uuid }) => {
       )
       .catch(
         (err) => {
-          console.log(err.response?.data[0])
           const errMessage = err.response?.data[0]
           if (errMessage.includes('There are transactions assigned')) {
             toast({
               variant: 'destructive',
               title: 'This category contains transactions',
               description: 'You need to choose different category to re-assign transactions'
+            })
+          } else if (errMessage.includes('Cannot delete non empty parent category')) {
+            toast({
+              variant: 'destructive',
+              title: 'This parent category contains categories',
+              description: 'Parent category should be empty to delete it'
+            })
+          } else if (errMessage.includes('There are budgets assigned')) {
+            toast({
+              variant: 'destructive',
+              title: 'This category contains budgets',
+              description: 'You need to delete or re-assign budgets assigned to the category'
             })
           } else {
             toast({

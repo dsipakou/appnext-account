@@ -99,7 +99,7 @@ const BudgetItem: React.FC<Types> = ({
   if (isCompleted) {
     cssClass = `bg-slate-300 ${cssClass}`
   } else {
-    cssClass = `bg-white ${cssClass}`
+    cssClass = isSameUser ? `bg-white ${cssClass}` : `bg-sky-100 ${cssClass}`
   }
 
   return (
