@@ -64,7 +64,7 @@ const CurrencyComponent: React.FC<any> = (params) => {
               {currencies && currencies.map((item: Currency) => {
                 const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code)
                 if (rate) {
-                  if (rate.rateDate === selectedDate) {
+                  if (rate.rateDate === transactionDate) {
                     return (
                       <SelectItem key={item.uuid} value={item}>{item.code}</SelectItem>
                     )
