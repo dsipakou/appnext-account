@@ -1,4 +1,5 @@
 export interface Account {
+  uuid: string
   title: string
   category: string | null
   user: string
@@ -7,7 +8,6 @@ export interface Account {
 }
 
 export interface AccountResponse extends Account {
-  uuid: string
   createdAt: string
   modifiedAt: string
 }

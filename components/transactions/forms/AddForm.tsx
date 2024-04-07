@@ -253,6 +253,7 @@ let emptyRow = emptyRowTemplate
 const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
   const [user, setUser] = React.useState('')
   const [errors, setErrors] = React.useState<string>('')
+  const [accountForBudget, setAccountForBudget] = React.useState<Account | undefined>(undefined)
   const { data: accounts = [] } = useAccounts()
   const { data: categories = [] } = useCategories()
   const { data: currencies = [] } = useCurrencies()
@@ -263,16 +264,21 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
 
   const baseCurrencyCode = currencies.find((item: Currency) => item.isBase)?.code || ''
 
-  const getAccountForBudget = (budget: WeekBudgetItem): Account | undefined => {
-    return accounts.find((item: Account) => item.user === budget.user && item.isMain)
-  }
-
   React.useEffect(() => {
     if (!authUser || (users.length === 0)) return
 
     const _user = users.find((item: User) => item.username === authUser.username)!
     setUser(_user.uuid)
   }, [authUser, users])
+
+  React.useEffect(() => {
+    if (!budget) return
+
+    const account = accounts.find((item: Account) => item.user === budget.user && item.isMain)
+    if (account) {
+      setAccountForBudget(account)
+    }
+  }, [budget])
 
   const columns: GridColDef[] = [
     {
@@ -361,20 +367,23 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
   React.useEffect(() => {
     const id = randomId()
 
-    if (budget != null) {
+    if (accountForBudget) {
+      console.log('here')
+      console.log(accountForBudget)
       emptyRow = {
         ...emptyRow,
         id,
-        account: (getAccountForBudget(budget) != null) || '',
+        account: accountForBudget,
         budget: budget.uuid,
-        amount: String(budget.amount)
+        amount: String(budget.amount),
+        currency: budget.currency,
       }
       setRows(() => [emptyRow])
       setRowModesModel(() => ({
         [id]: { mode: GridRowModes.Edit, fieldToFocus: 'amount' }
       }))
     }
-  }, [])
+  }, [accountForBudget, budget])
 
   React.useEffect(() => {
     setErrors('')

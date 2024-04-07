@@ -1,3 +1,5 @@
-export interface AvailableRates {
-  [key: string]: number | null
+export interface AvailableRate {
+  currencyCode: string
+  rate: number
+  rateDate: string
 }

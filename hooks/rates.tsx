@@ -1,7 +1,7 @@
 import axios from 'axios';
 import useSWR from 'swr';
 import { Response } from './types';
-import { AvailableRates } from '@/components/rates/types'
+import { AvailableRate } from '@/components/rates/types'
 
 export interface RateResponse {
   uuid: string
@@ -62,12 +62,12 @@ export const useRatesOnDate = (date: string): Response<RateResponse[]> => {
   } as Response<RateResponse[]>
 }
 
-export const useAvailableRates = (date: string): Response<AvailableRates> => {
+export const useAvailableRates = (date: string): Response<AvailableRate[]> => {
   const { data, error, isValidating } = useSWR(date ? `rates/available?date=${date}` : null, fetcher)
 
   return {
     data,
     isLoading: !data && !error,
     isError: error
-  } as Response<AvailableRates>
+  } as Response<AvailableRate[]>
 }

@@ -37,7 +37,7 @@ const AccountComponent: React.FC<AccountComponentTypes> = (params) => {
 
     const defaultValue = getDefaultAccountForCurrentUser()
     if (defaultValue) {
-      apiRef.current.setEditCellValue({ id, field, value: getDefaultAccountForCurrentUser() })
+      apiRef.current.setEditCellValue({ id, field, value: value || getDefaultAccountForCurrentUser() })
     }
   }, [accounts])
 

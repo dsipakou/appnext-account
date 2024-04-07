@@ -35,8 +35,8 @@ const Container: React.FC<Types> = ({
   }, [budget])
 
   return (
-    <div className="grid grid-cols-12">
-      <div className="col-span-4">
+    <div className="grid grid-cols-12 h-full">
+      <div className="col-span-4 overflow-y-auto h-full">
         <div className="flex flex-col gap-2">
           {budget && budget.map((item: GroupedByCategoryBudget) => (
             <div className="flex justify-center"
@@ -54,7 +54,7 @@ const Container: React.FC<Types> = ({
           ))}
         </div>
       </div>
-      <div className="col-span-8 h-full">
+      <div className="col-span-8 overflow-y-auto">
         <DetailsPanel
           activeCategoryUuid={activeCategoryUuid}
           startDate={startDate}

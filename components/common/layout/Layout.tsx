@@ -139,7 +139,7 @@ const Layout: FC<Props> = ({ children }) => {
   )
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative h-screen">
       <header className="fixed w-full z-50 bg-blue-500 text-white">
         <div className="flex mx-2 py-2 justify-between items-center">
           <div className="flex items-center gap-2">
@@ -202,7 +202,7 @@ const Layout: FC<Props> = ({ children }) => {
           ))}
         </div>
       </div>
-      <div className="flex flex-col mx-auto max-w-screen-xl min-h-screen pt-16 min-w-screen-lg">
+      <div className="flex flex-col mx-auto max-w-screen-xl h-screen pt-16 min-w-screen-lg">
         {children}
       </div>
     </div>

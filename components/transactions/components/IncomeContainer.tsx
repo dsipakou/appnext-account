@@ -17,12 +17,19 @@ import { TransactionResponse } from '../types'
 
 interface Types {
   transactions: TransactionResponse[]
+  transactionsUrl: string
   isLoading: boolean
   year: number
   setYear: (value: number) => void
 }
 
-const IncomeComponent: React.FC<Types> = ({ transactions = [], isLoading, year, setYear }) => {
+const IncomeComponent: React.FC<Types> = ({
+  transactions = [],
+  transactionsUrl,
+  isLoading,
+  year,
+  setYear,
+}) => {
   const [isOpenEditIncome, setIsOpenEditIncome] = React.useState<boolean>(false)
   const [isOpenDeleteIncome, setIsOpenDeleteIncome] = React.useState<boolean>(false)
   const [activeIncomeUuid, setActiveIncomeUuid] = React.useState<string>('')

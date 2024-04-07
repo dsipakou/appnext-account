@@ -47,6 +47,7 @@ import {
   parseDate
 } from '@/utils/dateUtils'
 import { Currency } from '@/components/currencies/types'
+import { AvailableRate } from '@/components/rates/types'
 
 interface Types {
   uuid: string
@@ -71,6 +72,7 @@ const formSchema = z.object({
 
 const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   const { mutate } = useSWRConfig()
+  const [selectedDate, setSelectedDate] = React.useState<string>(getFormattedDate(new Date()))
   const [accountUuid, setAccountUuid] = React.useState<string>('')
   const [weekStart, setWeekStart] = React.useState<string>(getStartOfWeek(new Date()))
   const [weekEnd, setWeekEnd] = React.useState<string>(getEndOfWeek(new Date()))
@@ -95,8 +97,8 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   const { data: currencies = [] } = useCurrencies()
 
   const {
-    data: availableRates = {}
-  } = useAvailableRates(transaction?.transactionDate)
+    data: availableRates = []
+  } = useAvailableRates(selectedDate)
 
   const parents = categories.filter(
     (category: Category) => (
@@ -114,6 +116,8 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
     form.setValue('description', transaction.description)
     form.setValue('transactionDate', parseDate(transaction.transactionDate))
     form.setValue('budget', transaction.budget)
+
+    setSelectedDate(transaction.transactionDate)
 
     setMonth(parseDate(transaction.transactionDate))
   }, [transaction])
@@ -140,6 +144,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
     if (date) {
       setWeekStart(getStartOfWeek(form.getValues().transactionDate))
       setWeekEnd(getEndOfWeek(form.getValues().transactionDate))
+      setSelectedDate(getFormattedDate(form.getValues().transactionDate))
     }
   }, [watchCalendar])
 
@@ -223,11 +228,24 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                             <SelectContent>
                               <SelectGroup>
                                 <SelectLabel>Currencies</SelectLabel>
-                                {currencies && currencies.map((item: Currency) => (
-                                  availableRates[item.code]
-                                    ? <SelectItem key={item.uuid} value={item.uuid}>{item.code}</SelectItem>
-                                    : <SelectItem key={item.uuid} value={item.uuid} disabled>{item.code}</SelectItem>
-                                ))}
+                                {currencies && currencies.map((item: Currency) => {
+                                  const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code)
+                                  if (rate) {
+                                    if (rate.rateDate === selectedDate) {
+                                      return (
+                                        <SelectItem key={item.uuid} value={item.uuid}>{item.code}</SelectItem>
+                                      )
+                                    } else {
+                                      return (
+                                        <SelectItem key={item.uuid} value={item.uuid}>{item.code} (old)</SelectItem>
+                                      )
+                                    }
+                                  } else {
+                                    return (
+                                      <SelectItem key={item.uuid} value={item.uuid} disabled>{item.code}</SelectItem>
+                                    )
+                                  }
+                                })}
                               </SelectGroup>
                             </SelectContent>
                           </Select>

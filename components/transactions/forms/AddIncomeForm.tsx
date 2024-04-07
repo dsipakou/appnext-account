@@ -42,6 +42,7 @@ import { Currency } from '@/components/currencies/types'
 import { Category } from '@/components/categories/types'
 import { useToast } from '@/components/ui/use-toast'
 import { User } from '@/components/users/types'
+import { AvailableRate } from '@/components/rates/types'
 
 interface Types {
   open: boolean
@@ -88,7 +89,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
 
   const watchCalendar = form.watch('transactionDate')
 
-  const { data: availableRates = {} } = useAvailableRates(getFormattedDate(selectedDate))
+  const { data: availableRates = [] } = useAvailableRates(getFormattedDate(selectedDate))
   const { data: { user: authUser } } = useSession()
 
   React.useEffect(() => {
@@ -253,11 +254,24 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                             <SelectContent>
                               <SelectGroup>
                                 <SelectLabel>Currencies</SelectLabel>
-                                {currencies && currencies.map((item: Currency) => (
-                                  availableRates[item.code]
-                                    ? <SelectItem key={item.uuid} value={item.uuid}>{item.code}</SelectItem>
-                                    : <SelectItem key={item.uuid} value={item.uuid} disabled>{item.code}</SelectItem>
-                                ))}
+                                {currencies && currencies.map((item: Currency) => {
+                                  const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code)
+                                  if (rate) {
+                                    if (rate.rateDate === getFormattedDate(selectedDate)) {
+                                      return (
+                                        <SelectItem key={item.uuid} value={item.uuid}>{item.code}</SelectItem>
+                                      )
+                                    } else {
+                                      return (
+                                        <SelectItem key={item.uuid} value={item.uuid}>{item.code} (old)</SelectItem>
+                                      )
+                                    }
+                                  } else {
+                                    return (
+                                      <SelectItem key={item.uuid} value={item.uuid} disabled>{item.code}</SelectItem>
+                                    )
+                                  }
+                                })}
                               </SelectGroup>
                             </SelectContent>
                           </Select>

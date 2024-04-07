@@ -224,11 +224,11 @@ function withBudgetTemplate<T> (Component: React.ComponentType<T>) {
     return (
       <>
         {toolbar}
-        <div className="flex flex-col">
+        <div className="flex flex-col h-screen">
           <div className="w-full p-1 rounded shadow-sm shadow-zinc-300 bg-white">
             {header}
           </div>
-          <div className="w-full mt-5">
+          <div className="w-full mt-5 h-full">
             {
               (activeType === 'month' && (budgetMonth.length === 0)) || (activeType === 'week' && (budgetWeek.length === 0))
                 ? isWeekBudgetLoading

@@ -43,6 +43,7 @@ import {
   parseDate
 } from '@/utils/dateUtils'
 import { Currency } from '@/components/currencies/types'
+import { AvailableRate } from '@/components/rates/types'
 
 interface Types {
   uuid: string
@@ -66,6 +67,7 @@ const formSchema = z.object({
 
 const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   const { mutate } = useSWRConfig()
+  const [selectedDate, setSelectedDate] = React.useState<string>(getFormattedDate(new Date()))
   const [month, setMonth] = React.useState<Date>(new Date())
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
@@ -76,15 +78,17 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
     }
   })
 
+  const watchCalendar = form.watch('transactionDate')
+
   const { data: transaction, isLoading: isTransactionLoading } = useTransaction(uuid)
   const { data: accounts = [] } = useAccounts()
   const { data: categories = [] } = useCategories()
   const { data: currencies = [] } = useCurrencies()
 
   const {
-    data: availableRates = {},
+    data: availableRates = [],
     isLoading: isRatesLoading
-  } = useAvailableRates(transaction?.transactionDate)
+  } = useAvailableRates(selectedDate)
 
   const incomeCategories = categories.filter(
     (category: Category) => (
@@ -102,8 +106,18 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
     form.setValue('description', transaction.description)
     form.setValue('transactionDate', parseDate(transaction.transactionDate))
 
+    setSelectedDate(transaction.transactionDate)
+
     setMonth(parseDate(transaction.transactionDate))
   }, [transaction])
+
+  React.useEffect(() => {
+    const date = form.getValues().transactionDate
+
+    if (date) {
+      setSelectedDate(getFormattedDate(form.getValues().transactionDate))
+    }
+  }, [watchCalendar])
 
   const handleSave = (payload: z.infer<typeof formSchema>): void => {
     setIsLoading(true)
@@ -178,11 +192,24 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                             <SelectContent>
                               <SelectGroup>
                                 <SelectLabel>Currencies</SelectLabel>
-                                {currencies && currencies.map((item: Currency) => (
-                                  availableRates[item.code]
-                                    ? <SelectItem key={item.uuid} value={item.uuid}>{item.code}</SelectItem>
-                                    : <SelectItem key={item.uuid} value={item.uuid} disabled>{item.code}</SelectItem>
-                                ))}
+                                {currencies && currencies.map((item: Currency) => {
+                                  const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code)
+                                  if (rate) {
+                                    if (rate.rateDate === selectedDate) {
+                                      return (
+                                        <SelectItem key={item.uuid} value={item.uuid}>{item.code}</SelectItem>
+                                      )
+                                    } else {
+                                      return (
+                                        <SelectItem key={item.uuid} value={item.uuid}>{item.code} (old)</SelectItem>
+                                      )
+                                    }
+                                  } else {
+                                    return (
+                                      <SelectItem key={item.uuid} value={item.uuid} disabled>{item.code}</SelectItem>
+                                    )
+                                  }
+                                })}
                               </SelectGroup>
                             </SelectContent>
                           </Select>

@@ -19,22 +19,23 @@ import { Currency } from '@/components/currencies/types'
 import {
   getFormattedDate
 } from '@/utils/dateUtils'
+import { AvailableRate } from '@/components/rates/types'
 
 const CurrencyComponent: React.FC<any> = (params) => {
   const { id, field, row, value } = params
   const apiRef = useGridApiContext()
-  const date = getFormattedDate(row.transactionDate || new Date())
+  const transactionDate = getFormattedDate(row.transactionDate || new Date())
 
   const { data: currencies = [] } = useCurrencies()
 
-  const { data: availableRates = {} } = useAvailableRates(date)
+  const { data: availableRates = [] } = useAvailableRates(transactionDate)
 
   React.useEffect(() => {
     if (!currencies) return
 
     const defaultCurrency = currencies.find((item: Currency) => item.isDefault)
     const baseCurrency = currencies.find((item: Currency) => item.isBase)
-    const newValue = availableRates[defaultCurrency?.code] ? defaultCurrency : baseCurrency
+    const newValue = availableRates.find((item: AvailableRate) => item.currencyCode === defaultCurrency?.code) ? defaultCurrency : baseCurrency
 
     apiRef.current.setEditCellValue({ id, field, value: newValue || null })
   }, [availableRates, currencies])
@@ -60,15 +61,28 @@ const CurrencyComponent: React.FC<any> = (params) => {
           <SelectContent>
             <SelectGroup>
               <SelectLabel>Currencies</SelectLabel>
-              {currencies && currencies.map((item: Currency) => (
-                availableRates[item.code]
-                  ? <SelectItem key={item.uuid} value={item}>{item.code}</SelectItem>
-                  : <SelectItem key={item.uuid} value={item} disabled>{item.code}</SelectItem>
-              ))}
+              {currencies && currencies.map((item: Currency) => {
+                const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code)
+                if (rate) {
+                  if (rate.rateDate === selectedDate) {
+                    return (
+                      <SelectItem key={item.uuid} value={item}>{item.code}</SelectItem>
+                    )
+                  } else {
+                    return (
+                      <SelectItem key={item.uuid} value={item}>{item.code} (old)</SelectItem>
+                    )
+                  }
+                } else {
+                  return (
+                    <SelectItem key={item.uuid} value={item} disabled>{item.code}</SelectItem>
+                  )
+                }
+              })}
             </SelectGroup>
           </SelectContent>
         </Select>
-          )}
+      )}
     </div>
   )
 }

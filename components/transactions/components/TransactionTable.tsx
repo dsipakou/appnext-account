@@ -23,7 +23,8 @@ import {
   AmountReadComponent,
   BudgetReadComponent,
   CategoryReadComponent,
-  DateReadComponent
+  DateReadComponent,
+  MainCurrencyAmountReadComponent,
 } from '../forms/components'
 
 interface Types {
@@ -55,6 +56,8 @@ const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, showBu
     return currencies.find((item: Currency) => item.code === code)
   }
 
+  const baseCurrency = currencies.find((item: Currency) => item.isBase)
+
   const columns: GridColDef[] = [
     {
       field: 'transactionDate',
@@ -85,10 +88,17 @@ const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, showBu
       headerName: 'Amount',
       type: 'number',
       flex: 0.4,
-      renderCell: (params) => <AmountReadComponent {...params} />
+      renderCell: (params) => <AmountReadComponent {...params} currency={getCurrency(user?.currency)} />
     },
     {
-      field: 'currency'
+      field: 'baseAmount',
+      headerName: '',
+      type: 'number',
+      flex: 0.4,
+      renderCell: (params) => <MainCurrencyAmountReadComponent {...params} currency={baseCurrency}/>
+    },
+    {
+      field: 'currency',
     },
     {
       field: 'actions',
@@ -123,6 +133,7 @@ const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, showBu
           uuid: item.uuid,
           transactionDate: parseDate(item.transactionDate),
           amount: formatMoney(item.spentInCurrencies[user?.currency]),
+          baseAmount: formatMoney(item.spentInCurrencies[baseCurrency?.code]),
           category: getCategory(item.category),
           account: getAccount(item.account),
           currency: getCurrency(user?.currency),
@@ -135,7 +146,8 @@ const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, showBu
   const hiddenColumns = {
     currency: false,
     transactionDate: !!withDate,
-    budget: !!showBudget
+    budget: !!showBudget,
+    baseAmount: baseCurrency?.code !== getCurrency(user?.currency)?.code
   }
 
   const changePage = (page: number) => {

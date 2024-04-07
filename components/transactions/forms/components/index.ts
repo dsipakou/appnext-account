@@ -12,6 +12,7 @@ import CurrencyComponent from './CurrencyComponent'
 import DateComponent from './DateComponent'
 import DateReadComponent from './DateReadComponent'
 import DescriptionComponent from './DescriptionComponent'
+import MainCurrencyAmountReadComponent from './MainCurrencyAmountReadComponents'
 
 export {
   AccountComponent,
@@ -27,5 +28,6 @@ export {
   CurrencyComponent,
   DateComponent,
   DateReadComponent,
-  DescriptionComponent
+  DescriptionComponent,
+  MainCurrencyAmountReadComponent,
 }

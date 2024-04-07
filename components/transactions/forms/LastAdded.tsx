@@ -73,7 +73,7 @@ const LastAdded: React.FC = () => {
 
   return (
     <Dialog>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <Button variant="link">See last added</Button>
       </DialogTrigger>
       <DialogContent className="flex flex-col min-w-[1000px] h-screen my-20">

@@ -157,6 +157,7 @@ const Index: React.FC = () => {
           : (
           <IncomeComponent
             transactions={incomeTransactions}
+            transactionsUrl={transactionsUrl}
             isLoading={isIncomeTransactionsLoading}
             year={incomeYear}
             setYear={setIncomeYear}
