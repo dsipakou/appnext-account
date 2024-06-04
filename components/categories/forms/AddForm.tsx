@@ -1,4 +1,5 @@
 import React from 'react'
+import { X } from 'lucide-react'
 import axios from 'axios'
 import * as z from 'zod'
 import EmojiPicker from 'emoji-picker-react'
@@ -26,6 +27,7 @@ import {
 import { Input } from '@/components/ui/input'
 import {
   Popover,
+  PopoverClose,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
@@ -68,11 +70,11 @@ interface Types {
 
 const AddForm: React.FC<Types> = ({ parent }) => {
   const { mutate } = useSWRConfig()
-  const { data: categories } = useCategories()
+  const { data: categories = [] } = useCategories()
 
   const [parentList, setParentList] = React.useState<Category[]>([])
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const [selectedEmoji, setSelectedEmoji] = React.useState<string>('')
+  const [selectedEmoji, setSelectedEmoji] = React.useState<string | null>(null)
 
   const { toast } = useToast()
 
@@ -110,14 +112,11 @@ const AddForm: React.FC<Types> = ({ parent }) => {
     }
   }, [parent])
 
-  React.useEffect(() => {
-    console.log(selectedEmoji)
-  }, [selectedEmoji])
-
   const handleSave = async (payload: z.infer<typeof formSchema>) => {
     setIsLoading(true)
 
     axios.post('categories/', {
+      icon: selectedEmoji,
       name: payload.title,
       parent: payload.parentCategory || '',
       type: payload.type,
@@ -148,6 +147,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
     if (!open) {
       form.clearErrors()
       form.reset()
+      setSelectedEmoji(null)
     }
   }
 
@@ -160,25 +160,35 @@ const AddForm: React.FC<Types> = ({ parent }) => {
         <DialogHeader>
           <DialogTitle>Add category</DialogTitle>
         </DialogHeader>
+        <div className="flex gap-4 items-center">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline">Choose icon</Button>
+            </PopoverTrigger>
+            <PopoverContent className="flex w-[400px] justify-center" sideOffset={5}>
+              <div>
+                <EmojiPicker
+                  className="flex mt-5 h-20"
+                  skinTonesDisabled={true}
+                  onEmojiClick={(event) => setSelectedEmoji(event.emoji)}
+                />
+              </div>
+              <PopoverClose className="absolute top-5 right-5">
+                <X className="w-4 h-4" />
+              </PopoverClose>
+            </PopoverContent>
+          </Popover>
+          <span>{selectedEmoji}</span>
+          {selectedEmoji && (
+            <Button variant="link" onClick={() => setSelectedEmoji(null)}>
+              <X className="w-4 h-4 mr-2" />
+              <span>clear icon</span>
+            </Button>
+          )}
+        </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
             <div className="flex flex-col space-y-3">
-              <div className="self-end">
-                {selectedEmoji}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline">Choose emoji</Button>
-                  </PopoverTrigger>
-                  <PopoverContent>
-                    <div className="w-full h-full">
-                      <EmojiPicker
-                        skinTonesDisabled={true}
-                        onEmojiClick={(event) => setSelectedEmoji(event.emoji)}
-                      />
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
               <div className="flex w-full">
                 <FormField
                   control={form.control}
@@ -224,7 +234,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                 />
               </div>
               <div className="flex">
-                { watchType === CategoryType.Expense && (
+                {watchType === CategoryType.Expense && (
                   <div className="flex w-1/2 items-center h-12">
                     <FormField
                       control={form.control}
@@ -248,7 +258,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                     />
                   </div>
                 )}
-                { watchType === CategoryType.Expense && watchIsParent && (
+                {watchType === CategoryType.Expense && watchIsParent && (
                   <div className="flex w-1/2">
                     <FormField
                       control={form.control}

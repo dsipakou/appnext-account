@@ -26,7 +26,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ uuid }) => {
   const router = useRouter()
   const { toast } = useToast()
 
-  const { data: categories } = useCategories()
+  const { data: categories = [] } = useCategories()
   const { uuid: queryUuid } = router.query
 
   React.useEffect(() => {

@@ -24,7 +24,7 @@ interface Types {
 const GroupedBudgetButton: FC<Types> = ({ item }) => {
   const { data: { user } } = useSession()
 
-  const { data: categories } = useCategories()
+  const { data: categories = [] } = useCategories()
 
   const repeatedFor: number = item.items.length
 
@@ -82,7 +82,7 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
       <div className="flex justify-center w-full h-8">
         <span className="flex text-blue-500 font-semibold h-full items-center justify-center">
           <div className="flex gap-2 items-center">
-            <AlertTriangle className="h-4 w-4"/>
+            <AlertTriangle className="h-4 w-4" />
             <span>Budget from another category</span>
           </div>
         </span>
@@ -95,7 +95,7 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
       <div className="flex justify-center w-full h-8">
         <span className="flex text-blue-500 font-semibold h-full items-center justify-center">
           <div className="flex gap-2 items-center">
-            <AlertTriangle className="h-4 w-4"/>
+            <AlertTriangle className="h-4 w-4" />
             <span>Budget from another month</span>
           </div>
         </span>
@@ -130,7 +130,7 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
-                    <CheckCircle className="text-green-600 hover:h-6"/>
+                    <CheckCircle className="text-green-600 hover:h-6" />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Completed</p>
@@ -162,7 +162,7 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
           <div className="flex-1 justify-end">
             {item.items[0].recurrent &&
               <Badge variant="outline" className={`bg-white ${isCompleted && 'text-slate-500'}`}>
-                <Repeat2 className="mr-1 h-4"/>
+                <Repeat2 className="mr-1 h-4" />
                 {getRepeatDay(item.items[0])}
               </Badge>
             }

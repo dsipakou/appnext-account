@@ -39,7 +39,7 @@ import {
 
 type BudgetType = 'month' | 'week'
 
-function withBudgetTemplate<T> (Component: React.ComponentType<T>) {
+function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
   return (hocProps: Omit<T, 'activeType'>) => {
     const activeType = hocProps.activeType || 'month'
     const router = useRouter()
@@ -132,7 +132,7 @@ function withBudgetTemplate<T> (Component: React.ComponentType<T>) {
     }
 
     const toolbar = (
-      <div className="flex justify-between items-center py-3">
+      <div className="flex justify-between items-center py-3 h-20">
         <span className="text-xl font-bold">Budget</span>
         <div className="flex border bg-blue-500 rounded-md">
           <Button
@@ -175,7 +175,7 @@ function withBudgetTemplate<T> (Component: React.ComponentType<T>) {
     )
 
     const header = (
-      <div className="flex justify-between items-center gap-3">
+      <div className="flex justify-between items-center gap-3 h-auto">
         <div className="w-1/3">
           <GeneralSummaryCard planned={plannedSum} spent={spentSum} title={activeType} />
         </div>
@@ -193,7 +193,7 @@ function withBudgetTemplate<T> (Component: React.ComponentType<T>) {
                 <SelectLabel>Users</SelectLabel>
                 <SelectItem value="all">All users</SelectItem>
                 <DropdownMenuSeparator />
-                { users && users.map((item: User) => (
+                {users && users.map((item: User) => (
                   <SelectItem value={item.uuid} key={item.uuid}>{item.username}</SelectItem>
                 ))}
               </SelectGroup>
@@ -224,29 +224,29 @@ function withBudgetTemplate<T> (Component: React.ComponentType<T>) {
     return (
       <>
         {toolbar}
-        <div className="flex flex-col h-screen">
+        <div className="flex flex-col h-full max-h-full">
           <div className="w-full p-1 rounded shadow-sm shadow-zinc-300 bg-white">
             {header}
           </div>
-          <div className="w-full mt-5 h-full">
+          <div className="flex w-full mt-5 h-full max-h-full">
             {
               (activeType === 'month' && (budgetMonth.length === 0)) || (activeType === 'week' && (budgetWeek.length === 0))
                 ? isWeekBudgetLoading
                   ? (
-                      loadingState
-                    )
+                    loadingState
+                  )
                   : (emptyState)
                 : (
-                <Component
-                  startDate={startDate}
-                  endDate={endDate}
-                  clickShowTransactions={handleClickTransactions}
-                  mutateBudget={mutateBudget}
-                  user={user}
-                  weekUrl={weekUrl}
-                  monthUrl={monthUrl}
-                />
-                  )
+                  <Component
+                    startDate={startDate}
+                    endDate={endDate}
+                    clickShowTransactions={handleClickTransactions}
+                    mutateBudget={mutateBudget}
+                    user={user}
+                    weekUrl={weekUrl}
+                    monthUrl={monthUrl}
+                  />
+                )
             }
           </div>
         </div>

@@ -65,7 +65,7 @@ const AddForm: React.FC = () => {
 
   const { data: users } = useUsers()
 
-  const { data: categories } = useCategories()
+  const { data: categories = [] } = useCategories()
 
   React.useEffect(() => {
     if (!categories) return

@@ -115,8 +115,8 @@ const Index: React.FC = () => {
           </Button>
         </div>
       </div>
-        { activeType === 'outcome'
-          ? (
+      {activeType === 'outcome'
+        ? (
           <div className="grid grid-cols-7 gap-2">
             <div className="col-span-5 bg-white">
               <TransactionTable
@@ -153,8 +153,8 @@ const Index: React.FC = () => {
               </div>
             </div>
           </div>
-            )
-          : (
+        )
+        : (
           <IncomeComponent
             transactions={incomeTransactions}
             transactionsUrl={transactionsUrl}
@@ -162,7 +162,7 @@ const Index: React.FC = () => {
             year={incomeYear}
             setYear={setIncomeYear}
           />
-            )}
+        )}
       <AddForm open={isOpenTransactionsDialog} onOpenChange={setIsOpenTransactionsDialog} url={transactionsUrl} />
       <AddIncomeForm open={isOpenAddIncomeTransactions} url={incomeTransactionsUrl} handleClose={handleCloseModal} />
       {

@@ -16,9 +16,9 @@ const DescriptionComponent: React.FC<Types> = (params) => {
   }
 
   return (
-    <div className="flex w-full h-full bg-slate-100 p-[2px] select-none items-center">
+    <div className="flex w-full h-full bg-slate-100 select-none items-center">
       <Input
-        className="flex bg-white rounded-xl border-2 h-full text-xs"
+        className="flex bg-white rounded-lg border h-full text-xs"
         value={value}
         onChange={handleChange}
       />

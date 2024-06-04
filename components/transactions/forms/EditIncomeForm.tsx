@@ -241,7 +241,12 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                               <SelectGroup>
                                 <SelectLabel>Categories</SelectLabel>
                                 {incomeCategories.map((item: Category) => (
-                                  <SelectItem key={item.uuid} value={item.uuid}>{item.name}</SelectItem>
+                                  <SelectItem key={item.uuid} value={item.uuid}>
+                                    <div className="flex gap-1">
+                                      {item.icon && <span>{item.icon}</span>}
+                                      <span>{item.name}</span>
+                                    </div>
+                                  </SelectItem>
                                 ))}
                               </SelectGroup>
                             </SelectContent>

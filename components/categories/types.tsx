@@ -4,6 +4,7 @@ export enum CategoryType {
 }
 
 export interface Category {
+  icon: string | null
   uuid: string
   name: string
   parent: string | null

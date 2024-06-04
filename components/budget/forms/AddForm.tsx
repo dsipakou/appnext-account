@@ -92,7 +92,8 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
 
   useEffect(() => {
     if (open) {
-      form.setValue('budgetDate', (date != null) || new Date())
+      console.log(date)
+      form.setValue('budgetDate', date || new Date())
     }
   }, [open])
 
@@ -105,7 +106,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
   const { data: currencies } = useCurrencies()
 
   const {
-    data: categories,
+    data: categories = [],
     isLoading: isCategoriesLoading
   } = useCategories()
 
@@ -208,7 +209,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
   return (
     <Dialog onOpenChange={clean} open={open}>
       <DialogTrigger asChild>
-        {(customTrigger != null) || defaultTrigger}
+        {customTrigger || defaultTrigger}
       </DialogTrigger>
       <DialogContent className="min-w-[600px]">
         <DialogHeader>
@@ -239,14 +240,14 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                        <div className="flex gap-2">
-                          <div>
-                            <Input placeholder="10" disabled={isLoading} id="amount" {...field} />
+                          <div className="flex gap-2">
+                            <div>
+                              <Input placeholder="10" disabled={isLoading} id="amount" {...field} />
+                            </div>
+                            <span className="flex items-center text-sm">
+                              {form.watch('currency') && getCurrencySign()}
+                            </span>
                           </div>
-                          <span className="flex items-center text-sm">
-                            { form.watch('currency') && getCurrencySign()}
-                          </span>
-                        </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -304,7 +305,10 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                               <SelectGroup>
                                 <SelectLabel>Categories</SelectLabel>
                                 {parentList.map((item: Category) => (
-                                  <SelectItem key={item.uuid} value={item.uuid}>{item.name}</SelectItem>
+                                  <SelectItem key={item.uuid} value={item.uuid} className="flex items-center">
+                                    {item.icon && (<span className="mr-2 text-lg">{item.icon}</span>)}
+                                    <span>{item.name}</span>
+                                  </SelectItem>
                                 ))}
                               </SelectGroup>
                             </SelectContent>
@@ -436,8 +440,8 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
             <Button type="submit">Submit</Button>
           </form>
         </Form>
-        </DialogContent>
-      </Dialog>
+      </DialogContent>
+    </Dialog>
   )
 }
 

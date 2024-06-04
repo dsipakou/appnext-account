@@ -278,7 +278,14 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                                 <SelectLabel>Categories</SelectLabel>
                                 {parents.map((item: Category) => {
                                   return getChildren(item.uuid).map((subitem: Category) => (
-                                    <SelectItem key={subitem.uuid} value={subitem.uuid}>{item.name} / {subitem.name}</SelectItem>
+                                    <SelectItem key={subitem.uuid} value={subitem.uuid}>
+                                      <div className="flex gap-1">
+                                        {item.icon && <span className="mr-1">{item.icon}</span>}
+                                        <span>{item.name}</span>
+                                        <span>/</span>
+                                        <span>{subitem.name}</span>
+                                      </div>
+                                    </SelectItem>
                                   ))
                                 })}
                               </SelectGroup>

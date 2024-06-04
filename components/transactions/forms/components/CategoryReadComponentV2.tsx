@@ -1,11 +1,12 @@
 import React from 'react'
-import { GridRenderCellParams } from '@mui/x-data-grid'
 import { Category } from '@/components/categories/types'
 import { useCategories } from '@/hooks/categories'
+import { TransactionResponse } from '../../types'
 
-interface Types extends GridRenderCellParams<Category> {}
+interface Types extends TransactionResponse { }
 
-const CategoryReadComponent: React.FC<Types> = (params) => {
+const CategoryReadComponentV2: React.FC<Types> = (transaction) => {
+  console.log(transaction)
   const { data: categories = [] } = useCategories()
 
   const getTrimmedCategoryName = (uuid: string): string => {
@@ -16,23 +17,23 @@ const CategoryReadComponent: React.FC<Types> = (params) => {
     return categoryName
   }
 
-  if (params.value == null) {
+  if (transaction.category == null) {
     return
   }
 
   return (
     <div className="flex px-2 w-full overflow-x-hidden items-center gap-1">
-      { !!params.value.parent && (
+      {!!transaction.category.parent && (
         <>
           <span className="text-sm font-semibold py-1 rounded-md text-black pl-2">
-            {getTrimmedCategoryName(params.value.parent)}
+            {getTrimmedCategoryName(transaction.category.parent)}
           </span>
           /
         </>
       )}
-      <span className="text-sm overflow-x-hidden">{params.value.name || ''}</span>
+      <span className="text-sm overflow-x-hidden">{transaction.category.name || ''}</span>
     </div>
   )
 }
 
-export default CategoryReadComponent
+export default CategoryReadComponentV2

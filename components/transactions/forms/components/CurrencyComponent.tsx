@@ -45,44 +45,44 @@ const CurrencyComponent: React.FC<any> = (params) => {
   }
 
   return (
-    <div className="flex w-full h-full bg-slate-100 p-[2px] select-none items-center">
+    <div className="flex w-full h-full bg-slate-100 select-none items-center">
       {!currencies.length
         ? (
-        <span className="italic text-red-500">No currency</span>
-          )
+          <span className="italic text-red-500">No currency</span>
+        )
         : (
-        <Select
-          onValueChange={handleChange}
-          value={value}
-        >
-          <SelectTrigger className="relative border-2 bg-white rounded-xl h-full">
-            <SelectValue placeholder="Select a currency" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Currencies</SelectLabel>
-              {currencies && currencies.map((item: Currency) => {
-                const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code)
-                if (rate) {
-                  if (rate.rateDate === transactionDate) {
-                    return (
-                      <SelectItem key={item.uuid} value={item}>{item.code}</SelectItem>
-                    )
+          <Select
+            onValueChange={handleChange}
+            value={value}
+          >
+            <SelectTrigger className="relative border bg-white rounded-lg h-full">
+              <SelectValue placeholder="Select a currency" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Currencies</SelectLabel>
+                {currencies && currencies.map((item: Currency) => {
+                  const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code)
+                  if (rate) {
+                    if (rate.rateDate === transactionDate) {
+                      return (
+                        <SelectItem key={item.uuid} value={item}>{item.code}</SelectItem>
+                      )
+                    } else {
+                      return (
+                        <SelectItem key={item.uuid} value={item}>{item.code} (old)</SelectItem>
+                      )
+                    }
                   } else {
                     return (
-                      <SelectItem key={item.uuid} value={item}>{item.code} (old)</SelectItem>
+                      <SelectItem key={item.uuid} value={item} disabled>{item.code}</SelectItem>
                     )
                   }
-                } else {
-                  return (
-                    <SelectItem key={item.uuid} value={item} disabled>{item.code}</SelectItem>
-                  )
-                }
-              })}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      )}
+                })}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        )}
     </div>
   )
 }

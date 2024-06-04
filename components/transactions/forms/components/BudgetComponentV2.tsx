@@ -22,7 +22,7 @@ import {
 
 interface BudgetComponentTypes extends GridRenderEditCellParams { }
 
-const BudgetComponent: React.FC<BudgetComponentTypes> = (params) => {
+const BudgetComponentV2: React.FC<BudgetComponentTypes> = (params) => {
   const { id, field, row, value } = params
   const [completedItems, setCompletedItems] = React.useState<WeekBudgetItem[]>([])
   const [incompletedItems, setIncompletedItems] = React.useState<WeekBudgetItem[]>([])
@@ -95,4 +95,4 @@ const BudgetComponent: React.FC<BudgetComponentTypes> = (params) => {
   )
 }
 
-export default BudgetComponent
+export default BudgetComponentV2

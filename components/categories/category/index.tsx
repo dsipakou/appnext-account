@@ -17,7 +17,7 @@ const Category = () => {
   const [parentCategory, setParentCategory] = React.useState<Category>()
   const [childrenCategories, setChildrenCategories] = React.useState<Category[]>([])
 
-  const { data: categories } = useCategories()
+  const { data: categories = [] } = useCategories()
 
   const router = useRouter()
   const { uuid: parentUuid } = router.query
@@ -90,9 +90,9 @@ const Category = () => {
           {(parentCategory != null) && parentCategoryCard(parentCategory)}
         </div>
         {(childrenCategories.length === 0) && (
-        <div className="col-span-3">
-          <span className="flex w-full text-md from-indigo-400 justify-center">Please, add at least one sub-category</span>
-        </div>
+          <div className="col-span-3">
+            <span className="flex w-full text-md from-indigo-400 justify-center">Please, add at least one sub-category</span>
+          </div>
         )}
         {childrenCategories.map((item: Category) => <div key={item.uuid}>{categoryCard(item)}</div>)}
       </div>

@@ -35,7 +35,7 @@ const Container: React.FC<Types> = ({
   }, [budget])
 
   return (
-    <div className="grid grid-cols-12 h-full">
+    <div className="grid grid-cols-12 h-full w-full max-h-full">
       <div className="col-span-4 overflow-y-auto h-full">
         <div className="flex flex-col gap-2">
           {budget && budget.map((item: GroupedByCategoryBudget) => (

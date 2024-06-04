@@ -161,10 +161,10 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
             setRows((oldRows) => oldRows.map(
               (item) => item.id === row.id
                 ? {
-                    ...item,
-                    saved: true,
-                    baseAmount: formatMoney(res.data.spentInCurrencies[baseCurrency])
-                  }
+                  ...item,
+                  saved: true,
+                  baseAmount: formatMoney(res.data.spentInCurrencies[baseCurrency])
+                }
                 : item
             ))
             mutate(url)
@@ -298,20 +298,20 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
       renderEditCell: (params) => <AccountComponent {...params} user={user} />
     },
     {
-      field: 'category',
-      headerName: 'Category',
-      flex: 1.2,
-      editable: true,
-      renderCell: (params) => <CategoryReadComponent {...params} />,
-      renderEditCell: (params) => <CategoryComponent {...params} categories={categories} />
-    },
-    {
       field: 'budget',
       headerName: 'Budget',
       flex: 0.8,
       editable: true,
       renderCell: (params) => <BudgetReadComponent {...params} />,
       renderEditCell: (params) => <BudgetComponent {...params} />
+    },
+    {
+      field: 'category',
+      headerName: 'Category',
+      flex: 1.2,
+      editable: true,
+      renderCell: (params) => <CategoryReadComponent {...params} />,
+      renderEditCell: (params) => <CategoryComponent {...params} categories={categories} />
     },
     {
       field: 'amount',
@@ -434,7 +434,7 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
     if (canClose) {
       setErrors('')
       setRows([])
-      setRowModesModel({ })
+      setRowModesModel({})
       onOpenChange(false)
     } else {
       toast({
@@ -477,11 +477,21 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
             onRowEditStart={handleEditStart}
             processRowUpdate={processRowUpdate}
             sx={{
-              '& .MuiDataGrid-cell.MuiDataGrid-cell--editable': {
-                padding: 0
+              '& .MuiDataGrid-cell.MuiDataGrid-cell': {
+                padding: 0,
+                border: 0,
+              },
+              '& .MuiDataGrid-cell.MuiDataGrid-cell:focus-within': {
+                padding: 0,
+                border: 0,
+                outline: 0,
               },
               '& .MuiDataGrid-cell': {
                 padding: 0
+              },
+              '& :focus-visible, & :focus': {
+                outline: 1,
+                outlineOffset: -1,
               }
             }}
             components={{

@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button'
 
 interface Types extends GridRenderEditCellParams { }
 
-const DateComponent: React.FC<Types> = (params) => {
+const DateComponentV2: React.FC<Types> = (params) => {
   const { id, field, value } = params
   const apiRef = useGridApiContext()
 
@@ -54,4 +54,4 @@ const DateComponent: React.FC<Types> = (params) => {
   )
 }
 
-export default DateComponent
+export default DateComponentV2

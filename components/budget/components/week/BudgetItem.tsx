@@ -97,13 +97,13 @@ const BudgetItem: React.FC<Types> = ({
     : 'border-gray-300'
 
   if (isCompleted) {
-    cssClass = `bg-slate-300 ${cssClass}`
+    cssClass = `bg-slate-300 grayscale-[40%] opacity-[90%] ${cssClass}`
   } else {
-    cssClass = isSameUser ? `bg-white ${cssClass}` : `bg-sky-100 ${cssClass}`
+    cssClass = isSameUser ? `bg-white shadow-md ${cssClass}` : `bg-white text-blue-500 ${cssClass}`
   }
 
   return (
-    <div className={`flex flex-col group p-2 h-[100px] shadow-sm justify-between rounded-md hover:scale-110 hover:w-80 border hover:border-double hover:border-2 hover:z-20 hover:shadow-xl w-full ${cssClass}`}>
+    <div className={`flex flex-col group p-2 h-[100px] justify-between rounded-md hover:scale-110 hover:w-80 border hover:border-double hover:border-2 hover:z-20 hover:shadow-xl w-full ${cssClass}`}>
       <div className='flex flex-row gap-1 items-center'>
         {!isSameUser && (
           <div className="flex group-hover:hidden">

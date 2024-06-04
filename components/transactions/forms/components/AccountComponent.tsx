@@ -49,36 +49,36 @@ const AccountComponent: React.FC<AccountComponentTypes> = (params) => {
   }
 
   return (
-    <div className="flex w-full h-full bg-slate-100 p-[2px] select-none items-center">
+    <div className="flex w-full h-full bg-slate-100 focus:border-transparent focus:ring-0 items-center">
       {(accounts.length === 0)
         ? (
-        <span className="italic text-red-500">No accounts found</span>
-          )
+          <span className="italic text-red-500">No accounts found</span>
+        )
         : (
-        <Select
-          onValueChange={handleChange}
-          value={value}
-        >
-          <SelectTrigger className="relative bg-white text-xs border-2 h-full rounded-xl">
-            <SelectValue placeholder="Select an account" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Your Accounts</SelectLabel>
-              {yourAccounts.map((item: AccountResponse) => (
-                <SelectItem key={item.uuid} value={item}>{item.title}</SelectItem>
-              ))}
-            </SelectGroup>
-            <SelectSeparator />
-            <SelectGroup>
-              <SelectLabel>Other Accounts</SelectLabel>
-              {otherAccounts.map((item: AccountResponse) => (
-                <SelectItem key={item.uuid} value={item}>{item.title}</SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-          )}
+          <Select
+            onValueChange={handleChange}
+            value={value}
+          >
+            <SelectTrigger className="relative bg-white text-xs border h-full rounded-lg">
+              <SelectValue placeholder="Select an account" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Your Accounts</SelectLabel>
+                {yourAccounts.map((item: AccountResponse) => (
+                  <SelectItem key={item.uuid} value={item}>{item.title}</SelectItem>
+                ))}
+              </SelectGroup>
+              <SelectSeparator />
+              <SelectGroup>
+                <SelectLabel>Other Accounts</SelectLabel>
+                {otherAccounts.map((item: AccountResponse) => (
+                  <SelectItem key={item.uuid} value={item}>{item.title}</SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        )}
     </div>
   )
 }

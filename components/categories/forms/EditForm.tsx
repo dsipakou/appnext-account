@@ -1,6 +1,8 @@
 import React from 'react'
+import { X } from 'lucide-react'
 import * as z from 'zod'
 import axios from 'axios'
+import EmojiPicker from 'emoji-picker-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
 import { useForm } from 'react-hook-form'
@@ -20,6 +22,12 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -46,10 +54,11 @@ const formSchema = z.object({
 
 const EditForm: React.FC<Types> = ({ uuid }) => {
   const { mutate } = useSWRConfig()
-  const { data: categories } = useCategories()
+  const { data: categories = [] } = useCategories()
   const { toast } = useToast()
 
   const [parentList, setParentList] = React.useState<Category[]>([])
+  const [selectedEmoji, setSelectedEmoji] = React.useState<string | null>(null)
   const [errors, setErrors] = React.useState<string[]>([])
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
@@ -79,7 +88,10 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
     setIsLoading(true)
 
     axios
-      .patch(`categories/${uuid}/`, { ...payload })
+      .patch(`categories/${uuid}/`, {
+        ...payload,
+        icon: selectedEmoji,
+      })
       .then((res) => {
         if (res.status === 200) {
           mutate('categories/')
@@ -115,6 +127,32 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
         <DialogHeader>
           <DialogTitle>Edit category</DialogTitle>
         </DialogHeader>
+        <div className="flex gap-4 items-center">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline">Choose icon</Button>
+            </PopoverTrigger>
+            <PopoverContent className="flex w-[400px] justify-center" sideOffset={5}>
+              <div>
+                <EmojiPicker
+                  className="flex mt-5 h-20"
+                  skinTonesDisabled={true}
+                  onEmojiClick={(event) => setSelectedEmoji(event.emoji)}
+                />
+              </div>
+              <PopoverClose className="absolute top-5 right-5">
+                <X className="w-4 h-4" />
+              </PopoverClose>
+            </PopoverContent>
+          </Popover>
+          <span>{selectedEmoji}</span>
+          {selectedEmoji && (
+            <Button variant="link" onClick={() => setSelectedEmoji(null)}>
+              <X className="w-4 h-4 mr-2" />
+              <span>clear icon</span>
+            </Button>
+          )}
+        </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
             <div className="flex flex-col space-y-3">
@@ -133,7 +171,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                   )}
                 />
               </div>
-              { form.getValues('parent') && (
+              {form.getValues('parent') && (
                 <div className="flex w-full">
                   <FormField
                     control={form.control}

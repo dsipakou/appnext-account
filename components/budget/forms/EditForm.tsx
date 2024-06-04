@@ -275,7 +275,10 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                               <SelectGroup>
                                 <SelectLabel>Categories</SelectLabel>
                                 {parentList.map((item: Category) => (
-                                  <SelectItem key={item.uuid} value={item.uuid}>{item.name}</SelectItem>
+                                  <SelectItem key={item.uuid} value={item.uuid} className="flex items-center">
+                                    {item.icon && (<span className="mr-2 text-lg">{item.icon}</span>)}
+                                    <span>{item.name}</span>
+                                  </SelectItem>
                                 ))}
                               </SelectGroup>
                             </SelectContent>

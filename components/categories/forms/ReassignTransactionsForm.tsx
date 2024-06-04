@@ -47,7 +47,7 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
     resolver: zodResolver(formSchema)
   })
 
-  const { data: categories } = useCategories()
+  const { data: categories = [] } = useCategories()
 
   const parentCategories = categories.filter((item: Category) => item.parent === null && item.type === CategoryType.Expense)
   const sourceCategory = categories.find((item: Category) => item.uuid === uuid)
@@ -108,7 +108,7 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
           </form>
         </Form>
         <Button disabled={isLoading || !watchCategory} onClick={() => setIsConfirmTransferOpen(true)}>Transfer</Button>
-        { isConfirmTransferOpen &&
+        {isConfirmTransferOpen &&
           <ConfirmTransactionsTransferForm
             open={isConfirmTransferOpen}
             setOpen={setIsConfirmTransferOpen}

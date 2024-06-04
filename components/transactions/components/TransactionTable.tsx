@@ -72,16 +72,16 @@ const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, showBu
       renderCell: (params: GridRenderCellParams<AccountResponse>) => <AccountReadComponent {...params} />
     },
     {
-      field: 'category',
-      headerName: 'Category',
-      flex: 1.5,
-      renderCell: (params) => <CategoryReadComponent {...params} />
-    },
-    {
       field: 'budget',
       headerName: 'Budget',
       flex: 0.6,
       renderCell: (params: GridRenderCellParams<BudgetSlim>) => <BudgetReadComponent {...params} />
+    },
+    {
+      field: 'category',
+      headerName: 'Category',
+      flex: 1.5,
+      renderCell: (params) => <CategoryReadComponent {...params} />
     },
     {
       field: 'amount',
@@ -95,7 +95,7 @@ const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, showBu
       headerName: '',
       type: 'number',
       flex: 0.4,
-      renderCell: (params) => <MainCurrencyAmountReadComponent {...params} currency={baseCurrency}/>
+      renderCell: (params) => <MainCurrencyAmountReadComponent {...params} currency={baseCurrency} />
     },
     {
       field: 'currency',
@@ -158,6 +158,14 @@ const TransactionTable: React.FC<Types> = ({ transactions = [], withDate, showBu
   return (
     <div className="flex w-full h-screen">
       <DataGrid
+        sx={{
+          ["& .MuiDataGrid-cell.MuiDataGrid-cell--editing:focus-within"]: {
+            outline: "none !important",
+          },
+          ["& .MuiDataGrid-cell.MuiDataGrid-cell--editing:focus-within"]: {
+            outline: "none !important",
+          },
+        }}
         rows={rows}
         columns={columns}
         rowHeight={40}

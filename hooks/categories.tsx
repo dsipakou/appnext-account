@@ -16,7 +16,7 @@ export interface CategoryResponse {
 const fetcher = (url: string) => axios.get(url).then(res => res.data);
 
 export const useCategories = (): Response<CategoryResponse[]> => {
-  const { data, error, isValidating } = useSWR('categories/', fetcher);
+  const { data = [], error, isValidating } = useSWR('categories/', fetcher);
 
   return {
     data,
