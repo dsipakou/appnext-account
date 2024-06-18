@@ -92,7 +92,6 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
 
   useEffect(() => {
     if (open) {
-      console.log(date)
       form.setValue('budgetDate', date || new Date())
     }
   }, [open])
@@ -111,7 +110,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
   } = useCategories()
 
   useEffect(() => {
-    if (!categories) return
+    if (isCategoriesLoading) return
 
     const parents = categories.filter(
       (category: Category) => (
@@ -119,7 +118,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
       )
     )
     setParentList(parents)
-  }, [isCategoriesLoading, categories])
+  }, [isCategoriesLoading])
 
   useEffect(() => {
     form.setValue('currency', getDefaultCurrency())

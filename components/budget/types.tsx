@@ -31,6 +31,7 @@ export interface MonthGroupedBudgetItem {
   isAnotherCategory: boolean
   isAnotherMonth: boolean
   spentInCurrencies: CurrencyMap
+  spentInCurrenciesOverall: CurrencyMap
   plannedInCurrencies: CurrencyMap
 }
 
@@ -77,10 +78,14 @@ export interface CompactWeekItem {
   uuid: string
   title: string
   user: string
+  amount: number
+  category: string
+  currency: string
   planned: number
   spent: number
   recurrent: RecurrentTypes
   isCompleted: boolean
+  budgetDate: string
 }
 
 export interface TransactionItem extends SpentMap {

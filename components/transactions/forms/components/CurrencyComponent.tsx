@@ -25,6 +25,7 @@ const CurrencyComponent: React.FC<any> = (params) => {
   const { id, field, row, value } = params
   const apiRef = useGridApiContext()
   const transactionDate = getFormattedDate(row.transactionDate || new Date())
+  const budgetCurrencyUuid = row.budget?.currency
 
   const { data: currencies = [] } = useCurrencies()
 
@@ -34,8 +35,16 @@ const CurrencyComponent: React.FC<any> = (params) => {
     if (!currencies) return
 
     const defaultCurrency = currencies.find((item: Currency) => item.isDefault)
+    const isDefaultCurrencyAvailable = availableRates.find((item: AvailableRate) => item.currencyCode === defaultCurrency?.code)
     const baseCurrency = currencies.find((item: Currency) => item.isBase)
-    const newValue = availableRates.find((item: AvailableRate) => item.currencyCode === defaultCurrency?.code) ? defaultCurrency : baseCurrency
+    const budgetCurrency = currencies.find((item: Currency) => item.uuid === budgetCurrencyUuid)
+    const isBudgetCurrencyAvailable = availableRates.find((item: AvailableRate) => item.currencyCode === budgetCurrency?.code)
+
+    // Check
+    // 1. If budget currency available
+    // 2. or if default currency available
+    // 3. else base currency 
+    const newValue = isBudgetCurrencyAvailable ? budgetCurrency : isDefaultCurrencyAvailable ? defaultCurrency : baseCurrency
 
     apiRef.current.setEditCellValue({ id, field, value: newValue || null })
   }, [availableRates, currencies])

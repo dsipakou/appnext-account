@@ -30,7 +30,7 @@ import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
 import { useUsers } from '@/hooks/users'
 import { User } from '@/components/users/types'
-import { getFormattedDate } from '@/utils/dateUtils'
+import { getFormattedDate, parseDate } from '@/utils/dateUtils'
 import { formatMoney } from '@/utils/numberUtils'
 import { Account, AccountResponse } from '@/components/accounts/types'
 import { Currency } from '@/componnents/currencies/types'
@@ -50,13 +50,13 @@ import {
   DateReadComponent,
   DescriptionComponent
 } from './components'
-import { WeekBudgetItem } from '@/components/budget/types'
+import { CompactWeekItem } from '@/components/budget/types'
 
 interface Types {
   open: boolean
   onOpenChange: (open: boolean) => void
   url: string
-  budget?: WeekBudgetItem
+  budget?: CompactWeekItem
 }
 
 interface EditToolbarProps {
@@ -272,13 +272,13 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
   }, [authUser, users])
 
   React.useEffect(() => {
-    if (!budget) return
+    if (!budget || !accounts.length) return
 
     const account = accounts.find((item: Account) => item.user === budget.user && item.isMain)
     if (account) {
       setAccountForBudget(account)
     }
-  }, [budget])
+  }, [budget, accounts])
 
   const columns: GridColDef[] = [
     {
@@ -368,8 +368,6 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
     const id = randomId()
 
     if (accountForBudget) {
-      console.log('here')
-      console.log(accountForBudget)
       emptyRow = {
         ...emptyRow,
         id,
@@ -377,6 +375,7 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
         budget: budget.uuid,
         amount: String(budget.amount),
         currency: budget.currency,
+        transactionDate: parseDate(budget.budgetDate),
       }
       setRows(() => [emptyRow])
       setRowModesModel(() => ({

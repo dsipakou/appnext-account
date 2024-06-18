@@ -81,10 +81,14 @@ const Container: FC<Types> = ({
         uuid: item.uuid,
         title: item.title,
         user: item.user,
+        category: item.category,
+        currency: item.currency,
+        amount: item.planned,
         planned: item.plannedInCurrencies[authUser?.currency],
         spent: item.spentInCurrencies[authUser?.currency] || 0,
         recurrent: item.recurrent,
-        isCompleted: item.isCompleted
+        isCompleted: item.isCompleted,
+        budgetDate: item.budgetDate,
       }
       itemsOnDate.push(compactWeekItem)
       groupedObj[dayOfWeek] = itemsOnDate
@@ -115,13 +119,7 @@ const Container: FC<Types> = ({
                 weekGroup[day].map((item: CompactWeekItem) => (
                   <BudgetItem
                     key={item.uuid}
-                    uuid={item.uuid}
-                    title={item.title}
-                    user={item.user}
-                    planned={item.planned}
-                    spent={item.spent}
-                    recurrent={item.recurrent}
-                    isCompleted={item.isCompleted}
+                    budget={item}
                     weekUrl={weekUrl}
                     monthUrl={monthUrl}
                     mutateBudget={mutateBudget}

@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { useBudgetDetails } from '@/hooks/budget'
-import { RecurrentTypes } from '@/components/budget/types'
+import { CompactWeekItem } from '@/components/budget/types'
 import { useUsers, UserResponse } from '@/hooks/users'
 import EditForm from '@/components/budget/forms/EditForm'
 import ConfirmDeleteForm from '@/components/budget/forms/ConfirmDeleteForm'
@@ -18,13 +18,7 @@ import { AddForm } from '@/components/transactions/forms'
 
 interface Types {
   index: number
-  uuid: string
-  title: string
-  user: string
-  planned: number
-  spent: number
-  isCompleted: boolean
-  recurrent: RecurrentTypes
+  budget: CompactWeekItem,
   weekUrl: string
   monthUrl: string
   mutateBudget: () => void
@@ -32,13 +26,7 @@ interface Types {
 }
 
 const BudgetItem: React.FC<Types> = ({
-  uuid,
-  title,
-  user,
-  planned,
-  spent,
-  isCompleted,
-  recurrent,
+  budget,
   weekUrl,
   monthUrl,
   mutateBudget,
@@ -50,24 +38,23 @@ const BudgetItem: React.FC<Types> = ({
   const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] = React.useState<boolean>(false)
   const [isAddTransactionDialogOpened, setIsAddTransactionDialogOpened] = React.useState<boolean>(false)
 
-  const { data: budgetDetails, url } = useBudgetDetails(uuid)
   const { data: users } = useUsers()
   const { data: { user: authUser } } = useSession()
   const { mutate } = useSWRConfig()
 
-  const percentage: number = Math.floor(spent * 100 / planned)
+  const percentage: number = Math.floor(budget.spent * 100 / budget.planned)
 
   const currencySign = useStore((state) => state.currencySign)
 
-  const budgetUser = users.find((item: UserResponse) => item.uuid === user)
+  const budgetUser = users.find((item: UserResponse) => item.uuid === budget.user)
 
   const isSameUser = budgetUser?.username === authUser?.username
 
   const handleClickComplete = (): void => {
     setIsLoading(true)
-    axios.patch(`budget/${uuid}/`, {
-      isCompleted: !budgetDetails.isCompleted,
-      category: budgetDetails.category
+    axios.patch(`budget/${budget.uuid}/`, {
+      isCompleted: !budget.isCompleted,
+      category: budget.category,
     }).then(
       res => {
         if (res.status === 200) {
@@ -90,20 +77,20 @@ const BudgetItem: React.FC<Types> = ({
     })
   }
 
-  let cssClass = recurrent
-    ? recurrent === 'monthly'
+  let cssClass = budget.recurrent
+    ? budget.recurrent === 'monthly'
       ? 'p-2 border-l-8 border-blue-400'
       : 'border-l-8 border-yellow-400'
     : 'border-gray-300'
 
-  if (isCompleted) {
+  if (budget.isCompleted) {
     cssClass = `bg-slate-300 grayscale-[40%] opacity-[90%] ${cssClass}`
   } else {
     cssClass = isSameUser ? `bg-white shadow-md ${cssClass}` : `bg-white text-blue-500 ${cssClass}`
   }
 
   return (
-    <div className={`flex flex-col group p-2 h-[100px] justify-between rounded-md hover:scale-110 hover:w-80 border hover:border-double hover:border-2 hover:z-20 hover:shadow-xl w-full ${cssClass}`}>
+    <div className={`flex flex-col group p-2 h-[80px] hover:h-[100px] justify-between rounded-md hover:scale-110 hover:w-80 border hover:border-double hover:border-2 hover:z-20 hover:shadow-xl w-full ${cssClass}`}>
       <div className='flex flex-row gap-1 items-center'>
         {!isSameUser && (
           <div className="flex group-hover:hidden">
@@ -122,56 +109,56 @@ const BudgetItem: React.FC<Types> = ({
           </div>
         )}
         <div className="flex grow group-hover:text-base group-hover:ml-3 whitespace-nowrap text-ellipsis overflow-hidden text-sm font-semibold">
-          <span>{title}</span>
+          <span>{budget.title}</span>
         </div>
-        {isCompleted && (
-        <div className="flex-none justify-end">
-          <CheckCircle className="text-green-600 h-4" />
-        </div>
+        {budget.isCompleted && (
+          <div className="flex-none justify-end">
+            <CheckCircle className="text-green-600 h-4" />
+          </div>
         )}
-        {!!recurrent && (
-          <div className={`hidden group-hover:flex items-center ${recurrent === 'monthly' ? 'text-blue-500' : 'text-yellow-500'}`}>
+        {!!budget.recurrent && (
+          <div className={`hidden group-hover:flex items-center ${budget.recurrent === 'monthly' ? 'text-blue-500' : 'text-yellow-500'}`}>
             <Repeat className="h-3" />
             <span className="text-xs">
-              {recurrent}
+              {budget.recurrent}
             </span>
           </div>
         )}
       </div>
       <div className="flex h-full justify-center items-center">
         <div className="group-hover:flex text-sm font-semibold">
-          <span>{formatMoney(spent)}</span>
+          <span>{formatMoney(budget.spent)}</span>
           <span>
             {currencySign}
           </span>
         </div>
         {
-          planned !== 0 && (
+          budget.planned !== 0 && (
             <div className="hidden group-hover:flex text-xs font-semibold mx-2">
               of
             </div>
           )
         }
-        { planned !== 0 && (
+        {budget.planned !== 0 && (
           <div className="flex text-xs">
             <span className="group-hover:hidden pl-1">(</span>
             <span>
-              {formatMoney(planned)}
+              {formatMoney(budget.planned)}
             </span>
             <span className="group-hover:hidden">)</span>
             <span className="hidden group-hover:flex">{currencySign}</span>
           </div>
         )}
         <div className="text-xs ml-[3px]">{
-          planned === 0 &&
-            (
-              <span className="hidden group-hover:flex ml-2">(not planned)</span>
-            )
+          budget.planned === 0 &&
+          (
+            <span className="hidden group-hover:flex ml-2">(not planned)</span>
+          )
         }
         </div>
       </div>
       <div className="flex justify-center items-center">
-        {planned !== 0
+        {budget.planned !== 0
           ? (
             <>
               <Progress
@@ -181,35 +168,35 @@ const BudgetItem: React.FC<Types> = ({
               />
               <div className="text-xs font-bold ml-2">{`${percentage}%`}</div>
             </>
-            )
+          )
           : (
             <Badge variant="secondary" className="flex font-normal group-hover:hidden text-xs tracking-widest">
               Not Planned
             </Badge>
-            )
+          )
         }
       </div>
       <div className="hidden h-full group-hover:flex group-hover:items-end justify-center gap-1 text-xs">
         <Button
           disabled={isLoading}
           variant="outline"
-          className={`px-3 text-xs h-2 ${isCompleted ? 'bg-gray-400' : 'bg-white'}`}
+          className={`px-3 text-xs h-2 ${budget.isCompleted ? 'bg-gray-400' : 'bg-white'}`}
           onClick={handleClickComplete}>
-          {!isLoading && <Check className={`h-4 ${isCompleted ? 'text-white' : 'text-gray-400'}`} />}
-          {isLoading && <Loader className={`h-4 ${isCompleted ? 'text-white' : 'text-gray-400'}`} />}
+          {!isLoading && <Check className={`h-4 ${budget.isCompleted ? 'text-white' : 'text-gray-400'}`} />}
+          {isLoading && <Loader className={`h-4 ${budget.isCompleted ? 'text-white' : 'text-gray-400'}`} />}
         </Button>
         <Button
           disabled={isLoading}
           variant="outline"
           className="px-3 text-xs h-2 bg-slate-200 w-full"
           onClick={() => setIsAddTransactionDialogOpened(true)}>
-          <Plus className="h-4 w-4"/>
+          <Plus className="h-4 w-4" />
         </Button>
         <Button
           disabled={isLoading}
           variant="outline"
           className="px-3 text-xs h-2 bg-white"
-          onClick={() => clickShowTransactions(uuid)}
+          onClick={() => clickShowTransactions(budget.uuid)}
         >
           <ScrollText className="h-4 w-4" />
         </Button>
@@ -234,7 +221,7 @@ const BudgetItem: React.FC<Types> = ({
           <EditForm
             open={isEditDialogOpened}
             setOpen={setIsEditDialogOpened}
-            uuid={uuid}
+            uuid={budget.uuid}
             weekUrl={weekUrl}
             monthUrl={monthUrl}
           />
@@ -245,7 +232,7 @@ const BudgetItem: React.FC<Types> = ({
           <ConfirmDeleteForm
             open={isConfirmDeleteDialogOpened}
             setOpen={setIsConfirmDeleteDialogOpened}
-            uuid={uuid}
+            uuid={budget.uuid}
             weekUrl={weekUrl}
             monthUrl={monthUrl}
           />
@@ -256,7 +243,7 @@ const BudgetItem: React.FC<Types> = ({
           url={weekUrl}
           open={isAddTransactionDialogOpened}
           onOpenChange={setIsAddTransactionDialogOpened}
-          budget={budgetDetails}
+          budget={budget}
         />
       )}
     </div>

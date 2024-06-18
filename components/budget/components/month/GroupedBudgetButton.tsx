@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/tooltip'
 import { Badge } from '@/components/ui/badge'
 import { MonthGroupedBudgetItem, MonthBudgetItem } from '@/components/budget/types'
-import { formatMoney } from '@/utils/numberUtils'
+import { getNumberWithPostfix, formatMoney } from '@/utils/numberUtils'
 import { useCategories } from '@/hooks/categories'
 import { parseDate, getFormattedDate, LONG_YEAR_SHORT_MONTH_FORMAT } from '@/utils/dateUtils'
 import { Category } from '@/components/categories/types'
@@ -30,20 +30,24 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
 
   const planned: number = item.plannedInCurrencies[user?.currency]
   const spent: number = item.spentInCurrencies[user?.currency] || 0
-  const percentage: number = Math.floor(spent * 100 / planned)
+  const spentOverall: number = item.spentInCurrenciesOverall[user?.currency] || 0
+  const percentage: number = Math.floor(spentOverall * 100 / planned)
   const isCompleted: boolean = item.items.every((_item: MonthBudgetItem) => _item.isCompleted)
 
   const currencySign = useStore((state) => state.currencySign)
 
+  const getCategoryIcon = (uuid: string) => (
+    categories.find((item: Category) => item.uuid === uuid)?.icon || ''
+  )
   const getCategoryName = (uuid: string) => (
     categories.find((item: Category) => item.uuid === uuid)?.name || ''
   )
 
   const getRepeatDay = (item: MonthBudgetItem) => {
     if (item.recurrent === 'monthly') {
-      return `Repeat monthly on day ${getDate(parseDate(item.budgetDate))}`
+      return `Each ${getNumberWithPostfix(getDate(parseDate(item.budgetDate)))} day`
     } else if (item.recurrent === 'weekly') {
-      return `Repeat weekly on ${format(parseDate(item.budgetDate), 'EEEE')}`
+      return `Each ${format(parseDate(item.budgetDate), 'EEEE')}`
     }
     return ''
   }
@@ -80,10 +84,12 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
   const anotherCategoryProgress = () => (
     <>
       <div className="flex justify-center w-full h-8">
-        <span className="flex text-blue-500 font-semibold h-full items-center justify-center">
-          <div className="flex gap-2 items-center">
-            <AlertTriangle className="h-4 w-4" />
-            <span>Budget from another category</span>
+        <span className="flex text-sm text-gray-700 h-full items-center justify-center">
+          <div className="flex gap-1 items-center">
+            <span className="font-semibold">From</span>
+            <Badge variant="outline" className="flex justify-center whitespace-nowrap overflow-hidden bg-sky-500 h-5 text-white w-full">
+              <span className="font-bold">{getCategoryIcon(item.items[0].category)} {getCategoryName(item.items[0].category)}</span>
+            </Badge>
           </div>
         </span>
       </div>
@@ -94,9 +100,11 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
     <>
       <div className="flex justify-center w-full h-8">
         <span className="flex text-blue-500 font-semibold h-full items-center justify-center">
-          <div className="flex gap-2 items-center">
-            <AlertTriangle className="h-4 w-4" />
-            <span>Budget from another month</span>
+          <div className="flex gap-1 items-center">
+            <span className="font-semibold">From</span>
+            <Badge variant="outline" className="flex justify-center whitespace-nowrap overflow-hidden bg-sky-500 h-5 text-white w-full">
+              <span className="font-bold">{getFormattedDate(parseDate(item.items[0].budgetDate), LONG_YEAR_SHORT_MONTH_FORMAT)}</span>
+            </Badge>
           </div>
         </span>
       </div>
@@ -108,23 +116,9 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
       <div className="flex flex-col gap-3">
         <div className="flex justify-between w-full">
           <div className="relative">
-            <span className="text-lg">{item.title}</span>
+            <span className="text-lg ml-2">{item.title}</span>
             {repeatedFor > 1 && <span className="absolute px-1 text-xs rounded-full bg-sky-500 text-white">{`x${repeatedFor}`}</span>}
           </div>
-          {
-            item.isAnotherCategory && !item.isAnotherMonth && (
-              <Badge variant="outline" className="flex justify-center whitespace-nowrap overflow-hidden bg-sky-500 h-5 text-white w-24">
-                {getCategoryName(item.items[0].category)}
-              </Badge>
-            )
-          }
-          {
-            item.isAnotherMonth && (
-              <Badge variant="outline" className="flex justify-center whitespace-nowrap overflow-hidden bg-sky-500 h-5 text-white w-24">
-                {getFormattedDate(parseDate(item.items[0].budgetDate), LONG_YEAR_SHORT_MONTH_FORMAT)}
-              </Badge>
-            )
-          }
           {isCompleted && !item.isAnotherCategory && !item.isAnotherMonth && (
             <>
               <TooltipProvider>
@@ -141,11 +135,19 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
           )}
         </div>
         <div className="flex justify-center">
-          <span className="text-xl font-bold">{formatMoney(spent)} {currencySign}</span>
+          <div className="flex items-start">
+            <span className="text-xl font-bold">{formatMoney(spent)}</span>
+            <span className="text-xl font-bold mx-1">{currencySign}</span>
+            {
+              !item.isAnotherCategory && spent !== spentOverall && (
+                <span className="text-xs font-light italic mr-1">+{(formatMoney(spentOverall - spent))}</span>
+              )
+            }
+          </div>
           {planned !== 0 && (
             <>
-              <span className="mx-2 text-sm">of</span>
-              <span className="text-sm">{formatMoney(planned)} {currencySign}</span>
+              <span className="mx-1 text-sm">of</span>
+              <span className="text-sm font-semibold">{formatMoney(planned)} {currencySign}</span>
             </>
           )}
         </div>
