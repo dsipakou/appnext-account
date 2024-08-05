@@ -53,7 +53,7 @@ const WeekWidget = () => {
           data: budget.map((item: GroupedByCategoryBudget) => {
             return {
               name: item.categoryName,
-              value: item.spentInCurrencies[authUser?.currency].toFixed(2) || 0
+              value: item.spentInCurrencies[authUser?.currency]?.toFixed(2) || 0
             }
           })
         }
@@ -69,11 +69,11 @@ const WeekWidget = () => {
           <span className="text-lg font-bold mt-1">Your plans</span>
           <span className="">{budget.reduce((acc: number, item: GroupedByCategoryBudget) => {
             return acc + item.plannedInCurrencies[authUser?.currency]
-          }, 0).toFixed(2)} {currencySign}</span>
+          }, 0) || 0} {currencySign}</span>
           <span className="text-lg font-bold mt-1">Your spendings</span>
           <span className="">{budget.reduce((acc: number, item: GroupedByCategoryBudget) => {
             return acc + item.spentInCurrencies[authUser?.currency]
-          }, 0).toFixed(2)} {currencySign}</span>
+          }, 0) || 0} {currencySign}</span>
         </div>
         <div className="flex w-full h-full">
           <ReactECharts style={{ width: '100%', height: '100%' }} option={options} notMerge={true} />

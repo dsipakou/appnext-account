@@ -140,21 +140,37 @@ const Layout: FC<Props> = ({ children }) => {
 
   return (
     <div className="relative h-screen">
-      <header className="fixed w-full z-50 bg-blue-500 text-white">
-        <div className="flex mx-2 py-2 justify-between items-center">
-          <div className="flex items-center gap-2">
+      <div className={`fixed flex flex-col justify-between drop-shadow-sm transition-all ease-in-out delay-50 bg-white overflow-hidden z-40 h-screen ${open ? 'w-60' : 'w-16'}`}>
+        <div className="flex flex-col items-start">
+          <div className="flex flex-col w-full items-start justify-center">
             <Button
               variant="link"
-              className="text-white"
+              className="text-white pl-5 h-16 self-center"
               onClick={open ? handleDrawerClose : handleDrawerOpen}
             >
-              <Menu />
+              <Menu className="text-black" />
             </Button>
+            {menuItems.map(({ name, icon, link }) => (
+              menuComponent(name, icon, link)
+            ))}
+          </div>
+        </div>
+        <div>
+          {bottomMenuItems.map(({ name, icon, link }) => (
+            <div key={name} className="w-full">
+              {menuComponent(name, icon, link)}
+            </div>
+          ))}
+        </div>
+      </div>
+      <header className="flex w-full z-50 bg-blue-500 text-white">
+        <div className="flex mx-2 py-2 pl-20 justify-between w-full items-center">
+          <div className="flex items-center gap-2">
             <span className="text-lg ml-1 justify-self-start">
               Flying Budget
             </span>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center justify-between">
             {!!currencies?.length && (
               <div className="flex w-80">
                 <Select
@@ -186,23 +202,7 @@ const Layout: FC<Props> = ({ children }) => {
           </div>
         </div>
       </header>
-      <div className={`fixed flex flex-col justify-between drop-shadow-sm transition-all ease-in-out delay-50 pt-14 bg-white overflow-hidden z-40 h-screen ${open ? 'w-60' : 'w-16'}`}>
-        <div className="flex flex-col pt-2 items-start">
-          <div className="flex flex-col w-full">
-            {menuItems.map(({ name, icon, link }) => (
-              menuComponent(name, icon, link)
-            ))}
-          </div>
-        </div>
-        <div>
-          {bottomMenuItems.map(({ name, icon, link }) => (
-            <div key={name} className="w-full">
-              {menuComponent(name, icon, link)}
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="flex flex-col mx-auto max-w-screen-xl h-screen pt-16 min-w-screen-lg">
+      <div className="flex flex-col mx-auto max-w-screen-xl h-screen pt-1 min-w-screen-lg">
         {children}
       </div>
     </div>

@@ -44,6 +44,7 @@ import {
   BudgetComponent,
   BudgetReadComponent,
   CategoryComponent,
+  CategoryComponentV2,
   CategoryReadComponent,
   CurrencyComponent,
   DateComponent,
@@ -189,6 +190,8 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
 
   const isListEmpty: boolean = rows.length === 0
 
+  const isAllSaved: boolean = rows.every((row) => row.saved)
+
   return (
     <GridToolbarContainer>
       <div className="grid grid-cols-3 w-full p-1 rounded-md bg-white">
@@ -216,7 +219,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
           <Button variant="destructive" onClick={handleClearClick} className="h-7" disabled={isLoading || isEditMode || isListEmpty}>
             Clear list
           </Button>
-          <Button onClick={handleSaveClick} className="h-7" disabled={isLoading || isEditMode || isListEmpty}>
+          <Button onClick={handleSaveClick} className="h-7" disabled={isLoading || isEditMode || isListEmpty || isAllSaved}>
             Submit transactions
           </Button>
         </div>
@@ -245,7 +248,8 @@ const emptyRowTemplate = {
   type: '',
   user: '',
   baseAmount: '',
-  saved: false
+  saved: false,
+  edited: false,
 }
 
 let emptyRow = emptyRowTemplate
@@ -355,6 +359,7 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
         {...params}
         rowModesModel={rowModesModel}
         handleSaveClick={handleSaveClick}
+        handleEditClick={handleEditClick}
         handleDeleteClick={handleDeleteClick}
         handleDuplicateClick={handleDuplicateClick}
       />
@@ -382,13 +387,19 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
         [id]: { mode: GridRowModes.Edit, fieldToFocus: 'amount' }
       }))
     }
-  }, [accountForBudget, budget])
+  }, [accountForBudget])
 
   React.useEffect(() => {
     setErrors('')
   }, [rows])
 
   const handleSaveClick = (id: GridRowId) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
+  }
+
+  const handleEditClick = (id: GridRowId) => () => {
+    console.log(rowModesModel)
+    console.log(rows)
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
   }
 
@@ -450,11 +461,7 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
     }
   }
 
-  const handleEditStart = (params, event) => {
-    if (params.row.saved) {
-      event.defaultMuiPrevented = true
-    }
-  }
+  const handleEditStart = (params, event) => { }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

@@ -1,26 +1,27 @@
 import * as React from 'react'
 import { useStore } from '@/app/store'
 import axios from 'axios'
+import { cn } from '@/lib/utils'
 import { useSession } from 'next-auth/react'
-import { useSWRConfig } from 'swr'
 import { Check, CheckCircle, Edit, Loader, Plus, Repeat, ScrollText, Trash } from 'lucide-react'
 import { formatMoney } from '@/utils/numberUtils'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { useBudgetDetails } from '@/hooks/budget'
 import { CompactWeekItem } from '@/components/budget/types'
 import { useUsers, UserResponse } from '@/hooks/users'
 import EditForm from '@/components/budget/forms/EditForm'
 import ConfirmDeleteForm from '@/components/budget/forms/ConfirmDeleteForm'
 import { AddForm } from '@/components/transactions/forms'
+import { Draggable } from '@/components/ui/dnd'
 
 interface Types {
   index: number
   budget: CompactWeekItem,
   weekUrl: string
   monthUrl: string
+  isDragging: boolean
   mutateBudget: () => void
   clickShowTransactions: (uuid: string) => void
 }
@@ -29,6 +30,7 @@ const BudgetItem: React.FC<Types> = ({
   budget,
   weekUrl,
   monthUrl,
+  isDragging,
   mutateBudget,
   clickShowTransactions
 }) => {
@@ -40,7 +42,6 @@ const BudgetItem: React.FC<Types> = ({
 
   const { data: users } = useUsers()
   const { data: { user: authUser } } = useSession()
-  const { mutate } = useSWRConfig()
 
   const percentage: number = Math.floor(budget.spent * 100 / budget.planned)
 
@@ -58,7 +59,6 @@ const BudgetItem: React.FC<Types> = ({
     }).then(
       res => {
         if (res.status === 200) {
-          mutate(url)
           mutateBudget()
         } else {
           // TODO: handle errors
@@ -77,38 +77,42 @@ const BudgetItem: React.FC<Types> = ({
     })
   }
 
-  let cssClass = budget.recurrent
-    ? budget.recurrent === 'monthly'
-      ? 'p-2 border-l-8 border-blue-400'
-      : 'border-l-8 border-yellow-400'
-    : 'border-gray-300'
-
-  if (budget.isCompleted) {
-    cssClass = `bg-slate-300 grayscale-[40%] opacity-[90%] ${cssClass}`
-  } else {
-    cssClass = isSameUser ? `bg-white shadow-md ${cssClass}` : `bg-white text-blue-500 ${cssClass}`
-  }
-
   return (
-    <div className={`flex flex-col group p-2 h-[80px] hover:h-[100px] justify-between rounded-md hover:scale-110 hover:w-80 border hover:border-double hover:border-2 hover:z-20 hover:shadow-xl w-full ${cssClass}`}>
+    <Draggable id={budget.uuid}
+      className={cn(
+        'flex flex-col group p-2 h-[80px] justify-between rounded-md border w-full',
+        !isDragging && 'hover:h-[100px] hover:scale-110 hover:w-80 hover:border-double hover:border-2 hover:z-20 hover:shadow-xl',
+        !budget.isCompleted && ['bg-white', isSameUser ? 'shadow-md' : 'text-blue-500'],
+        budget.isCompleted && 'bg-slate-300 grayscale-[40%] opacity-[90%]',
+        budget.recurrent && ['border-gray-300 border-l-8', budget.recurrent === 'monthly' ? 'p-2 border-blue-400' : 'border-yellow-400'],
+      )}
+    >
       <div className='flex flex-row gap-1 items-center'>
         {!isSameUser && (
-          <div className="flex group-hover:hidden">
-            <Avatar className="h-6 w-6">
-              <AvatarFallback className="text-xs font-bold bg-sky-400 text-white">
-                {budgetUser.username.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-          </div>
-        )}
-        {!isSameUser && (
-          <div className="justify-center text-sm font-bold">
-            <div className="hidden group-hover:flex">
-              <Badge className="bg-sky-400">{budgetUser.username}</Badge>
+          <>
+            <div className={cn(
+              'flex group-hover:hidden',
+            )}>
+              <Avatar className="h-6 w-6">
+                <AvatarFallback className="text-xs font-bold bg-sky-400 text-white">
+                  {budgetUser.username.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
             </div>
-          </div>
+            <div className="justify-center text-sm font-bold">
+              <div className={cn(
+                'hidden',
+                !isDragging && 'group-hover:flex'
+              )}>
+                <Badge className="bg-sky-400">{budgetUser.username}</Badge>
+              </div>
+            </div>
+          </>
         )}
-        <div className="flex grow group-hover:text-base group-hover:ml-3 whitespace-nowrap text-ellipsis overflow-hidden text-sm font-semibold">
+        <div className={cn(
+          'flex grow whitespace-nowrap text-ellipsis overflow-hidden text-sm font-semibold',
+          !isDragging && 'group-hover:text-base group-hover:ml-3'
+        )}>
           <span>{budget.title}</span>
         </div>
         {budget.isCompleted && (
@@ -117,7 +121,12 @@ const BudgetItem: React.FC<Types> = ({
           </div>
         )}
         {!!budget.recurrent && (
-          <div className={`hidden group-hover:flex items-center ${budget.recurrent === 'monthly' ? 'text-blue-500' : 'text-yellow-500'}`}>
+          <div className={cn(
+            'hidden items-center',
+            !isDragging && 'group-hover:flex',
+            budget.recurrent === 'monthly' && 'text-blue-500',
+            budget.recurrent === 'weekly' && 'text-yellow-500'
+          )}>
             <Repeat className="h-3" />
             <span className="text-xs">
               {budget.recurrent}
@@ -126,7 +135,10 @@ const BudgetItem: React.FC<Types> = ({
         )}
       </div>
       <div className="flex h-full justify-center items-center">
-        <div className="group-hover:flex text-sm font-semibold">
+        <div className={cn(
+          'text-sm font-semibold',
+          !isDragging && 'group-hover:flex'
+        )}>
           <span>{formatMoney(budget.spent)}</span>
           <span>
             {currencySign}
@@ -134,13 +146,19 @@ const BudgetItem: React.FC<Types> = ({
         </div>
         {
           budget.planned !== 0 && (
-            <div className="hidden group-hover:flex text-xs font-semibold mx-2">
+            <div className={cn(
+              'hidden text-xs font-semibold mx-2',
+              !isDragging && 'group-hover:flex'
+            )}>
               of
             </div>
           )
         }
         {budget.planned !== 0 && (
-          <div className="flex text-xs">
+          <div className={cn(
+            'flex text-xs',
+            isDragging && 'hidden'
+          )}>
             <span className="group-hover:hidden pl-1">(</span>
             <span>
               {formatMoney(budget.planned)}
@@ -149,12 +167,15 @@ const BudgetItem: React.FC<Types> = ({
             <span className="hidden group-hover:flex">{currencySign}</span>
           </div>
         )}
-        <div className="text-xs ml-[3px]">{
-          budget.planned === 0 &&
-          (
-            <span className="hidden group-hover:flex ml-2">(not planned)</span>
-          )
-        }
+        <div className={cn(
+          'text-xs ml-[3px]',
+          isDragging && 'hidden'
+        )}>{
+            budget.planned === 0 &&
+            (
+              <span className="hidden group-hover:flex ml-2">(not planned)</span>
+            )
+          }
         </div>
       </div>
       <div className="flex justify-center items-center">
@@ -162,8 +183,14 @@ const BudgetItem: React.FC<Types> = ({
           ? (
             <>
               <Progress
-                className={`h-1.5 ${percentage > 100 ? 'bg-red-200' : 'bg-gray-200'}`}
-                indicatorclassname={`${percentage > 100 ? 'bg-red-500' : 'bg-green-500'}`}
+                className={cn(
+                  'h-1.5 bg-gray-200',
+                  percentage > 100 && 'bg-red-200',
+                )}
+                indicatorclassname={cn(
+                  'bg-green-500',
+                  percentage > 100 && 'bg-red-500',
+                )}
                 value={percentage > 100 ? percentage % 100 : percentage}
               />
               <div className="text-xs font-bold ml-2">{`${percentage}%`}</div>
@@ -176,14 +203,27 @@ const BudgetItem: React.FC<Types> = ({
           )
         }
       </div>
-      <div className="hidden h-full group-hover:flex group-hover:items-end justify-center gap-1 text-xs">
+      <div className={cn(
+        'hidden h-full justify-center gap-1 text-xs',
+        !isDragging && 'group-hover:flex group-hover:items-end'
+      )} data-no-dnd="true"
+      >
         <Button
           disabled={isLoading}
           variant="outline"
-          className={`px-3 text-xs h-2 ${budget.isCompleted ? 'bg-gray-400' : 'bg-white'}`}
+          className={cn(
+            'px-3 text-xs h-2 bg-white',
+            budget.isCompleted && 'bg-gray-400'
+          )}
           onClick={handleClickComplete}>
-          {!isLoading && <Check className={`h-4 ${budget.isCompleted ? 'text-white' : 'text-gray-400'}`} />}
-          {isLoading && <Loader className={`h-4 ${budget.isCompleted ? 'text-white' : 'text-gray-400'}`} />}
+          {!isLoading && <Check className={cn(
+            'h-4 text-gray-400',
+            budget.isCompleted && 'text-white'
+          )} />}
+          {isLoading && <Loader className={cn(
+            'h-4 text-gray-400',
+            budget.isCompleted && 'text-white'
+          )} />}
         </Button>
         <Button
           disabled={isLoading}
@@ -238,15 +278,17 @@ const BudgetItem: React.FC<Types> = ({
           />
         )
       }
-      {isAddTransactionDialogOpened && (
-        <AddForm
-          url={weekUrl}
-          open={isAddTransactionDialogOpened}
-          onOpenChange={setIsAddTransactionDialogOpened}
-          budget={budget}
-        />
-      )}
-    </div>
+      {
+        isAddTransactionDialogOpened && (
+          <AddForm
+            url={weekUrl}
+            open={isAddTransactionDialogOpened}
+            onOpenChange={setIsAddTransactionDialogOpened}
+            budget={budget}
+          />
+        )
+      }
+    </Draggable >
   )
 }
 

@@ -34,7 +34,7 @@ const DateComponent: React.FC<Types> = (params) => {
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="flex text-xs w-full justify-start rounded-lg h-full border bg-white text-left font-normal">
+            className="flex text-xs w-full justify-start rounded-lg h-full border bg-white border-2 text-left font-normal">
             <CalendarDays className="mr-2 h-4 w-4" />
             {value ? format(value, 'MMM dd') : (<span>Pick a date</span>)}
           </Button>

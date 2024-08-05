@@ -10,6 +10,7 @@ import BudgetComponent from './BudgetComponent'
 import BudgetReadComponent from './BudgetReadComponent'
 import BudgetReadComponentV2 from './BudgetReadComponentV2'
 import CategoryComponent from './CategoryComponent'
+import CategoryComponentV2 from './CategoryComponentV2'
 import CategoryReadComponent from './CategoryReadComponent'
 import CategoryReadComponentV2 from './CategoryReadComponentV2'
 import CurrencyComponent from './CurrencyComponent'
@@ -33,6 +34,7 @@ export {
   BudgetReadComponent,
   BudgetReadComponentV2,
   CategoryComponent,
+  CategoryComponentV2,
   CategoryReadComponent,
   CategoryReadComponentV2,
   CurrencyComponent,
