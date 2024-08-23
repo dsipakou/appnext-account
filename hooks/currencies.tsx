@@ -1,14 +1,14 @@
 import axios from 'axios';
-import useSWR from 'swr';
+import useSWRImmutable from 'swr/immutable'
 
 const fetcher = (url: string) => axios.get(url).then(res => res.data);
 
 export const useCurrencies = () => {
-  const { data, error, isValidating } = useSWR('currencies/', fetcher);
+  const { data, error, isLoading } = useSWRImmutable('currencies/', fetcher);
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error,
   };
 };

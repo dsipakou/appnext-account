@@ -75,7 +75,6 @@ const formSchema = z.object({
 })
 
 const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
-  console.log('render')
   const { mutate } = useSWRConfig()
   const [parentList, setParentList] = React.useState<Category[]>([])
   const [errors, setErrors] = React.useState<string[]>([])
@@ -209,14 +208,14 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                       <FormItem>
                         <FormLabel>Amount</FormLabel>
                         <FormControl>
-                        <div className="flex gap-2">
-                          <div>
-                            <Input disabled={isLoading} id="amount" {...field} />
+                          <div className="flex gap-2">
+                            <div>
+                              <Input disabled={isLoading} id="amount" {...field} />
+                            </div>
+                            <span className="flex items-center w-5">
+                              {form.watch('currency') && getCurrencySign()}
+                            </span>
                           </div>
-                          <span className="flex items-center w-5">
-                            {form.watch('currency') && getCurrencySign()}
-                          </span>
-                        </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -371,33 +370,33 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                   {
                     isSomeDay
                       ? (
-                      <div className="flex flex-col items-center pt-10">
-                        <span className="font-semibold text-lg">Someday later</span>
-                        <span className="">This budget will appear in 'Saved for later' list</span>
-                      </div>
-                        )
+                        <div className="flex flex-col items-center pt-10">
+                          <span className="font-semibold text-lg">Someday later</span>
+                          <span className="">This budget will appear in 'Saved for later' list</span>
+                        </div>
+                      )
                       : !isLoading && (
-                      <FormField
-                        control={form.control}
-                        name="budgetDate"
-                        render={({ field }) => (
-                          <FormItem className="flex justify-center">
-                            <FormControl>
-                              <Calendar
-                                mode="single"
-                                className="justify-center"
-                                selected={isSomeDay ? null : field.value}
-                                onSelect={field.onChange}
-                                disabled={(date) => isLoading || date < new Date('1900-01-01') || isSomeDay}
-                                weekStartsOn={1}
-                                initialFocus
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                        )
+                        <FormField
+                          control={form.control}
+                          name="budgetDate"
+                          render={({ field }) => (
+                            <FormItem className="flex justify-center">
+                              <FormControl>
+                                <Calendar
+                                  mode="single"
+                                  className="justify-center"
+                                  selected={isSomeDay ? null : field.value}
+                                  onSelect={field.onChange}
+                                  disabled={(date) => isLoading || date < new Date('1900-01-01') || isSomeDay}
+                                  weekStartsOn={1}
+                                  initialFocus
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )
                   }
                 </div>
               </div>

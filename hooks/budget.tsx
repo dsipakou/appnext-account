@@ -1,5 +1,6 @@
 import axios from 'axios';
-import useSWR from 'swr';
+import useSWRImmutable from 'swr/immutable'
+import useSWRMutation from 'swr/mutation'
 import {
   GroupedByCategoryBudget,
   WeekBudgetItem,
@@ -9,18 +10,46 @@ import {
 import { Response } from './types';
 
 const fetcher = (url: string) => axios.get(url).then(res => res.data);
+const patchBudget = (url: string, { arg }: {
+  arg: { isCompleted?: boolean, category?: string, budgetDate?: string };
+}) => {
+  const payload = {}
+
+  if (arg.isCompleted !== undefined) {
+    payload["isCompleted"] = arg.isCompleted
+  }
+
+  if (arg.category !== undefined) {
+    payload["category"] = arg.category
+  }
+
+  if (arg.budgetDate !== undefined) {
+    payload["budgetDate"] = arg.budgetDate
+  }
+
+  return axios.patch(url, payload).then(res => res.data)
+}
 
 export const useBudgetDetails = (
   uuid: string
 ): Response<any> => {
   const url = `budget/${uuid}/`
-  const { data, error } = useSWR(url, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(url, fetcher)
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error,
     url
+  }
+}
+
+export const useEditBudget = (uuid: string) => {
+  const { trigger, isMutating } = useSWRMutation(`budget/${uuid}/`, patchBudget, { revalidate: true })
+
+  return {
+    trigger,
+    isMutating,
   }
 }
 
@@ -31,11 +60,11 @@ export const useBudgetMonth = (
 ): Response<GroupedByCategoryBudget[]> => {
   let url = `budget/usage/?dateFrom=${dateFrom}&dateTo=${dateTo}`;
   if (user && user !== 'all') url = `${url}&user=${user}`
-  const { data, error } = useSWR(url, fetcher);
+  const { data, error, isLoading } = useSWRImmutable(url, fetcher);
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error,
     url,
   } as Response<GroupedByCategoryBudget[]>;
@@ -48,11 +77,11 @@ export const useBudgetWeek = (
 ): Response<WeekBudgetItem[]> => {
   let url = `budget/weekly-usage/?dateFrom=${dateFrom}&dateTo=${dateTo}`;
   if (user && user !== 'all') url = `${url}&user=${user}`
-  const { data, error } = useSWR(url, fetcher);
+  const { data, error, isLoading } = useSWRImmutable(url, fetcher);
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error,
     url,
   } as Response<WeekBudgetItem[]>;
@@ -60,11 +89,11 @@ export const useBudgetWeek = (
 
 export const usePendingBudget = (): Response<WeekBudgetItem[]> => {
   const url = 'budget/pending/'
-  const { data, error } = useSWR(url, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(url, fetcher)
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error,
     url,
   } as Response<WeekBudgetItem[]>
@@ -79,11 +108,11 @@ export const useBudgetDuplicate = (
     month: "monthly"
   }
   let url = `budget/duplicate/?type=${typeMap[type]}&date=${date}`
-  const { data, error } = useSWR(url, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(url, fetcher)
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error,
     url
   } as Response<DuplicateBudgetResponse[]>
@@ -94,11 +123,11 @@ export const useBudgetLastMonthsUsage = (
   category?: string,
 ): Response<MonthSummedUsage[]> => {
   let url = `budget/last-months/?category=${category}&month=${month}`
-  const { data, error } = useSWR(category ? url : null, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(category ? url : null, fetcher)
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error,
     url
   } as Response<MonthSummedUsage[]>

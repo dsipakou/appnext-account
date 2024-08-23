@@ -1,5 +1,5 @@
 import axios from 'axios';
-import useSWR from 'swr';
+import useSWRImmutable from 'swr/immutable';
 import { Response } from './types';
 import { Invite } from '@/components/users/types'
 
@@ -20,22 +20,22 @@ const fetcher = (url: string) => axios.get(url).then(res => res.data);
 
 export const useUsers = (): Response<UserResponse[]> => {
   const url = 'users/';
-  const { data, error, isValidating } = useSWR(url, fetcher);
+  const { data, error, isLoading } = useSWRImmutable(url, fetcher);
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error,
   } as Response<UserResponse[]>;
 };
 
 export const useInvites = (): Response<Invite[]> => {
   const url = 'users/invite/'
-  const { data, error, isValidating } = useSWR(url, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(url, fetcher)
 
   return {
-    data, 
-    isLoading: !data && !error,
+    data,
+    isLoading,
     isError: error,
   } as Response<Invite[]>
 }

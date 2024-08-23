@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
-import { useSWRConfig } from 'swr'
+import { mutate } from 'swr'
 import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
 import {
   Select,
@@ -28,7 +28,8 @@ import WeekCalendar from '@/components/budget/components/week/WeekCalendar'
 import MonthCalendar from '@/components/budget/components/month/MonthCalendar'
 import {
   PlannedMap,
-  SpentMap
+  SpentMap,
+  CompactWeekItem
 } from '@/components/budget/types'
 import {
   AddForm,
@@ -36,6 +37,7 @@ import {
   SavedForLaterForm,
   TransactionsForm
 } from '@/components/budget/forms'
+import { revalidateEvents } from 'swr/dist/_internal'
 
 type BudgetType = 'month' | 'week'
 
@@ -43,7 +45,6 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
   return (hocProps: Omit<T, 'activeType'>) => {
     const activeType = hocProps.activeType || 'month'
     const router = useRouter()
-    const { mutate } = useSWRConfig()
     const { data: { user: userConfig } } = useSession()
     const [user, setUser] = useState<string>('all')
     const [monthDate, setMonthDate] = useState<Date>(new Date())
@@ -126,8 +127,25 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
       setActiveBudgetUuid('')
     }
 
-    const mutateBudget = (): void => {
-      mutate(weekUrl)
+    const mutateBudget = (updatedBudget?: CompactWeekItem): void => {
+      if (updatedBudget) {
+        mutate(weekUrl, async (budgets: CompactWeekItem[]) => {
+          return budgets.map((item: CompactWeekItem) => {
+            if (item.uuid === updatedBudget.uuid) {
+              return (
+                {
+                  ...item,
+                  isCompleted: updatedBudget.isCompleted,
+                  budgetDate: updatedBudget.budgetDate,
+                }
+              )
+            }
+            return item
+          })
+        }, { revalidate: false })
+      } else {
+        mutate(weekUrl)
+      }
       mutate(monthUrl)
     }
 

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import useSWR from 'swr';
+import useSWRImmutable from 'swr/immutable';
 import { Response } from './types';
 
 const fetcher = (url: string) => axios.get(url).then(res => res.data);
@@ -10,11 +10,11 @@ interface Roles {
 
 export const useRoles = (): Response<Roles[]> => {
   const url = 'roles/';
-  const { data, error, isValidating } = useSWR(url, fetcher);
+  const { data, error, isLoading } = useSWRImmutable(url, fetcher);
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error,
   } as Response<Roles[]>;
 };

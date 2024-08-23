@@ -1,5 +1,5 @@
 import axios from 'axios';
-import useSWR from 'swr';
+import useSWRImmutable from 'swr/immutable'
 import { Response } from './types';
 import { AvailableRate } from '@/components/rates/types'
 
@@ -28,11 +28,11 @@ const fetcher = (url: string) => axios.get(url).then(res => res.data);
 
 export const useRatesChart = (period: number = 30): Response<ChartResponse[]> => {
   const url = `rates/chart/?range=${period}`;
-  const { data, error, isValidating } = useSWR(url, fetcher);
+  const { data, error, isLoading } = useSWRImmutable(url, fetcher);
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error,
     url,
   } as Response<ChartResponse[]>;
@@ -40,11 +40,11 @@ export const useRatesChart = (period: number = 30): Response<ChartResponse[]> =>
 
 export const useRates = (limit: number = 5): Response<RateResponse[]> => {
   const url: string = `rates?limit=${limit}`;
-  const { data, error, isValidating } = useSWR(url, fetcher);
+  const { data, error, isLoading } = useSWRImmutable(url, fetcher);
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error,
     url,
   } as Response<RateResponse[]>;
@@ -52,22 +52,22 @@ export const useRates = (limit: number = 5): Response<RateResponse[]> => {
 
 export const useRatesOnDate = (date: string): Response<RateResponse[]> => {
   const url: string = `rates/day/${date}`
-  const { data, error, isValidating } = useSWR(url, fetcher);
+  const { data, error, isLoading } = useSWRImmutable(url, fetcher);
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error,
     url,
   } as Response<RateResponse[]>
 }
 
 export const useAvailableRates = (date: string): Response<AvailableRate[]> => {
-  const { data, error, isValidating } = useSWR(date ? `rates/available?date=${date}` : null, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(date ? `rates/available?date=${date}` : null, fetcher)
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error
   } as Response<AvailableRate[]>
 }

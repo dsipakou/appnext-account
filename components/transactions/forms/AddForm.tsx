@@ -358,7 +358,7 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
       renderCell: (params) => <ActionsReadComponent
         {...params}
         rowModesModel={rowModesModel}
-        handleSaveClick={handleSaveClick}
+        handleApplyChanges={handleApplyChanges}
         handleEditClick={handleEditClick}
         handleDeleteClick={handleDeleteClick}
         handleDuplicateClick={handleDuplicateClick}
@@ -393,14 +393,14 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
     setErrors('')
   }, [rows])
 
-  const handleSaveClick = (id: GridRowId) => () => {
+  const handleApplyChanges = (id: GridRowId) => () => {
+    console.log('saving')
+    console.log(rowModesModel)
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
   }
 
   const handleEditClick = (id: GridRowId) => () => {
-    console.log(rowModesModel)
-    console.log(rows)
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
   }
 
   const processRowUpdate = (newRow: GridRowModel) => {

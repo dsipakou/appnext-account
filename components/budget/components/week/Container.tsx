@@ -1,22 +1,26 @@
 import { FC, useEffect, useState } from 'react'
+import axios, { AxiosError } from 'axios'
 import { useStore } from '@/app/store'
 import { useSession } from 'next-auth/react'
 import { cn } from '@/lib/utils'
-import { DndContext, useSensor, useSensors } from '@dnd-kit/core'
+import { DndContext } from '@dnd-kit/core'
 import { getDay, isToday, isThisWeek } from 'date-fns'
-import { useBudgetWeek } from '@/hooks/budget'
+import { useBudgetWeek, useEditBudget } from '@/hooks/budget'
+import { useToast } from '@/components/ui/use-toast'
 import { CompactWeekItem, WeekBudgetItem, WeekBudgetResponse } from '@/components/budget/types'
 import {
   getWeekDaysWithFullDays,
   parseDate,
   FULL_DAY_ONLY_FORMAT,
-  WeekDayWithFullDate
+  WeekDayWithFullDate,
+  getFormattedDate
 } from '@/utils/dateUtils'
 import { Button } from '@/components/ui/button'
 import { Droppable } from '@/components/ui/dnd'
 import { AddForm } from '@/components/budget/forms'
 import BudgetItem from './BudgetItem'
 import Header from './ContainerHeader'
+import { mutate } from 'swr'
 
 interface Types {
   startDate: string
@@ -24,7 +28,7 @@ interface Types {
   user: string
   weekUrl: string
   monthUrl: string
-  mutateBudget: () => void
+  mutateBudget: (updatedBudget: unknown) => void
   clickShowTransactions: (uuid: string) => void
 }
 
@@ -43,15 +47,18 @@ const Container: FC<Types> = ({
 }) => {
   const [weekGroup, setWeekGroup] = useState<GroupedByWeek>({})
   const [isDragging, setIsDragging] = useState(false)
+  const [draggingUuid, setDraggingUuid] = useState<string>('')
   const { data: budget }: WeekBudgetResponse = useBudgetWeek(
     startDate,
     endDate,
     user
   )
+  const { trigger: dragBudget, isMutating } = useEditBudget(draggingUuid)
   const { data: { user: authUser } } = useSession()
   const weekDaysArray: number[] = [1, 2, 3, 4, 5, 6, 0]
   const daysFullFormatArray: WeekDayWithFullDate[] = getWeekDaysWithFullDays(parseDate(startDate), FULL_DAY_ONLY_FORMAT)
   const currencySign = useStore((state) => state.currencySign)
+  const { toast } = useToast()
 
   useEffect(() => {
     if (!budget) return
@@ -88,12 +95,34 @@ const Container: FC<Types> = ({
     </Button>
   )
 
-  const handleDragStart = () => {
+  const handleDragStart = (evt) => {
     setIsDragging(true)
+    setDraggingUuid(evt.active.id)
   }
 
-  const handleDragEnd = () => {
-    setIsDragging(false)
+  const handleDragEnd = async (event) => {
+    setDraggingUuid('')
+    if (!event.over) return // dropped outside droppable zone
+
+    const newDate = daysFullFormatArray[event.over.id].fullDate
+
+    try {
+      const updatedBudget = await dragBudget({ budgetDate: getFormattedDate(newDate) })
+      mutateBudget(updatedBudget)
+      toast({
+        title: 'Saved!'
+      })
+    } catch (error) {
+      const errRes = error.response?.data || error.message
+      if (!errRes) return
+      toast({
+        variant: 'destructive',
+        title: 'Cannot be updated',
+        description: errRes
+      })
+    } finally {
+      setIsDragging(false)
+    }
   }
 
   return (
@@ -106,7 +135,7 @@ const Container: FC<Types> = ({
         )}>
           {weekDaysArray.map((day: number, weekDayIndex: number) => (
             <Droppable
-              id={day}
+              id={weekDayIndex}
               onHover={cn(
                 'ring-sky-200 ring rounded',
               )}
@@ -131,6 +160,7 @@ const Container: FC<Types> = ({
                         monthUrl={monthUrl}
                         mutateBudget={mutateBudget}
                         isDragging={isDragging}
+                        isDragLoading={isMutating}
                         clickShowTransactions={clickShowTransactions}
                       />
                     ))}

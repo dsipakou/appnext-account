@@ -1,3 +1,5 @@
+'use client'
+
 import * as React from 'react'
 import { useStore } from '@/app/store'
 import { useSession } from 'next-auth/react'

@@ -18,7 +18,7 @@ import {
 interface Types extends GridRenderCellParams {
   rowModesModel: GridRowModesModel
   handleDeleteClick: (params: GridRenderCellParams) => void
-  handleSaveClick: (id: GridRowId) => void
+  handleApplyChanges: (id: GridRowId) => void
   handleEditClick: (id: GridRowId) => void
   handleDuplicateClick: (params: GridRenderCellParams) => void
 }
@@ -30,8 +30,20 @@ const ActionsReadComponent: React.FC<Types> = (params) => {
   React.useEffect(() => {
     setPrevState(params.row)
   }, [])
-  console.log(prevState)
-  console.log(params.row)
+
+  const checkAndApply = (rowId: GridRowId) => {
+    console.log(params.row)
+    params.handleApplyChanges(rowId)()
+    console.log(params.row)
+
+    const isChanged = Object.keys(prevState).every((key) => prevState[key] === params.row[key])
+    console.log('changed')
+    console.log(isChanged)
+    if (isChanged) {
+      params.row.saved = false
+    }
+    console.log(rowId)
+  }
 
   if (isInEditMode) {
     return (
@@ -40,7 +52,7 @@ const ActionsReadComponent: React.FC<Types> = (params) => {
           <>
             <div
               className="flex border-2 border-green-500 items-center justify-center w-5 h-5 rounded-full text-green-500"
-              onClick={params.handleSaveClick(params.id)}
+              onClick={params.handleApplyChanges(params.id)}
             >
               <Check className="h-4" />
             </div>
@@ -55,7 +67,7 @@ const ActionsReadComponent: React.FC<Types> = (params) => {
         {params.row.saved && (
           <div
             className="flex border-2 border-green-500 items-center justify-center w-5 h-5 rounded-full text-green-500"
-            onClick={params.handleEditClick(params.id)}
+            onClick={() => checkAndApply(params.id)}
           >
             <Check className="h-4" />
           </div>
@@ -68,7 +80,10 @@ const ActionsReadComponent: React.FC<Types> = (params) => {
         <div
           className="text-gray-700"
         >
-          <Pencil className="h-4 w-4" />
+          <Pencil
+            className="h-4 w-4 cursor-pointer"
+            onClick={params.handleEditClick(params.id)}
+          />
         </div>
         <div className="">
           <CheckCheck className="text-green-500" />

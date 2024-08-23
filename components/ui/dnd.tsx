@@ -19,6 +19,7 @@ interface DroppableTypes {
 
 interface DraggableTypes {
   id: string
+  isLoading: boolean
   children: React.ReactNode
   className: string
 }
@@ -107,7 +108,12 @@ function shouldHandleEvent(element: HTMLElement | null) {
   return true
 }
 
-const Draggable: React.ReactNode<DraggableTypes> = ({ id, children, className }) => {
+const Draggable: React.ReactNode<DraggableTypes> = ({
+  id,
+  isLoading,
+  children,
+  className,
+}) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id,
   });
@@ -116,10 +122,17 @@ const Draggable: React.ReactNode<DraggableTypes> = ({ id, children, className })
     zIndex: 50,
   } : undefined
 
-
   return (
     <div ref={setNodeRef} style={style} className={cn(className, 'pt-0')}>
-      <button {...listeners} {...attributes} className="flex h-4 w-4 self-center mb-1 text-zinc-300 cursor-grab"><GripHorizontal /></button>
+      {isLoading ? (
+        <button className={cn('flex h-4 w-4 self-center mb-1 text-zinc-200 cursor-default')}>
+          <GripHorizontal />
+        </button>
+      ) : (
+        <button {...listeners} {...attributes} className={cn('flex h-4 w-4 self-center mb-1 text-zinc-700 cursor-move')}>
+          <GripHorizontal />
+        </button>
+      )}
       {children}
     </div>
   )

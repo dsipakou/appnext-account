@@ -1,5 +1,5 @@
 import axios from 'axios';
-import useSWR from 'swr';
+import useSWRImmutable from 'swr/immutable'
 import { Response } from './types';
 import { TransactionsReportResponse } from '@/components/transactions/types'
 import { ChartData } from '@/components/reports/types'
@@ -32,11 +32,11 @@ export const useTransactions = (
     url += `&dateFrom=${dateFrom}&dateTo=${dateTo}`
   }
 
-  const { data, error, isValidating } = useSWR(url, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(url, fetcher)
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error,
     url
   } as Response<TransactionResponse[]>
@@ -49,11 +49,11 @@ export const useTransactionsReport = (
 ): Response<TransactionsReportResponse[]> => {
   const url = `transactions/report?dateFrom=${dateFrom}&dateTo=${dateTo}&currency=${currency}`
 
-  const { data, error } = useSWR(url, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(url, fetcher)
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error,
     url
   } as Response<TransactionsReportResponse[]>
@@ -71,11 +71,11 @@ export const useTransactionsMonthlyReport = (
     url += `&numberOfDays=${numberOfDays}`
   }
 
-  const { data, error } = useSWR(url, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(url, fetcher)
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error,
     url
   } as Response<ChartData[]>
@@ -86,11 +86,11 @@ export const useBudgetTransactions = (
 ): Response<TransactionResponse[]> => {
   const url = `transactions/budget/${uuid}/`
 
-  const { data, error } = useSWR(url, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(url, fetcher)
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error,
     url
   } as Response<TransactionResponse[]>
@@ -99,11 +99,11 @@ export const useBudgetTransactions = (
 export const useLastAddedTransactions = (): Response<TransactionResponse[]> => {
   const url = `transactions/last-added/`
 
-  const { data, error } = useSWR(url, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(url, fetcher)
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error,
     url
   } as Response<TransactionResponse[]>
@@ -114,11 +114,11 @@ export const useTransaction = (
 ): Response<TransactionResponse> => {
   const url = `transactions/${uuid}/`
 
-  const { data, error } = useSWR(url, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(url, fetcher)
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading,
     isError: error,
     url
   } as Response<TransactionResponse>

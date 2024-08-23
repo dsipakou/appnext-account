@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { useStore } from '@/app/store'
-import axios from 'axios'
 import { cn } from '@/lib/utils'
 import { useSession } from 'next-auth/react'
 import { Check, CheckCircle, Edit, Loader, Plus, Repeat, ScrollText, Trash } from 'lucide-react'
@@ -11,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { CompactWeekItem } from '@/components/budget/types'
 import { useUsers, UserResponse } from '@/hooks/users'
+import { useEditBudget } from '@/hooks/budget'
 import EditForm from '@/components/budget/forms/EditForm'
 import ConfirmDeleteForm from '@/components/budget/forms/ConfirmDeleteForm'
 import { AddForm } from '@/components/transactions/forms'
@@ -22,7 +22,8 @@ interface Types {
   weekUrl: string
   monthUrl: string
   isDragging: boolean
-  mutateBudget: () => void
+  isDragLoading: boolean
+  mutateBudget: (updatedBudget: unknown) => void
   clickShowTransactions: (uuid: string) => void
 }
 
@@ -31,6 +32,7 @@ const BudgetItem: React.FC<Types> = ({
   weekUrl,
   monthUrl,
   isDragging,
+  isDragLoading,
   mutateBudget,
   clickShowTransactions
 }) => {
@@ -41,6 +43,7 @@ const BudgetItem: React.FC<Types> = ({
   const [isAddTransactionDialogOpened, setIsAddTransactionDialogOpened] = React.useState<boolean>(false)
 
   const { data: users } = useUsers()
+  const { trigger: completeBudget, isMutating } = useEditBudget(budget.uuid)
   const { data: { user: authUser } } = useSession()
 
   const percentage: number = Math.floor(budget.spent * 100 / budget.planned)
@@ -51,34 +54,25 @@ const BudgetItem: React.FC<Types> = ({
 
   const isSameUser = budgetUser?.username === authUser?.username
 
-  const handleClickComplete = (): void => {
-    setIsLoading(true)
-    axios.patch(`budget/${budget.uuid}/`, {
-      isCompleted: !budget.isCompleted,
-      category: budget.category,
-    }).then(
-      res => {
-        if (res.status === 200) {
-          mutateBudget()
-        } else {
-          // TODO: handle errors
-        }
+  const handleClickComplete = async (): void => {
+    try {
+      const updatedBudget = await completeBudget({ isCompleted: !budget.isCompleted, category: budget.category })
+      mutateBudget(updatedBudget)
+    } catch (error) {
+
+      const errRes = error.response?.data
+      if (!errRes) return
+      for (const prop in errRes) {
+        setErrors(errRes[prop])
+        // TODO: Show errors somewhere
       }
-    ).catch(
-      (error) => {
-        const errRes = error.response.data
-        for (const prop in errRes) {
-          setErrors(errRes[prop])
-          // TODO: Show errors somewhere
-        }
-      }
-    ).finally(() => {
-      setIsLoading(false)
-    })
+    }
   }
 
   return (
-    <Draggable id={budget.uuid}
+    <Draggable
+      id={budget.uuid}
+      isLoading={isDragLoading}
       className={cn(
         'flex flex-col group p-2 h-[80px] justify-between rounded-md border w-full',
         !isDragging && 'hover:h-[100px] hover:scale-110 hover:w-80 hover:border-double hover:border-2 hover:z-20 hover:shadow-xl',
@@ -209,7 +203,7 @@ const BudgetItem: React.FC<Types> = ({
       )} data-no-dnd="true"
       >
         <Button
-          disabled={isLoading}
+          disabled={isMutating}
           variant="outline"
           className={cn(
             'px-3 text-xs h-2 bg-white',
