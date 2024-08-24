@@ -99,12 +99,12 @@ const CalendarBudgetItem: React.FC<Types> = ({
           />
           <div className="absolute top-0 w-full h-full">
             <span className="flex text-white text-xs font-semibold h-full items-center justify-center">
-              {planned === 0 ? 'Not planned' : `${percentage}%`}
+              {planned === 0 ? 'Not planned' : percentage}
             </span>
           </div>
         </div>
       </div>
-      { isEditDialogOpened && (
+      {isEditDialogOpened && (
         <EditForm
           uuid={item.uuid}
           weekUrl={weekUrl}
@@ -113,7 +113,7 @@ const CalendarBudgetItem: React.FC<Types> = ({
           setOpen={setIsEditDialogOpened}
         />
       )}
-      { isConfirmDeleteDialogOpened && (
+      {isConfirmDeleteDialogOpened && (
         <ConfirmDeleteForm
           uuid={item.uuid}
           open={isConfirmDeleteDialogOpened}

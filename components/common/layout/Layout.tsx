@@ -139,7 +139,7 @@ const Layout: FC<Props> = ({ children }) => {
   )
 
   return (
-    <div className="relative h-screen">
+    <div className="flex flex-col h-screen">
       <div className={`fixed flex flex-col justify-between drop-shadow-sm transition-all ease-in-out delay-50 bg-white overflow-hidden z-40 h-screen ${open ? 'w-60' : 'w-16'}`}>
         <div className="flex flex-col items-start">
           <div className="flex flex-col w-full items-start justify-center">
@@ -202,7 +202,7 @@ const Layout: FC<Props> = ({ children }) => {
           </div>
         </div>
       </header>
-      <div className="flex flex-col mx-auto max-w-screen-xl h-screen pt-1 min-w-screen-lg">
+      <div className="container flex flex-col mx-auto pl-20 h-full pt-1 xl">
         {children}
       </div>
     </div>

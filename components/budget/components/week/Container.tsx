@@ -1,5 +1,4 @@
 import { FC, useEffect, useState } from 'react'
-import axios, { AxiosError } from 'axios'
 import { useStore } from '@/app/store'
 import { useSession } from 'next-auth/react'
 import { cn } from '@/lib/utils'
@@ -7,6 +6,7 @@ import { DndContext } from '@dnd-kit/core'
 import { getDay, isToday, isThisWeek } from 'date-fns'
 import { useBudgetWeek, useEditBudget } from '@/hooks/budget'
 import { useToast } from '@/components/ui/use-toast'
+import { extractErrorMessage } from '@/utils/stringUtils'
 import { CompactWeekItem, WeekBudgetItem, WeekBudgetResponse } from '@/components/budget/types'
 import {
   getWeekDaysWithFullDays,
@@ -20,7 +20,6 @@ import { Droppable } from '@/components/ui/dnd'
 import { AddForm } from '@/components/budget/forms'
 import BudgetItem from './BudgetItem'
 import Header from './ContainerHeader'
-import { mutate } from 'swr'
 
 interface Types {
   startDate: string
@@ -109,28 +108,21 @@ const Container: FC<Types> = ({
     try {
       const updatedBudget = await dragBudget({ budgetDate: getFormattedDate(newDate) })
       mutateBudget(updatedBudget)
-      toast({
-        title: 'Saved!'
-      })
+      toast({ title: 'Saved!' })
     } catch (error) {
-      const errRes = error.response?.data || error.message
-      if (!errRes) return
-      toast({
-        variant: 'destructive',
-        title: 'Cannot be updated',
-        description: errRes
-      })
+      const message = extractErrorMessage(error)
+      toast({ variant: 'destructive', title: 'Cannot update', description: message })
     } finally {
       setIsDragging(false)
     }
   }
 
   return (
-    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} autoScroll={false}>
       <div className="flex flex-col flex-1">
         <Header date={startDate} />
         <div className={cn(
-          'grid gap-2 flex-1 pb-3 justify-between grid-cols-7',
+          'grid gap-2 flex-1 p-1 pb-3 max-w-full justify-between grid-cols-7 overflow-y-auto',
           isThisWeek(daysFullFormatArray[0].fullDate) && 'grid-cols-8',
         )}>
           {weekDaysArray.map((day: number, weekDayIndex: number) => (
@@ -150,11 +142,12 @@ const Container: FC<Types> = ({
                   isToday(daysFullFormatArray[weekDayIndex].fullDate) && 'col-span-2 bg-sky-100 rounded p-1'
                 )}
               >
-                <div className="flex flex-col justify-center items-center gap-1 relative">
+                <div className="flex flex-col justify-center items-center gap-1">
                   {weekGroup[day] &&
                     weekGroup[day].map((item: CompactWeekItem) => (
                       <BudgetItem
                         key={item.uuid}
+                        day={day}
                         budget={item}
                         weekUrl={weekUrl}
                         monthUrl={monthUrl}

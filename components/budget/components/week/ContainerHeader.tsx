@@ -47,23 +47,19 @@ const Header: React.FC<HeaderTypes> = ({ date }) => {
 }
 
 const HeaderItem: React.FC<HeaderItemTypes> = ({ date, isWeekend, isToday }) => {
-  let containerClasses = "flex flex-col items-center"
-  if (isWeekend) {
-    containerClasses = `${containerClasses} text-red-500`
-  }
-  if (isToday) {
-    containerClasses = `${containerClasses} bg-sky-500 text-white font-bold rounded-md`
-  }
-  containerClasses = `${containerClasses}`
-
   return (
-    <div className={containerClasses}>
+    <div className={cn(
+      'flex flex-col items-center',
+      isWeekend && 'text-red-500',
+      isToday && 'bg-sky-500 text-white font-bold rounded-md',
+    )}
+    >
       <span className="flex align-middle justify-center text-2xl">
         {date.shortDayName}
       </span>
       <div className="flex justify-center h-full text-sm items-center gap-1">
         <span>{getFormattedDate(date.fullDate, MONTH_DAY_FORMAT)}</span>
-        <span>{isToday && '(today)'}</span>
+        {isToday && (<span>(today)</span>)}
       </div>
     </div>
   )
