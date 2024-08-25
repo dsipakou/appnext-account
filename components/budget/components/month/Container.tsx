@@ -11,6 +11,7 @@ interface Types {
   user: string
   weekUrl: string
   monthUrl: string
+  duplicateListUrl: string
   clickShowTransactions: (uuid: string) => void
 }
 
@@ -20,6 +21,7 @@ const Container: React.FC<Types> = ({
   user,
   weekUrl,
   monthUrl,
+  duplicateListUrl,
   clickShowTransactions
 }) => {
   const { data: { user: authUser } } = useSession()
@@ -63,6 +65,7 @@ const Container: React.FC<Types> = ({
           clickShowTransactions={clickShowTransactions}
           weekUrl={weekUrl}
           monthUrl={monthUrl}
+          duplicateListUrl={duplicateListUrl}
         />
       </div>
     </div>

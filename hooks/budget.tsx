@@ -10,9 +10,9 @@ import {
 import { Response } from './types';
 
 const fetchReq = (url: string) => axios.get(url).then(res => res.data);
-const createReq = (url: string, { arg }) => axios.post(url, arg).then(res => res.data)
+const postReq = (url: string, { arg }) => axios.post(url, arg).then(res => res.data)
 const deleteReq = (url: string) => axios.delete(url).then(res => res.data)
-const updateReq = (url: string, { arg }: { arg: { isCompleted?: boolean, category?: string, budgetDate?: string; }; }) => {
+const patchReq = (url: string, { arg }: { arg: { isCompleted?: boolean, category?: string, budgetDate?: string; }; }) => {
   const payload = {}
 
   if (arg.isCompleted !== undefined) {
@@ -31,7 +31,7 @@ const updateReq = (url: string, { arg }: { arg: { isCompleted?: boolean, categor
 }
 
 export const useCreateBudget = (payload: any) => {
-  const { trigger, isMutating } = useSWRMutation('budget/', createReq, { revalidate: true })
+  const { trigger, isMutating } = useSWRMutation('budget/', postReq, { revalidate: true })
 
   return {
     trigger,
@@ -63,7 +63,7 @@ export const useBudgetDetails = (
 }
 
 export const useEditBudget = (uuid: string) => {
-  const { trigger, isMutating } = useSWRMutation(`budget/${uuid}/`, updateReq, { revalidate: true })
+  const { trigger, isMutating } = useSWRMutation(`budget/${uuid}/`, patchReq, { revalidate: true })
 
   return {
     trigger,
@@ -117,7 +117,7 @@ export const usePendingBudget = (): Response<WeekBudgetItem[]> => {
   } as Response<WeekBudgetItem[]>
 }
 
-export const useBudgetDuplicate = (
+export const useGetDuplicates = (
   type: "month" | "week",
   date: string
 ): Response<DuplicateBudgetResponse[]> => {
@@ -149,4 +149,13 @@ export const useBudgetLastMonthsUsage = (
     isError: error,
     url
   } as Response<MonthSummedUsage[]>
+}
+
+export const useDuplicateBudget = (uuids: string[]) => {
+  const { trigger, isMutating } = useSWRMutation('budget/duplicate/', postReq, { revalidate: true })
+
+  return {
+    trigger,
+    isMutating,
+  }
 }

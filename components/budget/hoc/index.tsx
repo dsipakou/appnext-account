@@ -15,13 +15,14 @@ import {
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { useUsers } from '@/hooks/users'
-import { useBudgetMonth, useBudgetWeek } from '@/hooks/budget'
+import { useBudgetMonth, useBudgetWeek, useGetDuplicates } from '@/hooks/budget'
 import { User } from '@/components/users/types'
 import {
   getStartOfMonth,
   getEndOfMonth,
   getStartOfWeek,
-  getEndOfWeek
+  getEndOfWeek,
+  getFormattedDate,
 } from '@/utils/dateUtils'
 import { GeneralSummaryCard } from '@/components/budget/components'
 import WeekCalendar from '@/components/budget/components/week/WeekCalendar'
@@ -64,6 +65,10 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
 
     const { data: budgetMonth = [], url: monthUrl } = useBudgetMonth(startOfMonth, endOfMonth, user)
     const { data: budgetWeek = [], url: weekUrl, isLoading: isWeekBudgetLoading } = useBudgetWeek(startOfWeek, endOfWeek, user)
+    const { data: duplicateList = [], url: duplicateListUrl } = useGetDuplicates(
+      activeType,
+      activeType === 'month' ? getFormattedDate(monthDate) : getFormattedDate(weekDate)
+    )
 
     const handleClickTransactions = (uuid: string): void => {
       setActiveBudgetUuid(uuid)
@@ -180,8 +185,8 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             monthUrl={monthUrl}
           />
           <DuplicateForm
-            type={activeType}
-            date={activeType === 'month' ? monthDate : weekDate}
+            budgetList={duplicateList}
+            urlToMutate={duplicateListUrl}
             mutateBudget={mutateBudget}
           />
           <AddForm
@@ -263,6 +268,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
                     user={user}
                     weekUrl={weekUrl}
                     monthUrl={monthUrl}
+                    duplicateListUrl={duplicateListUrl}
                   />
                 )
             }

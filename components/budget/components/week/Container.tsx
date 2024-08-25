@@ -27,6 +27,7 @@ interface Types {
   user: string
   weekUrl: string
   monthUrl: string
+  duplicateListUrl: string
   mutateBudget: (updatedBudget: unknown) => void
   clickShowTransactions: (uuid: string) => void
 }
@@ -41,6 +42,7 @@ const Container: FC<Types> = ({
   user,
   weekUrl,
   monthUrl,
+  duplicateListUrl,
   mutateBudget,
   clickShowTransactions
 }) => {
@@ -128,6 +130,7 @@ const Container: FC<Types> = ({
           {weekDaysArray.map((day: number, weekDayIndex: number) => (
             <Droppable
               id={weekDayIndex}
+              key={weekDayIndex}
               onHover={cn(
                 'ring-sky-200 ring rounded',
               )}
@@ -152,6 +155,7 @@ const Container: FC<Types> = ({
                         weekUrl={weekUrl}
                         monthUrl={monthUrl}
                         mutateBudget={mutateBudget}
+                        duplicateListUrl={duplicateListUrl}
                         isDragging={isDragging}
                         isDragLoading={isMutating}
                         clickShowTransactions={clickShowTransactions}

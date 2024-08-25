@@ -17,10 +17,11 @@ interface Types {
   uuid: string
   weekUrl: string
   monthUrl: string
+  duplicateListUrl: string
   trigger?: React.ReactElement
 }
 
-const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, weekUrl, monthUrl, trigger }) => {
+const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, weekUrl, monthUrl, duplicateListUrl, trigger }) => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
   const { url: pendingUrl } = usePendingBudget()
@@ -32,17 +33,21 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, weekUrl, mont
   const handleDelete = async () => {
     try {
       await deleteBudget()
-      mutate(weekUrl)
-      mutate(monthUrl)
-      mutate(pendingUrl)
       setOpen(false)
       toast({
         title: 'Deleted successfully'
       })
     } catch (error) {
+      console.log(error)
       toast({
+        variant: 'destructive',
         title: 'Please, try again'
       })
+    } finally {
+      mutate(weekUrl)
+      mutate(monthUrl)
+      mutate(pendingUrl)
+      mutate(duplicateListUrl)
     }
   }
 

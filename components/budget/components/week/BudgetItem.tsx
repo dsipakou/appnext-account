@@ -24,6 +24,7 @@ interface Types {
   budget: CompactWeekItem,
   weekUrl: string
   monthUrl: string
+  duplicateListUrl: string
   isDragging: boolean
   isDragLoading: boolean
   mutateBudget: (updatedBudget: unknown) => void
@@ -35,6 +36,7 @@ const BudgetItem: React.FC<Types> = ({
   budget,
   weekUrl,
   monthUrl,
+  duplicateListUrl,
   isDragging,
   isDragLoading,
   mutateBudget,
@@ -276,6 +278,7 @@ const BudgetItem: React.FC<Types> = ({
               uuid={budget.uuid}
               weekUrl={weekUrl}
               monthUrl={monthUrl}
+              duplicateListUrl={duplicateListUrl}
             />
           )
         }

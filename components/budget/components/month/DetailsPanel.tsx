@@ -17,6 +17,7 @@ interface Types {
   user: string
   weekUrl: string
   monthUrl: string
+  duplicateListUrl: string
   clickShowTransactions: (uuid: string) => void
 }
 
@@ -27,6 +28,7 @@ const DetailsPanel: FC<Types> = ({
   user,
   weekUrl,
   monthUrl,
+  duplicateListUrl,
   clickShowTransactions
 }) => {
   const [budgetTitle, setBudgetTitle] = useState<string | undefined>()
@@ -77,32 +79,33 @@ const DetailsPanel: FC<Types> = ({
   return (
     <div className="flex h-min-full flex-col p-2 rounded-lg bg-white border">
       <span className="text-2xl font-semibold p-2 self-center">{title}</span>
-        {activeBudgetUuid
-          ? <DetailsCalendar
-            title={budgetTitle}
-            items={budgetItems}
-            date={startDate}
-            handleClose={handleCloseBudgetDetails}
-            clickShowTransactions={clickShowTransactions}
-            weekUrl={weekUrl}
-            monthUrl={monthUrl}
-          />
-          : (activeCategory != null) && (
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <CategorySummaryCard item={activeCategory} />
-              </div>
-              <div>
-                <PreviousMonthsCard month={startDate} category={activeCategoryUuid} />
-              </div>
-              {categoryBudgets.map((item: MonthGroupedBudgetItem) => (
-                <div key={item.uuid} onClick={() => setActiveBudgetUuid(item.uuid)}>
-                  <GroupedBudgetButton item={item} />
-                </div>
-              ))}
+      {activeBudgetUuid
+        ? <DetailsCalendar
+          title={budgetTitle}
+          items={budgetItems}
+          date={startDate}
+          handleClose={handleCloseBudgetDetails}
+          clickShowTransactions={clickShowTransactions}
+          weekUrl={weekUrl}
+          monthUrl={monthUrl}
+          duplicateListUrl={duplicateListUrl}
+        />
+        : (activeCategory != null) && (
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <CategorySummaryCard item={activeCategory} />
             </div>
-            )
-        }
+            <div>
+              <PreviousMonthsCard month={startDate} category={activeCategoryUuid} />
+            </div>
+            {categoryBudgets.map((item: MonthGroupedBudgetItem) => (
+              <div key={item.uuid} onClick={() => setActiveBudgetUuid(item.uuid)}>
+                <GroupedBudgetButton item={item} />
+              </div>
+            ))}
+          </div>
+        )
+      }
     </div>
   )
 }

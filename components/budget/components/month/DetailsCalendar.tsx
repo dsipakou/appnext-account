@@ -11,6 +11,7 @@ import {
   endOfWeek
 } from 'date-fns'
 import { X } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { parseDate, getFormattedDate } from '@/utils/dateUtils'
 import { MonthBudgetItem } from '@/components/budget/types'
 import { useCurrencies } from '@/hooks/currencies'
@@ -22,11 +23,21 @@ interface Types {
   date: string
   weekUrl: string
   monthUrl: string
+  duplicateListUrl: string
   handleClose: () => void
   clickShowTransactions: (uuid: string) => void
 }
 
-const DetailsCalendar: React.FC<Types> = ({ title, items, date, weekUrl, monthUrl, handleClose, clickShowTransactions }) => {
+const DetailsCalendar: React.FC<Types> = ({
+  title,
+  items,
+  date,
+  weekUrl,
+  monthUrl,
+  duplicateListUrl,
+  handleClose,
+  clickShowTransactions,
+}) => {
   const { data: { user } } = useSession()
   const { data: currencies } = useCurrencies()
 
@@ -64,18 +75,22 @@ const DetailsCalendar: React.FC<Types> = ({ title, items, date, weekUrl, monthUr
 
       week.push(
         <div
-          className={`flex p-1 h-24 border 
-            ${isSameMonth(currentDate, activeDate) ? '' : 'bg-slate-100'} 
-            ${isWeekend(currentDate) && !isSameWeek(currentDate, new Date()) && isSameMonth(currentDate, activeDate) && 'bg-red-50'}
-            ${isSameWeek(currentDate, new Date()) ? 'bg-sky-100' : ''}
-          `}
+          key={day}
+          className={cn(
+            'flex p-1 h-24 border',
+            isSameMonth(currentDate, activeDate) && 'bg-slate-100',
+            isWeekend(currentDate) && !isSameWeek(currentDate, new Date()) && isSameMonth(currentDate, activeDate) && 'bg-sky-100',
+            isSameWeek(currentDate, new Date()) && 'bg-sky-100',
+          )}
         >
           <CalendarBudgetItem
+            key={day}
             item={budgetOnDate}
             date={currentDate}
             currency={user.currency}
             weekUrl={weekUrl}
             monthUrl={monthUrl}
+            duplicateListUrl={duplicateListUrl}
             clickShowTransactions={clickShowTransactions}
           />
         </div>

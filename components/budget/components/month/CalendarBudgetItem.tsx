@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { formatMoney } from '@/utils/numberUtils'
+import { cn } from '@/lib/utils'
 import { ConfirmDeleteForm, EditForm } from '@/components/budget/forms'
 import { MonthBudgetItem } from '@/components/budget/types'
 
@@ -21,6 +22,7 @@ interface Types {
   currency: string
   weekUrl: string
   monthUrl: string
+  duplicateListUrl: string
   clickShowTransactions: (uuid: string) => void
 }
 
@@ -30,6 +32,7 @@ const CalendarBudgetItem: React.FC<Types> = ({
   currency,
   weekUrl,
   monthUrl,
+  duplicateListUrl,
   clickShowTransactions
 }) => {
   const [isEditDialogOpened, setIsEditDialogOpened] = React.useState<boolean>(false)
@@ -41,9 +44,7 @@ const CalendarBudgetItem: React.FC<Types> = ({
     return (
       <div className="flex flex-col w-full gap-2">
         <div className="flex w-full">
-          <span
-            className={isSameDay(date, new Date()) && 'text-white font-bold bg-blue-500 rounded-full px-1'}
-          >
+          <span className={cn(isSameDay(date, new Date()) && 'text-white font-bold bg-blue-500 rounded-full px-1')}>
             {format(date, 'd')}
           </span>
         </div>
@@ -120,6 +121,7 @@ const CalendarBudgetItem: React.FC<Types> = ({
           setOpen={setIsConfirmDeleteDialogOpened}
           weekUrl={weekUrl}
           monthUrl={monthUrl}
+          duplicateListUrl={duplicateListUrl}
         />
       )}
     </div>
