@@ -7,10 +7,9 @@ import {
   DialogFooter,
   DialogTitle
 } from '@/components/ui/dialog'
-import axios from 'axios'
 import { useSWRConfig } from 'swr'
 import { useToast } from '@/components/ui/use-toast'
-import { usePendingBudget } from '@/hooks/budget'
+import { useDeleteBudget, usePendingBudget } from '@/hooks/budget'
 
 interface Types {
   open: boolean
@@ -28,38 +27,23 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, weekUrl, mont
 
   const { mutate } = useSWRConfig()
   const { toast } = useToast()
+  const { trigger: deleteBudget, isMutating: isDeleting } = useDeleteBudget(uuid)
 
-  const handleDelete = () => {
-    setIsLoading(true)
-    axios
-      .delete(`budget/${uuid}`)
-      .then(
-        res => {
-          if (res.status === 204) {
-            mutate(weekUrl)
-            mutate(monthUrl)
-            mutate(pendingUrl)
-            setOpen(false)
-            toast({
-              title: 'Deleted successfully'
-            })
-          } else {
-            // TODO: handle errors [non-empty parent,]
-          }
-        }
-      )
-      .catch(
-        (err) => {
-          toast({
-            title: 'Please, try again'
-          })
-        }
-      )
-      .finally(
-        () => {
-          setIsLoading(false)
-        }
-      )
+  const handleDelete = async () => {
+    try {
+      await deleteBudget()
+      mutate(weekUrl)
+      mutate(monthUrl)
+      mutate(pendingUrl)
+      setOpen(false)
+      toast({
+        title: 'Deleted successfully'
+      })
+    } catch (error) {
+      toast({
+        title: 'Please, try again'
+      })
+    }
   }
 
   const defaultTrigger = (
@@ -74,8 +58,8 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, weekUrl, mont
           You are about to delete a budget
         </p>
         <DialogFooter>
-          <Button disabled={isLoading} variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
-          <Button disabled={isLoading} variant="destructive" onClick={handleDelete}>Delete</Button>
+          <Button disabled={isDeleting} variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button disabled={isDeleting} variant="destructive" onClick={handleDelete}>Delete</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

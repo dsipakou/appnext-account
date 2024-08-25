@@ -78,7 +78,6 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
   const { mutate } = useSWRConfig()
   const [parentList, setParentList] = useState<Category[]>([])
   const [isSomeDay, setIsSomeDay] = useState<boolean>(false)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [open, setOpen] = useState<boolean>(false)
   const { url: pendingUrl } = usePendingBudget()
 
@@ -213,7 +212,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Input placeholder="Title" disabled={isLoading} id="title" {...field} />
+                          <Input placeholder="Title" disabled={isCreating} id="title" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -229,7 +228,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                         <FormControl>
                           <div className="flex gap-2">
                             <div>
-                              <Input placeholder="10" disabled={isLoading} id="amount" {...field} />
+                              <Input placeholder="10" disabled={isCreating} id="amount" {...field} />
                             </div>
                             <span className="flex items-center text-sm">
                               {form.watch('currency') && getCurrencySign()}
@@ -249,7 +248,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                       <FormItem>
                         <FormControl>
                           <Select
-                            disabled={isLoading}
+                            disabled={isCreating}
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
@@ -281,7 +280,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                       <FormItem>
                         <FormControl>
                           <Select
-                            disabled={isLoading}
+                            disabled={isCreating}
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
@@ -312,7 +311,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                       <FormItem>
                         <FormControl>
                           <Select
-                            disabled={isLoading}
+                            disabled={isCreating}
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
@@ -340,7 +339,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                       <FormItem>
                         <FormControl>
                           <RadioGroup
-                            disabled={isLoading}
+                            disabled={isCreating}
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                             className={styles.radio}
@@ -370,7 +369,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                       <FormItem>
                         <FormControl>
                           <Textarea
-                            disabled={isLoading}
+                            disabled={isCreating}
                             placeholder="Add description if you want"
                             className="resize-none h-full"
                             {...field}
@@ -393,7 +392,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                             className="justify-center"
                             selected={isSomeDay ? null : field.value}
                             onSelect={field.onChange}
-                            disabled={(date) => isLoading || date < new Date('1900-01-01') || isSomeDay}
+                            disabled={(date) => isCreating || date < new Date('1900-01-01') || isSomeDay}
                             weekStartsOn={1}
                             initialFocus
                           />
