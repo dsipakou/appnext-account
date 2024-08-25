@@ -1,5 +1,4 @@
 import { FC, useEffect, useState } from 'react'
-import axios from 'axios'
 import { useSession } from 'next-auth/react'
 import { useSWRConfig } from 'swr'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -42,7 +41,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { useUsers } from '@/hooks/users'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
-import { usePendingBudget } from '@/hooks/budget'
+import { usePendingBudget, useCreateBudget } from '@/hooks/budget'
 import { User } from '@/components/users/types'
 import { Category, CategoryType } from '@/components/categories/types'
 import { Currency } from '@/components/currencies/types'
@@ -109,6 +108,8 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
     isLoading: isCategoriesLoading
   } = useCategories()
 
+  const { trigger: createBudget, isMutating: isCreating } = useCreateBudget()
+
   useEffect(() => {
     if (isCategoriesLoading) return
 
@@ -158,40 +159,27 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
     return currencies.find((item: Currency) => item.uuid === form.getValues().currency)?.sign
   }
 
-  const handleSave = (payload: z.infer<typeof formSchema>) => {
-    setIsLoading(true)
-    axios.post('budget/', {
-      ...payload,
-      budgetDate: isSomeDay ? null : getFormattedDate(payload.budgetDate),
-      recurrent: payload.repeatType
-    }).then(
-      res => {
-        if (res.status === 201) {
-          mutate(monthUrl)
-          mutate(weekUrl)
-          mutate(pendingUrl)
-          toast({
-            title: 'Saved!'
-          })
-        } else {
-          // TODO: handle errors
-        }
-      }
-    ).catch(
-      (error) => {
-        toast({
-          variant: 'destructive',
-          title: 'Something went wrong',
-          description: 'Please, check your fields'
-        })
-        const errRes = error.response.data
-        for (const prop in errRes) {
-          // setErrors(errRes[prop]);
-        }
-      }
-    ).finally(() => {
-      setIsLoading(false)
-    })
+  const handleSave = async (payload: z.infer<typeof formSchema>) => {
+    try {
+      await createBudget({
+        ...payload,
+        budgetDate: isSomeDay ? null : getFormattedDate(payload.budgetDate),
+        recurrent: payload.repeatType,
+      })
+      mutate(monthUrl)
+      mutate(weekUrl)
+      mutate(pendingUrl)
+      setOpen(false)
+      toast({
+        title: 'Saved!'
+      })
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Something went wrong',
+        description: 'Please, check your fields'
+      })
+    }
   }
 
   const clean = (open: boolean) => {

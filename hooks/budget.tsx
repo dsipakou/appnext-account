@@ -10,6 +10,11 @@ import {
 import { Response } from './types';
 
 const fetcher = (url: string) => axios.get(url).then(res => res.data);
+
+const createBudget = (url: string, { arg }) => {
+  return axios.post(url, arg).then(res => res.data)
+}
+
 const patchBudget = (url: string, { arg }: {
   arg: { isCompleted?: boolean, category?: string, budgetDate?: string };
 }) => {
@@ -28,6 +33,15 @@ const patchBudget = (url: string, { arg }: {
   }
 
   return axios.patch(url, payload).then(res => res.data)
+}
+
+export const useCreateBudget = (payload: any) => {
+  const { trigger, isMutating } = useSWRMutation('budget/', createBudget, { revalidate: true })
+
+  return {
+    trigger,
+    isMutating,
+  }
 }
 
 export const useBudgetDetails = (
