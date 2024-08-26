@@ -12,23 +12,7 @@ import { Response } from './types';
 const fetchReq = (url: string) => axios.get(url).then(res => res.data);
 const postReq = (url: string, { arg }) => axios.post(url, arg).then(res => res.data)
 const deleteReq = (url: string) => axios.delete(url).then(res => res.data)
-const patchReq = (url: string, { arg }) => {
-  const payload = { ...arg }
-
-  if (arg.isCompleted !== undefined) {
-    payload["isCompleted"] = arg.isCompleted
-  }
-
-  if (arg.category !== undefined) {
-    payload["category"] = arg.category
-  }
-
-  if (arg.budgetDate !== undefined) {
-    payload["budgetDate"] = arg.budgetDate
-  }
-
-  return axios.patch(url, payload).then(res => res.data)
-}
+const patchReq = (url: string, { arg }) => axios.patch(url, arg).then(res => res.data)
 
 export const useCreateBudget = (payload: any) => {
   const { trigger, isMutating } = useSWRMutation('budget/', postReq, { revalidate: true })
