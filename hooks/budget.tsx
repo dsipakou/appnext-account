@@ -1,4 +1,5 @@
-import axios from 'axios';
+"use client"
+
 import useSWRImmutable from 'swr/immutable'
 import useSWRMutation from 'swr/mutation'
 import {
@@ -7,12 +8,13 @@ import {
   DuplicateBudgetResponse,
   MonthSummedUsage,
 } from '@/components/budget/types';
+import {
+  fetchReq,
+  postReq,
+  deleteReq,
+  patchReq,
+} from '@/plugins/axios'
 import { Response } from './types';
-
-const fetchReq = (url: string) => axios.get(url).then(res => res.data);
-const postReq = (url: string, { arg }) => axios.post(url, arg).then(res => res.data)
-const deleteReq = (url: string) => axios.delete(url).then(res => res.data)
-const patchReq = (url: string, { arg }) => axios.patch(url, arg).then(res => res.data)
 
 export const useCreateBudget = (payload: any) => {
   const { trigger, isMutating } = useSWRMutation('budget/', postReq, { revalidate: true })

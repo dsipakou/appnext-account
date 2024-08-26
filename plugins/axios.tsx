@@ -14,3 +14,7 @@ if (process.env.NEXT_PUBLIC_ENV_TYPE === 'prod') {
 
 axios.defaults.baseURL = url
 
+export const fetchReq = (url: string) => axios.get(url).then(res => res.data);
+export const postReq = (url: string, { arg }) => axios.post(url, arg).then(res => res.data)
+export const deleteReq = (url: string) => axios.delete(url).then(res => res.data)
+export const patchReq = (url: string, { arg }) => axios.patch(url, arg).then(res => res.data)

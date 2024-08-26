@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/select'
 import { useUsers } from '@/hooks/users'
 import { useCategories } from '@/hooks/categories'
+import { useCreateAccount } from '@/hooks/accounts'
 import { Category, CategoryType } from '@/components/categories/types'
 import { User } from '@/components/users/types'
 import { Switch } from '@/components/ui/switch'
@@ -49,9 +50,7 @@ const formSchema = z.object({
 })
 
 const AddForm: React.FC = () => {
-  const { mutate } = useSWRConfig()
   const [incomeCategories, setIncomeCategories] = React.useState<Category[]>([])
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -67,42 +66,27 @@ const AddForm: React.FC = () => {
 
   const { data: categories = [] } = useCategories()
 
+  const { trigger: createAccount, isMutating: isCreating } = useCreateAccount()
+
   React.useEffect(() => {
     if (!categories) return
 
     setIncomeCategories(categories.filter((item: Category) => item.type === CategoryType.Income))
   }, [categories])
 
-  const handleSave = (payload: z.infer<typeof formSchema>) => {
-    setIsLoading(true)
-    axios.post('accounts/', {
-      ...payload
-    }).then(
-      res => {
-        if (res.status === 201) {
-          mutate('accounts/')
-          toast({
-            title: 'Saved!'
-          })
-        } else {
-          // TODO
-        }
-      }
-    ).catch(
-      (error) => {
-        toast({
-          variant: 'destructive',
-          title: 'Something went wrong',
-          description: 'Please, check your fields'
-        })
-        const errRes = error.response.data
-        for (const prop in errRes) {
-          // setErrors(errRes[prop]);
-        }
-      }
-    ).finally(() => {
-      setIsLoading(false)
-    })
+  const handleSave = async (payload: z.infer<typeof formSchema>) => {
+    try {
+      await createAccount(payload)
+      toast({
+        title: 'Saved!'
+      })
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Something went wrong',
+        description: 'Please, check your fields'
+      })
+    }
   }
 
   const cleanFormErrors = (open: boolean) => {
@@ -132,7 +116,7 @@ const AddForm: React.FC = () => {
                       <FormItem>
                         <FormLabel>Account title</FormLabel>
                         <FormControl>
-                          <Input className="w-full" disabled={isLoading} id="title" {...field} />
+                          <Input className="w-full" disabled={isCreating} id="title" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -151,7 +135,7 @@ const AddForm: React.FC = () => {
                               id="isMain"
                               checked={field.value}
                               onCheckedChange={field.onChange}
-                              disabled={isLoading}
+                              disabled={isCreating}
                             />
                             <Label htmlFor="isMain">Active</Label>
                           </div>
@@ -174,7 +158,7 @@ const AddForm: React.FC = () => {
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
-                            disabled={isLoading}
+                            disabled={isCreating}
                           >
                             <SelectTrigger className="relative w-full">
                               <SelectValue placeholder="Select user" />
@@ -204,7 +188,7 @@ const AddForm: React.FC = () => {
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
-                            disabled={isLoading}
+                            disabled={isCreating}
                           >
                             <SelectTrigger className="relative w-full">
                               <SelectValue placeholder="Select category" />
@@ -235,7 +219,7 @@ const AddForm: React.FC = () => {
                         <Textarea
                           placeholder="Add description if you want"
                           className="resize-none"
-                          disabled={isLoading}
+                          disabled={isCreating}
                           {...field}
                         />
                       </FormControl>
