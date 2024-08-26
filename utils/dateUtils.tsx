@@ -23,7 +23,7 @@ export interface WeekOfMonth {
 
 export interface WeekDayWithFullDate {
   shortDayName: string
-  fullDate: string
+  fullDate: Date
 }
 
 export const DATE_FORMAT = "yyyy-MM-dd"

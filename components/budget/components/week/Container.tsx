@@ -101,11 +101,11 @@ const Container: FC<Types> = ({
     setDraggingUuid(evt.active.id)
   }
 
-  const handleDragEnd = async (event) => {
+  const handleDragEnd = async (evt) => {
     setDraggingUuid('')
-    if (!event.over) return // dropped outside droppable zone
+    if (!evt.over) return // dropped outside droppable zone
 
-    const newDate = daysFullFormatArray[event.over.id].fullDate
+    const newDate = daysFullFormatArray[evt.over.id].fullDate
 
     try {
       const updatedBudget = await dragBudget({ budgetDate: getFormattedDate(newDate) })
