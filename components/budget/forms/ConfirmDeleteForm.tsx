@@ -1,4 +1,3 @@
-
 import React from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -37,17 +36,15 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, weekUrl, mont
       toast({
         title: 'Deleted successfully'
       })
-    } catch (error) {
-      console.log(error)
-      toast({
-        variant: 'destructive',
-        title: 'Please, try again'
-      })
-    } finally {
       mutate(weekUrl)
       mutate(monthUrl)
       mutate(pendingUrl)
       mutate(duplicateListUrl)
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Please, try again'
+      })
     }
   }
 

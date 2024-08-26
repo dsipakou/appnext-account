@@ -1,5 +1,4 @@
 import React from 'react'
-import axios from 'axios'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useSWRConfig } from 'swr'
@@ -41,11 +40,12 @@ import { useToast } from '@/components/ui/use-toast'
 import { useUsers } from '@/hooks/users'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
-import { useBudgetDetails, usePendingBudget } from '@/hooks/budget'
+import { useBudgetDetails, useEditBudget, usePendingBudget } from '@/hooks/budget'
 import { User } from '@/components/users/types'
 import { Category, CategoryType } from '@/components/categories/types'
 import { Currency } from '@/components/currencies/types'
 import { getFormattedDate, parseDate } from '@/utils/dateUtils'
+import { extractErrorMessage } from '@/utils/stringUtils'
 
 import styles from '../style/AddForm.module.css'
 
@@ -79,7 +79,6 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
   const [parentList, setParentList] = React.useState<Category[]>([])
   const [errors, setErrors] = React.useState<string[]>([])
   const [month, setMonth] = React.useState<Date>(new Date())
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [isSomeDay, setIsSomeDay] = React.useState<boolean>(false)
   const { toast } = useToast()
 
@@ -95,6 +94,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
   const { data: users = [] } = useUsers()
   const { data: categories = [] } = useCategories()
   const { data: currencies = [] } = useCurrencies()
+  const { trigger: editBudget, isMutating: isEditing } = useEditBudget(uuid)
   const { data: budgetDetails } = useBudgetDetails(uuid)
   const { url: pendingUrl } = usePendingBudget()
 
@@ -131,40 +131,29 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
     return currencies.find((item: Currency) => item.uuid === form.getValues().currency)?.sign
   }
 
-  const handleSave = (payload: z.infer<typeof formSchema>): void => {
-    setIsLoading(true)
-    axios.patch(`budget/${uuid}/`, {
-      ...payload,
-      budgetDate: isSomeDay ? null : getFormattedDate(payload.budgetDate),
-      recurrent: payload.repeatType
-    }).then(
-      res => {
-        if (res.status === 200) {
-          mutate(monthUrl)
-          mutate(weekUrl)
-          mutate(pendingUrl)
-          toast({
-            title: 'Saved!'
-          })
-        } else {
-          // TODO: handle errors
-        }
-      }
-    ).catch(
-      (error) => {
-        const errRes = error.response.data
-        toast({
-          variant: 'destructive',
-          title: 'Cannot be updated',
-          description: errRes
-        })
-        for (const prop in errRes) {
-          setErrors(errRes[prop])
-        }
-      }
-    ).finally(() => {
-      setIsLoading(false)
-    })
+  const handleSave = async (payload: z.infer<typeof formSchema>): void => {
+    try {
+      // TODO: Optimistic update here
+      const updatedBudget = await editBudget({
+        ...payload,
+        budgetDate: getFormattedDate(payload.budgetDate),
+        recurrent: payload.repeatType,
+      })
+      mutate(monthUrl)
+      mutate(weekUrl)
+      mutate(pendingUrl)
+      toast({
+        title: 'Successfully updated!'
+      })
+      setOpen(false)
+    } catch (error) {
+      const message = extractErrorMessage(error)
+      toast({
+        variant: 'destructive',
+        title: 'Cannot be updated',
+        description: message,
+      })
+    }
   }
 
   const cleanFormErrors = (open: boolean) => {
@@ -193,7 +182,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                       <FormItem>
                         <FormLabel>Budget title</FormLabel>
                         <FormControl>
-                          <Input disabled={isLoading} id="title" {...field} />
+                          <Input disabled={isEditing} id="title" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -210,7 +199,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                         <FormControl>
                           <div className="flex gap-2">
                             <div>
-                              <Input disabled={isLoading} id="amount" {...field} />
+                              <Input disabled={isEditing} id="amount" {...field} />
                             </div>
                             <span className="flex items-center w-5">
                               {form.watch('currency') && getCurrencySign()}
@@ -231,7 +220,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                         <FormLabel>Currency</FormLabel>
                         <FormControl>
                           <Select
-                            disabled={isLoading}
+                            disabled={isEditing}
                             onValueChange={field.onChange}
                             value={field.value}
                           >
@@ -263,7 +252,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                         <FormLabel>Category</FormLabel>
                         <FormControl>
                           <Select
-                            disabled={isLoading || (parentList.length === 0)}
+                            disabled={isEditing || (parentList.length === 0)}
                             onValueChange={field.onChange}
                             value={field.value}
                           >
@@ -295,7 +284,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                         <FormLabel>User</FormLabel>
                         <FormControl>
                           <Select
-                            disabled={isLoading}
+                            disabled={isEditing}
                             onValueChange={field.onChange}
                             value={field.value}
                           >
@@ -323,7 +312,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                       <FormItem>
                         <FormControl>
                           <RadioGroup
-                            disabled={isLoading}
+                            disabled={isEditing}
                             onValueChange={field.onChange}
                             value={field.value}
                             className={styles.radio}
@@ -375,7 +364,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                           <span className="">This budget will appear in 'Saved for later' list</span>
                         </div>
                       )
-                      : !isLoading && (
+                      : !isEditing && (
                         <FormField
                           control={form.control}
                           name="budgetDate"
@@ -387,7 +376,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                                   className="justify-center"
                                   selected={isSomeDay ? null : field.value}
                                   onSelect={field.onChange}
-                                  disabled={(date) => isLoading || date < new Date('1900-01-01') || isSomeDay}
+                                  disabled={(date) => isEditing || date < new Date('1900-01-01') || isSomeDay}
                                   weekStartsOn={1}
                                   initialFocus
                                 />
@@ -409,7 +398,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                   <FormItem>
                     <FormControl>
                       <Textarea
-                        disabled={isLoading}
+                        disabled={isEditing}
                         placeholder="Add description if you want"
                         className="resize-none"
                         {...field}

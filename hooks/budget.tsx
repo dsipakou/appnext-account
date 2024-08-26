@@ -12,8 +12,8 @@ import { Response } from './types';
 const fetchReq = (url: string) => axios.get(url).then(res => res.data);
 const postReq = (url: string, { arg }) => axios.post(url, arg).then(res => res.data)
 const deleteReq = (url: string) => axios.delete(url).then(res => res.data)
-const patchReq = (url: string, { arg }: { arg: { isCompleted?: boolean, category?: string, budgetDate?: string; }; }) => {
-  const payload = {}
+const patchReq = (url: string, { arg }) => {
+  const payload = { ...arg }
 
   if (arg.isCompleted !== undefined) {
     payload["isCompleted"] = arg.isCompleted
