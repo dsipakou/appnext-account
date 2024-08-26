@@ -2,7 +2,6 @@ import * as React from 'react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import axios from 'axios'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -33,10 +32,11 @@ import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/components/ui/use-toast'
 import { AccountResponse } from '@/components/accounts/types'
-import { useAccounts } from '@/hooks/accounts'
+import { useAccounts, useUpdateAccount } from '@/hooks/accounts'
 import { useCategories } from '@/hooks/categories'
 import { Category, CategoryType } from '@/components/categories/types'
 import { useUsers } from '@/hooks/users'
+import { extractErrorMessage } from '@/utils/stringUtils'
 import { useSWRConfig } from 'swr'
 
 interface Types {
@@ -56,7 +56,6 @@ const formSchema = z.object({
 const EditForm: React.FC<Types> = ({ uuid }) => {
   const { mutate } = useSWRConfig()
   const [incomeCategories, setIncomeCategories] = React.useState<Category[]>([])
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const { toast } = useToast()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -67,6 +66,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
   })
 
   const { data: accounts = [] } = useAccounts()
+  const { trigger: updateAccount, isMutating: isUpdating } = useUpdateAccount(uuid)
 
   const { data: users = [] } = useUsers()
 
@@ -96,31 +96,22 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
     }
   }
 
-  const handleSave = (payload: z.infer<typeof formSchema>) => {
-    setIsLoading(true)
-    axios.patch(`accounts/${uuid}/`, {
-      ...payload
-    }).then(
-      res => {
-        if (res.status === 200) {
-          mutate('accounts/')
-          toast({
-            title: 'Saved!'
-          })
-        } else {
-          // TODO: handle errors
-        }
-      }
-    ).catch(
-      (error) => {
-        const errRes = error.response.data
-        for (const prop in errRes) {
-          // setErrors(errRes[prop]);
-        }
-      }
-    ).finally(() => {
-      setIsLoading(false)
-    })
+  const handleSave = async (payload: z.infer<typeof formSchema>) => {
+    // TODO: optimistic update
+    try {
+      await updateAccount(payload)
+      mutate('accounts/')
+      toast({
+        title: 'Saved!'
+      })
+    } catch (error) {
+      const message = extractErrorMessage(error)
+      toast({
+        variant: 'destructive',
+        title: 'Something went wrong',
+        description: message,
+      })
+    }
   }
 
   return (
@@ -144,7 +135,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                       <FormItem>
                         <FormLabel>Account title</FormLabel>
                         <FormControl>
-                          <Input className="w-full" disabled={isLoading} id="title" {...field} />
+                          <Input className="w-full" disabled={isUpdating} id="title" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -163,7 +154,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                               id="isMain"
                               checked={field.value}
                               onCheckedChange={field.onChange}
-                              disabled={isLoading}
+                              disabled={isUpdating}
                             />
                             <Label htmlFor="isMain">Active</Label>
                           </div>
@@ -186,7 +177,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
-                            disabled={isLoading}
+                            disabled={isUpdating}
                           >
                             <SelectTrigger className="relative w-full">
                               <SelectValue placeholder="Select user" />
@@ -216,7 +207,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
-                            disabled={isLoading}
+                            disabled={isUpdating}
                           >
                             <SelectTrigger className="relative w-full">
                               <SelectValue placeholder="Select category" />
@@ -247,7 +238,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                         <Textarea
                           placeholder="Add description if you want"
                           className="resize-none"
-                          disabled={isLoading}
+                          disabled={isUpdating}
                           {...field}
                         />
                       </FormControl>
@@ -257,7 +248,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                 />
               </div>
             </div>
-            <Button disabled={isLoading} type="submit">Save</Button>
+            <Button disabled={isUpdating} type="submit">Save</Button>
           </form>
         </Form>
       </DialogContent>

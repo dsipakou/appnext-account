@@ -3,7 +3,12 @@
 import useSWRImmutable from 'swr/immutable'
 import useSWRMutation from 'swr/mutation'
 import { AccountResponse } from '@/components/accounts/types'
-import { fetchReq, postReq, deleteReq } from '@/plugins/axios'
+import {
+  fetchReq,
+  postReq,
+  deleteReq,
+  patchReq,
+} from '@/plugins/axios'
 import { Response } from './types'
 
 export const useAccounts = (): Response<AccountResponse[]> => {
@@ -19,6 +24,24 @@ export const useAccounts = (): Response<AccountResponse[]> => {
 
 export const useCreateAccount = (payload: any) => {
   const { trigger, isMutating } = useSWRMutation('accounts/', postReq, { revalidate: true })
+
+  return {
+    trigger,
+    isMutating,
+  }
+}
+
+export const useUpdateAccount = (uuid: string) => {
+  const { trigger, isMutating } = useSWRMutation(`accounts/${uuid}/`, patchReq, { revalidate: true })
+
+  return {
+    trigger,
+    isMutating,
+  }
+}
+
+export const useReassignTransactions = (uuid: string) => {
+  const { trigger, isMutating } = useSWRMutation(`accounts/${uuid}/reassign/`, postReq, { revalidate: true })
 
   return {
     trigger,
