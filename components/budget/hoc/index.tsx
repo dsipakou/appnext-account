@@ -233,13 +233,13 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     )
 
     const emptyState = (
-      <div className="flex f-full h-full pt-20 justify-center items-center">
+      <div className="flex w-full h-full pt-20 justify-center items-center">
         <span className="text-2xl">No plans for selected period</span>
       </div>
     )
 
     const loadingState = (
-      <div className="flex f-full h-full pt-20 justify-center items-center">
+      <div className="flex w-full h-full pt-20 justify-center items-center">
         <span className="text-2xl">Loading budget...</span>
       </div>
     )
