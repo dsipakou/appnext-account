@@ -68,12 +68,10 @@ interface Types {
 }
 
 const AddForm: React.FC<Types> = ({ parent }) => {
-  const { mutate } = useSWRConfig()
   const { data: categories = [] } = useCategories()
   const { trigger: createCategory, isMutating: isCreating } = useCreateCategory()
 
   const [parentList, setParentList] = React.useState<Category[]>([])
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [selectedEmoji, setSelectedEmoji] = React.useState<string | null>(null)
 
   const { toast } = useToast()
@@ -187,7 +185,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                     <FormItem>
                       <FormLabel>Category title</FormLabel>
                       <FormControl>
-                        <Input className="w-full" disabled={isLoading} id="title" {...field} />
+                        <Input className="w-full" disabled={isCreating} id="title" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -205,7 +203,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
-                          disabled={isLoading || parent}
+                          disabled={isCreating || parent}
                         >
                           <SelectTrigger className="relative w-full">
                             <SelectValue placeholder="Category type" />
@@ -237,7 +235,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                                 id="isParent"
                                 checked={field.value}
                                 onCheckedChange={field.onChange}
-                                disabled={isLoading || parent}
+                                disabled={isCreating || parent}
                               />
                               <Label htmlFor="isParent">Has parent</Label>
                             </div>
@@ -259,7 +257,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
-                              disabled={isLoading || parent}
+                              disabled={isCreating || parent}
                             >
                               <SelectTrigger className="relative w-full">
                                 <SelectValue placeholder="Choose parent category" />
@@ -290,7 +288,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                         <Textarea
                           placeholder="Add description if you want"
                           className="resize-none"
-                          disabled={isLoading}
+                          disabled={isCreating}
                           {...field}
                         />
                       </FormControl>
