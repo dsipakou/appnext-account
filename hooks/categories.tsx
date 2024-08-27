@@ -1,7 +1,9 @@
 import axios from 'axios';
 import useSWRImmutable from 'swr/immutable'
+import useSWRMutation from 'swr/mutation'
 import { CategoryType } from '@/components/categories/types';
 import { Response } from './types';
+import { fetchReq, postReq, deleteReq, patchReq } from '@/plugins/axios';
 
 export interface CategoryResponse {
   uuid: string
@@ -13,10 +15,8 @@ export interface CategoryResponse {
   modifiedAt: string
 }
 
-const fetcher = (url: string) => axios.get(url).then(res => res.data);
-
 export const useCategories = (): Response<CategoryResponse[]> => {
-  const { data = [], error, isLoading } = useSWRImmutable('categories/', fetcher);
+  const { data = [], error, isLoading } = useSWRImmutable('categories/', fetchReq);
 
   return {
     data,
@@ -25,8 +25,17 @@ export const useCategories = (): Response<CategoryResponse[]> => {
   } as Response<CategoryResponse[]>;
 };
 
+export const useCreateCategory = () => {
+  const { trigger, isMutating } = useSWRMutation('categories/', postReq, { revalidate: true })
+
+  return {
+    trigger,
+    isMutating,
+  }
+}
+
 export const useCategory = (uuid: string | undefined): Response<CategoryResponse> => {
-  const { data, error, isLoading } = useSWRImmutable(uuid ? `categories/${uuid}/` : null, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(uuid ? `categories/${uuid}/` : null, fetchReq)
 
   return {
     data,

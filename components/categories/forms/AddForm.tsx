@@ -1,13 +1,12 @@
 import React from 'react'
 import { X } from 'lucide-react'
-import axios from 'axios'
 import * as z from 'zod'
 import EmojiPicker from 'emoji-picker-react'
 
 import { useSWRConfig } from 'swr'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { useCategories } from '@/hooks/categories'
+import { useCategories, useCreateCategory } from '@/hooks/categories'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -71,6 +70,7 @@ interface Types {
 const AddForm: React.FC<Types> = ({ parent }) => {
   const { mutate } = useSWRConfig()
   const { data: categories = [] } = useCategories()
+  const { trigger: createCategory, isMutating: isCreating } = useCreateCategory()
 
   const [parentList, setParentList] = React.useState<Category[]>([])
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
@@ -113,34 +113,24 @@ const AddForm: React.FC<Types> = ({ parent }) => {
   }, [parent])
 
   const handleSave = async (payload: z.infer<typeof formSchema>) => {
-    setIsLoading(true)
-
-    axios.post('categories/', {
-      icon: selectedEmoji,
-      name: payload.title,
-      parent: payload.parentCategory || '',
-      type: payload.type,
-      description: payload.description
-    }).then(
-      res => {
-        if (res.status === 201) {
-          mutate('categories/')
-          toast({
-            title: 'Saved!'
-          })
-        } else {
-          // TODO: handle errors
-        }
-      }
-    ).catch(
-      (error) => {
-        toast({
-          variant: 'destructive',
-          title: 'Something went wrong',
-          description: 'Please, check your fields'
-        })
-      }
-    ).finally(() => { setIsLoading(false) })
+    try {
+      await createCategory({
+        icon: selectedEmoji,
+        name: payload.title,
+        parent: payload.parentCategory || '',
+        type: payload.type,
+        description: payload.description
+      })
+      toast({
+        title: 'Saved!'
+      })
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Something went wrong',
+        description: 'Please, check your fields'
+      })
+    }
   }
 
   const cleanFormErrors = (open: boolean) => {
