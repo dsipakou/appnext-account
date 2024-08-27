@@ -34,6 +34,15 @@ export const useCreateCategory = () => {
   }
 }
 
+export const useReassignTransactions = (uuid: string) => {
+  const { trigger, isMutating } = useSWRMutation(`categories/${uuid}/reassign/`, postReq, { revalidate: true })
+
+  return {
+    trigger,
+    isMutating,
+  }
+}
+
 export const useDeleteCategory = (uuid: string) => {
   const { trigger, isMutating } = useSWRMutation(`categories/${uuid}/`, deleteReq, { revalidate: true })
 
