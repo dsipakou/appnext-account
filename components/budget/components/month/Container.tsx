@@ -50,7 +50,6 @@ const Container: React.FC<Types> = ({
                 isActive={activeCategoryUuid === item.uuid}
                 planned={item.plannedInCurrencies[authUser?.currency]}
                 spent={item.spentInCurrencies[authUser?.currency]}
-                currencyCode={authUser?.currency}
               />
             </div>
           ))}

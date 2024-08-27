@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { useStore } from '@/app/store'
 import { useSession } from 'next-auth/react'
-import { AlertTriangle, CheckCircle, Repeat2 } from 'lucide-react'
+import { CheckCircle, Repeat2 } from 'lucide-react'
 import { getDate, format } from 'date-fns'
 import { Progress } from '@/components/ui/progress'
 import {
@@ -16,6 +16,7 @@ import { getNumberWithPostfix, formatMoney } from '@/utils/numberUtils'
 import { useCategories } from '@/hooks/categories'
 import { parseDate, getFormattedDate, LONG_YEAR_SHORT_MONTH_FORMAT } from '@/utils/dateUtils'
 import { Category } from '@/components/categories/types'
+import { cn } from '@/lib/utils'
 
 interface Types {
   item: MonthGroupedBudgetItem
@@ -54,18 +55,15 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
 
   const recurrent = item.items[0].recurrent
 
-  const cssClass = recurrent
-    ? recurrent === 'monthly'
-      ? 'p-2 border-l-8 border-blue-400'
-      : 'border-l-8 border-yellow-400'
-    : 'border-gray-300'
-
   const regularProgress = () => {
     return (
       <>
         <Progress
-          className={`h-8 rounded-sm ${percentage > 100 ? 'bg-red-200' : 'bg-gray-300'}`}
-          indicatorclassname={`${percentage > 100 ? 'bg-red-500' : 'bg-blue-500'}`}
+          className={cn(
+            "h-8 rounded-sm",
+            percentage > 100 ? 'bg-red-200' : 'bg-gray-300',
+          )}
+          indicatorclassname={cn(percentage > 100 ? 'bg-red-500' : 'bg-blue-500')}
           value={percentage > 100 ? percentage % 100 : percentage}
         />
         <div className="absolute top-0 w-full h-full">
@@ -112,7 +110,11 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
   )
 
   return (
-    <div className={`${cssClass} h-[172px] border cursor-pointer p-2 rounded-lg ${isCompleted ? 'bg-slate-200 text-slate-500' : 'drop-shadow outline-zinc-200 bg-slate-50'}`}>
+    <div className={cn(
+      "h-[172px] border cursor-pointer p-2 rounded-lg",
+      recurrent && ["border-gray-300", recurrent === "monthly" ? "p-2 border-l-8 border-blue-400" : "border-l-8 border-yellow-400"],
+      isCompleted ? "bg-slate-200 text-slate-500" : "drop-shadow outline-zinc-200 bg-slate-50",
+    )}>
       <div className="flex flex-col gap-3">
         <div className="flex justify-between w-full">
           <div className="relative">
@@ -163,7 +165,7 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
         <div className="flex w-full">
           <div className="flex-1 justify-end">
             {item.items[0].recurrent &&
-              <Badge variant="outline" className={`bg-white ${isCompleted && 'text-slate-500'}`}>
+              <Badge variant="outline" className={cn("bg-white", isCompleted && 'text-slate-500')}>
                 <Repeat2 className="mr-1 h-4" />
                 {getRepeatDay(item.items[0])}
               </Badge>

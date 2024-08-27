@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react'
 import { Progress } from '@/components/ui/progress'
 import { formatMoney } from '@/utils/numberUtils'
 import { GroupedByCategoryBudget } from '@/components/budget/types'
+import { cn } from '@/lib/utils'
 
 interface Types {
   item: GroupedByCategoryBudget
@@ -34,8 +35,11 @@ const CategorySummaryCard: FC<Types> = ({ item }) => {
         <div>
           <div className="relative mb-1">
             <Progress
-              className={`h-10 rounded-lg ${percentage > 100 ? 'bg-red-200' : 'bg-gray-300'}`}
-              indicatorclassname={`${percentage > 100 ? 'bg-red-500' : 'bg-green-500'}`}
+              className={cn(
+                "h-10 rounded-lg",
+                percentage > 100 ? "bg-red-200" : "bg-gray-300"
+              )}
+              indicatorclassname={cn(percentage > 100 ? "bg-red-500" : "bg-green-500")}
               value={percentage > 100 ? percentage % 100 : percentage}
             />
             <div className="absolute top-0 w-full h-full">

@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { useCategories, useCategory } from '@/hooks/categories'
+import { useCategories } from '@/hooks/categories'
 import { Category, CategoryType } from '@/components/categories/types'
 import { ConfirmTransactionsTransferForm } from '@/components/categories/forms'
 

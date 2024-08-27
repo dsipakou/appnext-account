@@ -8,6 +8,7 @@ import {
   getStartOfWeek,
   getEndOfWeek
 } from '@/utils/dateUtils'
+import { cn } from '@/lib/utils'
 
 const WeekWidget = () => {
   const currencySign = useStore((state) => state.currencySign)
@@ -34,8 +35,13 @@ const WeekWidget = () => {
         </div>
         <div className="relative">
           <Progress
-            className={`h-8 rounded-sm ${percentage > 100 ? 'bg-red-200' : 'bg-gray-300'}`}
-            indicatorclassname={`${percentage > 100 ? 'bg-red-500' : 'bg-blue-500'}`}
+            className={cn(
+              "h-8 rounded-sm",
+              percentage > 100 ? "bg-red-200" : "bg-gray-300",
+            )}
+            indicatorclassname={cn(
+              percentage > 100 ? "bg-red-500" : "bg-blue-500"
+            )}
             value={percentage > 100 ? percentage % 100 : percentage}
           />
           <div className="absolute top-0 w-full h-full">

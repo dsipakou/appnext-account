@@ -16,6 +16,7 @@ import { TransactionResponse } from '@/components/transactions/types'
 import EDailyChart from '@/components/transactions/components/EDailyChart'
 import { formatMoney } from '@/utils/numberUtils'
 import { getFormattedDate } from '@/utils/dateUtils'
+import { cn } from '@/lib/utils'
 import TransactionTable from './components/TransactionTable'
 import IncomeComponent from './components/IncomeContainer'
 import LastAdded from './forms/LastAdded'
@@ -88,7 +89,10 @@ const Index: React.FC = () => {
             variant="none"
             onClick={() => setActiveType('income')}
           >
-            <span className={`text-xl ${activeType === 'income' ? 'flex justify-center items-center text-xl rounded-md text-blue-500 bg-white w-full h-full' : 'text-white'}`}>
+            <span className={cn(
+              "text-xl",
+              activeType === 'income' ? "flex justify-center items-center text-xl rounded-md text-blue-500 bg-white w-full h-full" : "text-white"
+            )}>
               Income
             </span>
           </Button>
@@ -98,7 +102,10 @@ const Index: React.FC = () => {
             variant="none"
             onClick={() => setActiveType('outcome')}
           >
-            <span className={`text-xl ${activeType === 'outcome' ? 'flex justify-center items-center text-xl rounded-md text-blue-500 bg-white w-full h-full' : 'text-white'}`}>
+            <span className={cn(
+              "text-xl",
+              activeType === "outcome" ? "flex justify-center items-center text-xl rounded-md text-blue-500 bg-white w-full h-full" : "text-white"
+            )}>
               Outcome
             </span>
           </Button>
