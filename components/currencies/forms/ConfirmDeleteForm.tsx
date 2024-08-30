@@ -32,7 +32,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open = false, uuid, handleClose })
     setCurrency(_currency)
   }, [currencies, uuid])
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (currency == null) return
 
     try {

@@ -1,6 +1,5 @@
 
-import { FC, useEffect, useState } from 'react'
-import axios from 'axios'
+import { FC, useEffect } from 'react'
 import { useSWRConfig } from 'swr'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -32,8 +31,9 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 
-import { useCurrencies } from '@/hooks/currencies'
+import { useCurrencies, useUpdateCurrency } from '@/hooks/currencies'
 import { useToast } from '@/components/ui/use-toast'
+import { extractErrorMessage } from '@/utils/stringUtils'
 
 import { Currency } from '../types'
 
@@ -57,8 +57,8 @@ const formSchema = z.object({
 
 const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
   const { mutate } = useSWRConfig()
-  const [isLoading, setIsLoading] = useState<boolean>(false)
   const { data: currencies = [] } = useCurrencies()
+  const { trigger: updateCurrency, isMutating: isUpdating } = useUpdateCurrency(uuid)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema)
@@ -80,33 +80,22 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
     }
   }, [currencies, uuid])
 
-  const handleUpdate = (payload: z.infer<typeof formSchema>): void => {
-    setIsLoading(true)
-    axios.patch(`currencies/${uuid}/`, {
-      ...payload
-    }).then(
-      res => {
-        if (res.status === 200) {
-          mutate('currencies/')
-          toast({
-            title: 'Saved!'
-          })
-        } else {
-          // TODO: handle errors
-        }
-      }
-    ).catch(
-      (error) => {
-        const errRes = error.response.data
-        toast({
-          variant: 'destructive',
-          title: 'Cannot be updated',
-          description: errRes
-        })
-      }
-    ).finally(() => {
-      setIsLoading(false)
-    })
+  const handleUpdate = async (payload: z.infer<typeof formSchema>): void => {
+    try {
+      await updateCurrency(payload)
+      mutate('currencies/')
+      cleanFormErrors()
+      toast({
+        title: 'Saved!'
+      })
+    } catch (error) {
+      const message = extractErrorMessage(error)
+      toast({
+        variant: 'destructive',
+        title: 'Something went wrong',
+        description: message,
+      })
+    }
   }
 
   const cleanFormErrors = (open: boolean) => {
@@ -137,7 +126,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                         <FormControl>
                           <Input
                             className="w-full"
-                            disabled={isLoading}
+                            disabled={isUpdating}
                             placeholder="US Dollar"
                             id="verbalName"
                             {...field}
@@ -157,7 +146,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                         <FormControl>
                           <Input
                             className="w-full"
-                            disabled={isLoading}
+                            disabled={isUpdating}
                             placeholder="$"
                             id="sign"
                             {...field}
@@ -179,7 +168,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                         <FormControl>
                           <Input
                             className="w-full"
-                            disabled={isLoading}
+                            disabled={isUpdating}
                             placeholder="USD"
                             id="code"
                             {...field}
@@ -201,13 +190,13 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                               id="isDefault"
                               checked={field.value}
                               onCheckedChange={field.onChange}
-                              disabled={isLoading}
+                              disabled={isUpdating}
                             />
                             <Label htmlFor="isDefault">make it default</Label>
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger>
-                                  <Info className="text-black h-4 w-4"/>
+                                  <Info className="text-black h-4 w-4" />
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p>Making this currency as default <br />will make current default currency as non-default</p>
@@ -232,7 +221,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                         <Textarea
                           placeholder="Any comments"
                           className="resize-none"
-                          disabled={isLoading}
+                          disabled={isUpdating}
                           {...field}
                         />
                       </FormControl>
