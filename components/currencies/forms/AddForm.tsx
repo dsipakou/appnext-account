@@ -1,5 +1,6 @@
 import React from 'react'
 import * as z from 'zod'
+import { useSWRConfig } from 'swr'
 import { useSession } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -30,12 +31,11 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import axios from 'axios'
-import { useSWRConfig } from 'swr'
 import { useToast } from '@/components/ui/use-toast'
+import { useCreateCurrency } from '@/hooks/currencies'
+import { extractErrorMessage } from '@/utils/stringUtils'
 
 interface Types {
-  open: boolean
   handleClose: () => void
 }
 
@@ -54,48 +54,33 @@ const formSchema = z.object({
 const AddForm: React.FC<Types> = ({ handleClose }) => {
   const { mutate } = useSWRConfig()
   const { update: updateSession } = useSession()
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema)
   })
 
   const { toast } = useToast()
+  const { trigger: createCurrency, isMutating: isCreating } = useCreateCurrency()
 
   const handleSave = async (payload: z.infer<typeof formSchema>) => {
-    setIsLoading(true)
-
-    axios.post('currencies/', {
-      ...payload
-    }).then(
-      res => {
-        if (res.status === 201) {
-          mutate('currencies/')
-          if (res.data.isBase) {
-            updateSession({ currency: payload.code })
-          }
-          toast({
-            title: 'Saved!'
-          })
-          handleClose()
-        } else {
-          // TODO: handle errors
-        }
+    try {
+      const currency = await createCurrency(payload)
+      mutate('currencies/')
+      if (currency.isBase) {
+        updateSession({ currency: payload.code })
       }
-    ).catch(
-      (error) => {
-        const errRes = error.response.data
-        for (const prop in errRes) {
-          toast({
-            variant: 'destructive',
-            title: 'Something went wrong',
-            description: prop
-          })
-        }
-      }
-    ).finally(() => {
-      setIsLoading(false)
-    })
+      toast({
+        title: 'Saved!'
+      })
+      handleClose()
+    } catch (error) {
+      const message = extractErrorMessage(error)
+      toast({
+        variant: 'destructive',
+        title: 'Something went wrong',
+        description: message,
+      })
+    }
   }
 
   const cleanFormErrors = (open: boolean) => {
@@ -127,7 +112,7 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                         <FormControl>
                           <Input
                             className="w-full"
-                            disabled={isLoading}
+                            disabled={isCreating}
                             placeholder="US Dollar"
                             id="verbalName"
                             {...field}
@@ -147,7 +132,7 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                         <FormControl>
                           <Input
                             className="w-full"
-                            disabled={isLoading}
+                            disabled={isCreating}
                             placeholder="$"
                             id="sign"
                             {...field}
@@ -169,7 +154,7 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                         <FormControl>
                           <Input
                             className="w-full"
-                            disabled={isLoading}
+                            disabled={isCreating}
                             placeholder="USD"
                             id="code"
                             {...field}
@@ -191,13 +176,13 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                               id="isDefault"
                               checked={field.value}
                               onCheckedChange={field.onChange}
-                              disabled={isLoading}
+                              disabled={isCreating}
                             />
                             <Label htmlFor="isDefault">make it default</Label>
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger>
-                                  <Info className="text-black h-4 w-4"/>
+                                  <Info className="text-black h-4 w-4" />
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p>Making this currency as default <br />will make current default currency as non-default</p>
@@ -222,7 +207,7 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                         <Textarea
                           placeholder="Any comments"
                           className="resize-none"
-                          disabled={isLoading}
+                          disabled={isCreating}
                           {...field}
                         />
                       </FormControl>

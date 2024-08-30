@@ -99,68 +99,68 @@ const Index: React.FC = () => {
         <span className="text-xl font-semibold">Currencies</span>
         <div>
           {!!regularCurrencies.length && <AddRatesForm currencies={currencies} />}
-          <AddForm open={isAddCurrencyOpen} handleClose={closeAddCurrencyForm} />
+          <AddForm handleClose={closeAddCurrencyForm} />
         </div>
       </div>
-      { !currencies.length
+      {!currencies.length
         ? noCurrencies
         : (
-        <div className="flex flex-col items-center">
-          <div className="flex items-center w-2/3 justify-center gap-3 p-1 mb-2 bg-white border rounded">
-            <span className="text-xl">Base currency:</span>
-            <span className="text-xl font-semibold">{baseCurrency.verbalName}</span>
-            <Button className="h-6" onClick={() => openEditCurrencyForm(baseCurrency.uuid)}>Edit</Button>
-          </div>
-          {!!regularCurrencies.length && (
-            <div className="flex gap-3 w-full nowrap overflow-x-scroll p-2">
-              {regularCurrencies.map((item: Currency, index: number) => (
-                !item.isBase && currencyCard(item, index)
-              ))}
+          <div className="flex flex-col items-center">
+            <div className="flex items-center w-2/3 justify-center gap-3 p-1 mb-2 bg-white border rounded">
+              <span className="text-xl">Base currency:</span>
+              <span className="text-xl font-semibold">{baseCurrency.verbalName}</span>
+              <Button className="h-6" onClick={() => openEditCurrencyForm(baseCurrency.uuid)}>Edit</Button>
             </div>
-          )}
-          {
-            (selectedCurrencies.length > 0)
-              ? (
-              <div className="flex flex-col mt-10 justify-center w-full">
-                <div className="flex justify-between">
-                  <div className="flex gap-2 items-center pl-10">
-                    <span className="text-sm font-semibold">Show data for</span>
-                    <Select
-                      defaultValue={period || 'month'}
-                      onValueChange={changeChartPeriod}
-                    >
-                      <SelectTrigger className="relative bg-white w-40">
-                        <SelectValue placeholder="Select period" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Period</SelectLabel>
-                          <SelectItem value="month">Month</SelectItem>
-                          <SelectItem value="quarter">3 months</SelectItem>
-                          <SelectItem value="biannual">6 months</SelectItem>
-                          <SelectItem value="annual">Year</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div>
-                  <CurrencyChart
-                    data={chartRates}
-                    isLoading={isChartLoading}
-                    currencies={selectedCurrencies}
-                    period={period}
-                    changePeriod={changeChartPeriod}
-                  />
-                </div>
+            {!!regularCurrencies.length && (
+              <div className="flex gap-3 w-full nowrap overflow-x-scroll p-2">
+                {regularCurrencies.map((item: Currency, index: number) => (
+                  !item.isBase && currencyCard(item, index)
+                ))}
               </div>
+            )}
+            {
+              (selectedCurrencies.length > 0)
+                ? (
+                  <div className="flex flex-col mt-10 justify-center w-full">
+                    <div className="flex justify-between">
+                      <div className="flex gap-2 items-center pl-10">
+                        <span className="text-sm font-semibold">Show data for</span>
+                        <Select
+                          defaultValue={period || 'month'}
+                          onValueChange={changeChartPeriod}
+                        >
+                          <SelectTrigger className="relative bg-white w-40">
+                            <SelectValue placeholder="Select period" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Period</SelectLabel>
+                              <SelectItem value="month">Month</SelectItem>
+                              <SelectItem value="quarter">3 months</SelectItem>
+                              <SelectItem value="biannual">6 months</SelectItem>
+                              <SelectItem value="annual">Year</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div>
+                      <CurrencyChart
+                        data={chartRates}
+                        isLoading={isChartLoading}
+                        currencies={selectedCurrencies}
+                        period={period}
+                        changePeriod={changeChartPeriod}
+                      />
+                    </div>
+                  </div>
                 )
-              : !!regularCurrencies.length && (
-              <span className="text-xl mt-10">Click on currency to view the chart</span>
+                : !!regularCurrencies.length && (
+                  <span className="text-xl mt-10">Click on currency to view the chart</span>
                 )
-          }
-        </div>
-          )}
+            }
+          </div>
+        )}
       <EditForm uuid={activeCurrency} open={isEditCurrencyOpen} setOpen={handleCloseModals} />
       <ConfirmDeleteForm uuid={activeCurrency} open={isDeleteCurrencyOpen} handleClose={handleCloseModals} />
     </div>

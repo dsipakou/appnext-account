@@ -1,5 +1,4 @@
 import React from 'react'
-import axios from 'axios'
 import { useSWRConfig } from 'swr'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,7 +9,7 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog'
 import { useToast } from '@/components/ui/use-toast'
-import { useCurrencies } from '@/hooks/currencies'
+import { useCurrencies, useDeleteCurrency } from '@/hooks/currencies'
 import { Currency } from '../types'
 
 interface Types {
@@ -21,10 +20,10 @@ interface Types {
 
 const ConfirmDeleteForm: React.FC<Types> = ({ open = false, uuid, handleClose }) => {
   const [currency, setCurrency] = React.useState<Currency>()
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const { data: currencies = [] } = useCurrencies()
   const { mutate } = useSWRConfig()
   const { toast } = useToast()
+  const { trigger: deleteCurrency, isMutating: isDeleting } = useDeleteCurrency(uuid)
 
   React.useEffect(() => {
     if (!currencies.length) return
@@ -36,34 +35,18 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open = false, uuid, handleClose })
   const handleDelete = () => {
     if (currency == null) return
 
-    setIsLoading(true)
-    axios
-      .delete(`currencies/${currency.uuid}`)
-      .then(
-        res => {
-          if (res.status === 204) {
-            mutate('currencies/')
-            handleClose()
-            toast({
-              title: 'Deleted successfully'
-            })
-          } else {
-            // TODO: handle errors [non-empty parent,]
-          }
-        }
-      )
-      .catch(
-        (err) => {
-          toast({
-            title: 'Please, try again'
-          })
-        }
-      )
-      .finally(
-        () => {
-          setIsLoading(false)
-        }
-      )
+    try {
+      await deleteCurrency()
+      mutate('currencies/')
+      handleClose()
+      toast({
+        title: 'Deleted successfully'
+      })
+    } catch (error) {
+      toast({
+        title: 'Please, try again'
+      })
+    }
   }
 
   return (
@@ -75,8 +58,8 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open = false, uuid, handleClose })
           You are about to delete {currency?.code} currency
         </p>
         <DialogFooter>
-          <Button disabled={isLoading} variant="secondary" onClick={handleClose}>Cancel</Button>
-          <Button disabled={isLoading} variant="destructive" onClick={handleDelete}>Delete</Button>
+          <Button disabled={isDeleting} variant="secondary" onClick={handleClose}>Cancel</Button>
+          <Button disabled={isDeleting} variant="destructive" onClick={handleDelete}>Delete</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

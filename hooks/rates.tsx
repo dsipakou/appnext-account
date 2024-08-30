@@ -1,7 +1,8 @@
-import axios from 'axios';
+import useSWRMutation from 'swr/mutation'
 import useSWRImmutable from 'swr/immutable'
 import { Response } from './types';
 import { AvailableRate } from '@/components/rates/types'
+import { fetchReq, postReq } from '@/plugins/axios'
 
 export interface RateResponse {
   uuid: string
@@ -24,11 +25,9 @@ export interface ChartResponse {
   data: ChartItem[]
 }
 
-const fetcher = (url: string) => axios.get(url).then(res => res.data);
-
 export const useRatesChart = (period: number = 30): Response<ChartResponse[]> => {
   const url = `rates/chart/?range=${period}`;
-  const { data, error, isLoading } = useSWRImmutable(url, fetcher);
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq)
 
   return {
     data,
@@ -38,9 +37,19 @@ export const useRatesChart = (period: number = 30): Response<ChartResponse[]> =>
   } as Response<ChartResponse[]>;
 };
 
+export const useCreateBatchedRates = () => {
+  const { trigger, isMutating } = useSWRMutation("rates/batched/", postReq, { revalidate: true })
+
+  return {
+    trigger,
+    isMutating,
+  }
+}
+
+
 export const useRates = (limit: number = 5): Response<RateResponse[]> => {
   const url: string = `rates?limit=${limit}`;
-  const { data, error, isLoading } = useSWRImmutable(url, fetcher);
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq);
 
   return {
     data,
@@ -52,7 +61,7 @@ export const useRates = (limit: number = 5): Response<RateResponse[]> => {
 
 export const useRatesOnDate = (date: string): Response<RateResponse[]> => {
   const url: string = `rates/day/${date}`
-  const { data, error, isLoading } = useSWRImmutable(url, fetcher);
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq);
 
   return {
     data,
@@ -63,7 +72,7 @@ export const useRatesOnDate = (date: string): Response<RateResponse[]> => {
 }
 
 export const useAvailableRates = (date: string): Response<AvailableRate[]> => {
-  const { data, error, isLoading } = useSWRImmutable(date ? `rates/available?date=${date}` : null, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(date ? `rates/available?date=${date}` : null, fetchReq)
 
   return {
     data,

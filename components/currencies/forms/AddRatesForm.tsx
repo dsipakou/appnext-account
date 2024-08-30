@@ -1,6 +1,5 @@
 import React from 'react'
 import InputMask from 'react-input-mask'
-import axios from 'axios'
 import { useSWRConfig } from 'swr'
 import { useForm } from 'react-hook-form'
 import { useToast } from '@/components/ui/use-toast'
@@ -22,8 +21,9 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { useRatesOnDate, RateResponse } from '@/hooks/rates'
+import { useRatesOnDate, useCreateBatchedRates, RateResponse } from '@/hooks/rates'
 import { getFormattedDate } from '@/utils/dateUtils'
+import { extractErrorMessage } from '@/utils/stringUtils'
 import { Currency, RatePostRequest, RateItemPostRequest } from '../types'
 
 interface Types {
@@ -38,10 +38,9 @@ interface FormData {
 const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
   const { mutate } = useSWRConfig()
   const [selectedDate, setSelectedDate] = React.useState<Date>(new Date())
-  const [errors, setErrors] = React.useState<string[]>([])
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const form = useForm<FormData>()
   const { data: ratesOnDate = [], url } = useRatesOnDate(getFormattedDate(selectedDate))
+  const { trigger: createBatchedRates, isMutating: isCreating } = useCreateBatchedRates()
 
   const { toast } = useToast()
 
@@ -93,39 +92,24 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
     return requestPayload
   }
 
-  const handleSave = (formData: FormData): void => {
-    setIsLoading(true)
-
+  const handleSave = async (formData: FormData): void => {
     const payload = prepareSaveRequest(formData)
 
-    axios.post('rates/batched/', {
-      ...payload
-    }).then(
-      res => {
-        if (res.status === 200) {
-          mutate(url)
-          toast({
-            title: 'Saved!'
-          })
-        } else {
-          // TODO: handle errors
-        }
-      }
-    ).catch(
-      (error) => {
-        const errRes = error.response.data
-        for (const prop in errRes) {
-          toast({
-            variant: 'destructive',
-            title: 'Something went wrong',
-            description: prop
-          })
-          setErrors(errRes[prop])
-        }
-      }
-    ).finally(() => {
-      setIsLoading(false)
-    })
+    try {
+      await createBatchedRates(payload)
+      //TODO: does not mutating
+      mutate(url)
+      toast({
+        title: 'Saved!'
+      })
+    } catch (error) {
+      const message = extractErrorMessage(error)
+      toast({
+        variant: 'destructive',
+        title: 'Something went wrong',
+        description: message,
+      })
+    }
   }
 
   return (
@@ -141,32 +125,32 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
           <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
             <div className="flex space-y-3">
               <div className="flex flex-col space-y-2 w-1/3">
-              {
-                currencies.map((item: Currency) => (!item.isBase && (
-                  <div className="flex" key={item.uuid}>
-                    <FormField
-                      control={form.control}
-                      name={item.uuid}
-                      render={({ field }) => (
-                        <FormItem className="flex items-center gap-2">
-                          <FormControl>
-                            <InputMask
-                              mask='9.9999'
-                              disabled={isLoading}
-                              {...field}
-                            >
-                              {() => (
-                                <Input className="w-20" />
-                              )}
-                            </InputMask>
-                          </FormControl>
-                          <FormLabel>{item.sign}</FormLabel>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                )))
-              }
+                {
+                  currencies.map((item: Currency) => (!item.isBase && (
+                    <div className="flex" key={item.uuid}>
+                      <FormField
+                        control={form.control}
+                        name={item.uuid}
+                        render={({ field }) => (
+                          <FormItem className="flex items-center gap-2">
+                            <FormControl>
+                              <InputMask
+                                mask='9.9999'
+                                disabled={isCreating}
+                                {...field}
+                              >
+                                {() => (
+                                  <Input className="w-20" />
+                                )}
+                              </InputMask>
+                            </FormControl>
+                            <FormLabel>{item.sign}</FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )))
+                }
               </div>
               <div>
                 <FormField
@@ -176,7 +160,7 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
                     <FormItem>
                       <FormControl>
                         <Calendar
-                          disabled={isLoading}
+                          disabled={isCreating}
                           mode="single"
                           selected={field.value}
                           onSelect={changeDate}
@@ -190,7 +174,7 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
                 />
               </div>
             </div>
-            <Button disabled={isLoading} variant="default" type="submit">Save</Button>
+            <Button disabled={isCreating} variant="default" type="submit">Save</Button>
           </form>
         </Form>
       </DialogContent>
