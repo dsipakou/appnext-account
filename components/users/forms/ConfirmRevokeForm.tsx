@@ -7,9 +7,9 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import axios from 'axios'
 import { useSWRConfig } from 'swr'
 import { useToast } from '@/components/ui/use-toast'
+import { useRevokeInvite } from '@/hooks/users'
 
 interface Types {
   uuid: string
@@ -17,39 +17,23 @@ interface Types {
 
 const ConfirmRevokeForm: React.FC<Types> = ({ uuid }) => {
   const [open, setOpen] = React.useState<boolean>(false)
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const { mutate } = useSWRConfig()
   const { toast } = useToast()
+  const { trigger: revokeInvite, isMutating: isDeleting } = useRevokeInvite(uuid)
 
-  const handleRevoke = (): void => {
-    setIsLoading(true)
-    axios
-      .delete(`users/invite/${uuid}`)
-      .then(
-        res => {
-          if (res.status === 204) {
-            mutate('users/invite/')
-            toast({
-              title: 'Invite revoked!'
-            })
-          } else {
-            // TODO: handle errors [non-empty parent,]
-          }
-        }
-      )
-      .catch(
-        (err) => {
-          toast({
-            variant: 'destructive',
-            title: 'Something went wrong'
-          })
-        }
-      )
-      .finally(
-        () => {
-          setIsLoading(false)
-        }
-      )
+  const handleRevoke = async (): void => {
+    try {
+      await revokeInvite()
+      mutate('users/invite/')
+      toast({
+        title: 'Invite revoked!'
+      })
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Something went wrong'
+      })
+    }
   }
 
   return (
@@ -63,8 +47,8 @@ const ConfirmRevokeForm: React.FC<Types> = ({ uuid }) => {
           Are you sure you want to revoke the invite?
         </p>
         <DialogFooter>
-          <Button disabled={isLoading} variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
-          <Button disabled={isLoading} variant="destructive" onClick={handleRevoke}>Revoke</Button>
+          <Button disabled={isDeleting} variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button disabled={isDeleting} variant="destructive" onClick={handleRevoke}>Revoke</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

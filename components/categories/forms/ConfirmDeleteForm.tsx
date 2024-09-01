@@ -51,7 +51,6 @@ const ConfirmDeleteForm: React.FC<Types> = ({ uuid }) => {
       })
     } catch (error) {
       const message = extractErrorMessage(error)
-      console.log(message)
       if (message[0].includes('There are transactions assigned')) {
         toast({
           variant: 'destructive',

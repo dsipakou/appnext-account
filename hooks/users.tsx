@@ -2,7 +2,7 @@ import useSWRImmutable from 'swr/immutable';
 import useSWRMutation from 'swr/mutation';
 import { Response } from './types';
 import { Invite } from '@/components/users/types'
-import { fetchReq, postReq } from '@/plugins/axios';
+import { fetchReq, deleteReq, postReq } from '@/plugins/axios';
 
 export interface UserResponse {
   uuid: string
@@ -38,15 +38,6 @@ export const useCreateUser = () => {
   }
 }
 
-export const useCreateInvite = () => {
-  const { trigger, isMutating } = useSWRMutation('users/invite/', postReq, { revalidate: true })
-
-  return {
-    trigger,
-    isMutating,
-  }
-}
-
 export const useInvites = (): Response<Invite[]> => {
   const url = 'users/invite/'
   const { data, error, isLoading } = useSWRImmutable(url, fetchReq)
@@ -56,4 +47,22 @@ export const useInvites = (): Response<Invite[]> => {
     isLoading,
     isError: error,
   } as Response<Invite[]>
+}
+
+export const useCreateInvite = () => {
+  const { trigger, isMutating } = useSWRMutation('users/invite/', postReq, { revalidate: true })
+
+  return {
+    trigger,
+    isMutating,
+  }
+}
+
+export const useRevokeInvite = (uuid: string) => {
+  const { trigger, isMutating } = useSWRMutation(`users/invite/${uuid}`, deleteReq)
+
+  return {
+    trigger,
+    isMutating,
+  }
 }
