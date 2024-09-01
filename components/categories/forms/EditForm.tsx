@@ -1,7 +1,6 @@
 import React from 'react'
 import { X } from 'lucide-react'
 import * as z from 'zod'
-import axios from 'axios'
 import EmojiPicker from 'emoji-picker-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
@@ -40,7 +39,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/components/ui/use-toast'
 import { useSWRConfig } from 'swr'
 import { Category, CategoryResponse } from '@/components/categories/types'
-import { useCategories } from '@/hooks/categories'
+import { useCategories, useUpdateCategory } from '@/hooks/categories'
+import { extractErrorMessage } from '@/utils/stringUtils'
 
 interface Types {
   uuid: string
@@ -56,11 +56,11 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
   const { mutate } = useSWRConfig()
   const { data: categories = [] } = useCategories()
   const { toast } = useToast()
+  const { trigger: updateCategory, isMutating: isUpdating } = useUpdateCategory(uuid)
 
   const [parentList, setParentList] = React.useState<Category[]>([])
   const [selectedEmoji, setSelectedEmoji] = React.useState<string | null>(null)
   const [errors, setErrors] = React.useState<string[]>([])
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema)
@@ -84,38 +84,24 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
     setParentList(_parentCategories)
   }, [categories, uuid])
 
-  const handleSave = (payload: z.infer<typeof formSchema>) => {
-    setIsLoading(true)
-
-    axios
-      .patch(`categories/${uuid}/`, {
-        ...payload,
+  const handleSave = async (payload: z.infer<typeof formSchema>) => {
+    try {
+      await updateCategory({
+        payload,
         icon: selectedEmoji,
       })
-      .then((res) => {
-        if (res.status === 200) {
-          mutate('categories/')
-          toast({
-            title: 'Category updated'
-          })
-        } else {
-          // TODO: handle errors
-        }
+      mutate('categories/')
+      toast({
+        title: 'Category updated'
       })
-      .catch((error) => {
-        const errRes = error.response.data
-        for (const prop in errRes) {
-          setErrors(errRes[prop])
-        }
-        toast({
-          variant: 'destructive',
-          title: 'Something went wrong',
-          description: errors.toString()
-        })
+    } catch (error) {
+      const message = extractErrorMessage(error)
+      toast({
+        variant: 'destructive',
+        title: 'Something went wrong',
+        description: message,
       })
-      .finally(() => {
-        setIsLoading(false)
-      })
+    }
   }
 
   return (
@@ -164,7 +150,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                     <FormItem>
                       <FormLabel>Category name</FormLabel>
                       <FormControl>
-                        <Input className="w-full" disabled={isLoading} id="name" {...field} />
+                        <Input className="w-full" disabled={isUpdating} id="name" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -182,7 +168,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
-                            disabled={isLoading}
+                            disabled={isUpdating}
                           >
                             <SelectTrigger className="relative w-full">
                               <SelectValue placeholder="Choose parent category" />
@@ -212,7 +198,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                         <Textarea
                           placeholder="Add description if you want"
                           className="resize-none"
-                          disabled={isLoading}
+                          disabled={isUpdating}
                           {...field}
                         />
                       </FormControl>
@@ -222,7 +208,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                 />
               </div>
             </div>
-            <Button disabled={isLoading} type="submit">Save</Button>
+            <Button disabled={isUpdating} type="submit">Save</Button>
           </form>
         </Form>
       </DialogContent>

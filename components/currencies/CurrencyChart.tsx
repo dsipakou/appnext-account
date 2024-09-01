@@ -22,7 +22,7 @@ const CurrencyChart: FC<Types> = ({
   const [series, setSeries] = useState([])
 
   useEffect(() => {
-    if (!chartData || isLoading) return
+    if (!chartData || !chartData[0] || isLoading) return
 
     setOptions({
       chart: {
