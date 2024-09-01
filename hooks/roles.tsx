@@ -1,16 +1,15 @@
-import axios from 'axios';
 import useSWRImmutable from 'swr/immutable';
+import useSWRMutation from 'swr/mutation';
 import { Response } from './types';
+import { fetchReq, patchReq } from '@/plugins/axios';
 
-const fetcher = (url: string) => axios.get(url).then(res => res.data);
-
-interface Roles {
+export interface Roles {
   name: string
 }
 
 export const useRoles = (): Response<Roles[]> => {
   const url = 'roles/';
-  const { data, error, isLoading } = useSWRImmutable(url, fetcher);
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq);
 
   return {
     data,
@@ -18,3 +17,12 @@ export const useRoles = (): Response<Roles[]> => {
     isError: error,
   } as Response<Roles[]>;
 };
+
+export const useUpdateRole = (uuid: string) => {
+  const { trigger } = useSWRMutation(`users/role/${uuid}/`, patchReq)
+
+  return {
+    trigger,
+  }
+}
+

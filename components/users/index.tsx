@@ -1,10 +1,13 @@
 import React from 'react'
-import axios from 'axios'
 import { useSWRConfig } from 'swr'
 import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { useInvites, UserResponse, useUsers } from '@/hooks/users'
-import { useRoles, Roles } from '@/hooks/roles'
+import {
+  useRoles,
+  useUpdateRole,
+  Roles,
+} from '@/hooks/roles'
 import { User, Invite } from '@/components/users/types'
 import {
   Select,
@@ -25,64 +28,54 @@ interface RoleMap {
 
 const Index: React.FC = () => {
   const [selectedRoles, setSelectedRoles] = React.useState<RoleMap[]>({})
+  const [uuid, setUuid] = React.useState<string>('')
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const [errors, setErrors] = React.useState<string>('')
   const { data: users = [] } = useUsers()
   const { data: { user: authUser } } = useSession()
-  const { data: roles = []} = useRoles()
+  const { data: roles = [] } = useRoles()
   const { data: invites = [] } = useInvites()
 
   const { toast } = useToast()
   const { mutate } = useSWRConfig()
+  const { trigger: update } = useUpdateRole(uuid)
 
   const me = users.find((item: User) => item.username === authUser.username)
 
   const members = users.filter((item: User) => item.username !== authUser.username)
 
-  React.useEffect (() => {
+  React.useEffect(() => {
     if (!members.length) return
 
     users.forEach((item: UserResponse) => {
-      setSelectedRoles((state) => ({...state, [item.uuid]: item.role}))
+      setSelectedRoles((state) => ({ ...state, [item.uuid]: item.role }))
     })
   }, [users])
 
   const isYou = (user: User) => user.username === authUser.username
 
   const selectRole = (uuid: string, role: string) => {
-    setSelectedRoles((state) => ({...state, [uuid]: role}))
+    setSelectedRoles((state) => ({ ...state, [uuid]: role }))
   }
 
-  const updateRole = (userUuid: string) => {
-    setIsLoading(true)
+  const updateRole = async (userUuid: string) => {
     if (!selectedRoles[userUuid]) return
 
-    axios.patch(`users/role/${userUuid}/`, {
-      role: selectedRoles[userUuid]
-    }).then((res) => {
-      if (res.status === 200) {
-        mutate('users/')
-        toast({
-          title: 'User role updated'
-        })
-      } else {
-        // TODO: handle errors
-      }
-    })
-    .catch((error) => {
-      const errRes = error.response.data
-      for (const prop in errRes) {
-        setErrors(errRes[prop])
-      }
+    try {
+      setIsLoading(true)
+      await update({ role: selectedRoles[userUuid] })
+      mutate('users/')
+      toast({
+        title: 'User role updated'
+      })
+    } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Failed',
-        description: errors.toString()
+        description: 'Something went wrong, please try again later.'
       })
-    })
-    .finally(() => {
+    } finally {
       setIsLoading(false)
-    })
+    }
   }
 
   return (
@@ -92,7 +85,7 @@ const Index: React.FC = () => {
         <AddForm />
       </div>
       <div className="flex flex-col w-full mt-6 px-20 gap-4">
-        { (me != null) && (
+        {(me != null) && (
           <div className="flex flex-col bg-white p-2 rounded-md w-full drop-shadow">
             <span className="text-lg font-semibold p-2">Workspace owner</span>
             <div className="flex my-1 w-full bg-slate-100 justify-left items-center p-4 gap-4">
@@ -101,7 +94,7 @@ const Index: React.FC = () => {
             </div>
           </div>
         )}
-        { members && (
+        {members && (
           <div className="flex flex-col bg-white p-2 rounded-md w-full drop-shadow">
             <span className="text-lg p-2">Members</span>
             {members.map((item: UserResponse) => (
@@ -110,10 +103,10 @@ const Index: React.FC = () => {
                   <span className="text-lg font-semibold">{item.username}</span>
                   <span className="italic text-sky-500">{item.role}</span>
                 </div>
-                {isYou(item) ? 
+                {isYou(item) ?
                   (
                     <span className="text-md">(this is you)</span>
-                  ) : 
+                  ) :
                   (
                     <div className="flex items-center gap-3">
                       <Select
@@ -134,7 +127,7 @@ const Index: React.FC = () => {
                       </Select>
                       <Button
                         disabled={selectedRoles[item.uuid] === item.role || isLoading}
-                        onClick={() => updateRole(item.uuid)}
+                        onClick={() => { setUuid(item.uuid); updateRole(item.uuid) }}
                       >
                         Update role
                       </Button>
@@ -145,7 +138,7 @@ const Index: React.FC = () => {
             ))}
           </div>
         )}
-        { invites && (
+        {invites && (
           <div className="flex flex-col bg-white divide-y">
             <span className="text-lg p-2">Invites</span>
             {invites.length == 0 && (

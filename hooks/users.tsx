@@ -2,7 +2,7 @@ import useSWRImmutable from 'swr/immutable';
 import useSWRMutation from 'swr/mutation';
 import { Response } from './types';
 import { Invite } from '@/components/users/types'
-import { fetchReq, deleteReq, postReq } from '@/plugins/axios';
+import { fetchReq, deleteReq, postReq, patchReq } from '@/plugins/axios';
 
 export interface UserResponse {
   uuid: string
@@ -35,6 +35,14 @@ export const useCreateUser = () => {
   return {
     trigger,
     isMutating,
+  }
+}
+
+export const useUpdateRole = (uuid: string) => {
+  const { trigger } = useSWRMutation(`users/role/${uuid}/`, patchReq)
+
+  return {
+    trigger,
   }
 }
 
