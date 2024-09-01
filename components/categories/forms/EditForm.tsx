@@ -60,7 +60,6 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
 
   const [parentList, setParentList] = React.useState<Category[]>([])
   const [selectedEmoji, setSelectedEmoji] = React.useState<string | null>(null)
-  const [errors, setErrors] = React.useState<string[]>([])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema)

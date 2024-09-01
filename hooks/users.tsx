@@ -1,7 +1,8 @@
-import axios from 'axios';
 import useSWRImmutable from 'swr/immutable';
+import useSWRMutation from 'swr/mutation';
 import { Response } from './types';
 import { Invite } from '@/components/users/types'
+import { fetchReq, postReq } from '@/plugins/axios';
 
 export interface UserResponse {
   uuid: string
@@ -16,11 +17,10 @@ export interface UserResponse {
   dateJoined: string
 }
 
-const fetcher = (url: string) => axios.get(url).then(res => res.data);
 
 export const useUsers = (): Response<UserResponse[]> => {
   const url = 'users/';
-  const { data, error, isLoading } = useSWRImmutable(url, fetcher);
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq);
 
   return {
     data,
@@ -29,9 +29,27 @@ export const useUsers = (): Response<UserResponse[]> => {
   } as Response<UserResponse[]>;
 };
 
+export const useCreateUser = () => {
+  const { trigger, isMutating } = useSWRMutation('users/', postReq, { revalidate: true })
+
+  return {
+    trigger,
+    isMutating,
+  }
+}
+
+export const useCreateInvite = () => {
+  const { trigger, isMutating } = useSWRMutation('users/invite/', postReq, { revalidate: true })
+
+  return {
+    trigger,
+    isMutating,
+  }
+}
+
 export const useInvites = (): Response<Invite[]> => {
   const url = 'users/invite/'
-  const { data, error, isLoading } = useSWRImmutable(url, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq)
 
   return {
     data,

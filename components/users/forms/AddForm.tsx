@@ -1,7 +1,5 @@
 import React from 'react'
-import axios from 'axios'
 import * as z from 'zod'
-import { useSWRConfig } from 'swr'
 import { useForm } from 'react-hook-form'
 import { useToast } from '@/components/ui/use-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -22,20 +20,20 @@ import {
   FormLabel
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { useCreateInvite } from '@/hooks/users'
+import { extractErrorMessage } from '@/utils/stringUtils'
 
 const formSchema = z.object({
   email: z.string().email()
 })
 
 const AddForm: React.FC = () => {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema)
   })
 
   const { toast } = useToast()
-  const { mutate } = useSWRConfig()
+  const { trigger: createInvite, isMutating: isCreating } = useCreateInvite()
 
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
@@ -43,41 +41,27 @@ const AddForm: React.FC = () => {
     }
   }
 
-  const handleSave = (payload: z.infer<typeof formSchema>) => {
-    setIsLoading(true)
-
-    axios.post('users/invite/', {
-      ...payload
-    }).then(
-      res => {
-        if (res.status === 201) {
-          mutate('users/invite/')
-        }
+  const handleSave = async (payload: z.infer<typeof formSchema>) => {
+    try {
+      await createInvite(payload)
+      toast({
+        title: 'Saved!'
+      })
+    } catch (error) {
+      const message = extractErrorMessage(error)
+      if (JSON.stringify(message).includes('unique set')) {
         toast({
-          title: 'Saved!'
+          variant: 'destructive',
+          title: 'You have already sent invite for this user'
+        })
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Something went wrong',
+          description: JSON.stringify(message),
         })
       }
-    ).catch(
-      (error) => {
-        const errRes = error.response.data
-        for (const prop in errRes) {
-          if (prop === 'nonFieldErrors' && errRes[prop].indexOf('unique set')) {
-            toast({
-              variant: 'destructive',
-              title: 'You have already sent invite for this user'
-            })
-          } else {
-            toast({
-              variant: 'destructive',
-              title: 'Something went wrong',
-              description: errRes[prop]
-            })
-          }
-        }
-      }
-    ).finally(() => {
-      setIsLoading(false)
-    })
+    }
   }
 
   return (
@@ -102,7 +86,7 @@ const AddForm: React.FC = () => {
                       <FormControl>
                         <Input
                           className="w-full"
-                          disabled={isLoading}
+                          disabled={isCreating}
                           placeholder="user@example.com"
                           id="verbalName"
                           {...field}

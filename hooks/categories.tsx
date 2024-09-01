@@ -1,4 +1,3 @@
-import axios from 'axios';
 import useSWRImmutable from 'swr/immutable'
 import useSWRMutation from 'swr/mutation'
 import { CategoryType } from '@/components/categories/types';
