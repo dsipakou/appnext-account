@@ -1,10 +1,8 @@
 import React from 'react'
-import axios from 'axios'
 import { useSWRConfig } from 'swr'
 import EmojiPicker from 'emoji-picker-react'
 import * as z from 'zod'
 import { X, Pencil } from 'lucide-react'
-import Link from 'next/link'
 import {
   Accordion,
   AccordionContent,
@@ -40,7 +38,8 @@ import { Separator } from '@/components/ui/separator'
 import { ConfirmDeleteForm } from '@/components/categories/forms'
 import { useToast } from '@/components/ui/use-toast'
 import { ReassignTransactionsForm } from '@/components/categories/forms'
-import { on } from 'events'
+import { useUpdateCategory } from '@/hooks/categories'
+import { extractErrorMessage } from '@/utils/stringUtils'
 
 interface Types {
   parentCategories: Category[]
@@ -62,25 +61,25 @@ const popupSchema = z.object({
 
 const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
   const [errors, setErrors] = React.useState<string>('')
+  const [uuid, setUuid] = React.useState<string>('')
   const [categoryName, setCategoryName] = React.useState<string>('')
   const [parent, setParent] = React.useState<string | null>('')
   const [selectedEmoji, setSelectedEmoji] = React.useState<string | null>(null)
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
   const { toast } = useToast()
   const { mutate } = useSWRConfig()
+  const { trigger: updateCategory, isMutating: isUpdating } = useUpdateCategory(uuid)
 
   const onOpenPopup = (open: boolean, category: Category) => {
     if (open) {
+      setUuid(category.uuid)
       setCategoryName(category.name)
       setParent(category.parent)
       setSelectedEmoji(category.icon)
     }
   }
 
-  const handleSave = (payload: PopupTypes, originalName: string) => {
-    setIsLoading(true)
-
+  const handleSave = async (payload: PopupTypes, originalName: string) => {
     const validatedPayload = popupSchema.safeParse(payload)
 
     if (!validatedPayload.success) {
@@ -95,41 +94,27 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
       })
     }
 
-    console.log(validatedPayload.data, originalName)
-
     if (validatedPayload.data.name === originalName) {
       delete validatedPayload.data.name
     }
 
-    axios
-      .patch(`categories/${payload.uuid}/`, {
+    try {
+      await updateCategory({
         ...validatedPayload.data,
-        icon: selectedEmoji,
+        icon: selectedEmoji
       })
-      .then((res) => {
-        if (res.status === 200) {
-          mutate('categories/')
-          toast({
-            title: 'Category updated'
-          })
-        } else {
-          // TODO: handle errors
-        }
+      mutate('categories/')
+      toast({
+        title: 'Category updated'
       })
-      .catch((error) => {
-        const errRes = error.response.data
-        for (const prop in errRes) {
-          setErrors(errRes[prop])
-        }
-        toast({
-          variant: 'destructive',
-          title: 'Something went wrong',
-          description: errors.toString()
-        })
+    } catch (error) {
+      const message = extractErrorMessage(error)
+      toast({
+        variant: 'destructive',
+        title: 'Something went wrong',
+        description: message,
       })
-      .finally(() => {
-        setIsLoading(false)
-      })
+    }
   }
 
   const parentEditorPopup = () => {
@@ -264,7 +249,7 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
                                 <Select
                                   onValueChange={setParent}
                                   defaultValue={category.parent}
-                                  disabled={isLoading}
+                                  disabled={isUpdating}
                                 >
                                   <SelectTrigger className="relative w-full">
                                     <SelectValue placeholder="Choose parent category" />

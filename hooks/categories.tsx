@@ -35,7 +35,7 @@ export const useCreateCategory = () => {
 }
 
 export const useUpdateCategory = (uuid: string) => {
-  const { trigger, isMutating } = useSWRMutation(`categories/${uuid}/`, postReq, { revalidate: true })
+  const { trigger, isMutating } = useSWRMutation(`categories/${uuid}/`, patchReq, { revalidate: true })
 
   return {
     trigger,

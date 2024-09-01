@@ -87,7 +87,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
   const handleSave = async (payload: z.infer<typeof formSchema>) => {
     try {
       await updateCategory({
-        payload,
+        ...payload,
         icon: selectedEmoji,
       })
       mutate('categories/')
