@@ -1,8 +1,10 @@
 import axios from 'axios';
 import useSWRImmutable from 'swr/immutable'
+import useSWRMutation from 'swr/mutation'
 import { Response } from './types';
 import { TransactionsReportResponse } from '@/components/transactions/types'
 import { ChartData } from '@/components/reports/types'
+import { fetchReq, postReq } from '@/plugins/axios';
 
 import {
   Sorting,
@@ -16,8 +18,6 @@ interface TransactionRequest {
   dateFrom?: string
   dateTo?: string
 }
-const fetcher = (url: string) => axios.get(url).then(res => res.data);
-
 export const useTransactions = (
   {
     sorting = 'added',
@@ -32,7 +32,7 @@ export const useTransactions = (
     url += `&dateFrom=${dateFrom}&dateTo=${dateTo}`
   }
 
-  const { data, error, isLoading } = useSWRImmutable(url, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq)
 
   return {
     data,
@@ -42,6 +42,15 @@ export const useTransactions = (
   } as Response<TransactionResponse[]>
 }
 
+export const useCreateTransaction = () => {
+  const { trigger, isMutating } = useSWRMutation('transactions/', postReq, { revalidate: true })
+
+  return {
+    trigger,
+    isMutating,
+  }
+}
+
 export const useTransactionsReport = (
   dateFrom: string,
   dateTo: string,
@@ -49,7 +58,7 @@ export const useTransactionsReport = (
 ): Response<TransactionsReportResponse[]> => {
   const url = `transactions/report?dateFrom=${dateFrom}&dateTo=${dateTo}&currency=${currency}`
 
-  const { data, error, isLoading } = useSWRImmutable(url, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq)
 
   return {
     data,
@@ -71,7 +80,7 @@ export const useTransactionsMonthlyReport = (
     url += `&numberOfDays=${numberOfDays}`
   }
 
-  const { data, error, isLoading } = useSWRImmutable(url, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq)
 
   return {
     data,
@@ -86,7 +95,7 @@ export const useBudgetTransactions = (
 ): Response<TransactionResponse[]> => {
   const url = `transactions/budget/${uuid}/`
 
-  const { data, error, isLoading } = useSWRImmutable(url, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq)
 
   return {
     data,
@@ -99,7 +108,7 @@ export const useBudgetTransactions = (
 export const useLastAddedTransactions = (): Response<TransactionResponse[]> => {
   const url = `transactions/last-added/`
 
-  const { data, error, isLoading } = useSWRImmutable(url, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq)
 
   return {
     data,
@@ -114,7 +123,7 @@ export const useTransaction = (
 ): Response<TransactionResponse> => {
   const url = `transactions/${uuid}/`
 
-  const { data, error, isLoading } = useSWRImmutable(url, fetcher)
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq)
 
   return {
     data,

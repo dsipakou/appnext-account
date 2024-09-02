@@ -40,7 +40,7 @@ const Index: React.FC = () => {
     url: transactionsUrl
   } = useTransactions({
     sorting: 'added',
-    limit: 50,
+    limit: 500,
     dateFrom: getFormattedDate(transactionDate),
     dateTo: getFormattedDate(transactionDate)
   })
