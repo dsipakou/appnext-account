@@ -38,14 +38,6 @@ export const useCreateUser = () => {
   }
 }
 
-export const useUpdateRole = (uuid: string) => {
-  const { trigger } = useSWRMutation(`users/role/${uuid}/`, patchReq)
-
-  return {
-    trigger,
-  }
-}
-
 export const useInvites = (): Response<Invite[]> => {
   const url = 'users/invite/'
   const { data, error, isLoading } = useSWRImmutable(url, fetchReq)

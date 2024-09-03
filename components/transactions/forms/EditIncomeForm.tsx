@@ -1,37 +1,17 @@
 import React from 'react'
-import axios from 'axios'
-import { useSWRConfig } from 'swr'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { useSWRConfig } from 'swr'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form'
+import * as Dlg from '@/components/ui/dialog'
+import * as Frm from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
+import * as Slc from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { useTransaction } from '@/hooks/transactions'
+import { useToast } from '@/components/ui/use-toast'
+import { useTransaction, useUpdateTransaction } from '@/hooks/transactions'
 import { useAccounts } from '@/hooks/accounts'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
@@ -66,10 +46,9 @@ const formSchema = z.object({
 })
 
 const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
-  const { mutate } = useSWRConfig()
   const [selectedDate, setSelectedDate] = React.useState<string>(getFormattedDate(new Date()))
   const [month, setMonth] = React.useState<Date>(new Date())
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const { mutate } = useSWRConfig()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -80,10 +59,13 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
 
   const watchCalendar = form.watch('transactionDate')
 
+  const { toast } = useToast()
+
   const { data: transaction, isLoading: isTransactionLoading } = useTransaction(uuid)
   const { data: accounts = [] } = useAccounts()
   const { data: categories = [] } = useCategories()
   const { data: currencies = [] } = useCurrencies()
+  const { trigger: updateTransaction, isMutating: isUpdating } = useUpdateTransaction(uuid)
 
   const {
     data: availableRates = [],
@@ -119,25 +101,24 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
     }
   }, [watchCalendar])
 
-  const handleSave = (payload: z.infer<typeof formSchema>): void => {
-    setIsLoading(true)
-    axios.patch(`transactions/${uuid}/`, {
-      ...payload,
-      transactionDate: getFormattedDate(payload.transactionDate)
-    }).then(
-      res => {
-        if (res.status === 200) {
-          mutate(url)
-        }
-      }
-    ).catch(
-      (error) => {
-        console.log(`cannot update: ${error}`)
-      }
-    ).finally(() => {
-      setIsLoading(false)
+  const handleSave = async (payload: z.infer<typeof formSchema>): void => {
+    try {
+      await updateTransaction({
+        ...payload,
+        transactionDate: getFormattedDate(payload.transactionDate)
+      })
+      // TODO: wrong url - outcome instead of outcome
+      mutate(url)
+      toast({
+        title: 'Transaction updated',
+      })
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Cannot update transaction',
+        description: 'Something went wrong, please try again later.'
+      })
     }
-    )
   }
 
   const cleanFormErrors = (open: boolean) => {
@@ -149,192 +130,192 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   }
 
   return (
-    <Dialog open={open} onOpenChange={cleanFormErrors}>
-      <DialogContent className="min-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Update income details</DialogTitle>
-        </DialogHeader>
-        <Form {...form}>
+    <Dlg.Dialog open={open} onOpenChange={cleanFormErrors}>
+      <Dlg.DialogContent className="min-w-[600px]">
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Update income details</Dlg.DialogTitle>
+        </Dlg.DialogHeader>
+        <Frm.Form {...form}>
           <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
             <div className="flex flex-col gap-3">
               <div className="flex w-full">
                 <div className="flex sm:w-2/3">
-                  <FormField
+                  <Frm.FormField
                     control={form.control}
                     name="amount"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Amount</FormLabel>
-                        <FormControl>
-                          <Input disabled={isLoading || isTransactionLoading || isRatesLoading} id="amount" autoFocus {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                      <Frm.FormItem>
+                        <Frm.FormLabel>Amount</Frm.FormLabel>
+                        <Frm.FormControl>
+                          <Input disabled={isUpdating || isTransactionLoading || isRatesLoading} id="amount" autoFocus {...field} />
+                        </Frm.FormControl>
+                        <Frm.FormMessage />
+                      </Frm.FormItem>
                     )}
                   />
                 </div>
                 <div className="flex sm:w-1/3">
-                  <FormField
+                  <Frm.FormField
                     control={form.control}
                     name="currency"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Currency</FormLabel>
-                        <FormControl>
-                          <Select
-                            disabled={isLoading || isTransactionLoading || isRatesLoading}
+                      <Frm.FormItem>
+                        <Frm.FormLabel>Currency</Frm.FormLabel>
+                        <Frm.FormControl>
+                          <Slc.Select
+                            disabled={isUpdating || isTransactionLoading || isRatesLoading}
                             onValueChange={field.onChange}
                             value={field.value}
                           >
-                            <SelectTrigger className="relative w-full">
-                              <SelectValue placeholder="Select currency" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectLabel>Currencies</SelectLabel>
+                            <Slc.SelectTrigger className="relative w-full">
+                              <Slc.SelectValue placeholder="Select currency" />
+                            </Slc.SelectTrigger>
+                            <Slc.SelectContent>
+                              <Slc.SelectGroup>
+                                <Slc.SelectLabel>Currencies</Slc.SelectLabel>
                                 {currencies && currencies.map((item: Currency) => {
                                   const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code)
                                   if (rate) {
                                     if (rate.rateDate === selectedDate) {
                                       return (
-                                        <SelectItem key={item.uuid} value={item.uuid}>{item.code}</SelectItem>
+                                        <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.code}</Slc.SelectItem>
                                       )
                                     } else {
                                       return (
-                                        <SelectItem key={item.uuid} value={item.uuid}>{item.code} (old)</SelectItem>
+                                        <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.code} (old)</Slc.SelectItem>
                                       )
                                     }
                                   } else {
                                     return (
-                                      <SelectItem key={item.uuid} value={item.uuid} disabled>{item.code}</SelectItem>
+                                      <Slc.SelectItem key={item.uuid} value={item.uuid} disabled>{item.code}</Slc.SelectItem>
                                     )
                                   }
                                 })}
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                              </Slc.SelectGroup>
+                            </Slc.SelectContent>
+                          </Slc.Select>
+                        </Frm.FormControl>
+                        <Frm.FormMessage />
+                      </Frm.FormItem>
                     )}
                   />
                 </div>
               </div>
               <div className="flex w-full">
                 <div className="flex flex-col w-2/5 gap-4">
-                  <FormField
+                  <Frm.FormField
                     control={form.control}
                     name="category"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Category</FormLabel>
-                        <FormControl>
-                          <Select
-                            disabled={isLoading || isTransactionLoading || isRatesLoading}
+                      <Frm.FormItem>
+                        <Frm.FormLabel>Category</Frm.FormLabel>
+                        <Frm.FormControl>
+                          <Slc.Select
+                            disabled={isUpdating || isTransactionLoading || isRatesLoading}
                             onValueChange={field.onChange}
                             value={field.value}
                           >
-                            <SelectTrigger className="relative w-[180px]">
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectLabel>Categories</SelectLabel>
+                            <Slc.SelectTrigger className="relative w-[180px]">
+                              <Slc.SelectValue placeholder="Select category" />
+                            </Slc.SelectTrigger>
+                            <Slc.SelectContent>
+                              <Slc.SelectGroup>
+                                <Slc.SelectLabel>Categories</Slc.SelectLabel>
                                 {incomeCategories.map((item: Category) => (
-                                  <SelectItem key={item.uuid} value={item.uuid}>
+                                  <Slc.SelectItem key={item.uuid} value={item.uuid}>
                                     <div className="flex gap-1">
                                       {item.icon && <span>{item.icon}</span>}
                                       <span>{item.name}</span>
                                     </div>
-                                  </SelectItem>
+                                  </Slc.SelectItem>
                                 ))}
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                              </Slc.SelectGroup>
+                            </Slc.SelectContent>
+                          </Slc.Select>
+                        </Frm.FormControl>
+                        <Frm.FormMessage />
+                      </Frm.FormItem>
                     )}
                   />
-                  <FormField
+                  <Frm.FormField
                     control={form.control}
                     name="account"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Account</FormLabel>
-                        <FormControl>
-                          <Select
-                            disabled={isLoading || isTransactionLoading || isRatesLoading}
+                      <Frm.FormItem>
+                        <Frm.FormLabel>Account</Frm.FormLabel>
+                        <Frm.FormControl>
+                          <Slc.Select
+                            disabled={isUpdating || isTransactionLoading || isRatesLoading}
                             onValueChange={field.onChange}
                             value={field.value}
                           >
-                            <SelectTrigger className="relative w-[180px]">
-                              <SelectValue placeholder="Select account" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectLabel>Accounts</SelectLabel>
+                            <Slc.SelectTrigger className="relative w-[180px]">
+                              <Slc.SelectValue placeholder="Select account" />
+                            </Slc.SelectTrigger>
+                            <Slc.SelectContent>
+                              <Slc.SelectGroup>
+                                <Slc.SelectLabel>Accounts</Slc.SelectLabel>
                                 {accounts.map((item: AccountResponse) => (
-                                  <SelectItem key={item.uuid} value={item.uuid}>{item.title}</SelectItem>
+                                  <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.title}</Slc.SelectItem>
                                 ))}
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                              </Slc.SelectGroup>
+                            </Slc.SelectContent>
+                          </Slc.Select>
+                        </Frm.FormControl>
+                        <Frm.FormMessage />
+                      </Frm.FormItem>
                     )}
                   />
                 </div>
                 <div className="flex w-3/5 justify-end">
-                  <FormField
+                  <Frm.FormField
                     control={form.control}
                     name="transactionDate"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
+                      <Frm.FormItem>
+                        <Frm.FormControl>
                           <Calendar
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            disabled={(date) => isLoading || isTransactionLoading || isRatesLoading || date < new Date('1900-01-01')}
+                            disabled={(date) => isUpdating || isTransactionLoading || isRatesLoading || date < new Date('1900-01-01')}
                             month={month}
                             onMonthChange={setMonth}
                             weekStartsOn={1}
                             initialFocus
                           />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                        </Frm.FormControl>
+                        <Frm.FormMessage />
+                      </Frm.FormItem>
                     )}
                   />
                 </div>
               </div>
               <div className="flex w-full">
-                <FormField
+                <Frm.FormField
                   control={form.control}
                   name="description"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
+                    <Frm.FormItem>
+                      <Frm.FormControl>
                         <Textarea
-                          disabled={isLoading || isTransactionLoading || isRatesLoading}
+                          disabled={isUpdating || isTransactionLoading || isRatesLoading}
                           placeholder="Any notes for the transaction"
                           className="resize-none"
                           {...field}
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                      </Frm.FormControl>
+                      <Frm.FormMessage />
+                    </Frm.FormItem>
                   )}
                 />
               </div>
             </div>
             <Button type="submit">Save</Button>
           </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+        </Frm.Form>
+      </Dlg.DialogContent>
+    </Dlg.Dialog>
   )
 }
 

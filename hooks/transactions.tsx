@@ -4,7 +4,7 @@ import useSWRMutation from 'swr/mutation'
 import { Response } from './types';
 import { TransactionsReportResponse } from '@/components/transactions/types'
 import { ChartData } from '@/components/reports/types'
-import { fetchReq, postReq } from '@/plugins/axios';
+import { fetchReq, patchReq, postReq } from '@/plugins/axios';
 
 import {
   Sorting,
@@ -44,6 +44,24 @@ export const useTransactions = (
 
 export const useCreateTransaction = () => {
   const { trigger, isMutating } = useSWRMutation('transactions/', postReq, { revalidate: true })
+
+  return {
+    trigger,
+    isMutating,
+  }
+}
+
+export const useUpdateTransaction = (uuid: string) => {
+  const { trigger, isMutating } = useSWRMutation(`transactions/${uuid}/`, patchReq, { revalidate: true })
+
+  return {
+    trigger,
+    isMutating,
+  }
+}
+
+export const useReadLastAddedTransactions = () => {
+  const { trigger, isMutating } = useSWRMutation('transactions/last-added/', postReq, { revalidate: true })
 
   return {
     trigger,
