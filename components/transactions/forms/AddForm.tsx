@@ -74,7 +74,6 @@ interface EditToolbarProps {
 const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   const [user, setUser] = React.useState('')
   const [baseCurrency, setBaseCurrency] = React.useState<string>('')
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const { rows, setRows, rowModesModel, setRowModesModel, url } = props
   const { mutate } = useSWRConfig()
   const { data: { user: authUser } } = useSession()
@@ -136,7 +135,6 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   }
 
   const handleSaveClick = (): void => {
-    setIsLoading(true)
     rows.forEach(async (row: any) => {
       if (row.saved) {
         return
@@ -207,10 +205,10 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
           <span className="text-xl font-semibold">Transactions outcome: {formatMoney(sumOverall)}</span>
         </div>
         <div className="flex justify-end items-center gap-2">
-          <Button variant="destructive" onClick={handleClearClick} className="h-7" disabled={isLoading || isEditMode || isListEmpty}>
+          <Button variant="destructive" onClick={handleClearClick} className="h-7" disabled={isCreating || isEditMode || isListEmpty}>
             Clear list
           </Button>
-          <Button onClick={handleSaveClick} className="h-7" disabled={isLoading || isEditMode || isListEmpty || isAllSaved}>
+          <Button onClick={handleSaveClick} className="h-7" disabled={isCreating || isEditMode || isListEmpty || isAllSaved}>
             Submit transactions
           </Button>
         </div>
