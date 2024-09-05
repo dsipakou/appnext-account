@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { useSession } from 'next-auth/react'
-import axios from 'axios'
 import { useSWRConfig } from 'swr'
 import { evaluate } from 'mathjs'
 import { Button } from '@/components/ui/button'
@@ -28,6 +27,7 @@ import { randomId } from '@mui/x-data-grid-generator'
 import { useAccounts } from '@/hooks/accounts'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
+import { useCreateTransaction } from '@/hooks/transactions'
 import { useUsers } from '@/hooks/users'
 import { User } from '@/components/users/types'
 import { getFormattedDate, parseDate } from '@/utils/dateUtils'
@@ -44,7 +44,6 @@ import {
   BudgetComponent,
   BudgetReadComponent,
   CategoryComponent,
-  CategoryComponentV2,
   CategoryReadComponent,
   CurrencyComponent,
   DateComponent,
@@ -79,11 +78,12 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   const { rows, setRows, rowModesModel, setRowModesModel, url } = props
   const { mutate } = useSWRConfig()
   const { data: { user: authUser } } = useSession()
+  const { toast } = useToast()
 
   const { data: accounts = [] } = useAccounts()
   const { data: users = [] } = useUsers()
-
   const { data: currencies = [] } = useCurrencies()
+  const { trigger: createTransaction, isMutating: isCreating } = useCreateTransaction()
 
   React.useEffect(() => {
     if (!authUser || (users.length === 0)) return
@@ -137,7 +137,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
 
   const handleSaveClick = (): void => {
     setIsLoading(true)
-    rows.forEach((row: any) => {
+    rows.forEach(async (row: any) => {
       if (row.saved) {
         return
       }
@@ -154,33 +154,24 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
         user
       }
 
-      axios.post('transactions/', {
-        ...payload
-      }).then(
-        res => {
-          if (res.status === 201) {
-            setRows((oldRows) => oldRows.map(
-              (item) => item.id === row.id
-                ? {
-                  ...item,
-                  saved: true,
-                  baseAmount: formatMoney(res.data.spentInCurrencies[baseCurrency])
-                }
-                : item
-            ))
-            mutate(url)
-          }
-        }
-      ).catch(
-        (error) => {
-          const errRes = error.response.data
-          for (const prop in errRes) {
-            // TODO: Set errors
-          }
-        }
-      ).finally(() => {
-        setIsLoading(false)
-      })
+      try {
+        const res = await createTransaction(payload)
+        setRows((oldRows) => oldRows.map(
+          (item) => item.id === row.id
+            ? {
+              ...item,
+              saved: true,
+              baseAmount: formatMoney(res?.spentInCurrencies[baseCurrency])
+            }
+            : item
+        ))
+        mutate(url)
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Something went wrong'
+        })
+      }
     })
   }
 
