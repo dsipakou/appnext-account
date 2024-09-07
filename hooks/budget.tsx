@@ -137,7 +137,7 @@ export const useBudgetLastMonthsUsage = (
   } as Response<MonthSummedUsage[]>
 }
 
-export const useDuplicateBudget = (uuids: string[]) => {
+export const useDuplicateBudget = () => {
   const { trigger, isMutating } = useSWRMutation('budget/duplicate/', postReq, { revalidate: true })
 
   return {

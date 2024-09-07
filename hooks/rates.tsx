@@ -1,3 +1,4 @@
+import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation'
 import useSWRImmutable from 'swr/immutable'
 import { Response } from './types';
@@ -72,7 +73,7 @@ export const useRatesOnDate = (date: string): Response<RateResponse[]> => {
 }
 
 export const useAvailableRates = (date: string): Response<AvailableRate[]> => {
-  const { data, error, isLoading } = useSWRImmutable(date ? `rates/available?date=${date}` : null, fetchReq)
+  const { data, error, isLoading } = useSWR(date ? `rates/available?date=${date}` : null, fetchReq)
 
   return {
     data,

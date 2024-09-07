@@ -1,18 +1,13 @@
 import React from 'react'
 import { useSWRConfig } from 'swr'
 import { Check, Copy } from 'lucide-react'
+// UID
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogHeader,
-  DialogTrigger,
-  DialogTitle,
-  DialogContent
-} from '@/components/ui/dialog'
-import { useDuplicateBudget, useGetDuplicates } from '@/hooks/budget'
-import { getFormattedDate } from '@/utils/dateUtils'
-import { DuplicateBudgetResponse } from '@/components/budget/types'
+import * as Dlg from '@/components/ui/dialog'
 import { useToast } from '@/components/ui/use-toast'
+// Hooks
+import { useDuplicateBudget } from '@/hooks/budget'
+import { DuplicateBudgetResponse } from '@/components/budget/types'
 
 interface BudgetCardTypes {
   date: string
@@ -99,25 +94,27 @@ const DuplicateForm: React.FC<Types> = ({ budgetList, urlToMutate, mutateBudget 
   }
 
   return (
-    <Dialog onOpenChange={clearForm}>
-      <DialogTrigger asChild>
+    <Dlg.Dialog onOpenChange={clearForm}>
+      <Dlg.DialogTrigger asChild>
         <Button
           variant="outline"
           className="text-blue-500 border-blue-500 hover:text-blue-600"
         >
           <Copy className="mr-2" /> Duplicate
         </Button>
-      </DialogTrigger>
-      <DialogContent className="min-w-[600px]">
+      </Dlg.DialogTrigger>
+      <Dlg.DialogContent className="min-w-[600px]">
         {budgetList.length > 0 && (
-          <DialogHeader>
-            <DialogTitle>Choose budget to repeat</DialogTitle>
-          </DialogHeader>
+          <Dlg.DialogHeader>
+            <Dlg.DialogTitle>Choose budget to repeat</Dlg.DialogTitle>
+          </Dlg.DialogHeader>
         )}
         <div className="flex flex-col gap-3">
           {budgetList.length === 0
             ? (
-              <div className="flex col-span-4 justify-center"><span className="text-2xl">Nothing to duplicate</span></div>
+              <>
+                <span className="text-2xl">Nothing more to duplicate</span>
+              </>
             )
             : (
               <>
@@ -150,8 +147,8 @@ const DuplicateForm: React.FC<Types> = ({ budgetList, urlToMutate, mutateBudget 
             )
           }
         </div>
-      </DialogContent>
-    </Dialog>
+      </Dlg.DialogContent>
+    </Dlg.Dialog>
   )
 }
 

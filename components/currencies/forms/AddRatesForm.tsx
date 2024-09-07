@@ -2,28 +2,19 @@ import React from 'react'
 import InputMask from 'react-input-mask'
 import { useSWRConfig } from 'swr'
 import { useForm } from 'react-hook-form'
+// UI
 import { useToast } from '@/components/ui/use-toast'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form'
+import * as Dlg from '@/components/ui/dialog'
+import * as Frm from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+// Hooks
 import { useRatesOnDate, useCreateBatchedRates, RateResponse } from '@/hooks/rates'
+// Utils
 import { getFormattedDate } from '@/utils/dateUtils'
 import { extractErrorMessage } from '@/utils/stringUtils'
+// Types
 import { Currency, RatePostRequest, RateItemPostRequest } from '../types'
 
 interface Types {
@@ -36,13 +27,14 @@ interface FormData {
 }
 
 const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
-  const { mutate } = useSWRConfig()
   const [selectedDate, setSelectedDate] = React.useState<Date>(new Date())
+
+  const { mutate } = useSWRConfig()
+  const { toast } = useToast()
   const form = useForm<FormData>()
+
   const { data: ratesOnDate = [], url } = useRatesOnDate(getFormattedDate(selectedDate))
   const { trigger: createBatchedRates, isMutating: isCreating } = useCreateBatchedRates()
-
-  const { toast } = useToast()
 
   React.useEffect(() => {
     form.setValue('rateDate', selectedDate)
@@ -92,7 +84,7 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
     return requestPayload
   }
 
-  const handleSave = async (formData: FormData): void => {
+  const handleSave = async (formData: FormData): Promise<void> => {
     const payload = prepareSaveRequest(formData)
 
     try {
@@ -113,27 +105,27 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
   }
 
   return (
-    <Dialog>
-      <DialogTrigger asChild className="mx-2">
+    <Dlg.Dialog>
+      <Dlg.DialogTrigger asChild className="mx-2">
         <Button variant="outline" className="text-blue-500 border-blue-500 hover:text-blue-600">+ Add rates</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add or update rates for currencies</DialogTitle>
-        </DialogHeader>
-        <Form {...form}>
+      </Dlg.DialogTrigger>
+      <Dlg.DialogContent>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Add or update rates for currencies</Dlg.DialogTitle>
+        </Dlg.DialogHeader>
+        <Frm.Form {...form}>
           <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
             <div className="flex space-y-3">
               <div className="flex flex-col space-y-2 w-1/3">
                 {
                   currencies.map((item: Currency) => (!item.isBase && (
                     <div className="flex" key={item.uuid}>
-                      <FormField
+                      <Frm.FormField
                         control={form.control}
                         name={item.uuid}
                         render={({ field }) => (
-                          <FormItem className="flex items-center gap-2">
-                            <FormControl>
+                          <Frm.FormItem className="flex items-center gap-2">
+                            <Frm.FormControl>
                               <InputMask
                                 mask='9.9999'
                                 disabled={isCreating}
@@ -143,9 +135,9 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
                                   <Input className="w-20" />
                                 )}
                               </InputMask>
-                            </FormControl>
-                            <FormLabel>{item.sign}</FormLabel>
-                          </FormItem>
+                            </Frm.FormControl>
+                            <Frm.FormLabel>{item.sign}</Frm.FormLabel>
+                          </Frm.FormItem>
                         )}
                       />
                     </div>
@@ -153,12 +145,12 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
                 }
               </div>
               <div>
-                <FormField
+                <Frm.FormField
                   control={form.control}
                   name="rateDate"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
+                    <Frm.FormItem>
+                      <Frm.FormControl>
                         <Calendar
                           disabled={isCreating}
                           mode="single"
@@ -167,18 +159,18 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
                           weekStartsOn={1}
                           initialFocus
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                      </Frm.FormControl>
+                      <Frm.FormMessage />
+                    </Frm.FormItem>
                   )}
                 />
               </div>
             </div>
             <Button disabled={isCreating} variant="default" type="submit">Save</Button>
           </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+        </Frm.Form>
+      </Dlg.DialogContent>
+    </Dlg.Dialog>
   )
 }
 

@@ -234,7 +234,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
 
     const emptyState = (
       <div className="flex w-full h-full pt-20 justify-center items-center">
-        <span className="text-2xl">No plans for selected period</span>
+        <span className="text-2xl">No plans for this {activeType === 'month' ? 'month' : 'week'}</span>
       </div>
     )
 
