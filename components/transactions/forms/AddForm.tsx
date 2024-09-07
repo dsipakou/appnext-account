@@ -68,13 +68,25 @@ interface EditToolbarProps {
   setRowModesModel: (
     newModel: (oldModel: GridRowModesModel) => GridRowModesModel,
   ) => void
+  rowsSnapshot: GridRowsProp,
+  setRowsSnapshot: (
+    newRows: (oldRows: GridRowsProp) => GridRowsProp
+  ) => void
   url: string
 }
 
 const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   const [user, setUser] = React.useState('')
   const [baseCurrency, setBaseCurrency] = React.useState<string>('')
-  const { rows, setRows, rowModesModel, setRowModesModel, url } = props
+  const {
+    rows,
+    setRows,
+    rowModesModel,
+    setRowModesModel,
+    rowsSnapshot,
+    setRowsSnapshot,
+    url,
+  } = props
   const { mutate } = useSWRConfig()
   const { data: { user: authUser } } = useSession()
   const { toast } = useToast()
@@ -90,6 +102,11 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
     const _user = users.find((item: User) => item.username === authUser.username)!
     setUser(_user.uuid)
   }, [authUser, users])
+
+  React.useEffect(() => {
+    console.log(rowsSnapshot)
+    console.log(rows)
+  }, [rowsSnapshot])
 
   const getDefaultAccountForCurrentUser = (): AccountResponse | undefined => {
     if (user) {
@@ -108,7 +125,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
     return acc + parseFloat(item.amount.replace(',', '.')) || 0
   }, 0)
 
-  const handleClick = () => {
+  const handleAddTransaction = () => {
     setRows((oldRows) => [...oldRows, { ...emptyRowTemplate, id }])
     setRowModesModel((oldModel) => ({
       ...oldModel,
@@ -132,6 +149,10 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
   const handleClearClick = (): void => {
     setRows([])
     setRowModesModel({})
+  }
+
+  const saveSnapshot = () => {
+    setRowsSnapshot(rows)
   }
 
   const handleSaveClick = (): void => {
@@ -171,6 +192,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
         })
       }
     })
+    saveSnapshot()
   }
 
   const isEditMode: boolean = Object.values(rowModesModel).some(
@@ -188,7 +210,7 @@ const EditToolbar: React.FC<EditToolbarProps> = (props) => {
           <Button
             variant="default"
             className="h-7"
-            onClick={handleClick}
+            onClick={handleAddTransaction}
           >
             Add transaction
           </Button>
@@ -247,6 +269,10 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
   const [user, setUser] = React.useState('')
   const [errors, setErrors] = React.useState<string>('')
   const [accountForBudget, setAccountForBudget] = React.useState<Account | undefined>(undefined)
+  const [rows, setRows] = React.useState<[]>([])
+  const [rowsSnapshot, setRowsSnapshot] = React.useState<[]>([])
+  const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>({})
+
   const { data: accounts = [] } = useAccounts()
   const { data: categories = [] } = useCategories()
   const { data: currencies = [] } = useCurrencies()
@@ -355,9 +381,6 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
     }
   ]
 
-  const [rows, setRows] = React.useState<[]>([])
-  const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>({})
-
   React.useEffect(() => {
     const id = randomId()
 
@@ -383,8 +406,6 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
   }, [rows])
 
   const handleApplyChanges = (id: GridRowId) => () => {
-    console.log('saving')
-    console.log(rowModesModel)
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
   }
 
@@ -405,6 +426,8 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
       delete oldModel[id]
       return oldModel
     })
+    setRowsSnapshot(rows)
+    console.log(rowsSnapshot)
   }
 
   const id = randomId()
@@ -494,7 +517,15 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
               Footer: FooterWithError
             }}
             componentsProps={{
-              toolbar: { rows, setRows, rowModesModel, setRowModesModel, url },
+              toolbar: {
+                rows,
+                setRows,
+                rowModesModel,
+                setRowModesModel,
+                rowsSnapshot,
+                setRowsSnapshot,
+                url,
+              },
               footer: { errors }
             }}
             experimentalFeatures={{ newEditingApi: true }}
