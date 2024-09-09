@@ -13,6 +13,7 @@ import {
   LayoutTemplate,
   LineChart,
   Menu,
+  Landmark,
   ScrollText,
   User2
 } from 'lucide-react'
@@ -118,6 +119,11 @@ const Layout: FC<Props> = ({ children }) => {
   ]
 
   const bottomMenuItems = [
+    {
+      name: 'Billing',
+      icon: <Landmark />,
+      link: '/billing/'
+    },
     {
       name: 'Users',
       icon: <User2 />,
