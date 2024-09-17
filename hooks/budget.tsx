@@ -80,7 +80,9 @@ export const useBudgetWeek = (
   user?: string,
 ): Response<WeekBudgetItem[]> => {
   let url = `budget/weekly-usage/?dateFrom=${dateFrom}&dateTo=${dateTo}`;
-  if (user && user !== 'all') url = `${url}&user=${user}`
+  if (user && user !== 'all') {
+    url = `${url}&user=${user}`
+  }
   const { data, error, isLoading } = useSWRImmutable(url, fetchReq);
 
   return {

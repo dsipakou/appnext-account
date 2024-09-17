@@ -18,6 +18,7 @@ import { formatMoney } from '@/utils/numberUtils'
 import { getFormattedDate } from '@/utils/dateUtils'
 import { cn } from '@/lib/utils'
 import TransactionTable from './components/TransactionTable'
+import { default as TableV2 } from './components/TransactionTableV2'
 import IncomeComponent from './components/IncomeContainer'
 import LastAdded from './forms/LastAdded'
 
@@ -128,11 +129,7 @@ const Index: React.FC = () => {
         ? (
           <div className="grid grid-cols-7 gap-2">
             <div className="col-span-5 bg-white">
-              <TransactionTable
-                transactions={transactions}
-                handleDeleteClick={handleDeleteClick}
-                handleEditClick={handleEditClick}
-              />
+              <TableV2 transactionDate={transactionDate} />
             </div>
             <div className="col-span-2">
               <div className="flex flex-col gap-2">

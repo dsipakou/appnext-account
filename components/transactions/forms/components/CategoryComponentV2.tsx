@@ -1,117 +1,86 @@
 import React from 'react'
-import {
-  GridRenderEditCellParams,
-  useGridApiContext
-} from '@mui/x-data-grid'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import {
-  Category,
-  CategoryType
-} from '@/components/categories/types'
-import { AutoComplete } from '@/components/ui/autocomplete'
+// UI
+import * as Slc from '@/components/ui/select'
+// Types
+import { Category } from '@/components/categories/types'
+import { RowData } from '@/components/transactions/components/TransactionTableV2'
+// Utils
+import { cn } from '@/lib/utils'
 
-interface CategoryComponentTypes extends GridRenderEditCellParams {
-  parentList: Category[]
+type Props = {
+  user: string
+  value: string
+  categories: Category[]
+  handleChange: (id: number, key: string, value: string) => void
+  handleKeyDown: (e: React.KeyboardEvent, id: number) => void
+  row: RowData
+  isInvalid: boolean
 }
 
-const FRAMEWORKS = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-  {
-    value: "wordpress",
-    label: "WordPress",
-  },
-  {
-    value: "express.js",
-    label: "Express.js",
-  },
-  {
-    value: "nest.js",
-    label: "Nest.js",
-  },
-]
+export default function BudgetComponent({
+  user,
+  value,
+  categories,
+  handleChange,
+  handleKeyDown,
+  row,
+  isInvalid,
+}: Props) {
 
-const CategoryComponentV2: React.FC<CategoryComponentTypes> = (params) => {
-  const { id, field, row, categories } = params
-  const apiRef = useGridApiContext()
-  const budgetCategory = row.budget?.category
-  const [isLoading, setLoading] = React.useState(false)
-  const [isDisabled, setDisbled] = React.useState(false)
-  const [value, setValue] = React.useState<Option>()
+  const parents = categories.filter((item: Category) => item.parent === null && item.type === 'EXP')
 
-  const parents = categories.filter(
-    (category: Category) => (
-      category.parent === null && category.type === CategoryType.Expense
-    )
-  )
+  const groupedCategories = categories.reduce((grouped, category) => {
+    const key = category.parent || 'null'; // use 'null' for categories without a parent
+    if (!grouped[key]) {
+      grouped[key] = [];
+    }
+    grouped[key].push(category);
+    return grouped;
+  }, {});
 
-  const getPlannedCategory = (uuid: string): Category | undefined => {
-    return parents.find((category: Category) => (
-      category.uuid === uuid
-    ))
-  }
+  const onChange = (value: string) => {
+    const category = categories.find((item: Category) => item.uuid === value)
+    const parent = category ? categories.find((item: Category) => item.uuid === category.parent) : ""
 
-  const getChildren = (uuid: string): Category[] => {
-    return categories.filter(
-      (item: Category) => item.parent === uuid
-    ) || []
-  }
-
-  const getCategoriesList = () => {
-    let arr = []
-    parents.map((item: Category) => {
-      const children = getChildren(item.uuid).map((childItem: Category) => {
-        return {
-          label: `${item.icon} ${item.name} / ${childItem.name}`,
-          value: childItem.uuid,
-        }
-      })
-      arr = [...arr, ...children]
-    })
-    return arr
-  }
-
-  const handleChange = (item: Category) => {
-    apiRef.current.setEditCellValue({ id, field, value: item })
+    handleChange(row.id, "category", value)
+    handleChange(row.id, "categoryName", category ? category.name : "")
+    handleChange(row.id, "categoryParentName", parent ? parent.name : "")
   }
 
   return (
-    <AutoComplete
-      options={getCategoriesList()}
-      emptyMessage="No resulsts."
-      placeholder="Choose category"
-      isLoading={isLoading}
-      onValueChange={setValue}
+    <Slc.Select
       value={value}
-      disabled={isDisabled}
-    />
+      onValueChange={(value) => onChange(value)}
+      onOpenChange={(open) => {
+        if (!open) {
+          (document.activeElement as HTMLElement)?.blur();
+        }
+      }}
+    >
+      <Slc.SelectTrigger
+        className={cn(
+          "w-full h-8 px-2 text-sm border-0 focus:ring-0 focus:outline-none focus:border-primary bg-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700 text-left",
+          isInvalid && "outline outline-red-400"
+        )}
+        onKeyDown={(e) => handleKeyDown(e, row.id)}
+      >
+        <Slc.SelectValue />
+      </Slc.SelectTrigger>
+      <Slc.SelectContent position="popper" sideOffset={-40} className="max-h-[480px]">
+        {parents.map((parent: Category) => (
+          <>
+            <Slc.SelectGroup key={parent.uuid}>
+              <Slc.SelectLabel>{parent.name}</Slc.SelectLabel>
+              {
+                groupedCategories[parent.uuid].map((item: Category) => (
+                  <Slc.SelectItem key={item.uuid} value={item.uuid}>{parent.icon} {item.name}</Slc.SelectItem>
+                ))
+              }
+            </Slc.SelectGroup>
+            <Slc.SelectSeparator />
+          </>
+        ))}
+      </Slc.SelectContent>
+    </Slc.Select>
   )
 }
-
-export default CategoryComponentV2
