@@ -68,8 +68,8 @@ export default function BudgetComponent({
       </Slc.SelectTrigger>
       <Slc.SelectContent position="popper" sideOffset={-40} className="max-h-[480px]">
         {parents.map((parent: Category) => (
-          <>
-            <Slc.SelectGroup key={parent.uuid}>
+          <div key={parent.uuid}>
+            <Slc.SelectGroup>
               <Slc.SelectLabel>{parent.name}</Slc.SelectLabel>
               {
                 groupedCategories[parent.uuid].map((item: Category) => (
@@ -78,7 +78,7 @@ export default function BudgetComponent({
               }
             </Slc.SelectGroup>
             <Slc.SelectSeparator />
-          </>
+          </div>
         ))}
       </Slc.SelectContent>
     </Slc.Select>

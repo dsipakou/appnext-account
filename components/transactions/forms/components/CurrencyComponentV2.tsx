@@ -20,6 +20,7 @@ type Props = {
   value: string
   row: RowData
   isInvalid: boolean
+  isSaved: boolean
   handleChange: (id: number, key: string, value: string) => void
   handleKeyDown: (e: React.KeyboardEvent, id: number) => void
 }
@@ -29,6 +30,7 @@ export default function CurrencyComponent({
   value,
   row,
   isInvalid,
+  isSaved,
   handleChange,
   handleKeyDown,
 }: Props) {
@@ -44,24 +46,25 @@ export default function CurrencyComponent({
   const baseCurrency = currencies.find((item: Currency) => item.isBase)
 
   const selectedBudget = budgets.find((item: WeekBudgetItem) => item.uuid === budgetUuid)
-  console.log('selectedBudget', selectedBudget)
   const budgetCurrency = selectedBudget ? currencies.find((item: Currency) => item.uuid === selectedBudget.currency) : null
-  console.log('budgetCurrency', budgetCurrency)
   const isBudgetCurrencyAvailable = budgetCurrency ? availableRates.find((item: AvailableRate) => item.currencyCode === budgetCurrency.code) : false
 
   const defaultCurrency = currencies.find((item: Currency) => item.isDefault)
   const isDefaultCurrencyAvailable = availableRates.find((item: AvailableRate) => item.currencyCode === defaultCurrency?.code)
 
   const preselectedValue = () => {
+    if (value) {
+      return value
+    }
+    if (isSaved) {
+      return row.currency
+    }
     if (isBudgetCurrencyAvailable) {
-      console.log('budget')
       return budgetCurrency!.uuid
     }
     if (isDefaultCurrencyAvailable) {
-      console.log('default')
       return defaultCurrency!.uuid
     }
-    console.log('base')
     return baseCurrency.uuid
   }
 
@@ -73,7 +76,6 @@ export default function CurrencyComponent({
 
   React.useEffect(() => {
     if (row.budget) {
-      console.log('budget changed', row.budget)
       setBudgetUuid(row.budget)
     }
   }, [row.budget])
@@ -88,7 +90,7 @@ export default function CurrencyComponent({
 
   return (
     <Slc.Select
-      value={value || preselectedValue().uuid as string}
+      value={value as string}
       onValueChange={(value) => handleChange(row.id, 'currency', value)}
       onOpenChange={(open) => {
         if (!open) {

@@ -41,11 +41,18 @@ export default function AccountComponent({
 
   const yourAccounts = accounts.filter((item: Account) => item.user === user)
   const otherAccounts = accounts.filter((item: Account) => item.user !== user)
+  const defaultAccount = yourAccounts.find((item: Account) => item.isMain)
+  console.log(defaultAccount)
 
   React.useEffect(() => {
     setWeekStart(getStartOfWeek(row.date))
     setWeekEnd(getEndOfWeek(row.date))
   }, [row.date])
+
+  React.useEffect(() => {
+    if (!defaultAccount) return
+    handleChange(row.id, "account", defaultAccount?.uuid || "")
+  }, [defaultAccount])
 
   const isAccountAndBudgetMatch = (newValue: string) => {
     if (!row.budget) {
