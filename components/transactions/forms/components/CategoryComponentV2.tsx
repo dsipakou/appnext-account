@@ -1,6 +1,7 @@
 import React from 'react'
 // UI
 import * as Slc from '@/components/ui/select'
+import * as Scr from '@/components/ui/scroll-area'
 // Types
 import { Category } from '@/components/categories/types'
 import { RowData } from '@/components/transactions/components/TransactionTableV2'
@@ -15,9 +16,10 @@ type Props = {
   handleKeyDown: (e: React.KeyboardEvent, id: number) => void
   row: RowData
   isInvalid: boolean
+  defaultOpen?: boolean
 }
 
-export default function BudgetComponent({
+export default function CategoryComponent({
   user,
   value,
   categories,
@@ -25,11 +27,33 @@ export default function BudgetComponent({
   handleKeyDown,
   row,
   isInvalid,
+  defaultOpen = false,
 }: Props) {
-
+  const [open, setOpen] = React.useState<boolean>(defaultOpen)
+  const [scrollReady, setScrollReady] = React.useState<boolean>(false)
   const parents = categories.filter((item: Category) => item.parent === null && item.type === 'EXP')
+  const scrollAreaRef = React.useRef<HTMLDivElement>(null)
 
-  const groupedCategories = categories.reduce((grouped, category) => {
+  React.useEffect(() => {
+    if (!open || categories.length === 0 || !value) return
+
+    setTimeout(() => {
+      setScrollReady(true)
+    }, 100)
+
+  }, [categories, open, value])
+
+  React.useEffect(() => {
+    if (!scrollReady || !value) return
+
+    const parentElement = scrollAreaRef.current?.querySelector(`[data-parent-id="${value}"]`)
+    if (!!parentElement) {
+      parentElement.scrollIntoView({ behavior: "instant", block: "start" })
+      setScrollReady(false)
+    }
+  }, [scrollReady, value])
+
+  const groupedCategories = categories.reduce((grouped: {}, category: Category): {} => {
     const key = category.parent || 'null'; // use 'null' for categories without a parent
     if (!grouped[key]) {
       grouped[key] = [];
@@ -47,15 +71,16 @@ export default function BudgetComponent({
     handleChange(row.id, "categoryParentName", parent ? parent.name : "")
   }
 
+  const handleOpen = () => {
+    setOpen(!open)
+  }
+
   return (
     <Slc.Select
       value={value}
+      open={open}
       onValueChange={(value) => onChange(value)}
-      onOpenChange={(open) => {
-        if (!open) {
-          (document.activeElement as HTMLElement)?.blur();
-        }
-      }}
+      onOpenChange={handleOpen}
     >
       <Slc.SelectTrigger
         className={cn(
@@ -67,19 +92,21 @@ export default function BudgetComponent({
         <Slc.SelectValue />
       </Slc.SelectTrigger>
       <Slc.SelectContent position="popper" sideOffset={-40} className="max-h-[480px]">
-        {parents.map((parent: Category) => (
-          <div key={parent.uuid}>
-            <Slc.SelectGroup>
-              <Slc.SelectLabel>{parent.name}</Slc.SelectLabel>
-              {
-                groupedCategories[parent.uuid].map((item: Category) => (
-                  <Slc.SelectItem key={item.uuid} value={item.uuid}>{parent.icon} {item.name}</Slc.SelectItem>
-                ))
-              }
-            </Slc.SelectGroup>
-            <Slc.SelectSeparator />
-          </div>
-        ))}
+        <Scr.ScrollArea className="relative h-[470px]" ref={scrollAreaRef}>
+          {parents.map((parent: Category, index: number) => (
+            <div key={parent.uuid}>
+              <Slc.SelectGroup>
+                <Slc.SelectLabel data-parent-id={parent.uuid}>{parent.name}</Slc.SelectLabel>
+                {
+                  groupedCategories[parent.uuid].map((item: Category) => (
+                    <Slc.SelectItem key={item.uuid} value={item.uuid}>{parent.icon} {item.name}</Slc.SelectItem>
+                  ))
+                }
+              </Slc.SelectGroup>
+              <Slc.SelectSeparator />
+            </div>
+          ))}
+        </Scr.ScrollArea>
       </Slc.SelectContent>
     </Slc.Select>
   )

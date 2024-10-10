@@ -39,6 +39,8 @@ export default function BudgetComponent({
   const accountUser = accounts.find((item: Account) => item.uuid === row.account)?.user
 
   const filteredBudgets = budgets.filter((item: WeekBudgetItem) => item.user === accountUser)
+  const completedBudgets = budgets.filter((item: WeekBudgetItem) => item.isCompleted && item.user === user)
+  const incompletedBudgets = budgets.filter((item: WeekBudgetItem) => !item.isCompleted && item.user === user)
 
   React.useEffect(() => {
     setWeekStart(getStartOfWeek(row.date))
@@ -46,9 +48,10 @@ export default function BudgetComponent({
   }, [row.date])
 
   const onChange = (value: string) => {
-    const budgetName = filteredBudgets.find((item: WeekBudgetItem) => item.uuid === value)?.title || ''
+    const budget = filteredBudgets.find((item: WeekBudgetItem) => item.uuid === value)
     handleChange(row.id, "budget", value)
-    handleChange(row.id, "budgetName", budgetName)
+    handleChange(row.id, "budgetName", budget?.title || "")
+    handleChange(row.id, "category", budget?.category || "")
   }
 
   return (
@@ -72,14 +75,35 @@ export default function BudgetComponent({
         <Slc.SelectValue placeholder={!accountUser ? "Select account first" : ""} />
       </Slc.SelectTrigger>
       <Slc.SelectContent>
-        {filteredBudgets.length === 0 ? (
+        {!filteredBudgets.length && (
           <Slc.SelectItem value="empty" disabled>No budgets</Slc.SelectItem>
-        ) : (
-          filteredBudgets.map((item: WeekBudgetItem) => (
-            <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.title}</Slc.SelectItem>
-          ))
+        )}
+        {!!filteredBudgets.length && !!incompletedBudgets.length && (
+          <>
+            <Slc.SelectGroup>
+              {incompletedBudgets.map((item: WeekBudgetItem) => (
+                <Slc.SelectItem
+                  key={item.uuid}
+                  value={item.uuid}
+                >{item.title}</Slc.SelectItem>
+              ))}
+            </Slc.SelectGroup>
+            <Slc.SelectSeparator />
+          </>
+        )}
+        {!!filteredBudgets.length && !!completedBudgets.length && (
+          <Slc.SelectGroup>
+            <Slc.SelectLabel className="flex justify-start">Completed budgets</Slc.SelectLabel>
+            {completedBudgets.map((item: WeekBudgetItem) => (
+              <Slc.SelectItem
+                className="italic"
+                key={item.uuid}
+                value={item.uuid}
+              >{item.title}</Slc.SelectItem>
+            ))}
+          </Slc.SelectGroup>
         )}
       </Slc.SelectContent>
-    </Slc.Select>
+    </Slc.Select >
   )
 }

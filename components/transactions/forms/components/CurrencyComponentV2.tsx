@@ -6,7 +6,6 @@ import { useBudgetWeek } from '@/hooks/budget'
 import { useCurrencies } from '@/hooks/currencies'
 import { useAvailableRates } from '@/hooks/rates'
 // Types
-import { Account } from '@/components/accounts/types'
 import { WeekBudgetItem } from '@/components/budget/types'
 import { Currency } from '@/components/currencies/types'
 import { AvailableRate } from '@/components/rates/types'
@@ -48,6 +47,18 @@ export default function CurrencyComponent({
   const selectedBudget = budgets.find((item: WeekBudgetItem) => item.uuid === budgetUuid)
   const budgetCurrency = selectedBudget ? currencies.find((item: Currency) => item.uuid === selectedBudget.currency) : null
   const isBudgetCurrencyAvailable = budgetCurrency ? availableRates.find((item: AvailableRate) => item.currencyCode === budgetCurrency.code) : false
+  const activeCurrencies = currencies.filter((item: Currency) => {
+    const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code)
+    return rate && (item.isBase || rate.rateDate === getFormattedDate(row.date))
+  })
+  const outdatedCurrencies = currencies.filter((item: Currency) => {
+    const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code)
+    return rate && !(item.isBase || rate.rateDate === getFormattedDate(row.date))
+  })
+  const unavailableCurrencies = currencies.filter((item: Currency) => {
+    const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code)
+    return !rate
+  })
 
   const defaultCurrency = currencies.find((item: Currency) => item.isDefault)
   const isDefaultCurrencyAvailable = availableRates.find((item: AvailableRate) => item.currencyCode === defaultCurrency?.code)
@@ -58,6 +69,10 @@ export default function CurrencyComponent({
     }
     if (isSaved) {
       return row.currency
+    }
+    // If new user didnt't add any currency yet
+    if (!baseCurrency) {
+      return
     }
     if (isBudgetCurrencyAvailable) {
       return budgetCurrency!.uuid
@@ -84,10 +99,6 @@ export default function CurrencyComponent({
     handleChange(row.id, 'currency', preselectedValue() as string)
   }, [isBudgetCurrencyAvailable, isDefaultCurrencyAvailable])
 
-  const changeValue = (value: string) => {
-    handleChange(row.id, "account", value)
-  }
-
   return (
     <Slc.Select
       value={value as string}
@@ -110,24 +121,39 @@ export default function CurrencyComponent({
         <Slc.SelectValue />
       </Slc.SelectTrigger>
       <Slc.SelectContent>
-        {currencies && currencies.map((item: Currency) => {
-          const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code)
-          if (rate) {
-            if (item.isBase || rate.rateDate === getFormattedDate(row.date)) {
-              return (
+        {!!activeCurrencies.length && (
+          <>
+            <Slc.SelectGroup>
+              {activeCurrencies.map((item: Currency) => (
                 <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.code}</Slc.SelectItem>
-              )
-            } else {
-              return (
-                <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.code} (old)</Slc.SelectItem>
-              )
-            }
-          } else {
-            return (
-              <Slc.SelectItem key={item.uuid} value={item.uuid} disabled>{item.code}</Slc.SelectItem>
-            )
-          }
-        })}
+              ))}
+            </Slc.SelectGroup>
+            <Slc.SelectSeparator />
+          </>
+        )}
+        {!!outdatedCurrencies.length && (
+          <Slc.SelectGroup>
+            <Slc.SelectLabel className="flex justify-start">Outdated</Slc.SelectLabel>
+            {outdatedCurrencies.map((item: Currency) => (
+              <Slc.SelectItem
+                className="italic"
+                key={item.uuid}
+                value={item.uuid}
+              >{item.code} *</Slc.SelectItem>
+            ))}
+          </Slc.SelectGroup>
+        )}
+        {!!unavailableCurrencies.length && (
+          <>
+            <Slc.SelectSeparator />
+            <Slc.SelectGroup>
+              <Slc.SelectLabel className="flex justify-start">Unavailable</Slc.SelectLabel>
+              {unavailableCurrencies.map((item: Currency) => (
+                <Slc.SelectItem key={item.uuid} value={item.uuid} disabled>{item.code}</Slc.SelectItem>
+              ))}
+            </Slc.SelectGroup>
+          </>
+        )}
       </Slc.SelectContent>
     </Slc.Select>
   )

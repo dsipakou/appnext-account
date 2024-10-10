@@ -4,7 +4,7 @@ import * as Slc from '@/components/ui/select'
 // Hooks
 import { useBudgetWeek } from '@/hooks/budget'
 // Types
-import { Account, AccountResponse } from '@/components/accounts/types'
+import { Account } from '@/components/accounts/types'
 import { RowData } from '@/components/transactions/components/TransactionTableV2'
 import { WeekBudgetItem } from '@/components/budget/types'
 // Utils
@@ -42,7 +42,6 @@ export default function AccountComponent({
   const yourAccounts = accounts.filter((item: Account) => item.user === user)
   const otherAccounts = accounts.filter((item: Account) => item.user !== user)
   const defaultAccount = yourAccounts.find((item: Account) => item.isMain)
-  console.log(defaultAccount)
 
   React.useEffect(() => {
     setWeekStart(getStartOfWeek(row.date))
@@ -51,7 +50,10 @@ export default function AccountComponent({
 
   React.useEffect(() => {
     if (!defaultAccount) return
-    handleChange(row.id, "account", defaultAccount?.uuid || "")
+    // If no account passed (i.e. while duplicating) select default
+    if (!value) {
+      handleChange(row.id, "account", defaultAccount?.uuid || "")
+    }
   }, [defaultAccount])
 
   const isAccountAndBudgetMatch = (newValue: string) => {
@@ -89,19 +91,28 @@ export default function AccountComponent({
         <Slc.SelectValue />
       </Slc.SelectTrigger>
       <Slc.SelectContent>
-        <Slc.SelectGroup>
-          <Slc.SelectLabel>Your Accounts</Slc.SelectLabel>
-          {yourAccounts.map((item: AccountResponse) => (
-            <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.title}</Slc.SelectItem>
-          ))}
-        </Slc.SelectGroup>
-        <Slc.SelectSeparator />
-        <Slc.SelectGroup>
-          <Slc.SelectLabel>Other Accounts</Slc.SelectLabel>
-          {otherAccounts.map((item: AccountResponse) => (
-            <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.title}</Slc.SelectItem>
-          ))}
-        </Slc.SelectGroup>
+        {!yourAccounts.length && (
+          <Slc.SelectItem value="empty" disabled>No accounts</Slc.SelectItem>
+        )}
+        {!!yourAccounts.length && (
+          <>
+            <Slc.SelectGroup>
+              <Slc.SelectLabel>Your Accounts</Slc.SelectLabel>
+              {yourAccounts.map((item: Account) => (
+                <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.title}</Slc.SelectItem>
+              ))}
+            </Slc.SelectGroup>
+            <Slc.SelectSeparator />
+          </>
+        )}
+        {!!yourAccounts.length && !!otherAccounts.length && (
+          <Slc.SelectGroup>
+            <Slc.SelectLabel>Other Accounts</Slc.SelectLabel>
+            {otherAccounts.map((item: Account) => (
+              <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.title}</Slc.SelectItem>
+            ))}
+          </Slc.SelectGroup>
+        )}
       </Slc.SelectContent>
     </Slc.Select>
   )
