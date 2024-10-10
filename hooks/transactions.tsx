@@ -1,4 +1,5 @@
 import useSWRImmutable from 'swr/immutable'
+import useSWR from 'swr'
 import useSWRMutation from 'swr/mutation'
 import { Response } from './types';
 import { TransactionsReportResponse } from '@/components/transactions/types'
@@ -11,9 +12,9 @@ import {
 } from '@/components/transactions/types'
 
 interface TransactionRequest {
-  sorting: Sorting
-  limit: number
-  type: string
+  sorting?: Sorting
+  limit?: number
+  type?: string
   dateFrom?: string
   dateTo?: string
 }
@@ -31,7 +32,7 @@ export const useTransactions = (
     url += `&dateFrom=${dateFrom}&dateTo=${dateTo}`
   }
 
-  const { data, error, isLoading } = useSWRImmutable(url, fetchReq)
+  const { data, error, isLoading } = useSWR(url, fetchReq)
 
   return {
     data,
@@ -50,8 +51,8 @@ export const useCreateTransaction = () => {
   }
 }
 
-export const useUpdateTransaction = (uuid: string) => {
-  const { trigger, isMutating } = useSWRMutation(`transactions/${uuid}/`, patchReq, { revalidate: true })
+export const useUpdateTransaction = () => {
+  const { trigger, isMutating } = useSWRMutation('transactions/', patchReq, { revalidate: true })
 
   return {
     trigger,
@@ -60,7 +61,7 @@ export const useUpdateTransaction = (uuid: string) => {
 }
 
 export const useDeleteTransaction = (uuid: string) => {
-  const { trigger, isMutating } = useSWRMutation(`transactions/${uuid}/`, deleteReq, { revalidate: true })
+  const { trigger, isMutating } = useSWRMutation(`transactions/${uuid}`, deleteReq, { revalidate: true })
 
   return {
     trigger,
