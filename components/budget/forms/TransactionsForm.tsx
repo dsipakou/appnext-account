@@ -1,16 +1,9 @@
 import React from 'react'
-import {
-  Dialog,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogContent
-} from '@/components/ui/dialog'
-import {
-  EditForm,
-  ConfirmDeleteForm
-} from '@/components/transactions/forms'
-import TransactionTable from '@/components/transactions/components/TransactionTable'
+// Components
+import TransactionsTable from '@/components/transactions/components/TransactionTableV2'
+// UI
+import * as Dlg from '@/components/ui/dialog'
+// Hooks
 import { useBudgetTransactions } from '@/hooks/transactions'
 
 interface Props {
@@ -20,62 +13,22 @@ interface Props {
 }
 
 const TransactionsForm: React.FC<Props> = ({ open, handleClose, uuid }) => {
-  const [isOpenEditTransactions, setIsOpenEditTransactions] = React.useState<boolean>(false)
-  const [isOpenDeleteTransactions, setIsOpenDeleteTransactions] = React.useState<boolean>(false)
-  const [activeTransactionUuid, setActiveTransactionUuid] = React.useState<string>('')
-
-  const { data: budgetTransactions = [], url } = useBudgetTransactions(uuid)
-
-  const handleDeleteClick = (uuid: string): void => {
-    setActiveTransactionUuid(uuid)
-    setIsOpenDeleteTransactions(true)
-  }
-
-  const handleEditClick = (uuid: string): void => {
-    setActiveTransactionUuid(uuid)
-    setIsOpenEditTransactions(true)
-  }
-
-  const handleCloseModal = (): void => {
-    setIsOpenDeleteTransactions(false)
-    setIsOpenEditTransactions(false)
-  }
+  const { data: budgetTransactions = [] } = useBudgetTransactions(uuid)
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogTrigger></DialogTrigger>
-      <DialogContent className="flex flex-col min-w-[1000px] h-screen my-20">
-        <DialogHeader>
-          <DialogTitle>Transactions for selected budget</DialogTitle>
-        </DialogHeader>
+    <Dlg.Dialog open={open} onOpenChange={handleClose}>
+      <Dlg.DialogTrigger></Dlg.DialogTrigger>
+      <Dlg.DialogContent className="flex flex-col min-w-[1000px] h-screen my-20">
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Transactions for selected budget</Dlg.DialogTitle>
+        </Dlg.DialogHeader>
         <div className="h-full">
-          <TransactionTable
+          <TransactionsTable
             transactions={budgetTransactions}
-            withDate={true}
-            handleDeleteClick={handleDeleteClick}
-            handleEditClick={handleEditClick}
           />
         </div>
-      </DialogContent>
-      {
-        isOpenEditTransactions &&
-        <EditForm
-          uuid={activeTransactionUuid}
-          open={true}
-          url={url}
-          handleClose={handleCloseModal}
-        />
-      }
-      {
-        isOpenDeleteTransactions &&
-        <ConfirmDeleteForm
-          open={isOpenDeleteTransactions}
-          uuid={activeTransactionUuid}
-          url={url}
-          handleClose={handleCloseModal}
-        />
-      }
-    </Dialog>
+      </Dlg.DialogContent>
+    </Dlg.Dialog>
   )
 }
 
