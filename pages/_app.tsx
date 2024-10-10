@@ -21,6 +21,8 @@ const App = ({
 
   const theme = createTheme({ ...themeOptions })
 
+  console.log(Component.layout)
+
   if (Component.layout === 'public') {
     return (
       <SessionProvider session={session}>
@@ -37,17 +39,17 @@ const App = ({
         <Toaster />
         {Component.auth
           ? (
-          <Auth>
+            <Auth>
+              <Layout>
+                <Component {...pageProps} />
+              </Layout>
+            </Auth>
+          )
+          : (
             <Layout>
               <Component {...pageProps} />
             </Layout>
-          </Auth>
-            )
-          : (
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
-            )}
+          )}
       </ThemeProvider>
     </SessionProvider>
   )
@@ -57,12 +59,12 @@ interface AuthProps {
   children: React.ReactNode
 }
 
-function Auth ({ children }: AuthProps) {
+function Auth({ children }: AuthProps) {
   const router = useRouter()
 
   const { data: session, status } = useSession({
     required: true,
-    onUnauthenticated () {
+    onUnauthenticated() {
       router.push('/login')
     }
   })
