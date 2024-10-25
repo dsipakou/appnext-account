@@ -2,6 +2,7 @@
 
 import React, { FC, ReactElement, ReactNode } from 'react'
 import { signOut, useSession } from 'next-auth/react'
+import Image from 'next/image'
 import { useStore } from '@/app/store'
 import axios from 'axios'
 import Link from 'next/link'
@@ -13,7 +14,6 @@ import {
   LayoutTemplate,
   LineChart,
   Menu,
-  Landmark,
   ScrollText,
   User2
 } from 'lucide-react'
@@ -120,11 +120,6 @@ const Layout: FC<Props> = ({ children }) => {
 
   const bottomMenuItems = [
     {
-      name: 'Billing',
-      icon: <Landmark />,
-      link: '/billing/'
-    },
-    {
       name: 'Users',
       icon: <User2 />,
       link: '/users/'
@@ -172,9 +167,12 @@ const Layout: FC<Props> = ({ children }) => {
       <header className="flex w-full z-50 bg-blue-500 text-white">
         <div className="flex mx-2 py-2 pl-20 justify-between w-full items-center">
           <div className="flex items-center gap-2">
-            <span className="text-lg ml-1 justify-self-start">
-              Flying Budget
-            </span>
+            <Image
+              alt="Logo"
+              src="/images/logo.png"
+              width="200"
+              height="100"
+            />
           </div>
           <div className="flex items-center justify-between">
             {!!currencies?.length && (
@@ -183,10 +181,10 @@ const Layout: FC<Props> = ({ children }) => {
                   defaultValue={user.currency}
                   onValueChange={handleCurrencyChange}
                 >
-                  <SelectTrigger className="relative w-full">
+                  <SelectTrigger className="relative w-full text-black">
                     <SelectValue placeholder="Select currency" />
                   </SelectTrigger>
-                  <SelectContent className="flex bg-white w-full pt-1" position="popper">
+                  <SelectContent className="flex bg-white color-black w-full pt-1" position="popper">
                     <SelectGroup>
                       <SelectLabel>Displayed currency</SelectLabel>
                       {currencies && currencies.map((item: Currency) => (
