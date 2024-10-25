@@ -132,6 +132,21 @@ export const useBudgetTransactions = (
   } as Response<TransactionResponse[]>
 }
 
+export const useCategoryTransactions = (
+  uuid: string
+): Response<TransactionResponse[]> => {
+  const url = `transactions/category/${uuid}/`
+
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq)
+
+  return {
+    data,
+    isLoading,
+    isError: error,
+    url
+  } as Response<TransactionResponse[]>
+}
+
 export const useLastAddedTransactions = (): Response<TransactionResponse[]> => {
   const url = `transactions/last-added/`
 
