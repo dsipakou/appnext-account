@@ -76,14 +76,15 @@ const Index: React.FC = () => {
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-gray-100 overflow-hidden">
       <div className="relative w-full max-w-md space-y-8 rounded-xl bg-white/90 p-10 shadow-md backdrop-blur-sm">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-extrabold text-gray-900">Welcome to HomeBudget</h1>
+        <div className="flex flex-col text-center space-y-2">
+          <span className="text-xl font-extrabold text-gray-900">Welcome to </span>
+          <span className="text-3xl font-extrabold text-gray-900">I got my Budget</span>
           <p className="text-gray-600">
             Sign up now and take control of your finances.
           </p>
         </div>
         <div className="text-center">
-          <h2 className="mt-6 text-2xl font-bold text-gray-900">Create your account</h2>
+          <span className="mt-6 text-xl font-bold text-gray-900">Create your account</span>
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
