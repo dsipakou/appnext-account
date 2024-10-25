@@ -1,3 +1,4 @@
+// External
 import React from 'react'
 // Components
 import TransactionsTable from '@/components/transactions/components/TransactionTableV2'

@@ -38,7 +38,6 @@ import {
   SavedForLaterForm,
   TransactionsForm
 } from '@/components/budget/forms'
-import { revalidateEvents } from 'swr/dist/_internal'
 
 type BudgetType = 'month' | 'week'
 
@@ -282,8 +281,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
               uuid={activeBudgetUuid}
             />
           </>
-        )
-        }
+        )}
       </>
     )
   }
