@@ -192,7 +192,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                               onCheckedChange={field.onChange}
                               disabled={isUpdating}
                             />
-                            <Label htmlFor="isDefault">make it default</Label>
+                            <Label htmlFor="isDefault">set as default</Label>
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger>
