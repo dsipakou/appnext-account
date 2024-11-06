@@ -21,6 +21,7 @@ import {
 import { useToast } from '@/components/ui/use-toast'
 import AddForm from './forms/AddForm'
 import ConfirmRevokeForm from './forms/ConfirmRevokeForm'
+import ChangePasswordForm from './forms/ChangePasswordForm'
 
 interface RoleMap {
   [userUuid: string]: string
@@ -88,9 +89,12 @@ const Index: React.FC = () => {
         {(me != null) && (
           <div className="flex flex-col bg-white p-2 rounded-md w-full drop-shadow">
             <span className="text-lg font-semibold p-2">Workspace owner</span>
-            <div className="flex my-1 w-full bg-slate-100 justify-left items-center p-4 gap-4">
-              <span className="text-lg font-semibold">{me.username}</span>
-              {isYou(me) && <span className="text-md">(this is you)</span>}
+            <div className="flex my-1 w-full bg-slate-100 justify-between items-center p-4 gap-4">
+              <div className="flex gap-2 items-center">
+                <span className="text-lg font-semibold">{me.username}</span>
+                {isYou(me) && <span className="text-md">(this is you)</span>}
+              </div>
+              <ChangePasswordForm />
             </div>
           </div>
         )}
@@ -157,7 +161,7 @@ const Index: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+    </div >
   )
 }
 
