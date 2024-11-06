@@ -1,5 +1,4 @@
 import WeekWidget from '@/components/dashboard/components/WeekWidget'
-import MonthWidget from '@/components/dashboard/components/MonthWidget'
 import RecentTransactions from '@/components/dashboard/components/RecentTransactions'
 import UpcommingExpenses from '@/components/dashboard/components/UpcommingExpenses'
 

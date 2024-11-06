@@ -1,20 +1,12 @@
+// System
 import React from 'react'
-import { ArrowBigUpDash, MoreVertical, Pencil, Trash2 } from 'lucide-react'
+import { ArrowUpRight, ArrowDownRight, MoreVertical, Pencil, Trash2 } from 'lucide-react'
+// UI
 import { Badge } from '@/components/ui/badge'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
-
-// assets
-import { ArrowUpRight, ArrowDownRight } from 'lucide-react'
-
+import * as Ddm from '@/components/ui/dropdown-menu'
+// Utils
 import { getRelativeDate } from '@/utils/dateUtils'
-
+// Types
 import { Currency, Rate } from './types'
 
 interface Types {
@@ -109,28 +101,24 @@ const CurrencyCard: React.FC<Types> = ({
       >
         <div className="flex justify-between">
           <span className="text-2xl p-2 font-semibold">{currency.code}</span>
-          <DropdownMenu>
-            <DropdownMenuTrigger className="cursor-pointer z-10 rounded-full focus-visible:outline-none">
+          <Ddm.DropdownMenu>
+            <Ddm.DropdownMenuTrigger className="cursor-pointer z-10 rounded-full focus-visible:outline-none">
               <MoreVertical className="z-1 h-8 w-8 border-2 bg-white text-black rounded-full" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleEdit}>
+            </Ddm.DropdownMenuTrigger>
+            <Ddm.DropdownMenuContent>
+              <Ddm.DropdownMenuLabel>Actions</Ddm.DropdownMenuLabel>
+              <Ddm.DropdownMenuSeparator />
+              <Ddm.DropdownMenuItem onClick={handleEdit}>
                 <Pencil className="h-4 w-4 mr-4" />
                 <span>Edit</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleDelete}>
+              </Ddm.DropdownMenuItem>
+              <Ddm.DropdownMenuItem onClick={handleDelete}>
                 <Trash2 className="h-4 w-4 mr-4" />
                 <span>Delete</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleDelete}>
-                <ArrowBigUpDash className="h-4 w-4 mr-4" />
-                <span>Make it base (TODO)</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </Ddm.DropdownMenuItem>
+              <Ddm.DropdownMenuSeparator />
+            </Ddm.DropdownMenuContent>
+          </Ddm.DropdownMenu>
         </div>
         <div className="flex items-start gap-2">
           <span className="text-[34px]">{getRate(currency.uuid)?.rate.toFixed(4)}</span>

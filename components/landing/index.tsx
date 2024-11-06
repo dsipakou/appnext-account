@@ -10,7 +10,8 @@ const Index = () => {
       <header className="px-4 lg:px-6 h-14 flex items-center border-b sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <Link className="flex items-center justify-center" href="#">
           <Wallet className="h-6 w-6 text-primary" />
-          <span className="ml-2 text-2xl font-bold text-primary">HomeBudget</span>
+          <span className="ml-2 text-2xl font-thin text-primary uppercase">I spent a</span>
+          <span className="ml-2 text-2xl font-bold text-primary uppercase">Dollar</span>
         </Link>
         <nav className="ml-auto flex gap-4 sm:gap-6">
           <Link className="text-sm font-medium hover:text-primary" href="#features">
@@ -31,10 +32,18 @@ const Index = () => {
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center space-y-4 text-center">
-              <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-                  Master Your Finances with HomeBudget
-                </h1>
+              <div className="flex flex-col space-y-2">
+                <span className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl lg:text-5xl/none">
+                  Master Your Finances with
+                </span>
+                <div>
+                  <span className="text-2xl font-thin tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none uppercase">
+                    I spent a
+                  </span>
+                  <span className="ml-4 text-2xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none uppercase">
+                    Dollar
+                  </span>
+                </div>
                 <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
                   Empower your financial journey with our comprehensive budgeting tool. Track spending, manage accounts, and achieve your financial goals with ease.
                 </p>

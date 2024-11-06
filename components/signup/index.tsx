@@ -52,7 +52,8 @@ const Index: React.FC = () => {
     }
 
     axios.post('users/register/', {
-      ...payload
+      ...payload,
+      username: payload.email.split('@')[0]
     }).then((res) => {
       if (res.status === 201) {
         signIn('credentials', {

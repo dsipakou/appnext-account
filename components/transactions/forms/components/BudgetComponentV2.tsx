@@ -39,8 +39,8 @@ export default function BudgetComponent({
   const accountUser = accounts.find((item: Account) => item.uuid === row.account)?.user
 
   const filteredBudgets = budgets.filter((item: WeekBudgetItem) => item.user === accountUser)
-  const completedBudgets = budgets.filter((item: WeekBudgetItem) => item.isCompleted && item.user === user)
-  const incompletedBudgets = budgets.filter((item: WeekBudgetItem) => !item.isCompleted && item.user === user)
+  const completedBudgets = filteredBudgets.filter((item: WeekBudgetItem) => item.isCompleted)
+  const incompletedBudgets = filteredBudgets.filter((item: WeekBudgetItem) => !item.isCompleted)
 
   React.useEffect(() => {
     setWeekStart(getStartOfWeek(row.date))

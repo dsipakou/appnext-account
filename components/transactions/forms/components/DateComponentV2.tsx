@@ -1,5 +1,5 @@
 import React from 'react'
-import { ChevronLeftIcon, ChevronRightIcon, CalendarIcon } from 'lucide-react'
+import { ArrowBigLeft, ArrowBigRight, ChevronRightIcon, CalendarIcon } from 'lucide-react'
 import { addDays, format, subDays, isSameWeek } from "date-fns"
 // UI
 import * as Ppv from '@/components/ui/popover'
@@ -36,14 +36,13 @@ export default function DateComponent({
   }
 
   return (
-    <div className="flex items-center">
+    <div className="w-full flex items-center justify-center">
       <Button
         size="sm"
         variant="ghost"
-        className="h-8 w-8"
         onClick={() => onChange(subDays(value as Date, 1))}
       >
-        <ChevronLeftIcon className="h-4 w-4" />
+        <ArrowBigLeft className="h-4 w-4" />
       </Button>
       <Ppv.Popover open={openCalendar === row.id} onOpenChange={(open) => setOpenCalendar(open ? row.id : null)}>
         <Ppv.PopoverTrigger asChild>
@@ -52,11 +51,11 @@ export default function DateComponent({
             "focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700 focus:ring-0 focus:outline-none focus:border-primary",
             isInvalid && 'outline outline-red-400',
           )}>
-            <CalendarIcon className="mr-2 h-4 w-4" />
+            <CalendarIcon className="mr-2 h-5 w-5" />
             {format(value as Date, 'dd MMM')}
           </Button>
         </Ppv.PopoverTrigger>
-        <Ppv.PopoverContent className="w-auto p-0">
+        <Ppv.PopoverContent className="p-0">
           <Calendar
             mode="single"
             selected={value as Date}
@@ -73,10 +72,9 @@ export default function DateComponent({
       <Button
         size="sm"
         variant="ghost"
-        className="h-8 w-8"
         onClick={() => onChange(addDays(value as Date, 1))}
       >
-        <ChevronRightIcon className="h-4 w-4" />
+        <ArrowBigRight className="h-4 w-4" />
       </Button>
     </div>
   )

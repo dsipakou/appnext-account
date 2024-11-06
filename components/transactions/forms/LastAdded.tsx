@@ -3,7 +3,7 @@ import { useSWRConfig } from 'swr'
 import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import * as Dlg from '@/components/ui/dialog'
-import TransactionTable from '@/components/transactions/components/TransactionTable'
+import TransactionTable from '@/components/transactions/components/TransactionTableV2'
 import { useLastAddedTransactions, useReadLastAddedTransactions } from '@/hooks/transactions'
 import { useUsers } from '@/hooks/users'
 import { useToast } from '@/components/ui/use-toast'
@@ -28,7 +28,6 @@ const LastAdded: React.FC = () => {
 
   const handleMarkAsSeenClick = async () => {
     if (!user) return
-
     const payload = {
       user,
       transaction: transactions[0].uuid
@@ -63,9 +62,6 @@ const LastAdded: React.FC = () => {
         <div className="h-full">
           <TransactionTable
             transactions={transactions}
-            withDate={true}
-            handleDeleteClick={() => { }}
-            handleEditClick={() => { }}
           />
         </div>
       </Dlg.DialogContent>

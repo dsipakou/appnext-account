@@ -1,4 +1,5 @@
 import React from 'react'
+import { Clock2 } from 'lucide-react'
 // UI
 import * as Slc from '@/components/ui/select'
 // Hooks
@@ -99,6 +100,8 @@ export default function CurrencyComponent({
     handleChange(row.id, 'currency', preselectedValue() as string)
   }, [isBudgetCurrencyAvailable, isDefaultCurrencyAvailable])
 
+  console.log(row)
+
   return (
     <Slc.Select
       value={value as string}
@@ -112,7 +115,7 @@ export default function CurrencyComponent({
     >
       <Slc.SelectTrigger
         className={cn(
-          "w-full h-8 px-2 text-sm border-0 bg-white text-left",
+          "w-24 h-8 px-2 text-sm border-0 bg-white text-left",
           "focus:ring-0 focus:outline-none focus:border-primary focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700",
           isInvalid && "outline outline-red-400",
         )}
@@ -136,10 +139,14 @@ export default function CurrencyComponent({
             <Slc.SelectLabel className="flex justify-start">Outdated</Slc.SelectLabel>
             {outdatedCurrencies.map((item: Currency) => (
               <Slc.SelectItem
-                className="italic"
+                className="italic pr-0"
                 key={item.uuid}
                 value={item.uuid}
-              >{item.code} *</Slc.SelectItem>
+              >
+                <div className="flex gap-2 items-center">
+                  {item.code}<Clock2 className="w-4 h-4" />
+                </div>
+              </Slc.SelectItem>
             ))}
           </Slc.SelectGroup>
         )}

@@ -2,7 +2,6 @@
 
 import React, { FC, ReactElement, ReactNode } from 'react'
 import { signOut, useSession } from 'next-auth/react'
-import Image from 'next/image'
 import { useStore } from '@/app/store'
 import axios from 'axios'
 import Link from 'next/link'
@@ -29,6 +28,7 @@ import {
 } from '@/components/ui/select'
 import { useCurrencies } from '@/hooks/currencies'
 import { Currency } from '@/components/currencies/types'
+import { cn } from '@/lib/utils'
 
 interface Props {
   children: ReactNode
@@ -104,7 +104,7 @@ const Layout: FC<Props> = ({ children }) => {
     {
       name: 'Budget',
       icon: <GanttChart />,
-      link: '/budget/month'
+      link: '/budget/week'
     },
     {
       name: 'Currencies',
@@ -141,16 +141,12 @@ const Layout: FC<Props> = ({ children }) => {
 
   return (
     <div className="flex flex-col h-screen">
-      <div className={`fixed flex flex-col justify-between drop-shadow-sm transition-all ease-in-out delay-50 bg-white overflow-hidden z-40 h-screen ${open ? 'w-60' : 'w-16'}`}>
+      <div className={cn(
+        "fixed flex flex-col justify-between drop-shadow-sm transition-all ease-in-out delay-50 bg-white overflow-hidden z-40 h-screen",
+        open ? 'w-60 shadow-xl' : 'w-16'
+      )}>
         <div className="flex flex-col items-start">
-          <div className="flex flex-col w-full items-start justify-center">
-            <Button
-              variant="link"
-              className="text-white pl-5 h-16 self-center"
-              onClick={open ? handleDrawerClose : handleDrawerOpen}
-            >
-              <Menu className="text-black" />
-            </Button>
+          <div className="flex flex-col w-full items-start justify-center pt-16">
             {menuItems.map(({ name, icon, link }) => (
               menuComponent(name, icon, link)
             ))}
@@ -167,12 +163,13 @@ const Layout: FC<Props> = ({ children }) => {
       <header className="flex w-full z-50 bg-blue-500 text-white">
         <div className="flex mx-2 py-2 pl-20 justify-between w-full items-center">
           <div className="flex items-center gap-2">
-            <Image
-              alt="Logo"
-              src="/images/logo.png"
-              width="200"
-              height="100"
+            <Menu
+              className="text-white absolute left-4 cursor-pointer"
+              onClick={open ? handleDrawerClose : handleDrawerOpen}
             />
+
+            <span className="text-2xl font-light uppercase font-sans select-none">I spent a</span>
+            <span className="text-2xl font-bold uppercase font-sans select-none">dollar</span>
           </div>
           <div className="flex items-center justify-between">
             {!!currencies?.length && (
@@ -209,7 +206,7 @@ const Layout: FC<Props> = ({ children }) => {
       <div className="container flex flex-col mx-auto pl-20 h-full pt-1 xl">
         {children}
       </div>
-    </div>
+    </div >
   )
 }
 
