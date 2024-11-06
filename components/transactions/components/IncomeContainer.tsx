@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from 'react'
+import React from 'react'
 import {
   EditIncomeForm,
   ConfirmDeleteForm
@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import TransactionTable from './TransactionTable'
+import TransactionTable from './TransactionTableV2'
 import { TransactionResponse } from '../types'
 
 interface Types {
@@ -58,54 +58,52 @@ const IncomeComponent: React.FC<Types> = ({
   }
 
   return (
-  <div className="flex flex-col w-full">
-    <div className="flex items-center justify-center gap-2 m-3">
-      <Select
-        defaultValue={year}
-        onValueChange={setYear}
-        disabled={isLoading}
-      >
-        <SelectTrigger className="relative bg-white text-lg h-8 w-24">
-          <SelectValue placeholder="Show income for the year" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel>Year</SelectLabel>
-            {years.map((year: number, index: number) => (
-              <SelectItem value={year} key={index}>{year}</SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+    <div className="flex flex-col w-full">
+      <div className="flex items-center justify-center gap-2 m-3">
+        <Select
+          defaultValue={year}
+          onValueChange={setYear}
+          disabled={isLoading}
+        >
+          <SelectTrigger className="relative bg-white text-lg h-8 w-24">
+            <SelectValue placeholder="Show income for the year" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Year</SelectLabel>
+              {years.map((year: number, index: number) => (
+                <SelectItem value={year} key={index}>{year}</SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex bg-white">
+        <TransactionTable
+          transactions={transactions}
+          url={transactionsUrl}
+          disabledColumns={['budget']}
+        />
+      </div>
+      {
+        isOpenEditIncome &&
+        <EditIncomeForm
+          open={isOpenEditIncome}
+          uuid={activeIncomeUuid}
+          url={transactionsUrl}
+          handleClose={handleCloseModal}
+        />
+      }
+      {
+        isOpenDeleteIncome &&
+        <ConfirmDeleteForm
+          open={isOpenDeleteIncome}
+          uuid={activeIncomeUuid}
+          url={transactionsUrl}
+          handleClose={handleCloseModal}
+        />
+      }
     </div>
-    <div className="flex bg-white">
-      <TransactionTable
-        transactions={transactions}
-        withDate={true}
-        showBudget={false}
-        handleDeleteClick={handleDeleteClick}
-        handleEditClick={handleEditClick}
-      />
-    </div>
-    {
-      isOpenEditIncome &&
-      <EditIncomeForm
-        open={isOpenEditIncome}
-        uuid={activeIncomeUuid}
-        url={transactionsUrl}
-        handleClose={handleCloseModal}
-      />
-    }
-    {
-      isOpenDeleteIncome &&
-      <ConfirmDeleteForm
-        open={isOpenDeleteIncome}
-        uuid={activeIncomeUuid}
-        url={transactionsUrl}
-        handleClose={handleCloseModal}
-      />
-    }
-  </div>
   )
 }
 

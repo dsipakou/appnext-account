@@ -134,13 +134,13 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
   const handleSave = async (payload: z.infer<typeof formSchema>): void => {
     try {
       // TODO: Optimistic update here
-      const updatedBudget = await editBudget({
+      await editBudget({
         ...payload,
         budgetDate: getFormattedDate(payload.budgetDate),
         recurrent: payload.repeatType,
       })
-      mutate(monthUrl)
-      mutate(weekUrl)
+      mutate(key => typeof key === 'string' && key.includes('budget/usage'), undefined)
+      mutate(key => typeof key === 'string' && key.includes('budget/weekly-usage'), undefined)
       mutate(pendingUrl)
       toast({
         title: 'Successfully updated!'

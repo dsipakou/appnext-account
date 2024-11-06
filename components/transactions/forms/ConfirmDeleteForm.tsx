@@ -1,29 +1,34 @@
 import React from 'react'
-import { useSWRConfig } from 'swr'
 import { Button } from '@/components/ui/button'
 import * as Dlg from '@/components/ui/dialog'
 import { useToast } from '@/components/ui/use-toast'
 import { useDeleteTransaction } from '@/hooks/transactions'
+import { RowData } from '@/components/transactions/components/TransactionTableV2'
 
 interface Types {
   open: boolean
-  uuid: string
-  url: string
+  row: RowData
+  handleRemoveCompleted: (id: number) => void
   handleClose: () => void
 }
 
-const ConfirmDeleteForm: React.FC<Types> = ({ open = false, uuid, url, handleClose }) => {
+const ConfirmDeleteForm: React.FC<Types> = ({
+  open = false,
+  row,
+  handleRemoveCompleted,
+  handleClose,
+}) => {
   const { toast } = useToast()
-  const { mutate } = useSWRConfig()
-  const { trigger: deleteTransaction, isMutating: isDeleting } = useDeleteTransaction(uuid)
+  const { trigger: deleteTransaction, isMutating: isDeleting } = useDeleteTransaction(row?.uuid)
 
   const handleDelete = async () => {
     try {
       await deleteTransaction()
-      mutate(url)
+      handleRemoveCompleted(row.id)
       handleClose()
     } catch (error) {
       toast({
+        variant: 'destructive',
         title: 'Please, try again'
       })
     }

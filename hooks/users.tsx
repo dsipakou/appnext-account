@@ -66,3 +66,12 @@ export const useRevokeInvite = (uuid: string) => {
     isMutating,
   }
 }
+
+export const useResetPassword = () => {
+  const { trigger, isMutating } = useSWRMutation('users/change-password/', patchReq)
+
+  return {
+    trigger,
+    isMutating,
+  }
+}

@@ -1,5 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
+import { Eye, EyeOff } from 'lucide-react'
 import axios from 'axios'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
@@ -18,7 +19,6 @@ import {
 
 const formSchema = z.object({
   email: z.string().email(),
-  username: z.string(),
   password: z.string(),
   repeatPassword: z.string()
 }).refine((data) => data.password === data.repeatPassword, {
@@ -28,16 +28,20 @@ const formSchema = z.object({
 
 const Index: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [showPassword, setShowPassword] = React.useState<boolean>(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: '',
-      username: '',
       password: '',
       repeatPassword: ''
     }
   })
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword)
+  }
 
   const onSubmit = (payload: z.infer<typeof formSchema>) => {
     setIsLoading(true)
@@ -48,7 +52,8 @@ const Index: React.FC = () => {
     }
 
     axios.post('users/register/', {
-      ...payload
+      ...payload,
+      username: payload.email.split('@')[0]
     }).then((res) => {
       if (res.status === 201) {
         signIn('credentials', {
@@ -70,16 +75,20 @@ const Index: React.FC = () => {
   }
 
   return (
-    <div className="flex w-full h-screen gap-5">
-      <div className="flex-1">
-        <div className="flex flex-col bg-blue-500 p-4 h-full text-white gap-5">
-          <span className="text-2xl font-bold">Welcome to Fly Budget</span>
-          <span className="text-xl">Create an account now to control your expenses</span>
+    <div className="relative flex min-h-screen items-center justify-center bg-gray-100 overflow-hidden">
+      <div className="relative w-full max-w-md space-y-8 rounded-xl bg-white/90 p-10 shadow-md backdrop-blur-sm">
+        <div className="flex flex-col text-center space-y-2">
+          <span className="text-xl font-extrabold text-gray-900">Welcome to </span>
+          <span className="text-3xl font-extrabold text-gray-900">I got my Budget</span>
+          <p className="text-gray-600">
+            Sign up now and take control of your finances.
+          </p>
         </div>
-      </div>
-      <div className="flex-1">
+        <div className="text-center">
+          <span className="mt-6 text-xl font-bold text-gray-900">Create your account</span>
+        </div>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-20 p-5 rounded-md drop-shadow-md bg-white w-2/3">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="email"
@@ -87,20 +96,11 @@ const Index: React.FC = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input className="w-full" disabled={isLoading} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input className="w-full" disabled={isLoading} {...field} />
+                    <Input
+                      className="w-full"
+                      disabled={isLoading}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -113,7 +113,23 @@ const Index: React.FC = () => {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" className="w-full" disabled={isLoading} {...field} />
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        className="w-full"
+                        disabled={isLoading}
+                        required
+                        {...field}
+                      />
+                      <button
+                        type="button"
+                        onClick={togglePasswordVisibility}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 transform"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -126,18 +142,24 @@ const Index: React.FC = () => {
                 <FormItem>
                   <FormLabel>Repeat Password</FormLabel>
                   <FormControl>
-                    <Input type="password" className="w-full" disabled={isLoading} {...field} />
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      className="w-full"
+                      disabled={isLoading}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <div className="flex justify-between">
-              <Link href="/login" className="underline text-blue-500">Existing account?</Link>
-            </div>
-            <Button type="submit">Join now</Button>
+            <Button className="w-full" type="submit">Join now</Button>
           </form>
         </Form>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Already have an account?{' '}
+          <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">Log In</Link>
+        </p>
       </div>
     </div>
   )

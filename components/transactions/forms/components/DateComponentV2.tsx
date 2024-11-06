@@ -1,57 +1,81 @@
 import React from 'react'
-import {
-  addDays,
-  subDays,
-  format
-} from 'date-fns'
-import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react'
-import {
-  GridRenderEditCellParams,
-  useGridApiContext
-} from '@mui/x-data-grid'
-import { Calendar } from '@/components/ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { ArrowBigLeft, ArrowBigRight, ChevronRightIcon, CalendarIcon } from 'lucide-react'
+import { addDays, format, subDays, isSameWeek } from "date-fns"
+// UI
+import * as Ppv from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+// Types
+import { RowData } from '@/components/transactions/components/TransactionTableV2'
+// Utils
+import { cn } from '@/lib/utils'
 
-interface Types extends GridRenderEditCellParams { }
+type Props = {
+  user: string
+  value: string
+  handleChange: (id: number, key: string, value: Date | null) => void
+  row: RowData
+  isInvalid: boolean
+}
 
-const DateComponentV2: React.FC<Types> = (params) => {
-  const { id, field, value } = params
-  const apiRef = useGridApiContext()
+export default function DateComponent({
+  user,
+  value,
+  handleChange,
+  row,
+  isInvalid,
+}: Props) {
+  const [openCalendar, setOpenCalendar] = React.useState<number | null>(null)
 
-  const handleChange = (newValue: any) => {
-    apiRef.current.setEditCellValue({ id, field, value: newValue })
+  const onChange = (value: Date) => {
+    handleChange(row.id, 'date', value)
+    if (!isSameWeek(value, row.date)) {
+      handleChange(row.id, 'budget', null)
+    }
+    setOpenCalendar(null)
   }
 
-  React.useEffect(() => {
-    apiRef.current.setEditCellValue({ id, field, value: value || new Date() })
-  }, [])
-
   return (
-    <div className="flex w-full h-full bg-slate-100 select-none items-center">
-      <ChevronLeft className="w-7 cursor-pointer" onClick={() => handleChange(subDays(value, 1))} />
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className="flex text-xs w-full justify-start rounded-lg h-full border bg-white text-left font-normal">
-            <CalendarDays className="mr-2 h-4 w-4" />
-            {value ? format(value, 'MMM dd') : (<span>Pick a date</span>)}
+    <div className="w-full flex items-center justify-center">
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={() => onChange(subDays(value as Date, 1))}
+      >
+        <ArrowBigLeft className="h-4 w-4" />
+      </Button>
+      <Ppv.Popover open={openCalendar === row.id} onOpenChange={(open) => setOpenCalendar(open ? row.id : null)}>
+        <Ppv.PopoverTrigger asChild>
+          <Button variant="outline" className={cn(
+            "w-full h-8 px-2 text-sm border-0 bg-white justify-start text-left font-normal mx-1",
+            "focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700 focus:ring-0 focus:outline-none focus:border-primary",
+            isInvalid && 'outline outline-red-400',
+          )}>
+            <CalendarIcon className="mr-2 h-5 w-5" />
+            {format(value as Date, 'dd MMM')}
           </Button>
-        </PopoverTrigger>
-        <PopoverContent className="h-full w-full p-0">
+        </Ppv.PopoverTrigger>
+        <Ppv.PopoverContent className="p-0">
           <Calendar
             mode="single"
-            selected={value}
-            onSelect={(date: Date | undefined) => !(date == null) && handleChange(date)}
+            selected={value as Date}
+            onSelect={(date) => {
+              if (date) {
+                onChange(date)
+              }
+            }}
             weekStartsOn={1}
             initialFocus
           />
-        </PopoverContent>
-      </Popover>
-      <ChevronRight className="w-7 cursor-pointer" onClick={() => handleChange(addDays(value, 1))} />
+        </Ppv.PopoverContent>
+      </Ppv.Popover>
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={() => onChange(addDays(value as Date, 1))}
+      >
+        <ArrowBigRight className="h-4 w-4" />
+      </Button>
     </div>
   )
 }
-
-export default DateComponentV2

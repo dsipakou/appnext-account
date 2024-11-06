@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useSWRConfig } from 'swr'
 import { useStore } from '@/app/store'
 import { cn } from '@/lib/utils'
 import { useSession } from 'next-auth/react'
@@ -47,6 +48,7 @@ const BudgetItem: React.FC<Types> = ({
   const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] = React.useState<boolean>(false)
   const [isAddTransactionDialogOpened, setIsAddTransactionDialogOpened] = React.useState<boolean>(false)
   const { toast } = useToast()
+  const { mutate } = useSWRConfig()
 
   const { data: users } = useUsers()
   const { trigger: completeBudget, isMutating: isCompleting } = useEditBudget(budget.uuid)
@@ -64,6 +66,7 @@ const BudgetItem: React.FC<Types> = ({
     try {
       const updatedBudget = await completeBudget({ isCompleted: !budget.isCompleted, category: budget.category })
       mutateBudget(updatedBudget)
+      mutate('budget/upcomming/', undefined)
     } catch (error) {
       const message = extractErrorMessage(error)
       toast({

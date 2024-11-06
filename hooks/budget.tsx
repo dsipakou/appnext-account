@@ -4,6 +4,7 @@ import useSWRImmutable from 'swr/immutable'
 import useSWRMutation from 'swr/mutation'
 import {
   GroupedByCategoryBudget,
+  BudgetItem,
   WeekBudgetItem,
   DuplicateBudgetResponse,
   MonthSummedUsage,
@@ -80,7 +81,9 @@ export const useBudgetWeek = (
   user?: string,
 ): Response<WeekBudgetItem[]> => {
   let url = `budget/weekly-usage/?dateFrom=${dateFrom}&dateTo=${dateTo}`;
-  if (user && user !== 'all') url = `${url}&user=${user}`
+  if (user && user !== 'all') {
+    url = `${url}&user=${user}`
+  }
   const { data, error, isLoading } = useSWRImmutable(url, fetchReq);
 
   return {
@@ -120,6 +123,17 @@ export const useGetDuplicates = (
     isError: error,
     url
   } as Response<DuplicateBudgetResponse[]>
+}
+
+export const useGetUpcommingBudget = (): Response<BudgetItem[]> => {
+  const { data, error, isLoading } = useSWRImmutable('budget/upcomming/', fetchReq);
+
+  return {
+    data,
+    isLoading,
+    isError: error,
+  } as Response<BudgetItem[]>;
+
 }
 
 export const useBudgetLastMonthsUsage = (

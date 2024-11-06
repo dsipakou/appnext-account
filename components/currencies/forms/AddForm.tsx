@@ -1,3 +1,4 @@
+// System
 import React from 'react'
 import * as z from 'zod'
 import { useSWRConfig } from 'swr'
@@ -5,34 +6,19 @@ import { useSession } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Info } from 'lucide-react'
+// UI
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form'
+import * as Dlg from '@/components/ui/dialog'
+import * as Frm from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/ui/tooltip'
+import * as Tlp from '@/components/ui/tooltip'
 import { useToast } from '@/components/ui/use-toast'
+// Hooks
 import { useCreateCurrency } from '@/hooks/currencies'
+// Utils
 import { extractErrorMessage } from '@/utils/stringUtils'
 
 interface Types {
@@ -65,13 +51,13 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
   const handleSave = async (payload: z.infer<typeof formSchema>) => {
     try {
       const currency = await createCurrency(payload)
-      mutate('currencies/')
       if (currency.isBase) {
         updateSession({ currency: payload.code })
       }
       toast({
         title: 'Saved!'
       })
+      mutate(key => typeof key === 'string' && key.includes('rates/'), undefined)
       handleClose()
     } catch (error) {
       const message = extractErrorMessage(error)
@@ -90,26 +76,26 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
   }
 
   return (
-    <Dialog onOpenChange={cleanFormErrors}>
-      <DialogTrigger asChild className="mx-2">
+    <Dlg.Dialog onOpenChange={cleanFormErrors}>
+      <Dlg.DialogTrigger asChild className="mx-2">
         <Button>+ Add currency</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add currency</DialogTitle>
-        </DialogHeader>
-        <Form {...form}>
+      </Dlg.DialogTrigger>
+      <Dlg.DialogContent>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Add currency</Dlg.DialogTitle>
+        </Dlg.DialogHeader>
+        <Frm.Form {...form}>
           <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
             <div className="flex flex-col space-y-3">
               <div className="flex w-full">
                 <div className="flex w-2/3">
-                  <FormField
+                  <Frm.FormField
                     control={form.control}
                     name="verbalName"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Currency name</FormLabel>
-                        <FormControl>
+                      <Frm.FormItem>
+                        <Frm.FormLabel>Currency name</Frm.FormLabel>
+                        <Frm.FormControl>
                           <Input
                             className="w-full"
                             disabled={isCreating}
@@ -117,60 +103,62 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                             id="verbalName"
                             {...field}
                           />
-                        </FormControl>
-                      </FormItem>
+                        </Frm.FormControl>
+                      </Frm.FormItem>
                     )}
                   />
                 </div>
                 <div className="flex w-1/3">
-                  <FormField
+                  <Frm.FormField
                     control={form.control}
                     name="sign"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Sign</FormLabel>
-                        <FormControl>
+                      <Frm.FormItem>
+                        <Frm.FormLabel>Sign</Frm.FormLabel>
+                        <Frm.FormControl>
                           <Input
                             className="w-full"
                             disabled={isCreating}
                             placeholder="$"
+                            maxLength={2}
                             id="sign"
                             {...field}
                           />
-                        </FormControl>
-                      </FormItem>
+                        </Frm.FormControl>
+                      </Frm.FormItem>
                     )}
                   />
                 </div>
               </div>
               <div className="flex w-full items-end">
                 <div className="flex w-1/2">
-                  <FormField
+                  <Frm.FormField
                     control={form.control}
                     name="code"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Code</FormLabel>
-                        <FormControl>
+                      <Frm.FormItem>
+                        <Frm.FormLabel>Code</Frm.FormLabel>
+                        <Frm.FormControl>
                           <Input
                             className="w-full"
                             disabled={isCreating}
                             placeholder="USD"
+                            maxLength={3}
                             id="code"
                             {...field}
                           />
-                        </FormControl>
-                      </FormItem>
+                        </Frm.FormControl>
+                      </Frm.FormItem>
                     )}
                   />
                 </div>
                 <div className="flex w-1/2 pb-2">
-                  <FormField
+                  <Frm.FormField
                     control={form.control}
                     name="isDefault"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
+                      <Frm.FormItem>
+                        <Frm.FormControl>
                           <div className="flex items-center space-x-2">
                             <Switch
                               id="isDefault"
@@ -179,49 +167,49 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                               disabled={isCreating}
                             />
                             <Label htmlFor="isDefault">make it default</Label>
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger>
+                            <Tlp.TooltipProvider>
+                              <Tlp.Tooltip>
+                                <Tlp.TooltipTrigger asChild>
                                   <Info className="text-black h-4 w-4" />
-                                </TooltipTrigger>
-                                <TooltipContent>
+                                </Tlp.TooltipTrigger>
+                                <Tlp.TooltipContent>
                                   <p>Making this currency as default <br />will make current default currency as non-default</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                                </Tlp.TooltipContent>
+                              </Tlp.Tooltip>
+                            </Tlp.TooltipProvider>
                           </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                        </Frm.FormControl>
+                        <Frm.FormMessage />
+                      </Frm.FormItem>
                     )}
                   />
                 </div>
               </div>
               <div className="flex pt-6">
-                <FormField
+                <Frm.FormField
                   control={form.control}
                   name="comments"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
+                    <Frm.FormItem>
+                      <Frm.FormControl>
                         <Textarea
                           placeholder="Any comments"
                           className="resize-none"
                           disabled={isCreating}
                           {...field}
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                      </Frm.FormControl>
+                      <Frm.FormMessage />
+                    </Frm.FormItem>
                   )}
                 />
               </div>
             </div>
             <Button type="submit">Save</Button>
           </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+        </Frm.Form>
+      </Dlg.DialogContent>
+    </Dlg.Dialog>
   )
 }
 

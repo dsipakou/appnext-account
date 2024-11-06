@@ -1,6 +1,7 @@
 import { SessionProvider, useSession } from 'next-auth/react'
 import type { Session } from 'next-auth'
 import React, { lazy } from 'react'
+import Head from 'next/head'
 import type { AppProps } from 'next/app'
 import { useRouter } from 'next/router'
 import typography from '../theme/typography'
@@ -23,33 +24,43 @@ const App = ({
 
   if (Component.layout === 'public') {
     return (
-      <SessionProvider session={session}>
-        <ThemeProvider theme={theme}>
-          <Component {...pageProps} />
-        </ThemeProvider>
-      </SessionProvider>
+      <>
+        <Head>
+          <title>I spent a Dollar</title>
+        </Head>
+        <SessionProvider session={session}>
+          <ThemeProvider theme={theme}>
+            <Component {...pageProps} />
+          </ThemeProvider>
+        </SessionProvider>
+      </>
     )
   }
 
   return (
-    <SessionProvider session={session}>
-      <ThemeProvider theme={theme}>
-        <Toaster />
-        {Component.auth
-          ? (
-          <Auth>
-            <Layout>
-              <Component {...pageProps} />
-            </Layout>
-          </Auth>
+    <>
+      <Head>
+        <title>I spent a Dollar</title>
+      </Head>
+      <SessionProvider session={session}>
+        <ThemeProvider theme={theme}>
+          <Toaster />
+          {Component.auth
+            ? (
+              <Auth>
+                <Layout>
+                  <Component {...pageProps} />
+                </Layout>
+              </Auth>
             )
-          : (
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
+            : (
+              <Layout>
+                <Component {...pageProps} />
+              </Layout>
             )}
-      </ThemeProvider>
-    </SessionProvider>
+        </ThemeProvider>
+      </SessionProvider>
+    </>
   )
 }
 
@@ -57,12 +68,12 @@ interface AuthProps {
   children: React.ReactNode
 }
 
-function Auth ({ children }: AuthProps) {
+function Auth({ children }: AuthProps) {
   const router = useRouter()
 
   const { data: session, status } = useSession({
     required: true,
-    onUnauthenticated () {
+    onUnauthenticated() {
       router.push('/login')
     }
   })

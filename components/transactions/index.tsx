@@ -14,10 +14,9 @@ import {
 } from '@/components/transactions/forms'
 import { TransactionResponse } from '@/components/transactions/types'
 import EDailyChart from '@/components/transactions/components/EDailyChart'
-import { formatMoney } from '@/utils/numberUtils'
 import { getFormattedDate } from '@/utils/dateUtils'
 import { cn } from '@/lib/utils'
-import TransactionTable from './components/TransactionTable'
+import { default as TableV2 } from './components/TransactionTableV2'
 import IncomeComponent from './components/IncomeContainer'
 import LastAdded from './forms/LastAdded'
 
@@ -128,10 +127,8 @@ const Index: React.FC = () => {
         ? (
           <div className="grid grid-cols-7 gap-2">
             <div className="col-span-5 bg-white">
-              <TransactionTable
+              <TableV2
                 transactions={transactions}
-                handleDeleteClick={handleDeleteClick}
-                handleEditClick={handleEditClick}
               />
             </div>
             <div className="col-span-2">
@@ -147,12 +144,6 @@ const Index: React.FC = () => {
                 </div>
                 <div className="flex flex-col flex-nowrap bg-white items-center justify-center rounded-md p-3">
                   <span className="text-xl font-semibold my-2">Day summary</span>
-                  <div className="flex gap-2 text-md">
-                    <span className="font-semibold">{formatMoney(overallSum)}{currencySign}</span>
-                    <span>spent in</span>
-                    <span className="font-semibold">{transactions?.length}</span>
-                    <span>transactions</span>
-                  </div>
                   <div className="flex w-full">
                     <EDailyChart
                       transactions={transactions}
@@ -172,7 +163,11 @@ const Index: React.FC = () => {
             setYear={setIncomeYear}
           />
         )}
-      <AddForm open={isOpenTransactionsDialog} onOpenChange={setIsOpenTransactionsDialog} url={transactionsUrl} />
+      <AddForm
+        open={isOpenTransactionsDialog}
+        onOpenChange={setIsOpenTransactionsDialog}
+        url={transactionsUrl}
+      />
       <AddIncomeForm open={isOpenAddIncomeTransactions} url={incomeTransactionsUrl} handleClose={handleCloseModal} />
       {
         isOpenEditTransactions &&

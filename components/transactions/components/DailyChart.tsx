@@ -23,14 +23,16 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
   }, [transactions])
 
   return (
-    <Chart
-      type="donut"
-      series={Object.values(groupedTransactions)}
-      options={{
-        labels: Object.keys(groupedTransactions)
-      }}
-      width="350"
-    />
+    <>
+      <Chart
+        type="donut"
+        series={Object.values(groupedTransactions)}
+        options={{
+          labels: Object.keys(groupedTransactions)
+        }}
+        width="350"
+      />
+    </>
   )
 }
 

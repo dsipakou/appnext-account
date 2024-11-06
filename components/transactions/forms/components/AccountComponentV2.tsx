@@ -5,11 +5,14 @@ import * as Slc from '@/components/ui/select'
 import { useBudgetWeek } from '@/hooks/budget'
 // Types
 import { Account } from '@/components/accounts/types'
-import { WeekBudgetItem } from '@/components/budget/types'
 import { RowData } from '@/components/transactions/components/TransactionTableV2'
+import { WeekBudgetItem } from '@/components/budget/types'
 // Utils
 import { cn } from '@/lib/utils'
-import { getEndOfWeek, getStartOfWeek } from '@/utils/dateUtils'
+import {
+  getStartOfWeek,
+  getEndOfWeek
+} from '@/utils/dateUtils'
 
 type Props = {
   user: string
@@ -22,7 +25,7 @@ type Props = {
   isInvalid: boolean
 }
 
-export default function BudgetComponent({
+export default function AccountComponent({
   user,
   value,
   accounts,
@@ -36,34 +39,47 @@ export default function BudgetComponent({
 
   const { data: budgets = [] } = useBudgetWeek(weekStart, weekEnd)
 
-  const accountUser = accounts.find((item: Account) => item.uuid === row.account)?.user
-
-  const filteredBudgets = budgets.filter((item: WeekBudgetItem) => item.user === accountUser)
-  const completedBudgets = filteredBudgets.filter((item: WeekBudgetItem) => item.isCompleted)
-  const incompletedBudgets = filteredBudgets.filter((item: WeekBudgetItem) => !item.isCompleted)
+  const yourAccounts = accounts.filter((item: Account) => item.user === user)
+  const otherAccounts = accounts.filter((item: Account) => item.user !== user)
+  const defaultAccount = yourAccounts.find((item: Account) => item.isMain)
 
   React.useEffect(() => {
     setWeekStart(getStartOfWeek(row.date))
     setWeekEnd(getEndOfWeek(row.date))
   }, [row.date])
 
-  const onChange = (value: string) => {
-    const budget = filteredBudgets.find((item: WeekBudgetItem) => item.uuid === value)
-    handleChange(row.id, "budget", value)
-    handleChange(row.id, "budgetName", budget?.title || "")
-    handleChange(row.id, "category", budget?.category || "")
+  React.useEffect(() => {
+    if (!defaultAccount) return
+    // If no account passed (i.e. while duplicating) select default
+    if (!value) {
+      handleChange(row.id, "account", defaultAccount?.uuid || "")
+    }
+  }, [defaultAccount])
+
+  const isAccountAndBudgetMatch = (newValue: string) => {
+    if (!row.budget) {
+      return true
+    }
+    const accountUser = accounts.find((item: Account) => item.uuid === newValue)?.user
+    return budgets.some((item: WeekBudgetItem) => item.user === accountUser)
+  }
+
+  const changeValue = (value: string) => {
+    if (!isAccountAndBudgetMatch(value)) {
+      handleChange(row.id, "budget", null)
+    }
+    handleChange(row.id, "account", value)
   }
 
   return (
     <Slc.Select
       value={value}
-      onValueChange={(value) => onChange(value)}
+      onValueChange={(value) => changeValue(value)}
       onOpenChange={(open) => {
         if (!open) {
           (document.activeElement as HTMLElement)?.blur();
         }
       }}
-      disabled={!accountUser}
     >
       <Slc.SelectTrigger
         className={cn(
@@ -72,38 +88,32 @@ export default function BudgetComponent({
         )}
         onKeyDown={(e) => handleKeyDown(e, row.id)}
       >
-        <Slc.SelectValue placeholder={!accountUser ? "Select account first" : ""} />
+        <Slc.SelectValue />
       </Slc.SelectTrigger>
       <Slc.SelectContent>
-        {!filteredBudgets.length && (
-          <Slc.SelectItem value="empty" disabled>No budgets</Slc.SelectItem>
+        {!yourAccounts.length && (
+          <Slc.SelectItem value="empty" disabled>No accounts</Slc.SelectItem>
         )}
-        {!!filteredBudgets.length && !!incompletedBudgets.length && (
+        {!!yourAccounts.length && (
           <>
             <Slc.SelectGroup>
-              {incompletedBudgets.map((item: WeekBudgetItem) => (
-                <Slc.SelectItem
-                  key={item.uuid}
-                  value={item.uuid}
-                >{item.title}</Slc.SelectItem>
+              <Slc.SelectLabel>Your Accounts</Slc.SelectLabel>
+              {yourAccounts.map((item: Account) => (
+                <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.title}</Slc.SelectItem>
               ))}
             </Slc.SelectGroup>
             <Slc.SelectSeparator />
           </>
         )}
-        {!!filteredBudgets.length && !!completedBudgets.length && (
+        {!!yourAccounts.length && !!otherAccounts.length && (
           <Slc.SelectGroup>
-            <Slc.SelectLabel className="flex justify-start">Completed budgets</Slc.SelectLabel>
-            {completedBudgets.map((item: WeekBudgetItem) => (
-              <Slc.SelectItem
-                className="italic"
-                key={item.uuid}
-                value={item.uuid}
-              >{item.title}</Slc.SelectItem>
+            <Slc.SelectLabel>Other Accounts</Slc.SelectLabel>
+            {otherAccounts.map((item: Account) => (
+              <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.title}</Slc.SelectItem>
             ))}
           </Slc.SelectGroup>
         )}
       </Slc.SelectContent>
-    </Slc.Select >
+    </Slc.Select>
   )
 }

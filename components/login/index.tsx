@@ -52,48 +52,49 @@ const Index: React.FC = () => {
 
   return (
     status === 'unauthenticated' && (
-      <div className="flex gap-4 justify-end">
-        <div className="w-1/2">
-          <div className="flex flex-col gap-4 mt-10">
-            <span className="text-2xl font-semibold">Login to your account</span>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-8">
-                <div className="flex flex-col gap-4 w-2/3 bg-white p-6 rounded-lg drop-shadow-lg">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input className="w-full" disabled={isLoading} {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input type="password" className="w-full" disabled={isLoading} {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="flex justify-between">
-                    <Link href="/signup" className="underline text-blue-500">Create new account</Link>
-                    <Link href="/" className="underline text-blue-500">Forgot Password?</Link>
-                  </div>
-                  <Button type="submit">Login</Button>
-                </div>
-              </form>
-            </Form>
+      <div className="relative flex min-h-screen items-center justify-center bg-gray-100 overflow-hidden">
+        <div className="relative w-full max-w-md space-y-8 rounded-xl bg-white/90 p-10 shadow-md backdrop-blur-sm">
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl font-extrabold text-gray-900">Welcome back</h1>
+            <p className="text-gray-600">
+              Log in to continue managing your finances and achieving your goals.
+            </p>
           </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-8">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input className="w-full" disabled={isLoading} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" className="w-full" disabled={isLoading} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <p className="flex mt-2 justify-between text-sm">
+                <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500">Create new account</Link>
+                <Link href="/" className="font-medium text-blue-600 hover:text-blue-500">Forgot Password?</Link>
+              </p>
+              <Button className="w-full" type="submit">Login</Button>
+            </form>
+          </Form>
         </div>
       </div>
     )

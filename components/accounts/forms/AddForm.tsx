@@ -1,8 +1,12 @@
+// System
 import * as React from 'react'
 import * as z from 'zod'
+import { useSession } from 'next-auth/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+// Components
 import { Button } from '@/components/ui/button'
+// UI
 import {
   Dialog,
   DialogContent,
@@ -60,6 +64,7 @@ const AddForm: React.FC = () => {
 
   const { toast } = useToast()
 
+  const { data: { user: authUser } } = useSession()
   const { data: users } = useUsers()
 
   const { data: categories = [] } = useCategories()
@@ -71,6 +76,23 @@ const AddForm: React.FC = () => {
 
     setIncomeCategories(categories.filter((item: Category) => item.type === CategoryType.Income))
   }, [categories])
+
+  const getDefaultUser = (): string => {
+    if (!authUser || !users) {
+      return ''
+    }
+
+    const _user = users.find((item: User) => item.username === authUser?.username)
+    if (_user != null) {
+      return _user.uuid
+    }
+
+    return ''
+  }
+
+  React.useEffect(() => {
+    form.setValue('user', getDefaultUser())
+  }, [authUser, users])
 
   const handleSave = async (payload: z.infer<typeof formSchema>) => {
     try {

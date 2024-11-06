@@ -34,7 +34,7 @@ const GeneralSummaryCard: FC<Types> = ({ title, planned, spent }) => {
               </div>
             </div>
           </div>
-          <div className="flex items-start ml-2">
+          <div className="flex items-end ml-2">
             <div className="rounded bg-yellow-400 w-5" style={{ height: `${plannedPercent}%` }}></div>
           </div>
         </div>

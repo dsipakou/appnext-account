@@ -95,15 +95,16 @@ export interface TransactionItem extends SpentMap {
   transactionDate: string
 }
 
-export interface BudgetRequest {
+export interface BudgetItem {
   title: string
   amount: string
   currency: string
   user: string
   category: string
-  recurrent: string
+  recurrent: RecurrentTypes
   budgetDate: string
   description: string
+  isCompleted: boolean
 }
 
 export interface DuplicateBudgetResponse {
