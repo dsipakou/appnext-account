@@ -1,60 +1,40 @@
+// System
 import React from 'react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useSWRConfig } from 'swr'
 import { useForm } from 'react-hook-form'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form'
+// Components
+import { User } from '@/components/users/types'
+import { Category, CategoryType } from '@/components/categories/types'
+import { Currency } from '@/components/currencies/types'
+// UI
+import * as Dialog from '@/components/ui/dialog'
+import * as Form from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import {
-  RadioGroup,
-  RadioGroupItem
-} from '@/components/ui/radio-group'
+import * as Select from '@/components/ui/select'
+import * as RadioGroup from '@/components/ui/radio-group'
 import { Calendar } from '@/components/ui/calendar'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { useToast } from '@/components/ui/use-toast'
+// Hooks
 import { useUsers } from '@/hooks/users'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
-import { useBudgetDetails, useEditBudget, usePendingBudget } from '@/hooks/budget'
-import { User } from '@/components/users/types'
-import { Category, CategoryType } from '@/components/categories/types'
-import { Currency } from '@/components/currencies/types'
+import { useBudgetDetails, useEditBudget } from '@/hooks/budget'
+// Utils
 import { getFormattedDate, parseDate } from '@/utils/dateUtils'
 import { extractErrorMessage } from '@/utils/stringUtils'
-
+// Styles
 import styles from '../style/AddForm.module.css'
 
 interface Types {
   open: boolean
   setOpen: (open: boolean) => void
   uuid: string
-  monthUrl: string
-  weekUrl: string
 }
 
 const formSchema = z.object({
@@ -77,7 +57,6 @@ const formSchema = z.object({
 const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
   const { mutate } = useSWRConfig()
   const [parentList, setParentList] = React.useState<Category[]>([])
-  const [errors, setErrors] = React.useState<string[]>([])
   const [month, setMonth] = React.useState<Date>(new Date())
   const [isSomeDay, setIsSomeDay] = React.useState<boolean>(false)
   const { toast } = useToast()
@@ -96,7 +75,6 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
   const { data: currencies = [] } = useCurrencies()
   const { trigger: editBudget, isMutating: isEditing } = useEditBudget(uuid)
   const { data: budgetDetails } = useBudgetDetails(uuid)
-  const { url: pendingUrl } = usePendingBudget()
 
   React.useEffect(() => {
     if (!categories) return
@@ -136,12 +114,13 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
       // TODO: Optimistic update here
       await editBudget({
         ...payload,
-        budgetDate: getFormattedDate(payload.budgetDate),
+
+        budgetDate: isSomeDay ? null : getFormattedDate(payload.budgetDate),
         recurrent: payload.repeatType,
       })
       mutate(key => typeof key === 'string' && key.includes('budget/usage'), undefined)
       mutate(key => typeof key === 'string' && key.includes('budget/weekly-usage'), undefined)
-      mutate(pendingUrl)
+      mutate('budget/pending/')
       toast({
         title: 'Successfully updated!'
       })
@@ -165,38 +144,38 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
   }
 
   return (
-    <Dialog open={open} onOpenChange={cleanFormErrors}>
-      <DialogContent className="min-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Edit budget</DialogTitle>
-        </DialogHeader>
-        <Form {...form}>
+    <Dialog.Dialog open={open} onOpenChange={cleanFormErrors}>
+      <Dialog.DialogContent className="min-w-[600px]">
+        <Dialog.DialogHeader>
+          <Dialog.DialogTitle>Edit budget</Dialog.DialogTitle>
+        </Dialog.DialogHeader>
+        <Form.Form {...form}>
           <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
             <div className="flex flex-col gap-3">
               <div className="flex w-full">
                 <div className="flex sm:w-3/5">
-                  <FormField
+                  <Form.FormField
                     control={form.control}
                     name="title"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Budget title</FormLabel>
-                        <FormControl>
+                      <Form.FormItem>
+                        <Form.FormLabel>Budget title</Form.FormLabel>
+                        <Form.FormControl>
                           <Input disabled={isEditing} id="title" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                        </Form.FormControl>
+                        <Form.FormMessage />
+                      </Form.FormItem>
                     )}
                   />
                 </div>
                 <div className="flex sm:w-1/5">
-                  <FormField
+                  <Form.FormField
                     control={form.control}
                     name="amount"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Amount</FormLabel>
-                        <FormControl>
+                      <Form.FormItem>
+                        <Form.FormLabel>Amount</Form.FormLabel>
+                        <Form.FormControl>
                           <div className="flex gap-2">
                             <div>
                               <Input disabled={isEditing} id="amount" {...field} />
@@ -205,142 +184,144 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                               {form.watch('currency') && getCurrencySign()}
                             </span>
                           </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                        </Form.FormControl>
+                        <Form.FormMessage />
+                      </Form.FormItem>
                     )}
                   />
                 </div>
                 <div className="flex sm:w-1/5">
-                  <FormField
+                  <Form.FormField
                     control={form.control}
                     name="currency"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Currency</FormLabel>
-                        <FormControl>
-                          <Select
+                      <Form.FormItem>
+                        <Form.FormLabel>Currency</Form.FormLabel>
+                        <Form.FormControl>
+                          <Select.Select
                             disabled={isEditing}
                             onValueChange={field.onChange}
                             value={field.value}
                           >
-                            <SelectTrigger className="relative w-full">
-                              <SelectValue placeholder="Select currency" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
+                            <Select.SelectTrigger className="relative w-full">
+                              <Select.SelectValue placeholder="Select currency" />
+                            </Select.SelectTrigger>
+                            <Select.SelectContent>
+                              <Select.SelectGroup>
                                 {currencies && currencies.map((item: Currency) => (
-                                  <SelectItem key={item.uuid} value={item.uuid}>{item.verbalName}</SelectItem>
+                                  <Select.SelectItem key={item.uuid} value={item.uuid}>
+                                    {item.verbalName}
+                                  </Select.SelectItem>
                                 ))}
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                              </Select.SelectGroup>
+                            </Select.SelectContent>
+                          </Select.Select>
+                        </Form.FormControl>
+                        <Form.FormMessage />
+                      </Form.FormItem>
                     )}
                   />
                 </div>
               </div>
               <div className="flex w-full justify-between">
                 <div className="flex flex-col w-2/5 gap-4">
-                  <FormField
+                  <Form.FormField
                     control={form.control}
                     name="category"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Category</FormLabel>
-                        <FormControl>
-                          <Select
+                      <Form.FormItem>
+                        <Form.FormLabel>Category</Form.FormLabel>
+                        <Form.FormControl>
+                          <Select.Select
                             disabled={isEditing || (parentList.length === 0)}
                             onValueChange={field.onChange}
                             value={field.value}
                           >
-                            <SelectTrigger className="relative w-[180px]">
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectLabel>Categories</SelectLabel>
+                            <Select.SelectTrigger className="relative w-[180px]">
+                              <Select.SelectValue placeholder="Select category" />
+                            </Select.SelectTrigger>
+                            <Select.SelectContent>
+                              <Select.SelectGroup>
+                                <Select.SelectLabel>Categories</Select.SelectLabel>
                                 {parentList.map((item: Category) => (
-                                  <SelectItem key={item.uuid} value={item.uuid} className="flex items-center">
+                                  <Select.SelectItem key={item.uuid} value={item.uuid} className="flex items-center">
                                     {item.icon && (<span className="mr-2 text-lg">{item.icon}</span>)}
                                     <span>{item.name}</span>
-                                  </SelectItem>
+                                  </Select.SelectItem>
                                 ))}
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                              </Select.SelectGroup>
+                            </Select.SelectContent>
+                          </Select.Select>
+                        </Form.FormControl>
+                        <Form.FormMessage />
+                      </Form.FormItem>
                     )}
                   />
-                  <FormField
+                  <Form.FormField
                     control={form.control}
                     name="user"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>User</FormLabel>
-                        <FormControl>
-                          <Select
+                      <Form.FormItem>
+                        <Form.FormLabel>User</Form.FormLabel>
+                        <Form.FormControl>
+                          <Select.Select
                             disabled={isEditing}
                             onValueChange={field.onChange}
                             value={field.value}
                           >
-                            <SelectTrigger className="relative w-[180px]">
-                              <SelectValue placeholder="Select user" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectLabel>Users</SelectLabel>
+                            <Select.SelectTrigger className="relative w-[180px]">
+                              <Select.SelectValue placeholder="Select user" />
+                            </Select.SelectTrigger>
+                            <Select.SelectContent>
+                              <Select.SelectGroup>
+                                <Select.SelectLabel>Users</Select.SelectLabel>
                                 {users && users.map((item: User) => (
-                                  <SelectItem key={item.uuid} value={item.uuid}>{item.username}</SelectItem>
+                                  <Select.SelectItem key={item.uuid} value={item.uuid}>{item.username}</Select.SelectItem>
                                 ))}
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                              </Select.SelectGroup>
+                            </Select.SelectContent>
+                          </Select.Select>
+                        </Form.FormControl>
+                        <Form.FormMessage />
+                      </Form.FormItem>
                     )}
                   />
-                  <FormField
+                  <Form.FormField
                     control={form.control}
                     name="repeatType"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <RadioGroup
+                      <Form.FormItem>
+                        <Form.FormControl>
+                          <RadioGroup.RadioGroup
                             disabled={isEditing}
                             onValueChange={field.onChange}
                             value={field.value}
                             className={styles.radio}
                           >
                             <Label>
-                              <RadioGroupItem value="" id="r1" />
+                              <RadioGroup.RadioGroupItem value="" id="r1" />
                               <span>Do not repeat</span>
                             </Label>
                             <Label>
-                              <RadioGroupItem value="weekly" id="r1" />
+                              <RadioGroup.RadioGroupItem value="weekly" id="r1" />
                               <span>Repeat Weekly</span>
                             </Label>
                             <Label>
-                              <RadioGroupItem value="monthly" id="r1" />
+                              <RadioGroup.RadioGroupItem value="monthly" id="r1" />
                               <span>Repeat Monthly</span>
                             </Label>
-                          </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                          </RadioGroup.RadioGroup>
+                        </Form.FormControl>
+                        <Form.FormMessage />
+                      </Form.FormItem>
                     )}
                   />
-                  <FormField
+                  <Form.FormField
                     control={form.control}
                     name="isSomeday"
                     render={({ field }) => (
-                      <FormItem className="flex justify-center">
-                        <FormControl>
+                      <Form.FormItem className="flex justify-center">
+                        <Form.FormControl>
                           <div className="flex gap-2 mt-1 items-center">
                             <Switch
                               id="isSomeday"
@@ -349,9 +330,9 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                             />
                             <Label htmlFor="isSomeday">Save for later</Label>
                           </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                        </Form.FormControl>
+                        <Form.FormMessage />
+                      </Form.FormItem>
                     )}
                   />
                 </div>
@@ -365,12 +346,12 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                         </div>
                       )
                       : !isEditing && (
-                        <FormField
+                        <Form.FormField
                           control={form.control}
                           name="budgetDate"
                           render={({ field }) => (
-                            <FormItem className="flex justify-center">
-                              <FormControl>
+                            <Form.FormItem className="flex justify-center">
+                              <Form.FormControl>
                                 <Calendar
                                   mode="single"
                                   className="justify-center"
@@ -380,9 +361,9 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                                   weekStartsOn={1}
                                   initialFocus
                                 />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
+                              </Form.FormControl>
+                              <Form.FormMessage />
+                            </Form.FormItem>
                           )}
                         />
                       )
@@ -391,29 +372,29 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
               </div>
             </div>
             <div className="flex">
-              <FormField
+              <Form.FormField
                 control={form.control}
                 name="description"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
+                  <Form.FormItem>
+                    <Form.FormControl>
                       <Textarea
                         disabled={isEditing}
                         placeholder="Add description if you want"
                         className="resize-none"
                         {...field}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                    </Form.FormControl>
+                    <Form.FormMessage />
+                  </Form.FormItem>
                 )}
               />
             </div>
             <Button type="submit">Submit</Button>
           </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+        </Form.Form>
+      </Dialog.DialogContent>
+    </Dialog.Dialog>
   )
 }
 
