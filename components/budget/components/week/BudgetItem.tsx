@@ -50,7 +50,7 @@ const BudgetItem: React.FC<Types> = ({
   const { toast } = useToast()
   const { mutate } = useSWRConfig()
 
-  const { data: users } = useUsers()
+  const { data: users = [] } = useUsers()
   const { trigger: completeBudget, isMutating: isCompleting } = useEditBudget(budget.uuid)
   const { data: { user: authUser } } = useSession()
 
@@ -62,7 +62,7 @@ const BudgetItem: React.FC<Types> = ({
 
   const isSameUser = budgetUser?.username === authUser?.username
 
-  const handleClickComplete = async (): void => {
+  const handleClickComplete = async (): Promise<void> => {
     try {
       const updatedBudget = await completeBudget({ isCompleted: !budget.isCompleted, category: budget.category })
       mutateBudget(updatedBudget)
@@ -101,7 +101,7 @@ const BudgetItem: React.FC<Types> = ({
               )}>
                 <Avatar className="h-6 w-6">
                   <AvatarFallback className="text-xs font-bold bg-sky-400 text-white">
-                    {budgetUser.username.charAt(0)}
+                    {budgetUser?.username.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
               </div>
@@ -110,7 +110,7 @@ const BudgetItem: React.FC<Types> = ({
                   'hidden',
                   !isDragging && 'group-hover:flex'
                 )}>
-                  <Badge className="bg-sky-400">{budgetUser.username}</Badge>
+                  <Badge className="bg-sky-400">{budgetUser?.username}</Badge>
                 </div>
               </div>
             </>
