@@ -1,30 +1,16 @@
+// System
 import * as React from 'react'
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card'
+// Components
+import { AddForm as AddAccount } from './forms'
+import AccountCard from '@/components/accounts/components/AccountCard'
+// Hooks
 import { useAccounts } from '@/hooks/accounts'
-import { useUsers } from '@/hooks/users'
+// Types
 import { AccountResponse } from './types'
-import { User } from '@/components/users/types'
-import {
-  AddForm as AddAccount,
-  EditForm as EditAccount,
-  ConfirmDeleteForm,
-  ReassignTransactionsForm
-} from './forms'
 
 const Index: React.FC = () => {
-  const { data: users = [] } = useUsers()
 
   const { data: accounts = [] } = useAccounts()
-
-  const getUser = (uuid: string): User | undefined => {
-    return users.find((item: User) => item.uuid === uuid)
-  }
 
   const noAccounts = (
     <div className="flex justify-center items-center flex-1">
@@ -42,21 +28,9 @@ const Index: React.FC = () => {
         (accounts.length === 0) && noAccounts
       }
       <div className="grid grid-cols-3 gap-3">
-        {!(accounts.length === 0) && accounts.map((item: AccountResponse) => (
+        {accounts.map((item: AccountResponse) => (
           <div key={item.uuid}>
-            <Card>
-              <CardHeader>
-                <CardTitle>{item.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>{getUser(item.user)?.username}</p>
-              </CardContent>
-              <CardFooter className="flex justify-end">
-                <ReassignTransactionsForm uuid={item.uuid} />
-                <EditAccount uuid={item.uuid} />
-                <ConfirmDeleteForm uuid={item.uuid} />
-              </CardFooter>
-            </Card>
+            <AccountCard account={item} />
           </div>
         ))}
       </div>

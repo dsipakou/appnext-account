@@ -2,7 +2,7 @@ import useSWRImmutable from 'swr/immutable'
 import useSWR from 'swr'
 import useSWRMutation from 'swr/mutation'
 import { Response } from './types';
-import { TransactionsReportResponse } from '@/components/transactions/types'
+import { TransactionsReportResponse, AccountUsage } from '@/components/transactions/types'
 import { ChartData } from '@/components/reports/types'
 import { fetchReq, patchReq, postReq, deleteReq } from '@/plugins/axios';
 
@@ -32,7 +32,7 @@ export const useTransactions = (
     url += `&dateFrom=${dateFrom}&dateTo=${dateTo}`
   }
 
-  const { data, error, isLoading } = useSWR(url, fetchReq)
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq)
 
   return {
     data,
@@ -130,6 +130,21 @@ export const useBudgetTransactions = (
     isError: error,
     url
   } as Response<TransactionResponse[]>
+}
+
+export const useAccountUsage = (
+  uuid: string
+): Response<AccountUsage[]> => {
+  const url = `transactions/account/${uuid}/usage/`
+
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq)
+
+  return {
+    data,
+    isLoading,
+    isError: error,
+    url
+  } as Response<AccountUsage[]>
 }
 
 export const useCategoryTransactions = (

@@ -22,6 +22,16 @@ export const useAccounts = (): Response<AccountResponse[]> => {
   } as Response<AccountResponse[]>
 }
 
+export const useAccount = (uuid: string): Response<unknown> => {
+  const { data, error, isLoading } = useSWRImmutable(uuid ? `accounts/${uuid}/` : null, fetchReq)
+
+  return {
+    data,
+    isLoading,
+    isError: error,
+  } as Response<unknown>
+}
+
 export const useCreateAccount = (payload: any) => {
   const { trigger, isMutating } = useSWRMutation('accounts/', postReq, { revalidate: true })
 
