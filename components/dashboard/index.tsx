@@ -2,7 +2,7 @@ import WeekWidget from '@/components/dashboard/components/WeekWidget'
 import RecentTransactions from '@/components/dashboard/components/RecentTransactions'
 import UpcommingExpenses from '@/components/dashboard/components/UpcommingExpenses'
 
-const Index = () => {
+const Dashboard = () => {
   return (
     <div className="p-4 space-y-4 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold text-gray-800">Your dashboard</h1>
@@ -15,4 +15,4 @@ const Index = () => {
   )
 }
 
-export default Index
+export default Dashboard
