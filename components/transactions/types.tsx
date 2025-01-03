@@ -24,3 +24,8 @@ export interface TransactionsReportResponse {
   groupedAmount: number
   month: string
 }
+
+export interface AccountUsage {
+  spent: number
+  income: number
+}

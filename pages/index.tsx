@@ -1,9 +1,3 @@
-import Index from '@/components/dashboard'
+import Index from '@/components/landing'
 
-Home.auth = {}
-
-export default function Home () {
-  return (
-    <Index />
-  )
-}
+export default Index

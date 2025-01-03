@@ -1,6 +1,7 @@
 'use client'
 
 import React, { FC, ReactElement, ReactNode } from 'react'
+import { useSWRConfig } from 'swr'
 import { signOut, useSession } from 'next-auth/react'
 import { useStore } from '@/app/store'
 import axios from 'axios'
@@ -39,6 +40,7 @@ const Layout: FC<Props> = ({ children }) => {
   const setCurrencySign = useStore((state) => state.setCurrencySign)
   const { data: currencies = [] } = useCurrencies()
   const { data: session, status: authStatus, update: updateSession } = useSession()
+  const { mutate } = useSWRConfig()
 
   if (authStatus === 'loading' || authStatus === 'unauthenticated') {
     return
@@ -69,9 +71,11 @@ const Layout: FC<Props> = ({ children }) => {
             // TODO: Remove this after migrating to session
             // updateCurrency(currencyCode)
             updateSession({ currency: currencyCode })
+            mutate(key => typeof key === 'string' && key.includes('accounts'), undefined)
             // TODO: mutate something
           }
         }
+
       ).catch(
         (error) => {
           const errRes = error.response.data
@@ -84,7 +88,7 @@ const Layout: FC<Props> = ({ children }) => {
     {
       name: 'Dashboard',
       icon: <LayoutDashboard />,
-      link: '/'
+      link: '/dashboard/'
     },
     {
       name: 'Accounts',

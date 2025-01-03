@@ -91,7 +91,9 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
     try {
       await createBatchedRates(payload)
       //TODO: does not mutating
+
       mutate(url)
+      mutate(key => typeof key === 'string' && key.includes('rates/'), undefined)
       toast({
         title: 'Saved!'
       })

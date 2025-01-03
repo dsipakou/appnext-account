@@ -79,7 +79,7 @@ const Index: React.FC = () => {
       <div className="relative w-full max-w-md space-y-8 rounded-xl bg-white/90 p-10 shadow-md backdrop-blur-sm">
         <div className="flex flex-col text-center space-y-2">
           <span className="text-xl font-extrabold text-gray-900">Welcome to </span>
-          <span className="text-3xl font-extrabold text-gray-900">I got my Budget</span>
+          <span className="text-3xl font-extrabold text-gray-900">I Spent a <strong>Dollar</strong></span>
           <p className="text-gray-600">
             Sign up now and take control of your finances.
           </p>
