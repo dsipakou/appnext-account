@@ -165,9 +165,9 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
         budgetDate: isSomeDay ? null : getFormattedDate(payload.budgetDate),
         recurrent: payload.repeatType,
       })
-      mutate(monthUrl)
-      mutate(weekUrl)
-      mutate(pendingUrl)
+      mutate(key => typeof key === 'string' && key.includes('budget/usage'), undefined)
+      mutate(key => typeof key === 'string' && key.includes('budget/weekly-usage'), undefined)
+      mutate('budget/pending/')
       setOpen(false)
       toast({
         title: 'Saved!'
