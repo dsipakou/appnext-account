@@ -98,8 +98,10 @@ const AccountCard: React.FC<Types> = ({ account }) => {
         <div>
           <Link className="text-sm p-2" href={`/accounts/${account.uuid}`}>Details >></Link>
         </div>
+        <ReassignTransactionsForm
+          uuid={account.uuid}
+        />
         <div>
-          <ReassignTransactionsForm uuid={account.uuid} />
           <EditAccount uuid={account.uuid} />
           <ConfirmDeleteForm uuid={account.uuid} />
         </div>

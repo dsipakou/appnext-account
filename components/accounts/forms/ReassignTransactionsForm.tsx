@@ -77,7 +77,7 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
                           defaultValue={field.value}
                           disabled={isLoading || filteredAccounts.length === 0}
                         >
-                          <SelectTrigger className="relative w-full">
+                          <SelectTrigger className="relative w-full" asChild>
                             <SelectValue placeholder={filteredAccounts.length > 0 ? "Choose account" : "You do not have applicable accounts"} />
                           </SelectTrigger>
                           <SelectContent>
@@ -98,7 +98,7 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
           </form>
         </Form>
         <Button disabled={isLoading || !watchAccount} onClick={() => setIsConfirmTransferOpen(true)}>Transfer</Button>
-        { isConfirmTransferOpen &&
+        {isConfirmTransferOpen &&
           <ConfirmTransactionsTransferForm
             open={isConfirmTransferOpen}
             setOpen={setIsConfirmTransferOpen}
