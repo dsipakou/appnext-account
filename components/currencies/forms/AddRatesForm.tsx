@@ -93,7 +93,7 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
       //TODO: does not mutating
 
       mutate(url)
-      mutate(key => typeof key === 'string' && key.includes('rates/'), undefined)
+      mutate(key => typeof key === 'string' && key.includes('rates?limit='), undefined)
       toast({
         title: 'Saved!'
       })
