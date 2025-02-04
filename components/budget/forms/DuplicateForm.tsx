@@ -1,155 +1,221 @@
-import React from 'react'
-import { useSWRConfig } from 'swr'
-import { Check, Copy } from 'lucide-react'
-// UID
-import { Button } from '@/components/ui/button'
-import * as Dlg from '@/components/ui/dialog'
-import { useToast } from '@/components/ui/use-toast'
+import React from 'react';
+import { useSWRConfig } from 'swr';
+import { Copy } from 'lucide-react';
+// UI
+import { Button } from '@/components/ui/button';
+import * as Dlg from '@/components/ui/dialog';
+import { useToast } from '@/components/ui/use-toast';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 // Hooks
-import { useDuplicateBudget } from '@/hooks/budget'
-import { DuplicateBudgetResponse } from '@/components/budget/types'
+import { useDuplicateBudget } from '@/hooks/budget';
+import { DuplicateBudgetResponse } from '@/components/budget/types';
+// Utils
+import { cn } from '@/lib/utils';
 
 interface BudgetCardTypes {
-  date: string
-  title: string
-  selected: boolean
-  handleClick: () => void
+  date: string;
+  title: string;
+  selected: boolean;
+  amount: number;
+  currency: string;
+  handleClick: () => void;
+  onAmountChange: (value: number) => void;
 }
 
 interface Types {
-  budgetList: DuplicateBudgetResponse[],
-  urlToMutate: string,
-  mutateBudget: () => void
+  budgetList: DuplicateBudgetResponse[];
+  urlToMutate: string;
+  mutateBudget: () => void;
 }
 
 const BudgetCard: React.FC<BudgetCardTypes> = ({
   date,
   title,
   selected = false,
-  handleClick
+  amount,
+  currency,
+  handleClick,
+  onAmountChange,
 }) => {
   return (
     <>
-      <div className={`overflow-hidden w-full h-24 cursor-pointer border rounded p-2 ${!selected ? 'drop-shadow-md bg-white' : 'text-white bg-blue-500'}`}
-        onClick={handleClick}
+      <div
+        className={cn(
+          'flex flex-col justify-between overflow-hidden w-full h-24 border rounded p-2',
+          !selected && 'drop-shadow-md bg-white',
+          selected && 'bg-blue-100'
+        )}
       >
-        <div className="flex flex-col">
-          <div className="flex justify-between">
-            <span className="text-xs">{date}</span>
-            {selected && <Check className="h-4 w-4" />}
-          </div>
-          <span className="text-md font-semibold">{title}</span>
+        <div className="flex justify-between">
+          <span className="text-xs">{date}</span>
+          <Checkbox className="cursor-pointer" checked={selected} onClick={handleClick} />
+        </div>
+        <div className="whitespace-wrap truncate text-ellipsis overflow-hidden">
+          <span className="text-sm font-semibold">{title}</span>
+        </div>
+        <div className="flex gap-2">
+          <Input
+            className={cn('h-6 bg-white text-sm', selected && 'bg-blue-50')}
+            value={amount}
+            onChange={(e) => onAmountChange(parseFloat(e.target.value) || 0)}
+            type="number"
+            step="0.01"
+          />
+          {currency}
         </div>
       </div>
-      <div className="test flex flex-col">
-      </div>
     </>
-  )
+  );
+};
+
+interface DuplicatePayload {
+  [uuid: string]: number;
 }
 
 const DuplicateForm: React.FC<Types> = ({ budgetList, urlToMutate, mutateBudget }) => {
-  const [selectedBudgetUuids, setSelectedBudgetUuids] = React.useState<string[]>([])
-  const { trigger: duplicate, isMutating: isDuplicating } = useDuplicateBudget()
-  const { mutate } = useSWRConfig()
-  const { toast } = useToast()
+  const [selectedBudgets, setSelectedBudgetUuids] = React.useState<DuplicatePayload>({});
+  const [budgetListState, setBudgetListState] = React.useState<DuplicateBudgetResponse[]>(budgetList);
+  const { trigger: duplicate, isMutating: isDuplicating } = useDuplicateBudget();
+  const { mutate } = useSWRConfig();
+  const { toast } = useToast();
+
+  React.useEffect(() => {
+    if (budgetList.length > 0) {
+      setBudgetListState(budgetList);
+    }
+  }, [budgetList]);
 
   const isBudgetSelected = (uuid: string): boolean => {
-    return selectedBudgetUuids.includes(uuid)
-  }
+    return uuid in selectedBudgets;
+  };
 
-  const handleClickBudget = (uuid: string) => {
-    if (isBudgetSelected(uuid)) {
-      setSelectedBudgetUuids((oldList: string[]) => oldList.filter((_uuid: string) => _uuid !== uuid))
-    } else {
-      setSelectedBudgetUuids((oldList: string[]) => [...oldList, uuid])
-    }
-  }
+  const handleClickBudget = (uuid: string, amount: number) => {
+    setSelectedBudgetUuids((prevBudgets: DuplicatePayload) => {
+      const newBudgets = { ...prevBudgets };
+      if (uuid in newBudgets) {
+        delete newBudgets[uuid];
+      } else {
+        newBudgets[uuid] = amount;
+      }
+      return newBudgets;
+    });
+  };
 
   const selectAllBudgets = (): void => {
-    const uuidsArray: string[] = []
-    budgetList.forEach((budgetItem: DuplicateBudgetResponse) => {
-      uuidsArray.push(budgetItem.uuid)
-    })
-    setSelectedBudgetUuids(uuidsArray)
-  }
+    const uuids: DuplicatePayload = {};
+    budgetListState.forEach((budgetItem: DuplicateBudgetResponse) => {
+      uuids[budgetItem.uuid] = budgetItem.amount;
+    });
+    setSelectedBudgetUuids(uuids);
+  };
 
-  const handleDuplicateClick = async (): void => {
-    try {
-      await duplicate({ uuids: selectedBudgetUuids })
-      mutate(urlToMutate)
-      mutateBudget()
-      toast({
-        title: 'Successfully duplicated'
+  const handleAmountChange = (uuid: string, amount: number) => {
+    setBudgetListState((oldList: DuplicateBudgetResponse[]) =>
+      oldList.map((budgetItem: DuplicateBudgetResponse) => {
+        if (budgetItem.uuid === uuid) {
+          return { ...budgetItem, amount: amount };
+        }
+        return budgetItem;
       })
+    );
+    setSelectedBudgetUuids((prevBudgets: DuplicatePayload) => {
+      const newBudgets = { ...prevBudgets };
+      if (uuid in newBudgets) {
+        newBudgets[uuid] = amount;
+      }
+      return newBudgets;
+    });
+  };
+
+  console.log(selectedBudgets);
+
+  const handleDuplicateClick = async (): Promise<void> => {
+    try {
+      await duplicate({
+        budgets: Object.keys(selectedBudgets).map((key: string) => {
+          return {
+            uuid: key,
+            value: selectedBudgets[key],
+          };
+        }),
+      });
+      mutate(urlToMutate);
+      mutateBudget();
+      toast({
+        title: 'Successfully duplicated',
+      });
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Cannot duplicate',
-      })
+      });
     }
-  }
+  };
 
   const clearForm = () => {
-    setSelectedBudgetUuids([])
-  }
+    setSelectedBudgetUuids({});
+  };
 
+  console.log(selectedBudgets);
   return (
     <Dlg.Dialog onOpenChange={clearForm}>
       <Dlg.DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="text-blue-500 border-blue-500 hover:text-blue-600"
-        >
+        <Button variant="outline" className="text-blue-500 border-blue-500 hover:text-blue-600">
           <Copy className="mr-2" /> Duplicate
         </Button>
       </Dlg.DialogTrigger>
       <Dlg.DialogContent className="min-w-[600px]">
-        {budgetList.length > 0 && (
+        {budgetListState.length > 0 && (
           <Dlg.DialogHeader>
             <Dlg.DialogTitle>Choose budget to repeat</Dlg.DialogTitle>
           </Dlg.DialogHeader>
         )}
         <div className="flex flex-col gap-3">
-          {budgetList.length === 0
-            ? (
-              <>
-                <span className="text-2xl">Nothing more to duplicate</span>
-              </>
-            )
-            : (
-              <>
-                <div className="flex justify-between">
-                  <Button
-                    variant="default"
-                    onClick={handleDuplicateClick}
-                    disabled={selectedBudgetUuids.length === 0 || isDuplicating}
-                  >
-                    Duplicate selected
+          {budgetListState.length === 0 ? (
+            <>
+              <span className="text-2xl">Nothing more to duplicate</span>
+            </>
+          ) : (
+            <>
+              <div className="flex justify-between">
+                <Button
+                  variant="default"
+                  onClick={handleDuplicateClick}
+                  disabled={Object.keys(selectedBudgets).length === 0 || isDuplicating}
+                >
+                  Duplicate selected
+                </Button>
+                <div>
+                  <Button disabled={isDuplicating} variant="link" onClick={selectAllBudgets}>
+                    Select all
                   </Button>
-                  <div>
-                    <Button disabled={isDuplicating} variant="link" onClick={selectAllBudgets}>Select all</Button>
-                    <Button disabled={isDuplicating} variant="link" onClick={() => setSelectedBudgetUuids([])}>Deselect all</Button>
+                  <Button disabled={isDuplicating} variant="link" onClick={() => setSelectedBudgetUuids([])}>
+                    Deselect all
+                  </Button>
+                </div>
+              </div>
+              <div className="grid grid-cols-4 gap-3">
+                {budgetListState.map((budgetItem: DuplicateBudgetResponse) => (
+                  <div key={budgetItem.uuid}>
+                    <BudgetCard
+                      title={budgetItem.title}
+                      date={budgetItem.date}
+                      amount={budgetItem.amount}
+                      currency={budgetItem.currency}
+                      handleClick={() => handleClickBudget(budgetItem.uuid, budgetItem.amount)}
+                      selected={isBudgetSelected(budgetItem.uuid)}
+                      onAmountChange={(value: number) => handleAmountChange(budgetItem.uuid, value)}
+                    />
                   </div>
-                </div>
-                <div className="grid grid-cols-4 gap-3">
-                  {budgetList.map((budgetItem: DuplicateBudgetResponse) => (
-                    <div key={budgetItem.uuid}>
-                      <BudgetCard
-                        title={budgetItem.title}
-                        date={budgetItem.date}
-                        handleClick={() => handleClickBudget(budgetItem.uuid)}
-                        selected={isBudgetSelected(budgetItem.uuid)}
-                      />
-                    </div>)
-                  )}
-                </div>
-              </>
-            )
-          }
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </Dlg.DialogContent>
     </Dlg.Dialog>
-  )
-}
+  );
+};
 
-export default DuplicateForm
+export default DuplicateForm;

@@ -111,6 +111,8 @@ export interface DuplicateBudgetResponse {
   uuid: string
   title: string
   date: string
+  amount: number
+  currency: string
 }
 
 export interface MonthSummedUsage {
