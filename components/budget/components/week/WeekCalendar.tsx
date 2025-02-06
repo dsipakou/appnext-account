@@ -1,22 +1,14 @@
-import * as React from "react";
-import {
-  startOfWeek,
-  endOfWeek,
-  getWeekOfMonth,
-  format,
-  addDays,
-  subDays,
-} from "date-fns";
-import { DateRange } from "react-day-picker";
-import { CalendarDays } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+// System
+import * as React from 'react';
+import { startOfWeek, endOfWeek, getWeekOfMonth, format, addDays, subDays, isSameWeek } from 'date-fns';
+import { DateRange } from 'react-day-picker';
+import { CalendarDays } from 'lucide-react';
+// UI
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+// Utils
+import { cn } from '@/lib/utils';
 
 interface Types {
   date: Date;
@@ -41,6 +33,11 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
     setMonth(weekDate);
   }, [weekDate]);
 
+  const resetDate = (event) => {
+    event.preventDefault();
+    setWeekDate(new Date());
+  };
+
   return (
     <div className="flex flex-row h-full items-center">
       <Button variant="ghost" onClick={() => setWeekDate(subDays(weekDate, 7))}>
@@ -51,15 +48,22 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
           <Button
             variant="outline"
             className={cn(
-              "w-[280px] justify-start hover:bg-white border-2 h-12 text-left font-normal",
-              weekDate && "text-muted-foreground",
+              'w-[280px] justify-between hover:bg-white border-2 h-12 text-left font-normal',
+              weekDate && 'text-muted-foreground'
             )}
           >
-            <CalendarDays className="mr-2 h-6 w-6" />
-            {weekDate ? (
-              `Week ${getWeekOfMonth(weekDate)} of ${format(weekDate, "MMM, yyyy")}`
-            ) : (
-              <span>Pick a date</span>
+            <div className="flex items-center">
+              <CalendarDays className="mr-2 h-6 w-6" />
+              {weekDate ? (
+                `Week ${getWeekOfMonth(weekDate)} of ${format(weekDate, 'MMM, yyyy')}`
+              ) : (
+                <span>Pick a date</span>
+              )}
+            </div>
+            {!isSameWeek(weekDate, new Date()) && (
+              <Button variant="link" size="xs" className="px-2 py-1" onClick={resetDate}>
+                Reset
+              </Button>
             )}
           </Button>
         </PopoverTrigger>
@@ -69,9 +73,7 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
             month={month}
             onMonthChange={setMonth}
             selected={range}
-            onSelect={(date: Date | undefined) =>
-              !(date == null) && setWeekDateProxy(date)
-            }
+            onSelect={(date: Date | undefined) => !(date == null) && setWeekDateProxy(date)}
             showWeekNumber
             ISOWeek
             initialFocus
