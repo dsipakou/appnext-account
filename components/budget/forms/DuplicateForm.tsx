@@ -29,6 +29,10 @@ interface Types {
   mutateBudget: () => void;
 }
 
+interface DuplicatePayload {
+  [uuid: string]: number;
+}
+
 const BudgetCard: React.FC<BudgetCardTypes> = ({
   date,
   title,
@@ -37,41 +41,35 @@ const BudgetCard: React.FC<BudgetCardTypes> = ({
   currency,
   handleClick,
   onAmountChange,
-}) => {
+}: BudgetCardTypes) => {
   return (
-    <>
-      <div
-        className={cn(
-          'flex flex-col justify-between overflow-hidden w-full h-24 border rounded p-2',
-          !selected && 'drop-shadow-md bg-white',
-          selected && 'bg-blue-100'
-        )}
-      >
-        <div className="flex justify-between">
-          <span className="text-xs">{date}</span>
-          <Checkbox className="cursor-pointer" checked={selected} onClick={handleClick} />
-        </div>
-        <div className="whitespace-wrap truncate text-ellipsis overflow-hidden">
-          <span className="text-sm font-semibold">{title}</span>
-        </div>
-        <div className="flex gap-2">
-          <Input
-            className={cn('h-6 bg-white text-sm', selected && 'bg-blue-50')}
-            value={amount}
-            onChange={(e) => onAmountChange(parseFloat(e.target.value) || 0)}
-            type="number"
-            step="0.01"
-          />
-          {currency}
-        </div>
+    <div
+      className={cn(
+        'flex flex-col justify-between overflow-hidden w-full h-24 border rounded p-2',
+        !selected && 'drop-shadow-md bg-white',
+        selected && 'bg-blue-100'
+      )}
+    >
+      <div className="flex justify-between">
+        <span className="text-xs">{date}</span>
+        <Checkbox className="cursor-pointer" checked={selected} onClick={handleClick} />
       </div>
-    </>
+      <div className="whitespace-wrap truncate text-ellipsis overflow-hidden">
+        <span className="text-sm font-semibold">{title}</span>
+      </div>
+      <div className="flex gap-2">
+        <Input
+          className={cn('h-6 bg-white text-sm', selected && 'bg-blue-50')}
+          value={amount}
+          onChange={(e) => onAmountChange(parseFloat(e.target.value) || 0)}
+          type="number"
+          step="0.01"
+        />
+        {currency}
+      </div>
+    </div>
   );
 };
-
-interface DuplicatePayload {
-  [uuid: string]: number;
-}
 
 const DuplicateForm: React.FC<Types> = ({ budgetList, urlToMutate, mutateBudget }) => {
   const [selectedBudgets, setSelectedBudgetUuids] = React.useState<DuplicatePayload>({});
@@ -128,8 +126,6 @@ const DuplicateForm: React.FC<Types> = ({ budgetList, urlToMutate, mutateBudget 
     });
   };
 
-  console.log(selectedBudgets);
-
   const handleDuplicateClick = async (): Promise<void> => {
     try {
       await duplicate({
@@ -157,7 +153,6 @@ const DuplicateForm: React.FC<Types> = ({ budgetList, urlToMutate, mutateBudget 
     setSelectedBudgetUuids({});
   };
 
-  console.log(selectedBudgets);
   return (
     <Dlg.Dialog onOpenChange={clearForm}>
       <Dlg.DialogTrigger asChild>
@@ -173,9 +168,7 @@ const DuplicateForm: React.FC<Types> = ({ budgetList, urlToMutate, mutateBudget 
         )}
         <div className="flex flex-col gap-3">
           {budgetListState.length === 0 ? (
-            <>
-              <span className="text-2xl">Nothing more to duplicate</span>
-            </>
+            <span className="text-2xl">Nothing more to duplicate</span>
           ) : (
             <>
               <div className="flex justify-between">
@@ -190,7 +183,7 @@ const DuplicateForm: React.FC<Types> = ({ budgetList, urlToMutate, mutateBudget 
                   <Button disabled={isDuplicating} variant="link" onClick={selectAllBudgets}>
                     Select all
                   </Button>
-                  <Button disabled={isDuplicating} variant="link" onClick={() => setSelectedBudgetUuids([])}>
+                  <Button disabled={isDuplicating} variant="link" onClick={() => setSelectedBudgetUuids({})}>
                     Deselect all
                   </Button>
                 </div>
