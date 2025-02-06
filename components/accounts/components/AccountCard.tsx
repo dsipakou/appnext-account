@@ -4,6 +4,7 @@ import { User as UserIcon } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 // Components
+import { useStore } from '@/app/store'
 import { Progress } from "@/components/ui/progress"
 import {
   EditForm as EditAccount,
@@ -31,16 +32,18 @@ const AccountCard: React.FC<Types> = ({ account }) => {
   const income = usage.income || 0
   const expenses = usage.spent || 0
 
+  const currencySign = useStore((state) => state.currencySign)
+
   const max = Math.max(income, expenses, 1)
   const incomePercentage = (income / max) * 100
   const expensesPercentage = (expenses / max) * 100
   const isOverBudget = expenses > income
   const isZeroState = income === 0 && expenses === 0
 
-
   const getUser = (uuid: string): User | undefined => {
     return users.find((item: User) => item.uuid === uuid)
   }
+
   return (
     <Card.Card>
       <Card.CardHeader>
@@ -56,25 +59,25 @@ const AccountCard: React.FC<Types> = ({ account }) => {
         </Card.CardTitle>
       </Card.CardHeader>
       <Card.CardContent>
-        <>
+        <div>
           <div className="space-y-4">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Income: ${income}</span>
+                <span className="text-muted-foreground">Income: {income} {currencySign}</span>
               </div>
               <Progress
                 value={incomePercentage}
-                className="h-2 w-full bg-blue-200"
-                indicatorClassName="bg-blue-600"
+                className="h-2 w-full bg-gray-200"
+                indicatorClassName="bg-green-600"
               /> </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Expenses: {expenses}</span>
+                <span className="text-muted-foreground">Expenses: {expenses} {currencySign}</span>
               </div>
               <Progress
                 value={expensesPercentage}
-                className={`h-2 w-full ${isOverBudget ? 'bg-red-200' : 'bg-green-200'}`}
-                indicatorClassName={isOverBudget ? 'bg-red-600' : 'bg-green-600'}
+                className={"h-2 w-full bg-gray-200"}
+                indicatorClassName="bg-red-600"
               />
             </div>
           </div>
@@ -84,15 +87,15 @@ const AccountCard: React.FC<Types> = ({ account }) => {
             ) : (
               <>
                 <div className={income > expenses ? "text-green-600 font-medium" : "text-muted-foreground"}>
-                  Balance: {income - expenses}
+                  Balance: {(income - expenses).toFixed(2)} {currencySign}
                 </div>
                 <div className={isOverBudget ? "text-red-600 font-medium" : "text-green-600 font-medium"}>
-                  {isOverBudget ? `Overspent: ${expenses - income}` : "Within budget"}
+                  {isOverBudget ? `Overspent: ${(expenses - income).toFixed(2)} ${currencySign}` : "Within budget"}
                 </div>
               </>
             )}
           </div>
-        </>
+        </div>
       </Card.CardContent>
       <Card.CardFooter className="flex justify-between">
         <div>
