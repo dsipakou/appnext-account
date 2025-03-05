@@ -1,18 +1,12 @@
-import { FC, useEffect, useState } from 'react'
-import { useSession } from 'next-auth/react'
-import { useSWRConfig } from 'swr'
-import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
-import { useForm } from 'react-hook-form'
-import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage
-} from '@/components/ui/form'
+import { FC, useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { useSWRConfig } from 'swr';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useForm } from 'react-hook-form';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import {
   Select,
   SelectContent,
@@ -20,143 +14,131 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import {
-  RadioGroup,
-  RadioGroupItem
-} from '@/components/ui/radio-group'
-import { Calendar } from '@/components/ui/calendar'
-import { Textarea } from '@/components/ui/textarea'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogContent
-} from '@/components/ui/dialog'
-import { useToast } from '@/components/ui/use-toast'
+  SelectValue,
+} from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Calendar } from '@/components/ui/calendar';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogHeader, DialogTitle, DialogTrigger, DialogContent } from '@/components/ui/dialog';
+import { useToast } from '@/components/ui/use-toast';
 
-import { useUsers } from '@/hooks/users'
-import { useCategories } from '@/hooks/categories'
-import { useCurrencies } from '@/hooks/currencies'
-import { usePendingBudget, useCreateBudget } from '@/hooks/budget'
-import { User } from '@/components/users/types'
-import { Category, CategoryType } from '@/components/categories/types'
-import { Currency } from '@/components/currencies/types'
-import { getFormattedDate } from '@/utils/dateUtils'
-import { Label } from '@/components/ui/label'
+import { useUsers } from '@/hooks/users';
+import { useCategories } from '@/hooks/categories';
+import { useCurrencies } from '@/hooks/currencies';
+import { usePendingBudget, useCreateBudget } from '@/hooks/budget';
+import { User } from '@/components/users/types';
+import { Category, CategoryType } from '@/components/categories/types';
+import { Currency } from '@/components/currencies/types';
+import { getFormattedDate } from '@/utils/dateUtils';
+import { Label } from '@/components/ui/label';
 
-import styles from '../style/AddForm.module.css'
+import styles from '../style/AddForm.module.css';
 
 interface Types {
-  monthUrl: string
-  weekUrl: string
-  date?: Date
-  customTrigger?: React.ReactElement
+  monthUrl: string;
+  weekUrl: string;
+  date?: Date;
+  customTrigger?: React.ReactElement;
 }
 
 const formSchema = z.object({
   title: z.string().min(2, {
-    message: 'Title must be at least 2 characters'
+    message: 'Title must be at least 2 characters',
   }),
   amount: z.coerce.number().min(0, {
-    message: 'Should be positive number'
+    message: 'Should be positive number',
   }),
   currency: z.string().uuid({ message: 'Please, select currency' }),
   user: z.string().uuid({ message: 'Please, select user' }),
   category: z.string().uuid({ message: 'Please, select category' }),
   repeatType: z.enum(['', 'weekly', 'monthly']),
   budgetDate: z.date({
-    required_error: 'Budget date is required'
+    required_error: 'Budget date is required',
   }),
-  description: z.string().optional()
-})
+  description: z.string().optional(),
+});
 
 const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
-  const { mutate } = useSWRConfig()
-  const [parentList, setParentList] = useState<Category[]>([])
-  const [isSomeDay, setIsSomeDay] = useState<boolean>(false)
-  const [open, setOpen] = useState<boolean>(false)
-  const { url: pendingUrl } = usePendingBudget()
+  const { mutate } = useSWRConfig();
+  const [parentList, setParentList] = useState<Category[]>([]);
+  const [isSomeDay, setIsSomeDay] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
+  const { url: pendingUrl } = usePendingBudget();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      repeatType: ''
-    }
-  })
+      repeatType: '',
+    },
+  });
 
   useEffect(() => {
     if (open) {
-      form.setValue('budgetDate', date || new Date())
+      form.setValue('budgetDate', date || new Date());
     }
-  }, [open])
+  }, [open]);
 
-  const { toast } = useToast()
-
-  const { data: { user: authUser } } = useSession()
-
-  const { data: users } = useUsers()
-
-  const { data: currencies } = useCurrencies()
+  const { toast } = useToast();
 
   const {
-    data: categories = [],
-    isLoading: isCategoriesLoading
-  } = useCategories()
+    data: { user: authUser },
+  } = useSession();
 
-  const { trigger: createBudget, isMutating: isCreating } = useCreateBudget()
+  const { data: users } = useUsers();
+
+  const { data: currencies } = useCurrencies();
+
+  const { data: categories = [], isLoading: isCategoriesLoading } = useCategories();
+
+  const { trigger: createBudget, isMutating: isCreating } = useCreateBudget();
 
   useEffect(() => {
-    if (isCategoriesLoading) return
+    if (isCategoriesLoading) return;
 
     const parents = categories.filter(
-      (category: Category) => (
-        category.parent === null && category.type === CategoryType.Expense
-      )
-    )
-    setParentList(parents)
-  }, [isCategoriesLoading])
+      (category: Category) => category.parent === null && category.type === CategoryType.Expense
+    );
+    setParentList(parents);
+  }, [isCategoriesLoading]);
 
   useEffect(() => {
-    form.setValue('currency', getDefaultCurrency())
-  }, [currencies])
+    form.setValue('currency', getDefaultCurrency());
+  }, [currencies]);
 
   useEffect(() => {
-    form.setValue('user', getDefaultUser())
-  }, [authUser, users])
+    form.setValue('user', getDefaultUser());
+  }, [authUser, users]);
 
   const getDefaultCurrency = (): string => {
     if (!currencies) {
-      return ''
+      return '';
     }
 
-    const _currency = currencies.find((item: Currency) => item.isDefault)
+    const _currency = currencies.find((item: Currency) => item.isDefault);
     if (_currency) {
-      return _currency.uuid
+      return _currency.uuid;
     }
 
-    return ''
-  }
+    return '';
+  };
 
   const getDefaultUser = (): string => {
     if (!authUser || !users) {
-      return ''
+      return '';
     }
 
-    const _user = users.find((item: User) => item.username === authUser?.username)
+    const _user = users.find((item: User) => item.username === authUser?.username);
     if (_user != null) {
-      return _user.uuid
+      return _user.uuid;
     }
 
-    return ''
-  }
+    return '';
+  };
 
   const getCurrencySign = (): string => {
-    return currencies.find((item: Currency) => item.uuid === form.getValues().currency)?.sign
-  }
+    return currencies.find((item: Currency) => item.uuid === form.getValues().currency)?.sign;
+  };
 
   const handleSave = async (payload: z.infer<typeof formSchema>) => {
     try {
@@ -164,39 +146,35 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
         ...payload,
         budgetDate: isSomeDay ? null : getFormattedDate(payload.budgetDate),
         recurrent: payload.repeatType,
-      })
-      mutate(key => typeof key === 'string' && key.includes('budget/usage'), undefined)
-      mutate(key => typeof key === 'string' && key.includes('budget/weekly-usage'), undefined)
-      mutate('budget/pending/')
-      setOpen(false)
+      });
+      mutate((key) => typeof key === 'string' && key.includes('budget/usage'), undefined);
+      mutate((key) => typeof key === 'string' && key.includes('budget/weekly-usage'), undefined);
+      mutate('budget/pending/');
+      setOpen(false);
       toast({
-        title: 'Saved!'
-      })
+        title: 'Saved!',
+      });
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Something went wrong',
-        description: 'Please, check your fields'
-      })
+        description: 'Please, check your fields',
+      });
     }
-  }
+  };
 
   const clean = (open: boolean) => {
     if (!open) {
-      form.clearErrors()
+      form.clearErrors();
     }
-    setOpen(open)
-  }
+    setOpen(open);
+  };
 
-  const defaultTrigger = (
-    <Button className="mx-2">+ Add budget</Button>
-  )
+  const defaultTrigger = <Button className="mx-2">+ Add budget</Button>;
 
   return (
     <Dialog onOpenChange={clean} open={open}>
-      <DialogTrigger asChild>
-        {customTrigger || defaultTrigger}
-      </DialogTrigger>
+      <DialogTrigger asChild>{customTrigger || defaultTrigger}</DialogTrigger>
       <DialogContent className="min-w-[600px]">
         <DialogHeader>
           <DialogTitle>Add budget</DialogTitle>
@@ -247,20 +225,19 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Select
-                            disabled={isCreating}
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <SelectTrigger className="relative w-full">
+                          <Select disabled={isCreating} onValueChange={field.onChange} defaultValue={field.value}>
+                            <SelectTrigger className="relative w-full h-full">
                               <SelectValue placeholder="Select a currency" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
                                 <SelectLabel>Currencies</SelectLabel>
-                                {currencies && currencies.map((item: Currency) => (
-                                  <SelectItem key={item.uuid} value={item.uuid}>{item.code}</SelectItem>
-                                ))}
+                                {currencies &&
+                                  currencies.map((item: Currency) => (
+                                    <SelectItem key={item.uuid} value={item.uuid}>
+                                      {item.code}
+                                    </SelectItem>
+                                  ))}
                               </SelectGroup>
                             </SelectContent>
                           </Select>
@@ -279,11 +256,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Select
-                            disabled={isCreating}
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
+                          <Select disabled={isCreating} onValueChange={field.onChange} defaultValue={field.value}>
                             <SelectTrigger className="relative w-full">
                               <SelectValue placeholder="Select category" />
                             </SelectTrigger>
@@ -292,7 +265,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                                 <SelectLabel>Categories</SelectLabel>
                                 {parentList.map((item: Category) => (
                                   <SelectItem key={item.uuid} value={item.uuid} className="flex items-center">
-                                    {item.icon && (<span className="mr-2 text-lg">{item.icon}</span>)}
+                                    {item.icon && <span className="mr-2 text-lg">{item.icon}</span>}
                                     <span>{item.name}</span>
                                   </SelectItem>
                                 ))}
@@ -310,20 +283,19 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Select
-                            disabled={isCreating}
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
+                          <Select disabled={isCreating} onValueChange={field.onChange} defaultValue={field.value}>
                             <SelectTrigger className="relative w-full">
                               <SelectValue placeholder="Select user" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
                                 <SelectLabel>Budget owner</SelectLabel>
-                                {users && users.map((item: User) => (
-                                  <SelectItem key={item.uuid} value={item.uuid}>{item.username}</SelectItem>
-                                ))}
+                                {users &&
+                                  users.map((item: User) => (
+                                    <SelectItem key={item.uuid} value={item.uuid}>
+                                      {item.username}
+                                    </SelectItem>
+                                  ))}
                               </SelectGroup>
                             </SelectContent>
                           </Select>
@@ -408,11 +380,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                       <FormItem>
                         <FormControl>
                           <div className="flex gap-2 mt-1 items-center">
-                            <Switch
-                              id="isSomeday"
-                              checked={isSomeDay}
-                              onClick={() => setIsSomeDay(!isSomeDay)}
-                            />
+                            <Switch id="isSomeday" checked={isSomeDay} onClick={() => setIsSomeDay(!isSomeDay)} />
                             <Label htmlFor="isSomeday">Someday</Label>
                           </div>
                         </FormControl>
@@ -428,7 +396,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
         </Form>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default AddForm
+export default AddForm;
