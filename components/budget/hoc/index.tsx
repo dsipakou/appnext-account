@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { useStore } from '@/app/store'
+import { useStore } from '@/app/store';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { mutate } from 'swr';
@@ -46,10 +46,10 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const startDate = activeType === 'month' ? startOfMonth : startOfWeek;
     const endDate = activeType === 'month' ? endOfMonth : endOfWeek;
 
-    const weekDate = useStore((state) => state.weekDate)
-    const monthDate = useStore((state) => state.monthDate)
-    const setWeekDate = useStore((state) => state.setWeekDate)
-    const setMonthDate = useStore((state) => state.setMonthDate)
+    const weekDate = useStore((state) => state.weekDate);
+    const monthDate = useStore((state) => state.monthDate);
+    const setWeekDate = useStore((state) => state.setWeekDate);
+    const setMonthDate = useStore((state) => state.setMonthDate);
 
     const { data: users } = useUsers();
 
