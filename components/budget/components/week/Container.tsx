@@ -104,6 +104,16 @@ const Container: FC<Types> = ({
   const handleDragEnd = async (evt) => {
     setDraggingUuid('')
     if (!evt.over) return // dropped outside droppable zone
+    
+    // Get the original day of the dragged item
+    const draggedItem = budget.find(item => item.uuid === evt.active.id)
+    if (!draggedItem) return
+    
+    const originalDay = getDay(parseDate(draggedItem.budgetDate))
+    const targetDay = weekDaysArray[evt.over.id]
+    
+    // If dropped in the same column, just return without making the API call
+    if (originalDay === targetDay) return
 
     const newDate = daysFullFormatArray[evt.over.id].fullDate
 
