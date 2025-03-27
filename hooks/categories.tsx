@@ -69,3 +69,12 @@ export const useCategory = (uuid: string | undefined): Response<CategoryResponse
     isError: error,
   } as Response<CategoryResponse>
 }
+
+export const useReorderCategories = () => {
+  const { trigger, isMutating } = useSWRMutation('categories/reorder/', postReq, { revalidate: true })
+
+  return {
+    trigger,
+    isMutating,
+  }
+}
