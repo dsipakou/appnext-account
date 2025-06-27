@@ -44,3 +44,7 @@ Dockerfile.backup
 fly.toml
 .dockerignore
 .env-prod
+
+# Claude code
+.claude
+CLAUDE.MD
