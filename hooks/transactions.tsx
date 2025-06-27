@@ -51,6 +51,15 @@ export const useCreateTransaction = () => {
   }
 }
 
+export const useBulkCreateTransaction = () => {
+  const { trigger, isMutating } = useSWRMutation('transactions/bulk-create/', postReq, { revalidate: true })
+
+  return {
+    trigger,
+    isMutating,
+  }
+}
+
 export const useUpdateTransaction = () => {
   const { trigger, isMutating } = useSWRMutation('transactions/', patchReq, { revalidate: true })
 
@@ -134,7 +143,7 @@ export const useBudgetTransactions = (
 
 export const useAccountUsage = (
   uuid: string
-): Response<AccountUsage[]> => {
+): Response<AccountUsage> => {
   const url = `transactions/account/${uuid}/usage/`
 
   const { data, error, isLoading } = useSWRImmutable(url, fetchReq)
@@ -144,7 +153,7 @@ export const useAccountUsage = (
     isLoading,
     isError: error,
     url
-  } as Response<AccountUsage[]>
+  } as Response<AccountUsage>
 }
 
 export const useCategoryTransactions = (
