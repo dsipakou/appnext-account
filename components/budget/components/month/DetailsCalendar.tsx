@@ -8,9 +8,10 @@ import {
   startOfMonth,
   startOfWeek,
   endOfMonth,
-  endOfWeek
+  endOfWeek,
+  isSameDay
 } from 'date-fns'
-import { X } from 'lucide-react'
+import { X, ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { parseDate, getFormattedDate } from '@/utils/dateUtils'
 import { MonthBudgetItem } from '@/components/budget/types'
@@ -77,10 +78,11 @@ const DetailsCalendar: React.FC<Types> = ({
         <div
           key={day}
           className={cn(
-            'flex p-1 h-24 border',
-            isSameMonth(currentDate, activeDate) && 'bg-slate-100',
-            isWeekend(currentDate) && !isSameWeek(currentDate, new Date()) && isSameMonth(currentDate, activeDate) && 'bg-sky-100',
-            isSameWeek(currentDate, new Date()) && 'bg-sky-100',
+            'flex p-1 h-24 border rounded-md',
+            isSameMonth(currentDate, activeDate) && 'bg-gray-100',
+            isWeekend(currentDate) && !isSameWeek(currentDate, new Date()) && isSameMonth(currentDate, activeDate) && 'bg-red-50',
+            isSameWeek(currentDate, new Date()) && 'bg-blue-50',
+            isSameDay(currentDate, new Date()) && 'border-2 border-blue-500',
           )}
         >
           <CalendarBudgetItem
@@ -101,12 +103,16 @@ const DetailsCalendar: React.FC<Types> = ({
   }
 
   return (
-    <div className="flex flex-col gap-2 border rounded-md">
-      <div className="flex w-full py-2 justify-center items-center">
-        <span className="m-auto text-xl font-bold">{title}</span>
-        <X className="mr-2 cursor-pointer" onClick={handleClose} />
+    <div className="flex flex-col gap-2 rounded-md">
+      <div className="flex flex-col w-full py-2 relative">
+        <div className="flex w-full py-2 items-center relative justify-center">
+          <ArrowLeft className="absolute left-2 cursor-pointer" onClick={handleClose} />
+          <span className="text-sm text-gray-500 font-medium mr-2">{title.split(' > ')[0]}</span>
+          <span className="text-gray-400 mx-1">›</span>
+          <span className="text-xl font-bold text-gray-800 ml-2">{title.split(' > ')[1]}</span>
+        </div>
       </div>
-      <div className="grid grid-cols-7">{generateWeeksForCurrentMonth()}</div>
+      <div className="grid grid-cols-7 gap-1">{generateWeeksForCurrentMonth()}</div>
     </div>
   )
 }

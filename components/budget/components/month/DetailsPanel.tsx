@@ -1,24 +1,20 @@
-import { FC, useEffect, useState } from 'react'
-import GroupedBudgetButton from './GroupedBudgetButton'
-import { useBudgetMonth } from '@/hooks/budget'
-import {
-  GroupedByCategoryBudget,
-  MonthGroupedBudgetItem,
-  MonthBudgetItem
-} from '@/components/budget/types'
-import CategorySummaryCard from './CategorySummaryCard'
-import PreviousMonthsCard from './PreviousMonthsCard'
-import DetailsCalendar from './DetailsCalendar'
+import { FC, useEffect, useState } from 'react';
+import GroupedBudgetButton from './GroupedBudgetButton';
+import { useBudgetMonth } from '@/hooks/budget';
+import { GroupedByCategoryBudget, MonthGroupedBudgetItem, MonthBudgetItem } from '@/components/budget/types';
+import CategorySummaryCard from './CategorySummaryCard';
+import PreviousMonthsCard from './PreviousMonthsCard';
+import DetailsCalendar from './DetailsCalendar';
 
 interface Types {
-  activeCategoryUuid: string
-  startDate: string
-  endDate: string
-  user: string
-  weekUrl: string
-  monthUrl: string
-  duplicateListUrl: string
-  clickShowTransactions: (uuid: string) => void
+  activeCategoryUuid: string;
+  startDate: string;
+  endDate: string;
+  user: string;
+  weekUrl: string;
+  monthUrl: string;
+  duplicateListUrl: string;
+  clickShowTransactions: (uuid: string) => void;
 }
 
 const DetailsPanel: FC<Types> = ({
@@ -29,59 +25,53 @@ const DetailsPanel: FC<Types> = ({
   weekUrl,
   monthUrl,
   duplicateListUrl,
-  clickShowTransactions
+  clickShowTransactions,
 }) => {
-  const [budgetTitle, setBudgetTitle] = useState<string | undefined>()
-  const [budgetItems, setBudgetItems] = useState<MonthBudgetItem[]>([])
-  const [activeBudgetUuid, setActiveBudgetUuid] = useState<string | null>(null)
-  const {
-    data: budgetList = [],
-    isLoading: isBudgetLoading
-  } = useBudgetMonth(startDate, endDate, user)
+  const [budgetTitle, setBudgetTitle] = useState<string | undefined>();
+  const [budgetItems, setBudgetItems] = useState<MonthBudgetItem[]>([]);
+  const [activeBudgetUuid, setActiveBudgetUuid] = useState<string | null>(null);
+  const { data: budgetList = [], isLoading: isBudgetLoading } = useBudgetMonth(startDate, endDate, user);
 
-  const activeCategory = budgetList.length > 0
-    ? budgetList.find(
-      (item: GroupedByCategoryBudget) => item.uuid === activeCategoryUuid
-    )
-    : null
+  const activeCategory =
+    budgetList.length > 0 ? budgetList.find((item: GroupedByCategoryBudget) => item.uuid === activeCategoryUuid) : null;
 
-  const categoryBudgets = (activeCategory != null)
-    ? activeCategory.budgets
-    : []
+  const getBudgets = (category: GroupedByCategoryBudget): MonthGroupedBudgetItem[] => {
+    if (category.budgets == null) return [];
+    return category.budgets;
+  };
 
-  const title = activeCategory?.categoryName || 'Choose category'
+  const categoryBudgets = activeCategory != null ? activeCategory.budgets : [];
+
+  const title = activeCategory?.categoryName || 'Choose category';
 
   useEffect(() => {
-    if (!categoryBudgets || isBudgetLoading || !activeBudgetUuid) return
+    if (!categoryBudgets || isBudgetLoading || !activeBudgetUuid) return;
 
     if (activeCategory == null) {
-      setActiveBudgetUuid(null)
-      return
+      setActiveBudgetUuid(null);
+      return;
     }
 
-    const _budget = categoryBudgets.find(
-      (item: MonthBudgetItem) => item.uuid === activeBudgetUuid
-    )
+    const _budget = categoryBudgets.find((item: MonthBudgetItem) => item.uuid === activeBudgetUuid);
 
     if (_budget == null) {
-      setActiveBudgetUuid(null)
-      return
+      setActiveBudgetUuid(null);
+      return;
     }
 
-    setBudgetTitle(_budget.title)
-    setBudgetItems(_budget.items || [])
-  }, [activeBudgetUuid, categoryBudgets, isBudgetLoading])
+    setBudgetTitle(_budget.title);
+    setBudgetItems(_budget.items || []);
+  }, [activeBudgetUuid, categoryBudgets, isBudgetLoading]);
 
   const handleCloseBudgetDetails = (): void => {
-    setActiveBudgetUuid(null)
-  }
+    setActiveBudgetUuid(null);
+  };
 
   return (
     <div className="flex h-min-full flex-col p-2 rounded-lg bg-white border">
-      <span className="text-2xl font-semibold p-2 self-center">{title}</span>
-      {activeBudgetUuid
-        ? <DetailsCalendar
-          title={budgetTitle}
+      {activeBudgetUuid ? (
+        <DetailsCalendar
+          title={title + ' > ' + budgetTitle}
           items={budgetItems}
           date={startDate}
           handleClose={handleCloseBudgetDetails}
@@ -90,7 +80,8 @@ const DetailsPanel: FC<Types> = ({
           monthUrl={monthUrl}
           duplicateListUrl={duplicateListUrl}
         />
-        : (activeCategory != null) && (
+      ) : (
+        activeCategory != null && (
           <div className="grid grid-cols-2 gap-2">
             <div>
               <CategorySummaryCard item={activeCategory} />
@@ -105,9 +96,9 @@ const DetailsPanel: FC<Types> = ({
             ))}
           </div>
         )
-      }
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default DetailsPanel
+export default DetailsPanel;

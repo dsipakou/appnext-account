@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react'
+import React from 'react'
 import { useStore } from '@/app/store'
 import { useSession } from 'next-auth/react'
 import { cn } from '@/lib/utils'
@@ -36,7 +36,7 @@ interface GroupedByWeek {
   [key: string]: CompactWeekItem[]
 }
 
-const Container: FC<Types> = ({
+const Container: React.FC<Types> = ({
   startDate,
   endDate,
   user,
@@ -46,9 +46,10 @@ const Container: FC<Types> = ({
   mutateBudget,
   clickShowTransactions
 }) => {
-  const [weekGroup, setWeekGroup] = useState<GroupedByWeek>({})
-  const [isDragging, setIsDragging] = useState(false)
-  const [draggingUuid, setDraggingUuid] = useState<string>('')
+  const [weekGroup, setWeekGroup] = React.useState<GroupedByWeek>({})
+  const [budgetState, setBudgetState] = React.useState<WeekBudgetItem[]>([])
+  const [isDragging, setIsDragging] = React.useState(false)
+  const [draggingUuid, setDraggingUuid] = React.useState<string>('')
   const { data: budget }: WeekBudgetResponse = useBudgetWeek(
     startDate,
     endDate,
@@ -61,11 +62,15 @@ const Container: FC<Types> = ({
   const currencySign = useStore((state) => state.currencySign)
   const { toast } = useToast()
 
-  useEffect(() => {
-    if (!budget) return
+  React.useMemo(() => {
+    setBudgetState(budget)
+  }, [budget])
+
+  React.useEffect(() => {
+    if (!budgetState) return
     const groupedObj: GroupedByWeek = {}
 
-    budget.forEach((item: WeekBudgetItem) => {
+    budgetState.forEach((item: WeekBudgetItem) => {
       const dayOfWeek: number = getDay(parseDate(item.budgetDate))
       const itemsOnDate: CompactWeekItem[] = groupedObj[dayOfWeek] || []
       const compactWeekItem: CompactWeekItem = {
@@ -85,7 +90,7 @@ const Container: FC<Types> = ({
       groupedObj[dayOfWeek] = itemsOnDate
     })
     setWeekGroup(groupedObj)
-  }, [budget])
+  }, [budgetState])
 
   const addBudgetButton = (
     <Button
@@ -109,6 +114,7 @@ const Container: FC<Types> = ({
     const draggedItem = budget.find(item => item.uuid === evt.active.id)
     if (!draggedItem) return
     
+    const oldDate = draggedItem.budgetDate
     const originalDay = getDay(parseDate(draggedItem.budgetDate))
     const targetDay = weekDaysArray[evt.over.id]
     
@@ -117,11 +123,26 @@ const Container: FC<Types> = ({
 
     const newDate = daysFullFormatArray[evt.over.id].fullDate
 
+    // Optimistically update the UI
+    setBudgetState((prev) => {
+      const newState = [...prev]
+      const oldIndex = newState.findIndex((item) => item.uuid === draggedItem.uuid)
+      newState[oldIndex].budgetDate = getFormattedDate(newDate)
+      return newState
+    })
+
     try {
       const updatedBudget = await dragBudget({ budgetDate: getFormattedDate(newDate) })
       mutateBudget(updatedBudget)
       toast({ title: 'Saved!' })
     } catch (error) {
+      // Revert optimistic update on error
+      setBudgetState((prev) => {
+        const newState = [...prev]
+        const oldIndex = newState.findIndex((item) => item.uuid === draggedItem.uuid)
+        newState[oldIndex].budgetDate = oldDate
+        return newState
+      })
       const message = extractErrorMessage(error)
       toast({ variant: 'destructive', title: 'Cannot update', description: message })
     } finally {
