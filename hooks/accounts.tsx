@@ -32,7 +32,7 @@ export const useAccount = (uuid: string): Response<unknown> => {
   } as Response<unknown>
 }
 
-export const useCreateAccount = (payload: any) => {
+export const useCreateAccount = () => {
   const { trigger, isMutating } = useSWRMutation('accounts/', postReq, { revalidate: true })
 
   return {
