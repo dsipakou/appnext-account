@@ -91,7 +91,7 @@ const EChartReport: React.FC = () => {
           label: {
             show: true,
             fontSize: 10,
-            formatter: (params) => params.value > 1000 ? '-' + Number(params.value / 1000).toFixed(2) + 'k' : '-' + Number(params.value).toFixed(0),
+            formatter: (params: any) => params.value > 1000 ? '-' + Number(params.value / 1000).toFixed(2) + 'k' : '-' + Number(params.value).toFixed(0),
             textBorderColor: 'black',
             textBorderWidth: 2,
             color: 'white'
@@ -120,7 +120,7 @@ const EChartReport: React.FC = () => {
               },
               label: {
                 show: true,
-                formatter: (params) => '+' + Number(params.value).toFixed(0),
+                formatter: (params: any) => '+' + Number(params.value).toFixed(0),
                 fontSize: 10,
                 textBorderColor: 'white',
                 textBorderWidth: 2,
@@ -192,7 +192,7 @@ const EChartReport: React.FC = () => {
           return [point[0] + 60, point[1] % 200]
         },
         trigger: tooltipAxis,
-        formatter: (params, ticket) => {
+        formatter: (params: any, ticket: any) => {
           if (tooltipAxis === 'axis') {
             let output = '<table class="table-auto"><tbody>'
             const outcomeTotal = params.reduce((acc: unknown, item: unknown) => {
@@ -201,10 +201,35 @@ const EChartReport: React.FC = () => {
               }
               return acc
             }, 0)
-            output += `<tr><td class="pb-3 font-bold">Expenses</td><td class="pb-3 italic text-right text-lg">- ${outcomeTotal.toFixed(2)} ${currencySign}</td></tr>`
+            output += `
+              <tr>
+                <td class="pb-3 font-bold">Expenses</td>
+                <td class="pb-3 italic text-right text-lg">
+                  - ${outcomeTotal.toFixed(2)} ${currencySign}
+                </td>
+              </tr>
+            `
             output += params.reduce((acc: unknown, item: unknown) => {
               if (outcomeCategories.map((category: ChartCategory) => category.name).includes(item.seriesName)) {
-                acc += `<tr><td class="text-sm"><div class="flex"><div style="background-color: ${item.color}" class="h-4 w-4 mr-3"></div><span>${item.seriesName}</span></div></td><td class="italic text-sm px-5 font-semibold">- ${Number(item.value).toFixed(2)} ${currencySign}</td></tr>`
+                const isHovered = item.dataIndex === params[0].dataIndex
+                acc += `
+                  <tr>
+                    <td class="text-sm">
+                      <div class="flex">
+                        <div 
+                          style="background-color: ${item.color}" 
+                          class="h-4 w-4 mr-3"
+                        ></div>
+                        <span class="${isHovered ? 'font-bold' : ''}">
+                          ${item.seriesName}
+                        </span>
+                      </div>
+                    </td>
+                    <td class="italic text-sm px-5 font-semibold">
+                      - ${Number(item.value).toFixed(2)} ${currencySign}
+                    </td>
+                  </tr>
+                `
               }
               return acc
             }, '')
@@ -218,16 +243,59 @@ const EChartReport: React.FC = () => {
               }
               return acc
             }, 0)
-            output += `<tr><td class="py-3 font-bold">Income</td><td class="py-3 italic text-right text-lg">+ ${incomeTotal.toFixed(2)} ${currencySign}</td></tr>`
+            output += `
+              <tr>
+                <td class="py-3 font-bold">Income</td>
+                <td class="py-3 italic text-right text-lg">
+                  + ${incomeTotal.toFixed(2)} ${currencySign}
+                </td>
+              </tr>
+            `
             output += params.reduce((acc: unknown, item: unknown) => {
               if (incomeCategories.map((item: ChartCategory) => item.name).includes(item.seriesName)) {
-                acc += `<tr><td class="text-sm">${item.seriesName}</td><td class="text-sm px-5 italic font-semibold">+ ${Number(item.value).toFixed(2)} ${currencySign}</td></tr>`
+                const isHovered = item.dataIndex === params[0].dataIndex
+                acc += `
+                  <tr>
+                    <td class="text-sm">
+                      <div class="flex">
+                        <div 
+                          style="background-color: ${item.color}" 
+                          class="h-4 w-4 mr-3"
+                        ></div>
+                        <span class="${isHovered ? 'font-bold' : ''}">
+                          ${item.seriesName}
+                        </span>
+                      </div>
+                    </td>
+                    <td class="text-sm px-5 italic font-semibold">
+                      + ${Number(item.value).toFixed(2)} ${currencySign}
+                    </td>
+                  </tr>
+                `
               }
               return acc
             }, '')
             params.forEach((item: unknown) => {
               if (item.seriesName === 'Difference') {
-                output += `<tr><td class="py-2 font-bold"><div class="flex items-center"><div style="background-color: ${item.color}" class="h-4 w-4 mr-3"></div>Balance</div></td><td class="font-bold italic text-right text-lg">${Number(item.value).toFixed(2)} ${currencySign}</td></tr>`
+                const isHovered = item.dataIndex === params[0].dataIndex
+                output += `
+                  <tr>
+                    <td class="py-2 font-bold">
+                      <div class="flex items-center">
+                        <div 
+                          style="background-color: ${item.color}" 
+                          class="h-4 w-4 mr-3"
+                        ></div>
+                        <span class="${isHovered ? 'font-bold' : ''}">
+                          Balance
+                        </span>
+                      </div>
+                    </td>
+                    <td class="font-bold italic text-right text-lg">
+                      ${Number(item.value).toFixed(2)} ${currencySign}
+                    </td>
+                  </tr>
+                `
               }
             })
             output += '</tbody></table>'

@@ -19,6 +19,10 @@ export interface TransactionResponse {
   modifiedAt: string
 }
 
+export interface TransactionBulkResponse extends TransactionResponse {
+  rowId: number
+}
+
 export interface TransactionsReportResponse {
   day: number
   groupedAmount: number

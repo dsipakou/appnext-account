@@ -11,14 +11,14 @@ const Index: React.FC = () => {
   const setReportType = useStore((state) => state.setReportType)
 
   return (
-    <>
+    <div className="flex flex-col h-full">
       <Toolbar title={'Reports'}>
         <ReportTypeSwitcher activePage={reportType} changeReportType={setReportType} />
       </Toolbar>
       {reportType === ReportPages.Overall && <ReportOverall />}
       {reportType === ReportPages.Chart && <EChartReport />}
       {reportType === ReportPages.Details && <ChartReport />}
-    </>
+    </div>
   )
 }
 

@@ -4,7 +4,7 @@ Reports.auth = {}
 
 export default function Reports () {
   return (
-    <div className="min-h-screen">
+    <div className="h-screen flex flex-col">
       <Index />
     </div>
   )

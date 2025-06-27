@@ -53,9 +53,9 @@ export default function CategoryComponent({
     }
   }, [scrollReady, value])
 
-  const groupedCategories = categories.reduce((grouped: {}, category: Category): {} => {
+  const groupedCategories = categories.reduce((grouped: Record<string, Category[]>, category: Category): Record<string, Category[]> => {
     const key = category.parent || 'null'; // use 'null' for categories without a parent
-    if (!grouped[key]) {
+    if (!(key in grouped)) {
       grouped[key] = [];
     }
     grouped[key].push(category);
@@ -98,7 +98,7 @@ export default function CategoryComponent({
               <Slc.SelectGroup>
                 <Slc.SelectLabel data-parent-id={parent.uuid}>{parent.name}</Slc.SelectLabel>
                 {
-                  groupedCategories[parent.uuid].map((item: Category) => (
+                  groupedCategories[parent.uuid]?.map((item: Category) => (
                     <Slc.SelectItem key={item.uuid} value={item.uuid}>{parent.icon} {item.name}</Slc.SelectItem>
                   ))
                 }

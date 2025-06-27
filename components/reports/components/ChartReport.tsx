@@ -30,7 +30,7 @@ if (typeof window !== 'undefined') window.ApexCharts = ApexCharts
 
 interface CategoryCheckbox {
   name: string
-  checked: bool
+  checked: boolean
 }
 
 const ChartReport: React.FC = () => {
@@ -42,14 +42,15 @@ const ChartReport: React.FC = () => {
 
   const [options, setOptions] = React.useState({})
   const [series, setSeries] = React.useState([])
-  const { data: { user: authUser } } = useSession()
+  const { data: session } = useSession()
+  const authUser = session?.user
 
   const dateFrom = getFormattedDate(startOfMonth(subMonths(date, 11)))
   const dateTo = getFormattedDate(endOfMonth(date))
   const { data: chartData = [] } = useTransactionsMonthlyReport(
     dateFrom,
     dateTo,
-    authUser?.currency,
+    authUser?.currency ?? 'USD',
     showUpToDay ? upToDay : undefined
   )
 

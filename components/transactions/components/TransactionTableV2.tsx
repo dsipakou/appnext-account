@@ -37,11 +37,11 @@ import { useAccounts } from '@/hooks/accounts'
 import { useCategories } from '@/hooks/categories'
 import { useCurrencies } from '@/hooks/currencies'
 import { useUsers } from '@/hooks/users'
-import { useCreateTransaction, useUpdateTransaction } from '@/hooks/transactions'
+import { useBulkCreateTransaction, useCreateTransaction, useUpdateTransaction } from '@/hooks/transactions'
 // Types
 import { AccountResponse } from '@/components/accounts/types'
 import { Currency } from '@/components/currencies/types'
-import { TransactionResponse } from '@/components/transactions/types'
+import { TransactionBulkResponse, TransactionResponse } from '@/components/transactions/types'
 import { CompactWeekItem } from '@/components/budget/types'
 // Utils
 import { getFormattedDate, parseDate } from '@/utils/dateUtils'
@@ -110,6 +110,7 @@ export default function TransactionsTable({
 
   const { trigger: createTransaction, isMutating: isCreating } = useCreateTransaction()
   const { trigger: updateTransaction, isMutating: isUpdating } = useUpdateTransaction()
+  const { trigger: bulkCreateTransaction, isMutating: isBulkCreating } = useBulkCreateTransaction()
 
   const { data: { user: authUser } } = useSession()
   const { data: users = [] } = useUsers()
@@ -314,6 +315,40 @@ export default function TransactionsTable({
     setIsSavedRemote(true)
   }
 
+  const handleBulkCreate = async (transactions: RowData[]) => {
+    const res = await bulkCreateTransaction(
+      transactions.map((row: RowData) => ({
+        rowId: row.id,
+        uuid: row.uuid,
+        account: row.account,
+        amount: Number(row.outcome).toFixed(2),
+        budget: row.budget,
+        category: row.category,
+        currency: row.currency,
+        transactionDate: getFormattedDate(row.date),
+        type: 'outcome',
+        user,
+      })),
+    )
+    const resultMap = new Map(res.map((transaction: TransactionBulkResponse) => [transaction.rowId, transaction]));
+    setData((prevData: RowData[]) => prevData.map(r => resultMap.has(r.id) ? {
+      ...r,
+      uuid: resultMap.get(r.id)!.uuid,
+      account: resultMap.get(r.id)!.account,
+      budget: resultMap.get(r.id)!.budget,
+      budgetName: resultMap.get(r.id)!.budgetDetails.title,
+      category: resultMap.get(r.id)!.category,
+      categoryName: resultMap.get(r.id)!.categoryDetails.name,
+      categoryParentName: resultMap.get(r.id)!.categoryDetails.parentName,
+      currency: resultMap.get(r.id)!.currency,
+      date: parseDate(resultMap.get(r.id)!.transactionDate),
+      outcome: resultMap.get(r.id)!.amount,
+      outcomeInDefaultCurrency: resultMap.get(r.id)!.spentInCurrencies[authUser.currency],
+      inBase: resultMap.get(r.id)!.spentInCurrencies[baseCurrency?.code]
+    } : r))
+    setIsSavedRemote(true)
+  }
+
   const handleSave = async (id: number) => {
     const rowToSave = editedRows[id]
     const invalidFieldsForRow = new Set<keyof RowData>()
@@ -491,19 +526,14 @@ export default function TransactionsTable({
   }, [data, currentSnapshotIndex])
 
   const handleSubmit = async () => {
+    const transactions: RowData[] = []
     data.forEach(async (row: RowData, index: number) => {
       const editedRow = editedRows[row.id]
       const isEdited = changedFields[row.id]?.size > 0
       if (isEdited) {
         if (!row.uuid) {
-          try {
-            setIsLoading(true)
-            await handleSaveTransaction(editedRow)
-          } catch (error) {
-            console.log('error', error)
-          } finally {
-            setIsLoading(false)
-          }
+          setIsLoading(true)
+          transactions.push(editedRow)
         } else {
           try {
             setIsLoading(true)
@@ -516,6 +546,15 @@ export default function TransactionsTable({
         }
       }
     })
+    if (transactions.length) {
+      try {
+        await handleBulkCreate(transactions)
+      } catch (error) {
+        console.log('errorBulkCreate', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
   }
 
   const handleAddNewTransaction = (
@@ -822,10 +861,10 @@ export default function TransactionsTable({
           </div>
         )
       }
-      <div className="border rounded-lg overflow-hidden">
-        <div>
+      <div className="border rounded-lg">
+        <div className="max-h-[calc(100vh-300px)] overflow-auto relative">
           <Tbl.Table>
-            <Tbl.TableHeader>
+            <Tbl.TableHeader className="sticky top-0 bg-white z-10 after:absolute after:bottom-0 after:w-full after:h-px after:bg-border">
               <Tbl.TableRow className="bg-muted/50">
                 {visibleColumns.has('date') && (
                   <Tbl.TableHead className="flex cursor-pointer" onClick={() => requestSort('date')}>
