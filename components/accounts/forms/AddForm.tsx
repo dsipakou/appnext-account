@@ -215,7 +215,7 @@ const AddForm: React.FC = () => {
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                <SelectItem value=""><em className="text-gray-400">Without category</em></SelectItem>
+                                <SelectItem value="none"><em className="text-gray-400">Without category</em></SelectItem>
                                 {incomeCategories.map((item: Category) => (
                                   <SelectItem key={item.uuid} value={item.uuid}>{item.name}</SelectItem>
                                 ))}

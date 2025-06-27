@@ -77,7 +77,7 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
                           defaultValue={field.value}
                           disabled={isLoading || filteredAccounts.length === 0}
                         >
-                          <SelectTrigger className="relative w-full" asChild>
+                          <SelectTrigger className="relative w-full">
                             <SelectValue placeholder={filteredAccounts.length > 0 ? "Choose account" : "You do not have applicable accounts"} />
                           </SelectTrigger>
                           <SelectContent>

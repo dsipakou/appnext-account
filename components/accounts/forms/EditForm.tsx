@@ -214,7 +214,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                <SelectItem value=""><em>No income for this category</em></SelectItem>
+                                <SelectItem value="none"><em>No income for this category</em></SelectItem>
                                 {incomeCategories.map((item: Category) => (
                                   <SelectItem key={item.uuid} value={item.uuid}>{item.name}</SelectItem>
                                 ))}
