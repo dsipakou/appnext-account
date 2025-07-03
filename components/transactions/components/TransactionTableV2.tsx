@@ -77,7 +77,7 @@ const cellWidthMap = {
   date: 'w-1/6',
   account: 'w-1/6',
   budget: 'w-1/6',
-  category: 'w-full',
+  category: 'w-1/3',
   outcome: 'w-2/6',
 };
 
@@ -719,28 +719,33 @@ export default function TransactionsTable({
         case 'outcome':
           const transactionCurrency = currencies.find((item: Currency) => item.uuid === row.currency);
           return (
-            <div className={cn(cellStyle, 'flex justify-between px-2 text-right')}>
-              <div className="flex items-center gap-1">
-                <span className="font-semibold">
-                  {isSaved && !isCurrencyChanged && !isChanged ? row.outcomeInDefaultCurrency?.toFixed(2) : row.outcome}
-                </span>
-                <span className={cn(isCurrencyChanged && 'text-yellow-500 font-bold')}>
-                  {isSaved && !isCurrencyChanged ? defaultCurrencySign : transactionCurrency?.sign}
-                </span>
-              </div>
-              {/* TODO: revert do not return base currency */}
-              {isSaved && !isChanged && !isCurrencyChanged && (
-                <div className="flex flex-col w-20">
-                  {defaultCurrency !== transactionCurrency && baseCurrency !== transactionCurrency && (
-                    <span className="ml-1 text-muted-foreground text-[0.6rem]">
-                      ({row.outcome} {transactionCurrency.sign})
-                    </span>
-                  )}
-                  <span className="ml-1 text-muted-foreground text-[0.6rem]">
-                    ({Number(row.inBase)?.toFixed(2)} {baseCurrency?.sign})
+            <div className={cn(cellStyle, 'flex gap-2')}>
+              <div className="flex items-center justify-end px-2 text-right min-w-0 flex-1">
+                <div className="flex items-center gap-1">
+                  <span className="font-semibold">
+                    {isSaved && !isCurrencyChanged && !isChanged ? row.outcomeInDefaultCurrency?.toFixed(2) : row.outcome}
+                  </span>
+                  <span className={cn(isCurrencyChanged && 'text-yellow-500 font-bold')}>
+                    {isSaved && !isCurrencyChanged ? defaultCurrencySign : transactionCurrency?.sign}
                   </span>
                 </div>
-              )}
+                {/* TODO: revert do not return base currency */}
+                {isSaved && !isChanged && !isCurrencyChanged && (
+                  <div className="flex flex-col w-20">
+                    {defaultCurrency !== transactionCurrency && baseCurrency !== transactionCurrency && (
+                      <span className="ml-1 text-muted-foreground text-[0.6rem]">
+                        ({row.outcome} {transactionCurrency.sign})
+                      </span>
+                    )}
+                    <span className="ml-1 text-muted-foreground text-[0.6rem]">
+                      ({Number(row.inBase)?.toFixed(2)} {baseCurrency?.sign})
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="w-24 flex items-center justify-center flex-shrink-0">
+                {/* Reserve space for currency selector in edit mode */}
+              </div>
             </div>
           );
         case 'currency':
@@ -802,7 +807,7 @@ export default function TransactionsTable({
       case 'outcome':
         return (
           <div className="flex gap-2">
-            <div className="flex items-center h-8 w-28">
+            <div className="flex items-center h-8 min-w-0 flex-1">
               <Input
                 type="text"
                 placeholder="0.00"
@@ -813,23 +818,25 @@ export default function TransactionsTable({
                 onChange={(e) => handleAmountChange(row.id, key, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(e, row.id)}
                 onClick={(e) => e.currentTarget.select()}
-                className={`${commonInputClass} text-right`}
+                className={`${commonInputClass} text-right flex-1 min-w-0`}
                 ref={row.id === nextId - 1 ? currencyInputRef : null}
                 required
               />
-              <span className="ml-1">
+              <span className="ml-1 flex-shrink-0">
                 {currencies.find((item: Currency) => item.uuid === editedRows[row.id].currency)?.sign}
               </span>
             </div>
-            <CurrencyComponent
-              user={user}
-              value={currencyValue as string}
-              handleChange={handleChange}
-              handleKeyDown={handleKeyDown}
-              row={editedRow}
-              isInvalid={isInvalid}
-              isSaved={isSaved}
-            />
+            <div className="flex-shrink-0">
+              <CurrencyComponent
+                user={user}
+                value={currencyValue as string}
+                handleChange={handleChange}
+                handleKeyDown={handleKeyDown}
+                row={editedRow}
+                isInvalid={isInvalid}
+                isSaved={isSaved}
+              />
+            </div>
           </div>
         );
       default:
