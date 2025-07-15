@@ -90,7 +90,7 @@ const BudgetItem: React.FC<Types> = ({
           day === 0 && 'hover:right-4',
 
           !isDragging &&
-            'hover:h-[100px] hover:scale-110 hover:w-80 hover:border-double hover:border-2 hover:z-20 hover:shadow-xl',
+            'hover:h-[100px] hover:w-[290px] hover:scale-110 hover:border-double hover:border-2 hover:z-20 hover:shadow-xl',
           !budget.isCompleted && ['bg-white', isSameUser ? 'shadow-md' : 'text-blue-500'],
           budget.isCompleted && 'bg-slate-300 grayscale-[40%] opacity-[90%]',
           budget.recurrent && [

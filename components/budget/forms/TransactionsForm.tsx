@@ -26,7 +26,7 @@ const TransactionsForm: React.FC<Props> = ({ open, handleClose, uuid }) => {
             <Skeleton className="h-6 w-24" />
           </div>
           <div className="space-y-3">
-            {Array.from({ length: 8 }).map((_, index) => (
+            {Array.from({ length: 4 }).map((_, index) => (
               <div key={index} className="flex items-center space-x-4">
                 <Skeleton className="h-8 w-24" />
                 <Skeleton className="h-8 w-32" />
@@ -53,13 +53,7 @@ const TransactionsForm: React.FC<Props> = ({ open, handleClose, uuid }) => {
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Transactions for selected budget</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <div>
-          {isLoading ? (
-            <LoadingScreen />
-          ) : (
-            <TransactionsTable transactions={budgetTransactions} />
-          )}
-        </div>
+        <div>{isLoading ? <LoadingScreen /> : <TransactionsTable transactions={budgetTransactions} />}</div>
       </Dlg.DialogContent>
     </Dlg.Dialog>
   );

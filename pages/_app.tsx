@@ -79,7 +79,7 @@ function Auth({ children }: AuthProps) {
   })
 
   if (status === 'loading') {
-    return
+    return <div>Loading...</div>
   }
 
   axios.defaults.headers.common.Authorization = `Token ${session.user.token}`

@@ -1,4 +1,4 @@
-import RangeSwitcher from './RangeSwitcher'
-import ReportTypeSwitcher from './ReportTypeSwitcher'
+import RangeSwitcher from './RangeSwitcher';
+import ReportTypeSwitcher from './ReportTypeSwitcher';
 
-export { RangeSwitcher, ReportTypeSwitcher }
+export { RangeSwitcher, ReportTypeSwitcher };
