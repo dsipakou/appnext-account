@@ -50,6 +50,13 @@ const EChartReport: React.FC = () => {
     if (chartData.length === 0) return;
 
     const groupByCategory: GroupByCategory = chartData.reduce((acc: GroupByCategory, curr: ChartData) => {
+      /*
+       * {
+       *  "Food": [100, 80],
+       *  "Transport": [40, 10],
+       *  "Entertainment": [30]
+       * }
+       */
       curr.categories.forEach((category: ChartCategory) => {
         acc[category.name] = acc[category.name] || [];
         acc[category.name].push(category.value);
@@ -75,6 +82,9 @@ const EChartReport: React.FC = () => {
     const formattedSeries = outcomeCategories.map((item: ChartCategory) => ({
       name: item.name,
       data: groupByCategory[item.name] || [],
+      itemStyle: {
+        borderRadius: [2, 2, 2, 2],
+      },
       stack: 'outcome',
       type: 'bar',
       emphasis: {
