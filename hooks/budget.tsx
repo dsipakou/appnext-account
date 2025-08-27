@@ -54,7 +54,7 @@ export const useEditBudget = (uuid: string) => {
 export const useBudgetMonth = (dateFrom: string, dateTo: string, user: string): Response<GroupedByCategoryBudget[]> => {
   let url = `budget/usage/?dateFrom=${dateFrom}&dateTo=${dateTo}`;
   if (user && user !== 'all') url = `${url}&user=${user}`;
-  const { data, error, isLoading } = useSWRImmutable(url, fetchReq);
+  const { data, error, isLoading } = useSWRImmutable(dateFrom && dateTo ? url : null, fetchReq);
 
   return {
     data,
@@ -69,7 +69,7 @@ export const useBudgetWeek = (dateFrom: string, dateTo: string, user?: string): 
   if (user && user !== 'all') {
     url = `${url}&user=${user}`;
   }
-  const { data, error, isLoading } = useSWRImmutable(url, fetchReq);
+  const { data, error, isLoading } = useSWRImmutable(dateFrom && dateTo ? url : null, fetchReq);
 
   return {
     data,
@@ -96,7 +96,7 @@ export const useGetDuplicates = (type: 'month' | 'week', date: string): Response
     week: 'weekly',
     month: 'monthly',
   };
-  let url = `budget/duplicate/?type=${typeMap[type]}&date=${date}`;
+  let url = `budget/duplicate/?type=${typeMap[type]}&date=${date}&include_occasional=true`;
   const { data, error, isLoading } = useSWRImmutable(url, fetchReq);
 
   return {

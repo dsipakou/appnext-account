@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useStore } from '@/app/store';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { mutate } from 'swr';
 import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
@@ -172,6 +173,9 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           </Button>
         </div>
         <div className="flex items-center">
+          <Link href="/budget/recurrent" className="font-medium text-blue-600 hover:text-blue-500">
+            Recurrent
+          </Link>
           <SavedForLaterForm weekUrl={weekUrl} monthUrl={monthUrl} />
           <DuplicateForm budgetList={duplicateList} urlToMutate={duplicateListUrl} mutateBudget={mutateBudget} />
           <AddForm monthUrl={monthUrl} weekUrl={weekUrl} />

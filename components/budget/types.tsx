@@ -1,5 +1,5 @@
 
-export type RecurrentTypes = 'monthly' | 'weekly'
+export type RecurrentTypes = 'monthly' | 'weekly' | 'occasional'
 
 export interface CurrencyMap {
   [key: string]: number
@@ -113,6 +113,7 @@ export interface DuplicateBudgetResponse {
   date: string
   amount: number
   currency: string
+  recurrent: RecurrentTypes
 }
 
 export interface MonthSummedUsage {

@@ -47,7 +47,7 @@ const formSchema = z.object({
   currency: z.string().uuid({ message: 'Please, select currency' }),
   user: z.string().uuid({ message: 'Please, select user' }),
   category: z.string().uuid({ message: 'Please, select category' }),
-  repeatType: z.enum(['', 'weekly', 'monthly']),
+  repeatType: z.enum(['', 'weekly', 'monthly', 'occasional']),
   budgetDate: z.date({
     required_error: 'Budget date is required'
   }),
@@ -309,6 +309,10 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                             <Label>
                               <RadioGroup.RadioGroupItem value="monthly" id="r1" />
                               <span>Repeat Monthly</span>
+                            </Label>
+                            <Label>
+                              <RadioGroup.RadioGroupItem value="occasional" id="r1" />
+                              <span>Occasional</span>
                             </Label>
                           </RadioGroup.RadioGroup>
                         </Form.FormControl>

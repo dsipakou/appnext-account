@@ -7,6 +7,8 @@ import * as Dlg from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 // Hooks
 import { useDuplicateBudget } from '@/hooks/budget';
 import { DuplicateBudgetResponse } from '@/components/budget/types';
@@ -74,6 +76,7 @@ const BudgetCard: React.FC<BudgetCardTypes> = ({
 const DuplicateForm: React.FC<Types> = ({ budgetList, urlToMutate, mutateBudget }) => {
   const [selectedBudgets, setSelectedBudgetUuids] = React.useState<DuplicatePayload>({});
   const [budgetListState, setBudgetListState] = React.useState<DuplicateBudgetResponse[]>(budgetList);
+  const [showOccasional, setShowOccasional] = React.useState<boolean>(false);
   const { trigger: duplicate, isMutating: isDuplicating } = useDuplicateBudget();
   const { mutate } = useSWRConfig();
   const { toast } = useToast();
@@ -83,6 +86,13 @@ const DuplicateForm: React.FC<Types> = ({ budgetList, urlToMutate, mutateBudget 
       setBudgetListState(budgetList);
     }
   }, [budgetList]);
+
+  const filteredBudgetList = React.useMemo(() => {
+    if (showOccasional) {
+      return budgetListState;
+    }
+    return budgetListState.filter((budget) => budget.recurrent !== 'occasional');
+  }, [budgetListState, showOccasional]);
 
   const isBudgetSelected = (uuid: string): boolean => {
     return uuid in selectedBudgets;
@@ -102,7 +112,7 @@ const DuplicateForm: React.FC<Types> = ({ budgetList, urlToMutate, mutateBudget 
 
   const selectAllBudgets = (): void => {
     const uuids: DuplicatePayload = {};
-    budgetListState.forEach((budgetItem: DuplicateBudgetResponse) => {
+    filteredBudgetList.forEach((budgetItem: DuplicateBudgetResponse) => {
       uuids[budgetItem.uuid] = budgetItem.amount;
     });
     setSelectedBudgetUuids(uuids);
@@ -151,6 +161,7 @@ const DuplicateForm: React.FC<Types> = ({ budgetList, urlToMutate, mutateBudget 
 
   const clearForm = () => {
     setSelectedBudgetUuids({});
+    setShowOccasional(false);
   };
 
   return (
@@ -171,7 +182,7 @@ const DuplicateForm: React.FC<Types> = ({ budgetList, urlToMutate, mutateBudget 
             <span className="text-2xl">Nothing more to duplicate</span>
           ) : (
             <>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <Button
                   variant="default"
                   onClick={handleDuplicateClick}
@@ -179,17 +190,30 @@ const DuplicateForm: React.FC<Types> = ({ budgetList, urlToMutate, mutateBudget 
                 >
                   Duplicate selected
                 </Button>
-                <div>
-                  <Button disabled={isDuplicating} variant="link" onClick={selectAllBudgets}>
-                    Select all
-                  </Button>
-                  <Button disabled={isDuplicating} variant="link" onClick={() => setSelectedBudgetUuids({})}>
-                    Deselect all
-                  </Button>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      id="show-occasional"
+                      checked={showOccasional}
+                      onCheckedChange={setShowOccasional}
+                      disabled={isDuplicating}
+                    />
+                    <Label htmlFor="show-occasional" className="text-sm">
+                      Show occasional budgets
+                    </Label>
+                  </div>
+                  <div>
+                    <Button disabled={isDuplicating} variant="link" onClick={selectAllBudgets}>
+                      Select all
+                    </Button>
+                    <Button disabled={isDuplicating} variant="link" onClick={() => setSelectedBudgetUuids({})}>
+                      Deselect all
+                    </Button>
+                  </div>
                 </div>
               </div>
               <div className="grid grid-cols-4 gap-3">
-                {budgetListState.map((budgetItem: DuplicateBudgetResponse) => (
+                {filteredBudgetList.map((budgetItem: DuplicateBudgetResponse) => (
                   <div key={budgetItem.uuid}>
                     <BudgetCard
                       title={budgetItem.title}
