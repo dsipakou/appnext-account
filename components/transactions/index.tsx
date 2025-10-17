@@ -36,6 +36,7 @@ const Index: React.FC = () => {
 
   const {
     data: transactions = [],
+    isLoading: isTransactionsLoading,
     url: transactionsUrl
   } = useTransactions({
     sorting: 'added',
@@ -78,8 +79,8 @@ const Index: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col">
-      <div className="flex w-full px-6 my-3 justify-between items-center">
+    <div className="flex flex-col h-full pt-2">
+      <div className="flex w-full px-6 pb-3 justify-between items-center flex-shrink-0">
         <span className="text-xl font-semibold">Transactions</span>
         <div className="flex border bg-blue-500 rounded-md">
           <Button
@@ -125,43 +126,58 @@ const Index: React.FC = () => {
       </div>
       {activeType === 'outcome'
         ? (
-          <div className="grid grid-cols-7 gap-2">
-            <div className="col-span-5 bg-white">
-              <TableV2
-                transactions={transactions}
-              />
-            </div>
-            <div className="col-span-2">
-              <div className="flex flex-col gap-2">
-                <div className="flex flex-col justify-center items-center border bg-white rounded-md p-3">
-                  <span className="text-xl font-semibold mt-2">Transaction day</span>
-                  <Calendar
-                    mode="single"
-                    selected={transactionDate}
-                    onSelect={(day) => !(day == null) && setTransactionDate(day)}
-                    weekStartsOn={1}
-                  />
-                </div>
-                <div className="flex flex-col flex-nowrap bg-white items-center justify-center rounded-md p-3">
-                  <span className="text-xl font-semibold my-2">Day summary</span>
-                  <div className="flex w-full">
-                    <EDailyChart
-                      transactions={transactions}
-                    />
+          <div className="grid grid-cols-7 gap-2 flex-1 min-h-0 px-6">
+            <div className="col-span-5 bg-white flex flex-col min-h-0">
+              {isTransactionsLoading ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <p className="text-gray-500 text-lg">Loading transactions...</p>
                   </div>
+                </div>
+              ) : transactions.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <p className="text-gray-500 text-lg">No transactions for this date</p>
+                    <p className="text-gray-400 text-sm mt-2">Select a different date or add a new transaction</p>
+                  </div>
+                </div>
+              ) : (
+                <TableV2
+                  transactions={transactions}
+                />
+              )}
+            </div>
+            <div className="col-span-2 flex flex-col gap-2 overflow-y-auto">
+              <div className="flex flex-col justify-center items-center border bg-white rounded-md p-3">
+                <span className="text-xl font-semibold mt-2">Transaction day</span>
+                <Calendar
+                  mode="single"
+                  selected={transactionDate}
+                  onSelect={(day) => !(day == null) && setTransactionDate(day)}
+                  weekStartsOn={1}
+                />
+              </div>
+              <div className="flex flex-col flex-nowrap bg-white items-center justify-center rounded-md p-3">
+                <span className="text-xl font-semibold my-2">Day summary</span>
+                <div className="flex w-full">
+                  <EDailyChart
+                    transactions={transactions}
+                  />
                 </div>
               </div>
             </div>
           </div>
         )
         : (
-          <IncomeComponent
-            transactions={incomeTransactions}
-            transactionsUrl={transactionsUrl}
-            isLoading={isIncomeTransactionsLoading}
-            year={incomeYear}
-            setYear={setIncomeYear}
-          />
+          <div className="flex-1 min-h-0 px-6">
+            <IncomeComponent
+              transactions={incomeTransactions}
+              transactionsUrl={transactionsUrl}
+              isLoading={isIncomeTransactionsLoading}
+              year={incomeYear}
+              setYear={setIncomeYear}
+            />
+          </div>
         )}
       <AddForm
         open={isOpenTransactionsDialog}

@@ -207,7 +207,7 @@ const Layout: FC<Props> = ({ children }) => {
           </div>
         </div>
       </header>
-      <div className="container flex flex-col mx-auto pl-20 h-full pt-1 xl">
+      <div className="container flex flex-col mx-auto pl-20 flex-1 min-h-0 overflow-hidden">
         {children}
       </div>
     </div >

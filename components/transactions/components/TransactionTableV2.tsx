@@ -18,6 +18,7 @@ import {
   Trash2,
   Upload,
   XIcon,
+  ChevronRight,
 } from 'lucide-react';
 import { useStore } from '@/app/store';
 // UI
@@ -52,6 +53,7 @@ interface Types {
   url?: string;
   mode?: 'view' | 'bulk';
   budget?: CompactWeekItem;
+  categoryType?: 'INC' | 'EXP';
   disabledColumns?: string[];
   handleCanClose?: (flag: boolean) => void;
 }
@@ -74,16 +76,17 @@ export type RowData = {
 
 const allColumns = ['date', 'account', 'budget', 'category', 'outcome'];
 const cellWidthMap = {
-  date: 'w-1/6',
-  account: 'w-1/6',
-  budget: 'w-1/6',
-  category: 'w-1/3',
-  outcome: 'w-2/6',
+  date: 'w-2/12',
+  account: 'w-1/12',
+  budget: 'w-1/12',
+  category: 'w-3/12',
+  outcome: 'w-3/12',
 };
 
 export default function TransactionsTable({
   transactions = undefined,
   budget = undefined,
+  categoryType = 'EXP',
   mode = 'view',
   disabledColumns = [],
   handleCanClose = () => {},
@@ -107,6 +110,7 @@ export default function TransactionsTable({
   );
   const [newRows, setNewRows] = useState<Set<number>>(new Set());
   const [visibleColumns, setVisibleColumns] = useState<Set<string>>(new Set(allColumns));
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
 
   const currencyInputRef = useRef<HTMLInputElement>(null);
 
@@ -200,6 +204,57 @@ export default function TransactionsTable({
     setData([]);
   };
 
+  const groupedData = useMemo(() => {
+    const groups = new Map<string, RowData[]>();
+
+    data.forEach((row) => {
+      const parentCategory = row.categoryParentName || 'Uncategorized';
+      if (!groups.has(parentCategory)) {
+        groups.set(parentCategory, []);
+      }
+      groups.get(parentCategory)!.push(row);
+    });
+
+    // Sort each group internally
+    groups.forEach((rows, parentCategory) => {
+      let keys: Array<keyof RowData>;
+      switch (sortConfig?.key) {
+        case 'date':
+          keys = ['date'];
+          break;
+        case 'account':
+          keys = ['account'];
+          break;
+        case 'budget':
+          keys = ['budgetName'];
+          break;
+        case 'category':
+          keys = ['categoryName'];
+          break;
+        case 'outcome':
+          keys = ['outcome'];
+          break;
+        default:
+          keys = ['id'];
+      }
+
+      const direction = sortConfig?.direction || 'ascending';
+      rows.sort((a: RowData, b: RowData) => {
+        const keyA = keys.length > 1 ? keys.map((key) => a[key]).join('') : a[keys[0]];
+        const keyB = keys.length > 1 ? keys.map((key) => b[key]).join('') : b[keys[0]];
+        if (keyA < keyB) {
+          return direction === 'ascending' ? -1 : 1;
+        }
+        if (keyA > keyB) {
+          return direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      });
+    });
+
+    return groups;
+  }, [data, sortConfig]);
+
   const sortedData = useMemo(() => {
     let sortableItems = [...data];
     let keys: Array<keyof RowData>;
@@ -239,8 +294,32 @@ export default function TransactionsTable({
   }, [data, sortConfig]);
 
   const totalSum = useMemo(() => {
-    return sortedData.reduce((sum, row: RowData) => sum + Number(row.outcome), 0);
-  }, [sortedData]);
+    return data.reduce((sum, row: RowData) => {
+      // Use converted amount if available, otherwise use original amount
+      const amount = row.outcomeInDefaultCurrency ? row.outcomeInDefaultCurrency : Number(row.outcome);
+      return sum + amount;
+    }, 0);
+  }, [data]);
+
+  const toggleGroupCollapse = (parentCategory: string) => {
+    setCollapsedGroups((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(parentCategory)) {
+        newSet.delete(parentCategory);
+      } else {
+        newSet.add(parentCategory);
+      }
+      return newSet;
+    });
+  };
+
+  const getGroupTotal = (rows: RowData[]) => {
+    return rows.reduce((sum, row) => {
+      // Use converted amount if available, otherwise use original amount
+      const amount = row.outcomeInDefaultCurrency ? row.outcomeInDefaultCurrency : Number(row.outcome);
+      return sum + amount;
+    }, 0);
+  };
 
   const requestSort = (key: keyof RowData) => {
     let direction: 'ascending' | 'descending' = 'ascending';
@@ -258,41 +337,6 @@ export default function TransactionsTable({
   const handleEdit = (row: RowData) => {
     setEditingRows((prev) => new Set(prev).add(row.id));
     setEditedRows((prev) => ({ ...prev, [row.id]: { ...row } }));
-  };
-
-  const handleSaveTransaction = async (row: RowData): Promise<void> => {
-    const res = await createTransaction({
-      account: row.account,
-      amount: Number(row.outcome).toFixed(2),
-      budget: row.budget,
-      category: row.category,
-      currency: row.currency,
-      transactionDate: getFormattedDate(row.date),
-      type: 'outcome',
-      user,
-    });
-    setData((prevData: RowData[]) =>
-      prevData.map((r) =>
-        r.id === row.id
-          ? {
-              ...r,
-              uuid: res.uuid,
-              account: res.account,
-              budget: res.budget,
-              budgetName: res.budgetDetails?.title,
-              category: res.category,
-              categoryName: res.categoryDetails.name,
-              categoryParentName: res.categoryDetails.parentName,
-              currency: res.currency,
-              date: parseDate(res.transactionDate),
-              outcome: res.amount,
-              outcomeInDefaultCurrency: res.spentInCurrencies[authUser.currency],
-              inBase: res.spentInCurrencies[baseCurrency?.code],
-            }
-          : r
-      )
-    );
-    setIsSavedRemote(true);
   };
 
   const handleUpdateTransaction = async (row: RowData): Promise<void> => {
@@ -315,7 +359,7 @@ export default function TransactionsTable({
               uuid: res.uuid,
               account: res.account,
               budget: res.budget,
-              budgetName: res.budgetDetails.title,
+              budgetName: res.budgetDetails?.title,
               category: res.category,
               categoryName: res.categoryDetails.name,
               categoryParentName: res.categoryDetails.parentName,
@@ -379,7 +423,7 @@ export default function TransactionsTable({
 
     if (!rowToSave.date) invalidFieldsForRow.add('date');
     if (!rowToSave.account) invalidFieldsForRow.add('account');
-    if (!rowToSave.budget) invalidFieldsForRow.add('budget');
+    if (!rowToSave.budget && categoryType === 'EXP') invalidFieldsForRow.add('budget');
     if (!rowToSave.category) invalidFieldsForRow.add('category');
     if (!rowToSave.outcome) invalidFieldsForRow.add('outcome');
     if (!rowToSave.currency) invalidFieldsForRow.add('currency');
@@ -671,6 +715,31 @@ export default function TransactionsTable({
     }
   };
 
+  const getRowClassName = (row: RowData, isEditing: boolean, isEdited: boolean, isNew: boolean) => {
+    const baseClass = 'h-10 transition-colors duration-150 ease-in-out';
+
+    if (isEditing) {
+      return `${baseClass} bg-blue-50 border-l-4 border-blue-500 shadow-sm`;
+    }
+
+    if (isNew && !isEditing) {
+      return `${baseClass} bg-green-50 border-l-4 border-green-500 shadow-sm`;
+    }
+
+    if (isEdited && !isEditing) {
+      return `${baseClass} bg-amber-50 border-l-4 border-amber-500 shadow-sm`;
+    }
+
+    return `${baseClass} bg-white hover:bg-slate-50 border-l-4 border-transparent`;
+  };
+
+  const getCellTextColor = (isEditing: boolean, isChanged: boolean, isNew: boolean) => {
+    if (isEditing) return 'text-blue-700';
+    if (isNew) return 'text-green-700';
+    if (isChanged) return 'text-amber-700';
+    return 'text-slate-900';
+  };
+
   const renderCell = (row: RowData, key: keyof RowData) => {
     const isEditing = editingRows.has(row.id);
     const value = isEditing ? editedRows[row.id][key] : row[key];
@@ -682,8 +751,8 @@ export default function TransactionsTable({
     const isNew = newRows.has(row.id);
     const editedRow = editedRows[row.id];
 
-    const cellStyle = isEditing || isChanged || isNew ? 'text-yellow-500' : '';
-    const inputStyle = `w-full h-8 px-2 text-sm border-0 focus:ring-0 focus:outline-none focus:border-primary bg-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700 ${isInvalid ? 'outline outline-red-400' : ''}`;
+    const cellStyle = getCellTextColor(isEditing, isChanged, isNew);
+    const inputStyle = `w-full h-8 px-2 text-sm border-0 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white ${isInvalid ? 'ring-2 ring-red-400' : ''}`;
 
     if (!isEditing) {
       switch (key) {
@@ -711,9 +780,9 @@ export default function TransactionsTable({
         case 'category':
           return (
             <div className={`px-1 py-1 flex items-center ${cellStyle}`}>
-              <span className="font-medium truncate">{row.categoryParentName}</span>
+              <span className="font-medium">{row.categoryParentName}</span>
               <span className="mx-1">/</span>
-              <span className="text-muted-foreground truncate">{row.categoryName}</span>
+              <span className="text-slate-500 truncate">{row.categoryName}</span>
             </div>
           );
         case 'outcome':
@@ -723,9 +792,11 @@ export default function TransactionsTable({
               <div className="flex items-center justify-end px-2 text-right min-w-0 flex-1">
                 <div className="flex items-center gap-1">
                   <span className="font-semibold">
-                    {isSaved && !isCurrencyChanged && !isChanged ? row.outcomeInDefaultCurrency?.toFixed(2) : row.outcome}
+                    {isSaved && !isCurrencyChanged && !isChanged
+                      ? row.outcomeInDefaultCurrency?.toFixed(2)
+                      : row.outcome}
                   </span>
-                  <span className={cn(isCurrencyChanged && 'text-yellow-500 font-bold')}>
+                  <span className={cn(isCurrencyChanged && 'text-amber-600 font-bold')}>
                     {isSaved && !isCurrencyChanged ? defaultCurrencySign : transactionCurrency?.sign}
                   </span>
                 </div>
@@ -733,11 +804,11 @@ export default function TransactionsTable({
                 {isSaved && !isChanged && !isCurrencyChanged && (
                   <div className="flex flex-col w-20">
                     {defaultCurrency !== transactionCurrency && baseCurrency !== transactionCurrency && (
-                      <span className="ml-1 text-muted-foreground text-[0.6rem]">
+                      <span className="ml-1 text-slate-500 text-[0.6rem]">
                         ({row.outcome} {transactionCurrency.sign})
                       </span>
                     )}
-                    <span className="ml-1 text-muted-foreground text-[0.6rem]">
+                    <span className="ml-1 text-slate-500 text-[0.6rem]">
                       ({Number(row.inBase)?.toFixed(2)} {baseCurrency?.sign})
                     </span>
                   </div>
@@ -797,6 +868,7 @@ export default function TransactionsTable({
             user={user}
             value={value as string}
             categories={categories}
+            categoryType={categoryType}
             handleChange={handleChange}
             handleKeyDown={handleKeyDown}
             row={editedRow}
@@ -845,9 +917,9 @@ export default function TransactionsTable({
   };
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full h-full flex flex-col">
       {mode === 'bulk' && (
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center flex-shrink-0 mb-4">
           <div className="flex items-center space-x-2">
             <Button
               onClick={() => handleAddNewTransaction()}
@@ -878,15 +950,15 @@ export default function TransactionsTable({
           </div>
           <div className="flex gap-3 items-center">
             <span>Total:</span>
-            <span className="font-bold">{totalSum.toFixed(2)}</span>
+            <span className="font-bold text-lg">{totalSum.toFixed(2)}</span>
             <Button variant="secondary" onClick={() => clearTable()} disabled={data.length === 0}>
               Clear the table
             </Button>
           </div>
         </div>
       )}
-      <div className="border rounded-lg">
-        <div className="max-h-[calc(100vh-300px)] overflow-auto relative">
+      <div className="border rounded-lg flex-1 min-h-0 flex flex-col">
+        <div className="flex-1 min-h-0 overflow-auto relative">
           <Tbl.Table>
             <Tbl.TableHeader className="sticky top-0 bg-white z-10 after:absolute after:bottom-0 after:w-full after:h-px after:bg-border">
               <Tbl.TableRow className="bg-muted/50">
@@ -979,102 +1051,167 @@ export default function TransactionsTable({
               </Tbl.TableRow>
             </Tbl.TableHeader>
             <Tbl.TableBody>
-              {sortedData.map((row: RowData) => {
-                const isEditing = editingRows.has(row.id);
-                const isSaved = !!row.uuid;
-                const isEdited = changedFields[row.id]?.size > 0;
-                const isNew = newRows.has(row.id);
+              {Array.from(groupedData.entries()).map(([parentCategory, rows]) => {
+                const isCollapsed = collapsedGroups.has(parentCategory);
+                const groupTotal = getGroupTotal(rows);
+
                 return (
-                  <Tbl.TableRow
-                    key={row.id}
-                    className={`h-9 relative 
-                      ${isEditing ? 'bg-sky-100 border-sky-100 border-x-4' : 'hover:bg-muted/50'}
-                      ${!isEditing && (isEdited || isNew) ? 'border-x-4 border-yellow-300 rounded-bl-lg' : ''}
-                    `}
-                  >
-                    {(Object.keys(row) as Array<keyof RowData>).map(
-                      (key) =>
-                        visibleColumns.has(key) && (
-                          <Tbl.TableCell key={key} colSpan={1} className={cn('pl-1 pr-0 py-0', cellWidthMap[key])}>
-                            {renderCell(row, key)}
-                          </Tbl.TableCell>
-                        )
-                    )}
-                    <Tbl.TableCell className="p-0">
-                      <div className="h-full flex items-center justify-between px-2">
-                        <div className="flex space-x-0.5">
-                          {isEditing ? (
-                            <>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="h-7 w-7 p-0"
-                                onClick={() => handleSave(row.id)}
-                              >
-                                <CheckIcon className="h-4 w-4 text-green-500" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="h-7 w-7 p-0"
-                                onClick={() => handleCancel(row.id)}
-                              >
-                                <XIcon className="h-4 w-4 text-red-500" />
-                              </Button>
-                              {!isSaved && (
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="h-7 w-7 p-0"
-                                  onClick={() => handleRemove(row.id)}
-                                >
-                                  <MinusCircle className="h-4 w-4 text-red-500" />
-                                  {row.uuid}
-                                </Button>
-                              )}
-                            </>
-                          ) : (
-                            <>
-                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => handleEdit(row)}>
-                                <PencilIcon className="h-4 w-4" />
-                              </Button>
-                              {mode === 'bulk' && (
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="h-7 w-7 p-0"
-                                  onClick={() => handleDuplicate(row)}
-                                >
-                                  <Copy className="h-4 w-4" />
-                                </Button>
-                              )}
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="h-7 w-7 p-0"
-                                onClick={() => handleRemove(row.id)}
-                              >
-                                <Trash2 className="h-4 w-4 text-red-500" />
-                              </Button>
-                              {isSaved && !isEdited && mode === 'bulk' && (
-                                <CheckCheck className="h-4 w-4 text-green-400 self-center" />
-                              )}
-                              {changedFields[row.id]?.size > 0 && isSaved && (
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="h-7 w-7 p-0"
-                                  onClick={() => handleRevert(row.id)}
-                                >
-                                  <RotateCcw className="h-4 w-4" />
-                                </Button>
-                              )}
-                            </>
-                          )}
+                  <React.Fragment key={parentCategory}>
+                    {/* Group Header Row */}
+                    <Tbl.TableRow className="bg-slate-50/70 border-slate-200 hover:bg-slate-100/70 transition-colors duration-150 h-8">
+                      <Tbl.TableCell
+                        colSpan={Array.from(visibleColumns).length + 1}
+                        className="px-4 py-1 border-b border-slate-200 h-8"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="p-1 h-6 w-6 hover:bg-slate-200/60 rounded transition-colors"
+                              onClick={() => toggleGroupCollapse(parentCategory)}
+                            >
+                              <ChevronRight
+                                className={`h-3 w-3 transition-all duration-200 text-slate-500 ${
+                                  isCollapsed ? 'rotate-0' : 'rotate-90'
+                                }`}
+                              />
+                            </Button>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium text-slate-700">{parentCategory}</span>
+                              <span className="text-xs text-slate-500 bg-slate-200/60 px-1.5 py-0.5 rounded-full">
+                                {rows.length}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center">
+                            <span className="text mr-2">Group total: </span>
+                            <span className="text text-slate-800 font-semibold mr-8">{groupTotal.toFixed(2)}</span>
+                          </div>
                         </div>
-                      </div>
-                    </Tbl.TableCell>
-                  </Tbl.TableRow>
+                      </Tbl.TableCell>
+                    </Tbl.TableRow>
+                    {/* Transaction Rows */}
+                    <Tbl.TableRow className="p-0">
+                      <Tbl.TableCell colSpan={Array.from(visibleColumns).length + 1} className="p-0">
+                        <div
+                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                            isCollapsed ? 'max-h-0' : 'max-h-[2000px]'
+                          }`}
+                          style={{
+                            transitionProperty: 'max-height',
+                          }}
+                        >
+                          <table className="w-full table-fixed">
+                            <tbody>
+                              {rows.map((row: RowData) => {
+                                const isEditing = editingRows.has(row.id);
+                                const isSaved = !!row.uuid;
+                                const isEdited = changedFields[row.id]?.size > 0;
+                                const isNew = newRows.has(row.id);
+                                return (
+                                  <tr key={row.id} className={getRowClassName(row, isEditing, isEdited, isNew)}>
+                                    {(Object.keys(row) as Array<keyof RowData>).map(
+                                      (key) =>
+                                        visibleColumns.has(key) && (
+                                          <td
+                                            key={key}
+                                            className={cn(
+                                              'pl-1 pr-0 py-0 overflow-hidden whitespace-nowrap',
+                                              cellWidthMap[key]
+                                            )}
+                                          >
+                                            {renderCell(row, key)}
+                                          </td>
+                                        )
+                                    )}
+                                    <td className="p-0 w-1/12">
+                                      <div className="h-full flex items-center justify-end px-2">
+                                        <div className="flex items-center gap-1">
+                                          {isEditing ? (
+                                            <>
+                                              <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                className="h-8 w-8 p-0 hover:bg-green-100 hover:text-green-700 transition-colors"
+                                                onClick={() => handleSave(row.id)}
+                                              >
+                                                <CheckIcon className="h-4 w-4" />
+                                              </Button>
+                                              <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-700 transition-colors"
+                                                onClick={() => handleCancel(row.id)}
+                                              >
+                                                <XIcon className="h-4 w-4" />
+                                              </Button>
+                                              {!isSaved && (
+                                                <Button
+                                                  size="sm"
+                                                  variant="ghost"
+                                                  className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-700 transition-colors"
+                                                  onClick={() => handleRemove(row.id)}
+                                                >
+                                                  <MinusCircle className="h-4 w-4" />
+                                                </Button>
+                                              )}
+                                            </>
+                                          ) : (
+                                            <>
+                                              <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                className="h-8 w-8 p-0 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+                                                onClick={() => handleEdit(row)}
+                                              >
+                                                <PencilIcon className="h-4 w-4" />
+                                              </Button>
+                                              {mode === 'bulk' && (
+                                                <Button
+                                                  size="sm"
+                                                  variant="ghost"
+                                                  className="h-8 w-8 p-0 hover:bg-blue-100 hover:text-blue-700 transition-colors"
+                                                  onClick={() => handleDuplicate(row)}
+                                                >
+                                                  <Copy className="h-4 w-4" />
+                                                </Button>
+                                              )}
+                                              <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-700 transition-colors"
+                                                onClick={() => handleRemove(row.id)}
+                                              >
+                                                <Trash2 className="h-4 w-4" />
+                                              </Button>
+                                              {isSaved && !isEdited && mode === 'bulk' && (
+                                                <CheckCheck className="h-4 w-4 text-green-500 self-center" />
+                                              )}
+                                              {changedFields[row.id]?.size > 0 && isSaved && (
+                                                <Button
+                                                  size="sm"
+                                                  variant="ghost"
+                                                  className="h-8 w-8 p-0 hover:bg-amber-100 hover:text-amber-700 transition-colors"
+                                                  onClick={() => handleRevert(row.id)}
+                                                >
+                                                  <RotateCcw className="h-4 w-4" />
+                                                </Button>
+                                              )}
+                                            </>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      </Tbl.TableCell>
+                    </Tbl.TableRow>
+                  </React.Fragment>
                 );
               })}
             </Tbl.TableBody>
