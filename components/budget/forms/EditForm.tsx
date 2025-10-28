@@ -49,7 +49,7 @@ const formSchema = z.object({
   category: z.string().uuid({ message: 'Please, select category' }),
   repeatType: z.enum(['', 'weekly', 'monthly', 'occasional']),
   budgetDate: z.date({
-    required_error: 'Budget date is required'
+    message: 'Budget date is required'
   }),
   description: z.string().or(z.null())
 })

@@ -957,7 +957,7 @@ export default function TransactionsTable({
           </div>
         </div>
       )}
-      <div className="border rounded-lg flex-1 min-h-0 flex flex-col">
+      <div className="rounded-lg flex-1 min-h-0 flex flex-col">
         <div className="flex-1 min-h-0 overflow-auto relative">
           <Tbl.Table>
             <Tbl.TableHeader className="sticky top-0 bg-white z-10 after:absolute after:bottom-0 after:w-full after:h-px after:bg-border">

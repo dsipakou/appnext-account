@@ -135,7 +135,7 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col overflow-y-auto">
       <Acd.Accordion type="multiple">
         {parentCategories.map((item: Category) => (
           <Acd.AccordionItem key={item.uuid} value={item.uuid}>

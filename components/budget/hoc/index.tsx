@@ -26,7 +26,7 @@ import MonthCalendar from '@/components/budget/components/month/MonthCalendar';
 import { PlannedMap, SpentMap, CompactWeekItem } from '@/components/budget/types';
 import { AddForm, DuplicateForm, SavedForLaterForm, TransactionsForm } from '@/components/budget/forms';
 
-type BudgetType = 'month' | 'week';
+type BudgetType = 'month' | 'week' | 'recurrent';
 
 function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
   return (hocProps: Omit<T, 'activeType'>) => {
@@ -173,9 +173,11 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           </Button>
         </div>
         <div className="flex items-center">
-          <Link href="/budget/recurrent" className="font-medium text-blue-600 hover:text-blue-500">
-            Recurrent
-          </Link>
+          {/* <Link href="/budget/recurrent"> */}
+          {/*   <span className="hover:bg-accent hover:text-accent-foreground text-blue-500 border-blue-500 hover:text-blue-600"> */}
+          {/*     Recurrent */}
+          {/*   </span> */}
+          {/* </Link> */}
           <SavedForLaterForm weekUrl={weekUrl} monthUrl={monthUrl} />
           <DuplicateForm budgetList={duplicateList} urlToMutate={duplicateListUrl} mutateBudget={mutateBudget} />
           <AddForm monthUrl={monthUrl} weekUrl={weekUrl} />
@@ -234,7 +236,9 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
       <>
         {toolbar}
         <div className="flex flex-col h-full max-h-full">
-          <div className="w-full p-1 rounded shadow-sm shadow-zinc-300 bg-white">{header}</div>
+          {activeType !== 'recurrent' && (
+            <div className="w-full p-1 rounded shadow-sm shadow-zinc-300 bg-white">{header}</div>
+          )}
           <div className="@container-[size] flex w-full mt-5 h-full max-h-full">
             {(activeType === 'month' && budgetMonth.length === 0) ||
             (activeType === 'week' && budgetWeek.length === 0) ? (
