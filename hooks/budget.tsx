@@ -137,3 +137,18 @@ export const useDuplicateBudget = () => {
     isMutating,
   };
 };
+
+export const useOccasionalBudgets = (user?: string): Response<BudgetItem[]> => {
+  let url = 'budget/?recurrent=occasional';
+  if (user && user !== 'all') {
+    url = `${url}&user=${user}`;
+  }
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq);
+
+  return {
+    data,
+    isLoading,
+    isError: error,
+    url,
+  } as Response<BudgetItem[]>;
+};
