@@ -42,29 +42,34 @@ interface Types {
   customTrigger?: React.ReactElement;
 }
 
-const formSchema = z.object({
-  title: z.string().min(2, {
-    message: 'Title must be at least 2 characters',
-  }),
-  amount: z.coerce.number().min(0, {
-    message: 'Should be positive number',
-  }),
-  currency: z.string().uuid({ message: 'Please, select currency' }),
-  user: z.string().uuid({ message: 'Please, select user' }),
-  category: z.string().uuid({ message: 'Please, select category' }),
-  repeatType: z.enum(['', 'weekly', 'monthly', 'occasional']),
-  budgetDate: z.date().optional(),
-  weekDay: z.enum(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']).optional(),
-  description: z.string().optional(),
-}).refine((data) => {
-  if (data.repeatType === 'occasional') {
-    return !!data.weekDay;
-  }
-  return !!data.budgetDate;
-}, {
-  message: 'Please select a date or day of the week',
-  path: ['budgetDate'],
-});
+const formSchema = z
+  .object({
+    title: z.string().min(2, {
+      message: 'Title must be at least 2 characters',
+    }),
+    amount: z.coerce.number().min(0, {
+      message: 'Should be positive number',
+    }),
+    currency: z.string().uuid({ message: 'Please, select currency' }),
+    user: z.string().uuid({ message: 'Please, select user' }),
+    category: z.string().uuid({ message: 'Please, select category' }),
+    repeatType: z.enum(['', 'weekly', 'monthly', 'occasional']),
+    budgetDate: z.date().optional(),
+    weekDay: z.enum(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']).optional(),
+    description: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.repeatType === 'occasional') {
+        return !!data.weekDay;
+      }
+      return !!data.budgetDate;
+    },
+    {
+      message: 'Please select a date or day of the week',
+      path: ['budgetDate'],
+    }
+  );
 
 const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
   const { mutate } = useSWRConfig();
@@ -76,14 +81,25 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      title: '',
+      amount: 0,
+      currency: '',
+      user: '',
+      category: '',
       repeatType: '',
       weekDay: 'monday',
+      budgetDate: date || new Date(),
+      description: '',
     },
   });
 
   useEffect(() => {
     if (open) {
       form.setValue('budgetDate', date || new Date());
+      // Cannot focus immediately, need to wait for the dialog animation to finish
+      setTimeout(() => {
+        form.setFocus('title');
+      }, 100);
     }
   }, [open]);
 

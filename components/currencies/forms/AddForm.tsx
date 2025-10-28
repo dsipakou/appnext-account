@@ -31,7 +31,7 @@ const formSchema = z.object({
     message: 'Must be 3 characters long'
   }),
   sign: z.string({
-    required_error: 'You need to specify currency sign'
+    message: 'You need to specify currency sign'
   }),
   isDefault: z.boolean().optional(),
   comments: z.string().optional()

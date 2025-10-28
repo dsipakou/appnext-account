@@ -39,7 +39,7 @@ const formSchema = z.object({
   currency: z.string().uuid({ message: 'Please, select currency' }),
   description: z.string().optional(),
   transactionDate: z.date({
-    required_error: 'Transaction date is required'
+    message: 'Transaction date is required'
   })
 })
 
