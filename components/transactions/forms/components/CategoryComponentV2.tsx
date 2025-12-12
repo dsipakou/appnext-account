@@ -47,7 +47,9 @@ export default function CategoryComponent({
   React.useEffect(() => {
     if (!scrollReady || !value) return;
 
-    const parentElement = scrollAreaRef.current?.querySelector(`[data-parent-id="${value}"]`);
+    const scrollUuid = categories.find((item: Category) => item.uuid === value)?.parent || value;
+
+    const parentElement = scrollAreaRef.current?.querySelector(`[data-parent-id="${scrollUuid}"]`);
     if (!!parentElement) {
       parentElement.scrollIntoView({ behavior: 'instant', block: 'start' });
       setScrollReady(false);
