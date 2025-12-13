@@ -202,6 +202,7 @@ export default function TransactionsTable({
   const clearTable = () => {
     resetEditing();
     setData([]);
+    setSortConfig(null);
   };
 
   const groupedData = useMemo(() => {
