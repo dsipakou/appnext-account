@@ -2,7 +2,7 @@ import React from 'react';
 import { useStore } from '@/app/store';
 import { ArrowDownRight, ArrowUpRight, DollarSign } from 'lucide-react';
 import { ProgressBar } from '@/components/accounts/components/ProgressBar';
-import { getFormattedDate } from '@/utils/dateUtils'
+import { getFormattedDate } from '@/utils/dateUtils';
 
 interface AccountDetailsCardProps {
   month: string;
@@ -11,12 +11,12 @@ interface AccountDetailsCardProps {
 }
 
 const AccountDetailsCard: React.FC<AccountDetailsCardProps> = ({ month, income, spendings }) => {
-  const formattedMonth = getFormattedDate(new Date(month), 'yyyy MMM')
-  const hasIncome = income > 0
-  const hasExpenses = spendings > 0
+  const formattedMonth = getFormattedDate(new Date(month), 'yyyy MMM');
+  const hasIncome = income > 0;
+  const hasExpenses = spendings > 0;
   const spendingRatio = hasIncome ? (spendings / income) * 100 : hasExpenses ? 100 : 0;
   const savingsRatio = hasIncome ? 100 - spendingRatio : 0;
-  const currencySign = useStore((state) => state.currencySign);
+  const currencySign = useStore((state) => state.currency.sign);
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 flex flex-col h-full">
@@ -59,11 +59,11 @@ const AccountDetailsCard: React.FC<AccountDetailsCardProps> = ({ month, income, 
 
         {(hasIncome || hasExpenses) && (
           <div className="space-y-4 mt-6">
-            <ProgressBar 
-              value={spendings} 
-              maxValue={hasIncome ? income : spendings} 
-              colorClass={hasIncome ? "bg-red-500" : "bg-gray-500"} 
-              label="Spending Rate" 
+            <ProgressBar
+              value={spendings}
+              maxValue={hasIncome ? income : spendings}
+              colorClass={hasIncome ? 'bg-red-500' : 'bg-gray-500'}
+              label="Spending Rate"
             />
             {hasIncome && (
               <ProgressBar

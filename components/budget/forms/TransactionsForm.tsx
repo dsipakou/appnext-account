@@ -1,7 +1,7 @@
 // External
 import React from 'react';
 // Components
-import TransactionsTable from '@/components/transactions/components/TransactionTableV2';
+import { TransactionsTable } from '@/components/transactions/components/transactionTable';
 // UI
 import * as Dlg from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';

@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
-import React, { FC, ReactElement, ReactNode } from 'react'
-import { useSWRConfig } from 'swr'
-import { signOut, useSession } from 'next-auth/react'
-import { useStore } from '@/app/store'
-import axios from 'axios'
-import Link from 'next/link'
+import React, { FC, ReactElement, ReactNode } from 'react';
+import { useSWRConfig } from 'swr';
+import { signOut, useSession } from 'next-auth/react';
+import { useStore } from '@/app/store';
+import axios from 'axios';
+import Link from 'next/link';
 import {
   CreditCard,
   DollarSign,
@@ -15,9 +15,9 @@ import {
   LineChart,
   Menu,
   ScrollText,
-  User2
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
+  User2,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -25,135 +25,140 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import { useCurrencies } from '@/hooks/currencies'
-import { Currency } from '@/components/currencies/types'
-import { cn } from '@/lib/utils'
+  SelectValue,
+} from '@/components/ui/select';
+import { useCurrencies } from '@/hooks/currencies';
+import { Currency } from '@/components/currencies/types';
+import { cn } from '@/lib/utils';
 
 interface Props {
-  children: ReactNode
+  children: ReactNode;
 }
 
 const Layout: FC<Props> = ({ children }) => {
-  const [open, setOpen] = React.useState(false)
-  const setCurrencySign = useStore((state) => state.setCurrencySign)
-  const { data: currencies = [] } = useCurrencies()
-  const { data: session, status: authStatus, update: updateSession } = useSession()
-  const { mutate } = useSWRConfig()
+  const [open, setOpen] = React.useState(false);
+  const setCurrency = useStore((state) => state.setCurrency);
+  const { data: currencies = [] } = useCurrencies();
+  const { data: session, status: authStatus, update: updateSession } = useSession();
+  const { mutate } = useSWRConfig();
 
   if (authStatus === 'loading' || authStatus === 'unauthenticated') {
-    return
+    return;
   }
 
-  const { user } = session
-  const sessionCurrencySign = currencies.find((item: Currency) => item.code === user.currency)?.sign
+  const user = session?.user;
+  if (!user) {
+    return;
+  }
+  const sessionCurrency = currencies.find((item: Currency) => item.code === user.currency);
 
   React.useEffect(() => {
-    setCurrencySign(sessionCurrencySign)
-  }, [sessionCurrencySign])
+    if (!sessionCurrency) {
+      return;
+    }
+    setCurrency({
+      sign: sessionCurrency.sign,
+      code: sessionCurrency.code,
+    });
+  }, [sessionCurrency]);
 
   const handleDrawerOpen = () => {
-    setOpen(true)
-  }
+    setOpen(true);
+  };
 
   const handleDrawerClose = () => {
-    setOpen(false)
-  }
+    setOpen(false);
+  };
 
   const handleCurrencyChange = (currencyCode: string) => {
     if (currencyCode !== user.currency) {
-      axios.patch('users/currency/', {
-        currency: currencyCode
-      }).then(
-        res => {
+      axios
+        .patch('users/currency/', {
+          currency: currencyCode,
+        })
+        .then((res) => {
           if (res.status === 200) {
             // TODO: Remove this after migrating to session
             // updateCurrency(currencyCode)
-            updateSession({ currency: currencyCode })
-            mutate(key => typeof key === 'string' && key.includes('accounts'), undefined)
+            updateSession({ currency: currencyCode });
+            mutate((key) => typeof key === 'string' && key.includes('accounts'), undefined);
             // TODO: mutate something
           }
-        }
-
-      ).catch(
-        (error) => {
-          const errRes = error.response.data
-        }
-      )
+        })
+        .catch((error) => {
+          const errRes = error.response.data;
+        });
     }
-  }
+  };
 
   const menuItems = [
     {
       name: 'Dashboard',
       icon: <LayoutDashboard />,
-      link: '/dashboard/'
+      link: '/dashboard/',
     },
     {
       name: 'Accounts',
       icon: <CreditCard />,
-      link: '/accounts/'
+      link: '/accounts/',
     },
     {
       name: 'Transactions',
       icon: <ScrollText />,
-      link: '/transactions/'
+      link: '/transactions/',
     },
     {
       name: 'Categories',
       icon: <LayoutTemplate />,
-      link: '/categories/'
+      link: '/categories/',
     },
     {
       name: 'Budget',
       icon: <GanttChart />,
-      link: '/budget/week'
+      link: '/budget/week',
     },
     {
       name: 'Currencies',
       icon: <DollarSign />,
-      link: '/currencies/'
+      link: '/currencies/',
     },
     {
       name: 'Reports',
       icon: <LineChart />,
-      link: '/reports/'
-    }
-  ]
+      link: '/reports/',
+    },
+  ];
 
   const bottomMenuItems = [
     {
       name: 'Users',
       icon: <User2 />,
-      link: '/users/'
-    }
-  ]
+      link: '/users/',
+    },
+  ];
 
   const menuComponent = (name: string, icon: ReactElement, link: string): ReactElement => (
     <div onClick={handleDrawerClose} key={name} className="block hover:bg-slate-500 hover:text-white w-full">
       <Link href={link}>
         <div className="flex h-12 justify-start items-center pl-5">
-          <div className="pr-5">
-            {icon}
-          </div>
+          <div className="pr-5">{icon}</div>
           <span>{name}</span>
         </div>
       </Link>
     </div>
-  )
+  );
 
   return (
     <div className="flex flex-col h-screen">
-      <div className={cn(
-        "fixed flex flex-col justify-between drop-shadow-sm transition-all ease-in-out delay-50 bg-white overflow-hidden z-40 h-screen",
-        open ? 'w-60 shadow-xl' : 'w-16'
-      )}>
+      <div
+        className={cn(
+          'fixed flex flex-col justify-between drop-shadow-sm transition-all ease-in-out delay-50 bg-white overflow-hidden z-40 h-screen',
+          open ? 'w-60 shadow-xl' : 'w-16'
+        )}
+      >
         <div className="flex flex-col items-start">
           <div className="flex flex-col w-full items-start justify-center pt-16">
-            {menuItems.map(({ name, icon, link }) => (
-              menuComponent(name, icon, link)
-            ))}
+            {menuItems.map(({ name, icon, link }) => menuComponent(name, icon, link))}
           </div>
         </div>
         <div>
@@ -178,19 +183,19 @@ const Layout: FC<Props> = ({ children }) => {
           <div className="flex items-center justify-between">
             {!!currencies?.length && (
               <div className="flex w-80">
-                <Select
-                  defaultValue={user.currency}
-                  onValueChange={handleCurrencyChange}
-                >
+                <Select defaultValue={user.currency} onValueChange={handleCurrencyChange}>
                   <SelectTrigger className="relative w-full text-black">
                     <SelectValue placeholder="Select currency" />
                   </SelectTrigger>
                   <SelectContent className="flex bg-white color-black w-full pt-1" position="popper">
                     <SelectGroup>
                       <SelectLabel>Displayed currency</SelectLabel>
-                      {currencies && currencies.map((item: Currency) => (
-                        <SelectItem key={item.code} value={item.code}>{item.verbalName}</SelectItem>
-                      ))}
+                      {currencies &&
+                        currencies.map((item: Currency) => (
+                          <SelectItem key={item.code} value={item.code}>
+                            {item.verbalName}
+                          </SelectItem>
+                        ))}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -207,11 +212,9 @@ const Layout: FC<Props> = ({ children }) => {
           </div>
         </div>
       </header>
-      <div className="container flex flex-col mx-auto pl-20 flex-1 min-h-0 overflow-hidden">
-        {children}
-      </div>
-    </div >
-  )
-}
+      <div className="container flex flex-col mx-auto pl-20 flex-1 min-h-0 overflow-hidden">{children}</div>
+    </div>
+  );
+};
 
-export default Layout
+export default Layout;

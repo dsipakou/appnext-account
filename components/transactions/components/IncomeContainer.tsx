@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import TransactionTable from './TransactionTableV2';
+import { TransactionsTable } from './transactionTable';
 import { TransactionResponse } from '../types';
 
 interface Types {
@@ -68,7 +68,7 @@ const IncomeComponent: React.FC<Types> = ({ transactions = [], transactionsUrl, 
         </Select>
       </div>
       <div className="flex bg-white flex-1 min-h-0">
-        <TransactionTable
+        <TransactionsTable
           transactions={transactions}
           url={transactionsUrl}
           categoryType="INC"

@@ -4,7 +4,7 @@ import * as Slc from '@/components/ui/select';
 import * as Scr from '@/components/ui/scroll-area';
 // Types
 import { Category } from '@/components/categories/types';
-import { RowData } from '@/components/transactions/components/TransactionTableV2';
+import { RowData } from '@/components/transactions/components/transactionTable';
 // Utils
 import { cn } from '@/lib/utils';
 

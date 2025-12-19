@@ -58,7 +58,7 @@ const BudgetItem: React.FC<Types> = ({
 
   const percentage: number = Math.floor((budget.spent * 100) / budget.planned);
 
-  const currencySign = useStore((state) => state.currencySign);
+  const currencySign = useStore((state) => state.currency.sign);
 
   const budgetUser = users.find((item: UserResponse) => item.uuid === budget.user);
 

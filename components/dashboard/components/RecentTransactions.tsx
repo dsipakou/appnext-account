@@ -1,24 +1,25 @@
 // External
-import React from 'react'
-import { TrendingUpIcon, ArrowDownIcon } from 'lucide-react'
-import { useSession } from 'next-auth/react'
+import React from 'react';
+import { TrendingUpIcon, ArrowDownIcon } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 // Internal
-import { useStore } from '@/app/store'
+import { useStore } from '@/app/store';
 // UI
-import * as Crd from '@/components/ui/card'
+import * as Crd from '@/components/ui/card';
 // Hooks
-import { useTransactions } from '@/hooks/transactions'
+import { useTransactions } from '@/hooks/transactions';
 // Types
-import { TransactionResponse } from '@/components/transactions/types'
+import { TransactionResponse } from '@/components/transactions/types';
 
 const RecentTransactions = () => {
-  const { data: recentTransactions = [] } = useTransactions({ limit: 6 })
+  const { data: recentTransactions = [] } = useTransactions({ limit: 6 });
 
-  const currencySign = useStore((state) => state.currencySign)
-  const { data: { user: authUser } } = useSession()
+  const currencySign = useStore((state) => state.currency.sign);
+  const {
+    data: { user: authUser },
+  } = useSession();
 
   return (
-
     <Crd.Card className="shadow-md hover:shadow-lg transition-all duration-300 bg-white">
       <Crd.CardHeader className="pb-2">
         <Crd.CardTitle className="flex items-center text-gray-700 text-xl">
@@ -29,13 +30,14 @@ const RecentTransactions = () => {
       <Crd.CardContent className="pt-2">
         <ul className="space-y-2">
           {recentTransactions.map((transaction: TransactionResponse) => (
-            <li key={transaction.uuid} className="flex justify-between items-center text-sm py-2 border-b last:border-b-0 hover:bg-gray-50 transition-colors duration-150 rounded-md px-2">
+            <li
+              key={transaction.uuid}
+              className="flex justify-between items-center text-sm py-2 border-b last:border-b-0 hover:bg-gray-50 transition-colors duration-150 rounded-md px-2"
+            >
               <span className="flex items-center">
                 <span className="w-2 h-2 rounded-full mr-2 bg-red-300"></span>
                 <div className="w-64">
-                  <span className="font-medium truncate w-[30%]">
-                    {transaction.budgetDetails.title}
-                  </span>
+                  <span className="font-medium truncate w-[30%]">{transaction.budgetDetails.title}</span>
                   <span className="ml-3 text-gray-400 w-[70%] truncate">{transaction.categoryDetails.parentName}</span>
                 </div>
               </span>
@@ -49,8 +51,8 @@ const RecentTransactions = () => {
           ))}
         </ul>
       </Crd.CardContent>
-    </Crd.Card >
-  )
-}
+    </Crd.Card>
+  );
+};
 
-export default RecentTransactions
+export default RecentTransactions;

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { format } from 'date-fns';
 import { useSession } from 'next-auth/react';
 import {
   ArrowUpDown,
@@ -10,7 +9,6 @@ import {
   CheckIcon,
   CheckCheck,
   Copy,
-  CreditCardIcon,
   MinusCircle,
   PencilIcon,
   PlusCircle,
@@ -22,17 +20,15 @@ import {
 } from 'lucide-react';
 import { useStore } from '@/app/store';
 // UI
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import * as Tbl from '@/components/ui/table';
 import { User } from '@/components/users/types';
-import AccountComponent from '@/components/transactions/forms/components/AccountComponentV2';
-import BudgetComponent from '@/components/transactions/forms/components/BudgetComponentV2';
-import CategoryComponent from '@/components/transactions/forms/components/CategoryComponentV2';
-import DateComponent from '@/components/transactions/forms/components/DateComponentV2';
-import CurrencyComponent from '@/components/transactions/forms/components/CurrencyComponentV2';
 import { ConfirmDeleteForm } from '@/components/transactions/forms';
+// Cell Registry
+import { renderCellFromRegistry } from './cellRegistry';
+// Utils
+import { validateRow } from './utils/validation';
+import { getInputStyle } from './utils/styles';
 // Hooks
 import { useAccounts } from '@/hooks/accounts';
 import { useCategories } from '@/hooks/categories';
@@ -40,11 +36,10 @@ import { useCurrencies } from '@/hooks/currencies';
 import { useUsers } from '@/hooks/users';
 import { useBulkCreateTransaction, useCreateTransaction, useUpdateTransaction } from '@/hooks/transactions';
 // Types
-import { AccountResponse } from '@/components/accounts/types';
 import { Currency } from '@/components/currencies/types';
 import { TransactionBulkResponse, TransactionResponse } from '@/components/transactions/types';
 import { CompactWeekItem } from '@/components/budget/types';
-// Utils
+// Date Utils
 import { getFormattedDate, parseDate } from '@/utils/dateUtils';
 import { cn } from '@/lib/utils';
 
@@ -76,21 +71,21 @@ export type RowData = {
 
 const allColumns = ['date', 'account', 'budget', 'category', 'outcome'];
 const cellWidthMap = {
-  date: 'w-2/12',
-  account: 'w-1/12',
-  budget: 'w-1/12',
-  category: 'w-3/12',
-  outcome: 'w-3/12',
+  date: 'w-[10%]', // Minimal - just fits "10 Dec 2025"
+  account: 'w-[8%]', // Minimal - just to identify account
+  budget: 'w-[15%]', // Shrinked - okay to truncate
+  category: 'w-[40%]', // WIDEST - most important column (increased)
+  outcome: 'w-[20%]', // As needed - fits amount + conversions
 };
 
-export default function TransactionsTable({
+export const TransactionsTable = ({
   transactions = undefined,
   budget = undefined,
   categoryType = 'EXP',
   mode = 'view',
   disabledColumns = [],
   handleCanClose = () => {},
-}: Types) {
+}: Types) => {
   const [data, setData] = useState<RowData[]>([]);
   const [user, setUser] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -126,7 +121,7 @@ export default function TransactionsTable({
   const { data: categories = [] } = useCategories();
   const { data: currencies = [] } = useCurrencies();
 
-  const defaultCurrencySign = useStore((state) => state.currencySign);
+  const defaultCurrencySign = useStore((state) => state.currency.sign);
   const baseCurrency = currencies.find((item: Currency) => item.isBase);
   const defaultCurrency = currencies.find((item: Currency) => item.isDefault);
 
@@ -418,16 +413,10 @@ export default function TransactionsTable({
 
   const handleSave = async (id: number) => {
     const rowToSave = editedRows[id];
-    const invalidFieldsForRow = new Set<keyof RowData>();
     const isChanged = changedFields[rowToSave.id];
     const isEdited = changedFields[id]?.size > 0;
 
-    if (!rowToSave.date) invalidFieldsForRow.add('date');
-    if (!rowToSave.account) invalidFieldsForRow.add('account');
-    if (!rowToSave.budget && categoryType === 'EXP') invalidFieldsForRow.add('budget');
-    if (!rowToSave.category) invalidFieldsForRow.add('category');
-    if (!rowToSave.outcome) invalidFieldsForRow.add('outcome');
-    if (!rowToSave.currency) invalidFieldsForRow.add('currency');
+    const invalidFieldsForRow = validateRow(rowToSave, categoryType);
 
     if (invalidFieldsForRow.size > 0) {
       setInvalidFields((prev) => ({ ...prev, [id]: invalidFieldsForRow }));
@@ -747,174 +736,42 @@ export default function TransactionsTable({
     const currencyValue = isEditing ? editedRows[row.id]['currency'] : row['currency'];
     const isChanged = changedFields[row.id]?.has(key);
     const isCurrencyChanged = changedFields[row.id]?.has('currency');
-    const isSaved = !!row.uuid;
     const isInvalid = invalidFields[row.id]?.has(key);
     const isNew = newRows.has(row.id);
     const editedRow = editedRows[row.id];
 
     const cellStyle = getCellTextColor(isEditing, isChanged, isNew);
-    const inputStyle = `w-full h-8 px-2 text-sm border-0 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white ${isInvalid ? 'ring-2 ring-red-400' : ''}`;
-
-    if (!isEditing) {
-      switch (key) {
-        case 'date':
-          return (
-            <div className="px-1 flex items-center justify-center">
-              <Badge variant="outline" className={`text-xs font-medium ${cellStyle}`}>
-                {format(value as Date, 'dd MMM yyyy')}
-              </Badge>
-            </div>
-          );
-        case 'account':
-          return (
-            <div className={`px-1 flex items-center ${cellStyle}`}>
-              <CreditCardIcon className="mr-2 h-4 w-4 flex-shrink-0" />
-              <span className="truncate">{accounts.find((item: AccountResponse) => item.uuid === value)?.title}</span>
-            </div>
-          );
-        case 'budget':
-          return (
-            <Badge variant="outline" className={`px-2 ${cellStyle} truncate`}>
-              {row.budgetName}
-            </Badge>
-          );
-        case 'category':
-          return (
-            <div className={`px-1 py-1 flex items-center ${cellStyle}`}>
-              <span className="font-medium">{row.categoryParentName}</span>
-              <span className="mx-1">/</span>
-              <span className="text-slate-500 truncate">{row.categoryName}</span>
-            </div>
-          );
-        case 'outcome':
-          const transactionCurrency = currencies.find((item: Currency) => item.uuid === row.currency);
-          return (
-            <div className={cn(cellStyle, 'flex gap-2')}>
-              <div className="flex items-center justify-end px-2 text-right min-w-0 flex-1">
-                <div className="flex items-center gap-1">
-                  <span className="font-semibold">
-                    {isSaved && !isCurrencyChanged && !isChanged
-                      ? row.outcomeInDefaultCurrency?.toFixed(2)
-                      : row.outcome}
-                  </span>
-                  <span className={cn(isCurrencyChanged && 'text-amber-600 font-bold')}>
-                    {isSaved && !isCurrencyChanged ? defaultCurrencySign : transactionCurrency?.sign}
-                  </span>
-                </div>
-                {/* TODO: revert do not return base currency */}
-                {isSaved && !isChanged && !isCurrencyChanged && (
-                  <div className="flex flex-col w-20">
-                    {defaultCurrency !== transactionCurrency && baseCurrency !== transactionCurrency && (
-                      <span className="ml-1 text-slate-500 text-[0.6rem]">
-                        ({row.outcome} {transactionCurrency.sign})
-                      </span>
-                    )}
-                    <span className="ml-1 text-slate-500 text-[0.6rem]">
-                      ({Number(row.inBase)?.toFixed(2)} {baseCurrency?.sign})
-                    </span>
-                  </div>
-                )}
-              </div>
-              <div className="w-24 flex items-center justify-center flex-shrink-0">
-                {/* Reserve space for currency selector in edit mode */}
-              </div>
-            </div>
-          );
-        case 'currency':
-        case 'outcomeInDefaultCurrency':
-          return;
-      }
-    }
-
+    const inputStyle = getInputStyle(isInvalid);
     const commonInputClass = `w-full h-8 px-2 text-sm border-0 focus:ring-2 focus:border-primary ${inputStyle}`;
 
-    switch (key) {
-      case 'date':
-        return (
-          <DateComponent
-            user={user}
-            value={value as Date}
-            handleChange={handleChange}
-            row={editedRow}
-            isInvalid={isInvalid}
-          />
-        );
-      case 'account':
-        return (
-          <AccountComponent
-            value={value as string}
-            user={budget?.user || user}
-            accounts={accounts}
-            handleChange={handleChange}
-            handleKeyDown={handleKeyDown}
-            row={editedRow}
-            isInvalid={isInvalid}
-          />
-        );
-      case 'budget':
-        return (
-          <BudgetComponent
-            user={user}
-            value={value as string}
-            accounts={accounts}
-            handleChange={handleChange}
-            handleKeyDown={handleKeyDown}
-            row={editedRow}
-            isInvalid={isInvalid}
-          />
-        );
-      case 'category':
-        return (
-          <CategoryComponent
-            user={user}
-            value={value as string}
-            categories={categories}
-            categoryType={categoryType}
-            handleChange={handleChange}
-            handleKeyDown={handleKeyDown}
-            row={editedRow}
-            isInvalid={isInvalid}
-            defaultOpen={!!budget}
-          />
-        );
-      case 'outcome':
-        return (
-          <div className="flex gap-2">
-            <div className="flex items-center h-8 min-w-0 flex-1">
-              <Input
-                type="text"
-                placeholder="0.00"
-                step="0.01"
-                min="0"
-                value={value}
-                pattern="[0-9]+([\,][0-9]+)?"
-                onChange={(e) => handleAmountChange(row.id, key, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(e, row.id)}
-                onClick={(e) => e.currentTarget.select()}
-                className={`${commonInputClass} text-right flex-1 min-w-0`}
-                ref={row.id === nextId - 1 ? currencyInputRef : null}
-                required
-              />
-              <span className="ml-1 flex-shrink-0">
-                {currencies.find((item: Currency) => item.uuid === editedRows[row.id].currency)?.sign}
-              </span>
-            </div>
-            <div className="flex-shrink-0">
-              <CurrencyComponent
-                user={user}
-                value={currencyValue as string}
-                handleChange={handleChange}
-                handleKeyDown={handleKeyDown}
-                row={editedRow}
-                isInvalid={isInvalid}
-                isSaved={isSaved}
-              />
-            </div>
-          </div>
-        );
-      default:
-        return null;
-    }
+    return renderCellFromRegistry({
+      row,
+      key,
+      isEditing,
+      value,
+      currencyValue,
+      editedRow,
+      accounts,
+      categories,
+      currencies,
+      user,
+      budget,
+      categoryType,
+      defaultCurrencySign,
+      baseCurrency,
+      defaultCurrency,
+      cellStyle,
+      inputStyle,
+      commonInputClass,
+      isChanged,
+      isCurrencyChanged,
+      isInvalid,
+      nextId,
+      currencyInputRef,
+      handleChange,
+      handleAmountChange,
+      handleKeyDown,
+    });
   };
 
   return (
@@ -1232,4 +1089,4 @@ export default function TransactionsTable({
       )}
     </div>
   );
-}
+};

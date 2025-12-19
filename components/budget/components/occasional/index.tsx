@@ -18,16 +18,10 @@ interface OccasionalBudgetItemProps {
   currencySign: string;
 }
 
-const OccasionalBudgetItem: React.FC<OccasionalBudgetItemProps> = ({
-  budget,
-  categories,
-  currencySign
-}) => {
-  const getCategoryIcon = (uuid: string) =>
-    categories.find(cat => cat.uuid === uuid)?.icon || '📝';
+const OccasionalBudgetItem: React.FC<OccasionalBudgetItemProps> = ({ budget, categories, currencySign }) => {
+  const getCategoryIcon = (uuid: string) => categories.find((cat) => cat.uuid === uuid)?.icon || '📝';
 
-  const getCategoryName = (uuid: string) =>
-    categories.find(cat => cat.uuid === uuid)?.name || 'Unknown';
+  const getCategoryName = (uuid: string) => categories.find((cat) => cat.uuid === uuid)?.name || 'Unknown';
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow">
@@ -39,9 +33,7 @@ const OccasionalBudgetItem: React.FC<OccasionalBudgetItemProps> = ({
             <p className="text-sm text-gray-500">{getCategoryName(budget.category)}</p>
           </div>
         </div>
-        {budget.isCompleted && (
-          <CheckCircle className="h-6 w-6 text-green-500" />
-        )}
+        {budget.isCompleted && <CheckCircle className="h-6 w-6 text-green-500" />}
       </div>
 
       <div className="space-y-2">
@@ -72,9 +64,7 @@ const OccasionalBudgetItem: React.FC<OccasionalBudgetItemProps> = ({
         </div>
 
         {budget.description && (
-          <div className="mt-3 p-2 bg-gray-50 rounded text-sm text-gray-700">
-            {budget.description}
-          </div>
+          <div className="mt-3 p-2 bg-gray-50 rounded text-sm text-gray-700">{budget.description}</div>
         )}
       </div>
     </div>
@@ -83,7 +73,7 @@ const OccasionalBudgetItem: React.FC<OccasionalBudgetItemProps> = ({
 
 const Container: React.FC = () => {
   const { data: session } = useSession();
-  const currencySign = useStore((state) => state.currencySign);
+  const currencySign = useStore((state) => state.currency.sign);
 
   const { data: budgets = [], isLoading, isError } = useOccasionalBudgets();
   const { data: categories = [] } = useCategories();
@@ -133,9 +123,7 @@ const Container: React.FC = () => {
         <div className="w-full p-4">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-800 mb-2">Occasional Budgets</h1>
-            <p className="text-gray-600">
-              Manage your one-time and irregular budget items
-            </p>
+            <p className="text-gray-600">Manage your one-time and irregular budget items</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto">
@@ -155,4 +143,3 @@ const Container: React.FC = () => {
 };
 
 export default Container;
-

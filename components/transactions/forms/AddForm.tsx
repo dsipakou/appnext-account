@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useSession } from 'next-auth/react';
 import { useSWRConfig } from 'swr';
 // Components
-import TransactionsTable from '../components/TransactionTableV2';
+import { TransactionsTable } from '../components/transactionTable';
 // UI
 import * as Alr from '@/components/ui/alert-dialog';
 import * as Dlg from '@/components/ui/dialog';

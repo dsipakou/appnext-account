@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
 import { useDeleteTransaction } from '@/hooks/transactions';
-import { RowData } from '@/components/transactions/components/TransactionTableV2';
+import { RowData } from '@/components/transactions/components/transactionTable';
 import { getFormattedDate } from '@/utils/dateUtils';
 
 interface Types {
