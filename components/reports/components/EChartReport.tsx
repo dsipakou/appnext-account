@@ -22,6 +22,62 @@ interface GroupByCategory {
   [key: string]: number[];
 }
 
+const generateExpenseHeader = (outcomeTotal: number, currencySign: string) => `
+  <div class="grid grid-cols-2 h-full">
+    <div class="flex items-center pl-5 pb-2">
+      <span class="font-bold text-lg">Expenses</span>
+    </div>
+    <div class="flex">
+      <span class="text-lg text-right pr-1 text-red-500">
+        &#9660;
+      </span>
+      <span class="text-lg pr-5">
+        ${outcomeTotal.toFixed(2)} ${currencySign}
+      </span>
+    </div>
+`;
+
+const generateIncomeHeader = (incomeTotal: number, currencySign: string) => `
+  <div class="grid grid-cols-2 h-full w-fit">
+    <div class="flex items-center pl-5 pb-2 w-4">
+      <span class="font-bold text-lg">Income</span>
+    </div>
+    <div class="flex items-center">
+      <span class="text-lg text-right pr-1 text-green-500">
+        &#9650;
+      </span>
+      <span class="text-lg pr-5">
+        ${incomeTotal.toFixed(2)} ${currencySign}
+      </span>
+    </div>
+`;
+
+const generateCategoryRow = (item: any, isHovered: boolean, currencySign: string, isIncome: boolean = false) => `
+  <div style="background-color: ${isHovered && item.color}" class="flex w-full items-center py-[2px] ${isHovered && 'text-white rounded-l-sm'}">
+    <div style="background-color: ${item.color}" class="h-4 w-1 mr-3"></div>
+    <span class="${isHovered && 'font-bold text-lg'} w-full overflow-hidden">${item.seriesName}</span>
+  </div>
+  <div style="background-color: ${isHovered && item.color}" class="flex w-fit text-right items-center px-5 ${isHovered ? 'font-semibold text-lg text-white rounded-r-sm' : 'text-sm'}">
+    ${isIncome ? '<span class="w-full">' : ''}${isIncome ? '+' : '-'} ${Number(item.value).toFixed(2)} ${currencySign}${isIncome ? '</span>' : ''}
+  </div>
+`;
+
+const generateBalanceRow = (item: any, currencySign: string) => `
+    <div class="font-bold mt-4">
+      <div class="flex items-center">
+        <span class="font-bold text-xl">Balance</span>
+      </div>
+    </div>
+    <div class="font-bold text-right text-2xl mt-4">
+      <span class="text-lg text-right pr-1 text-${item.value >= 0 ? 'green' : 'red'}-500">
+        ${item.value >= 0 ? '&#9650;' : '&#9660;'}
+      </span>
+      <span>
+        ${Number(item.value).toFixed(2)} ${currencySign}
+      </span>
+    </div>
+`;
+
 const EChartReport: React.FC = () => {
   const [tooltipAxis, setTooltipAxis] = React.useState<'axis' | 'item'>('axis');
   const [date, setDate] = React.useState<Date>(new Date());
@@ -29,6 +85,7 @@ const EChartReport: React.FC = () => {
   const [showUpToDay, setShowUpToDay] = React.useState<boolean>(false);
   const [showIncome, setShowIncome] = React.useState<boolean>(false);
   const [options, setOptions] = React.useState({});
+  const highlightedIndexRef = React.useRef<number>(-1);
 
   const dateFrom = getFormattedDate(startOfMonth(subMonths(date, 11)));
   const dateTo = getFormattedDate(endOfMonth(date));
@@ -36,17 +93,18 @@ const EChartReport: React.FC = () => {
   const {
     data: { user: authUser },
   } = useSession();
-  const { data: chartData = [] } = useTransactionsMonthlyReport(
+  const { data: chartData = [], isLoading: isDataLoading } = useTransactionsMonthlyReport(
     dateFrom,
     dateTo,
     authUser?.currency,
     showUpToDay ? upToDay : undefined
   );
-  const currencySign = useStore((state) => state.currencySign);
+  const currencySign = useStore((state) => state.currency.sign);
 
   const monthDayArray = Array.from({ length: 31 }, (_, i) => i + 1);
 
   React.useEffect(() => {
+    if (isDataLoading) return;
     if (chartData.length === 0) return;
 
     const groupByCategory: GroupByCategory = chartData.reduce((acc: GroupByCategory, curr: ChartData) => {
@@ -64,7 +122,9 @@ const EChartReport: React.FC = () => {
       return acc;
     }, {});
 
-    const outcomeCategories = chartData[0].categories.filter((item: ChartCategory) => item.categoryType === 'EXP');
+    const outcomeCategories = chartData[0].categories
+      .filter((item: ChartCategory) => item.categoryType === 'EXP')
+      .reverse();
     const incomeCategories = chartData[0].categories.filter((item: ChartCategory) => item.categoryType === 'INC');
     const diffArray = chartData.map((item: ChartData) => {
       const outcome = item.categories.reduce((acc: number, category: ChartCategory) => {
@@ -176,12 +236,13 @@ const EChartReport: React.FC = () => {
       },
       grid: {
         left: '3%',
+        right: '20%',
+        top: '3%',
         bottom: '3%',
         containLabel: true,
-        width: '80%',
       },
       legend: {
-        data: outcomeCategories.map((item: ChartCategory) => item.name),
+        data: outcomeCategories.map((item: ChartCategory) => item.name).reverse(),
         orient: 'vertical',
         top: 'center',
         right: 10,
@@ -189,117 +250,63 @@ const EChartReport: React.FC = () => {
       },
       series: formattedSeries,
       tooltip: {
-        position: (point: number[]) => {
-          return [point[0] + 60, point[1] % 200];
-        },
         trigger: tooltipAxis,
+        position: (point: number[]) => {
+          return [(point[0] % 700) + 40, point[1] % 200];
+        },
+
         formatter: (params: any, ticket: any) => {
           if (tooltipAxis === 'axis') {
-            let output = '<table class="table-auto"><tbody>';
-            const outcomeTotal = params.reduce((acc: unknown, item: unknown) => {
+            let output = '<div class="flex gap-2">';
+
+            const outcomeTotal = params.reduce((acc: number, item: any) => {
               if (outcomeCategories.map((category: ChartCategory) => category.name).includes(item.seriesName)) {
                 acc += item.value;
               }
               return acc;
             }, 0);
-            output += `
-              <tr>
-                <td class="pb-3 font-bold">Expenses</td>
-                <td class="pb-3 italic text-right text-lg">
-                  - ${outcomeTotal.toFixed(2)} ${currencySign}
-                </td>
-              </tr>
-            `;
-            output += params.reduce((acc: unknown, item: unknown) => {
+
+            output += generateExpenseHeader(outcomeTotal, currencySign);
+
+            output += params.reduce((acc: string, item: any) => {
               if (outcomeCategories.map((category: ChartCategory) => category.name).includes(item.seriesName)) {
-                const isHovered = item.dataIndex === params[0].dataIndex;
-                acc += `
-                  <tr>
-                    <td class="text-sm">
-                      <div class="flex">
-                        <div 
-                          style="background-color: ${item.color}" 
-                          class="h-4 w-4 mr-3"
-                        ></div>
-                        <span class="${isHovered ? 'font-bold' : ''}">
-                          ${item.seriesName}
-                        </span>
-                      </div>
-                    </td>
-                    <td class="italic text-sm px-5 font-semibold">
-                      - ${Number(item.value).toFixed(2)} ${currencySign}
-                    </td>
-                  </tr>
-                `;
+                const isHovered = highlightedIndexRef.current === item.componentIndex;
+                acc = generateCategoryRow(item, isHovered, currencySign, false) + acc;
               }
               return acc;
             }, '');
+
+            output += '</div>';
+
             if (!showIncome) {
-              output += '</tbody></table>';
+              output += '</div>';
               return output;
             }
-            const incomeTotal = params.reduce((acc: unknown, item: unknown) => {
+
+            const incomeTotal = params.reduce((acc: number, item: any) => {
               if (incomeCategories.map((category: ChartCategory) => category.name).includes(item.seriesName)) {
                 acc += item.value;
               }
               return acc;
             }, 0);
-            output += `
-              <tr>
-                <td class="py-3 font-bold">Income</td>
-                <td class="py-3 italic text-right text-lg">
-                  + ${incomeTotal.toFixed(2)} ${currencySign}
-                </td>
-              </tr>
-            `;
-            output += params.reduce((acc: unknown, item: unknown) => {
+
+            output += generateIncomeHeader(incomeTotal, currencySign);
+
+            output += params.reduce((acc: string, item: any) => {
               if (incomeCategories.map((item: ChartCategory) => item.name).includes(item.seriesName)) {
-                const isHovered = item.dataIndex === params[0].dataIndex;
-                acc += `
-                  <tr>
-                    <td class="text-sm">
-                      <div class="flex">
-                        <div 
-                          style="background-color: ${item.color}" 
-                          class="h-4 w-4 mr-3"
-                        ></div>
-                        <span class="${isHovered ? 'font-bold' : ''}">
-                          ${item.seriesName}
-                        </span>
-                      </div>
-                    </td>
-                    <td class="text-sm px-5 italic font-semibold">
-                      + ${Number(item.value).toFixed(2)} ${currencySign}
-                    </td>
-                  </tr>
-                `;
+                const isHovered = item.componentIndex === highlightedIndexRef.current;
+                acc += generateCategoryRow(item, isHovered, currencySign, true);
               }
               return acc;
             }, '');
-            params.forEach((item: unknown) => {
+
+            params.forEach((item: any) => {
               if (item.seriesName === 'Difference') {
-                const isHovered = item.dataIndex === params[0].dataIndex;
-                output += `
-                  <tr>
-                    <td class="py-2 font-bold">
-                      <div class="flex items-center">
-                        <div 
-                          style="background-color: ${item.color}" 
-                          class="h-4 w-4 mr-3"
-                        ></div>
-                        <span class="${isHovered ? 'font-bold' : ''}">
-                          Balance
-                        </span>
-                      </div>
-                    </td>
-                    <td class="font-bold italic text-right text-lg">
-                      ${Number(item.value).toFixed(2)} ${currencySign}
-                    </td>
-                  </tr>
-                `;
+                output += generateBalanceRow(item, currencySign);
               }
             });
-            output += '</tbody></table>';
+
+            output += '</div></div>';
             return output;
           }
           return params.seriesName + ' ' + params.value.toFixed(2);
@@ -308,10 +315,21 @@ const EChartReport: React.FC = () => {
     };
 
     setOptions(optionsLocal);
-  }, [chartData, showIncome]);
+  }, [chartData, showIncome, isDataLoading]);
+
+  const onChartHover = React.useCallback((param, echart) => {
+    highlightedIndexRef.current = param.componentIndex;
+  }, []);
+
+  const chartEvents = React.useMemo(
+    () => ({
+      mouseover: onChartHover,
+    }),
+    [onChartHover]
+  );
 
   return (
-    <div className="flex flex-col relative gap-2">
+    <div className="flex flex-col relative gap-2 h-full">
       <div className="flex flex-row justify-center">
         <RangeSwitcher
           dateFrom={dateFrom}
@@ -344,8 +362,13 @@ const EChartReport: React.FC = () => {
           <span className="flex items-center text-sm">Show income</span>
         </div>
       </div>
-      <div>
-        <ReactECharts style={{ height: '650px' }} option={options} notMerge={true} />
+      <div className="flex-1 min-h-0">
+        <ReactECharts
+          option={options}
+          notMerge={true}
+          onEvents={chartEvents}
+          style={{ height: '100%', width: '100%' }}
+        />
       </div>
     </div>
   );
