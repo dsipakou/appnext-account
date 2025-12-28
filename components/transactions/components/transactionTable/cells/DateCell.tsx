@@ -25,6 +25,7 @@ export const DateCell: React.FC<DateCellProps> = ({
   user,
 }) => {
   if (isEditing && row && handleChange) {
+    console.log(value);
     return <DateComponent user={user} value={value} handleChange={handleChange} row={row} isInvalid={isInvalid} />;
   }
 

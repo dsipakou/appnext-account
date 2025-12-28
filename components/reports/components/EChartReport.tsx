@@ -42,7 +42,7 @@ const EChartReport: React.FC = () => {
     authUser?.currency,
     showUpToDay ? upToDay : undefined
   );
-  const currencySign = useStore((state) => state.currency.sign);
+  const currencySign = useStore((state) => state.currencySign);
 
   const monthDayArray = Array.from({ length: 31 }, (_, i) => i + 1);
 

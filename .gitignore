@@ -48,3 +48,5 @@ fly.toml
 # Claude code
 .claude
 CLAUDE.MD
+
+public/*

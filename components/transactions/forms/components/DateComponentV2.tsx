@@ -22,6 +22,7 @@ export default function DateComponent({ user, value, handleChange, row, isInvali
   const [openCalendar, setOpenCalendar] = React.useState<number | null>(null);
 
   const onChange = (value: Date) => {
+    console.log(value);
     handleChange(row.id, 'date', value);
     if (!isSameWeek(value, row.date)) {
       handleChange(row.id, 'budget', null);

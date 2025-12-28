@@ -128,7 +128,7 @@ export const renderCellFromRegistry = ({
       return (
         <OutcomeCell
           isEditing={isEditing}
-          row={row}
+          row={isEditing ? editedRow : row} // TODO: review this
           value={value}
           currencyValue={currencyValue}
           currencies={currencies}

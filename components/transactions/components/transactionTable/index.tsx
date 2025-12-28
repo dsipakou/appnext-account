@@ -71,10 +71,10 @@ export type RowData = {
 
 const allColumns = ['date', 'account', 'budget', 'category', 'outcome'];
 const cellWidthMap = {
-  date: 'w-[10%]', // Minimal - just fits "10 Dec 2025"
+  date: 'w-[12%]', // 15% on small displays, 10% on medium+ displays
   account: 'w-[8%]', // Minimal - just to identify account
   budget: 'w-[15%]', // Shrinked - okay to truncate
-  category: 'w-[40%]', // WIDEST - most important column (increased)
+  category: 'w-[38%]', // 35% on small displays, 40% on medium+ displays (most important column)
   outcome: 'w-[20%]', // As needed - fits amount + conversions
 };
 

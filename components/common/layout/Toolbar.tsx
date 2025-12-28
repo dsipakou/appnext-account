@@ -1,8 +1,8 @@
-import React from 'react'
+import React from 'react';
 
 interface Types {
-  title?: string
-  children: React.ReactNode
+  title?: string;
+  children: React.ReactNode;
 }
 
 const Toolbar: React.FC<Types> = ({ title, children }) => {
@@ -11,7 +11,7 @@ const Toolbar: React.FC<Types> = ({ title, children }) => {
       {!!title && <span className="text-xl font-semibold">{title}</span>}
       {children}
     </div>
-  )
-}
+  );
+};
 
-export default Toolbar
+export default Toolbar;
