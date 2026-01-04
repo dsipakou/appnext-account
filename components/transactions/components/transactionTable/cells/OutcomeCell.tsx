@@ -155,13 +155,19 @@ const CurrencyConversions: React.FC<CurrencyConversionsProps> = ({
   return (
     <div className="flex flex-col w-20">
       {defaultCurrency !== transactionCurrency && baseCurrency !== transactionCurrency && (
-        <span className="ml-1 text-slate-500 text-[0.6rem]">
-          ({row.outcome} {transactionCurrency?.sign})
-        </span>
+        <div className="ml-1 text-slate-500 text-[0.6rem] select-none">
+          <span>(</span>
+          <span className="mr-1 select-text font-semibold">{row.outcome}</span>
+          <span>{transactionCurrency?.sign}</span>
+          <span>)</span>
+        </div>
       )}
-      <span className="ml-1 text-slate-500 text-[0.6rem]">
-        ({Number(row.inBase)?.toFixed(2)} {baseCurrency?.sign})
-      </span>
+      <div className="ml-1 text-slate-500 text-[0.6rem] select-none">
+        <span>(</span>
+        <span className="mr-1 select-text font-semibold">{Number(row.inBase)?.toFixed(2)}</span>
+        <span>{baseCurrency?.sign}</span>
+        <span>)</span>
+      </div>
     </div>
   );
 };
