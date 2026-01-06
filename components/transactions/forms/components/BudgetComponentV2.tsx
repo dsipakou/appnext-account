@@ -38,7 +38,7 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
   const [weekEnd, setWeekEnd] = React.useState<string>(getEndOfWeek(row.date || new Date()));
   const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false);
   const [newBudgetTitle, setNewBudgetTitle] = React.useState('');
-  const [newBudgetAmount, setNewBudgetAmount] = React.useState('');
+  const [newBudgetAmount, setNewBudgetAmount] = React.useState('0');
   const [newBudgetCategory, setNewBudgetCategory] = React.useState('');
   const [newBudgetCurrency, setNewBudgetCurrency] = React.useState('');
 
@@ -101,7 +101,7 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
         category: newBudgetCategory,
         currency: newBudgetCurrency,
         user: accountUser,
-        recurrent: 'weekly',
+        recurrent: null,
         budgetDate: getFormattedDate(row.date || new Date()),
       };
 
