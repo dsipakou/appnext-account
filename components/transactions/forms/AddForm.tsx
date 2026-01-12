@@ -84,11 +84,11 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
     <>
       <Dlg.Dialog open={open} onOpenChange={onClose}>
         <Dlg.DialogTrigger asChild></Dlg.DialogTrigger>
-        <Dlg.DialogContent className="flex flex-col sm:max-w-full w-4/5 h-5/6 items-start mx-3">
-          <Dlg.DialogHeader>
+        <Dlg.DialogContent className="flex flex-col sm:max-w-full w-4/5 h-5/6 items-start mx-3 overflow-hidden">
+          <Dlg.DialogHeader className="flex-shrink-0">
             <Dlg.DialogTitle>Add transactions</Dlg.DialogTitle>
           </Dlg.DialogHeader>
-          <div className="flex h-full w-full">
+          <div className="flex h-full w-full min-h-0">
             <TransactionsTable budget={budget} handleCanClose={handleCanClose} mode="bulk" />
           </div>
         </Dlg.DialogContent>
