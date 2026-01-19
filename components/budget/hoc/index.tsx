@@ -2,7 +2,6 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useStore } from '@/app/store';
 import { useSession } from 'next-auth/react';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { mutate } from 'swr';
 import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
@@ -15,6 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Spinner } from '@/components/ui/spinner';
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { Button } from '@/components/ui/button';
 import { useUsers } from '@/hooks/users';
 import { useBudgetMonth, useBudgetWeek, useGetDuplicates } from '@/hooks/budget';
@@ -221,15 +222,18 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     );
 
     const emptyState = (
-      <div className="flex w-full h-full pt-20 justify-center items-center">
-        <span className="text-2xl">No plans for this {activeType === 'month' ? 'month' : 'week'}</span>
-      </div>
-    );
-
-    const loadingState = (
-      <div className="flex w-full h-full pt-20 justify-center items-center">
-        <span className="text-2xl">Loading budget...</span>
-      </div>
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon"></EmptyMedia>
+          <EmptyTitle>No plans for this week</EmptyTitle>
+          <EmptyDescription>You haven&apos;t planned anything for this week.</EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <div className="flex gap-2">
+            <AddForm monthUrl={monthUrl} weekUrl={weekUrl} />
+          </div>
+        </EmptyContent>
+      </Empty>
     );
 
     return (
@@ -242,11 +246,9 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           <div className="@container-[size] flex w-full mt-5 h-full max-h-full">
             {(activeType === 'month' && budgetMonth.length === 0) ||
             (activeType === 'week' && budgetWeek.length === 0) ? (
-              isWeekBudgetLoading ? (
-                loadingState
-              ) : (
-                emptyState
-              )
+              <div className="flex w-full h-full justify-center items-center">
+                {isWeekBudgetLoading ? <Spinner className="size-8" /> : emptyState}
+              </div>
             ) : (
               <Component
                 startDate={startDate}
