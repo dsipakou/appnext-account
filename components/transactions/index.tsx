@@ -1,10 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { useStore } from '@/app/store';
+import { Scroll } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import { Spinner } from '@/components/ui/spinner';
 import { useTransactions } from '@/hooks/transactions';
 import { AddForm, AddIncomeForm, EditForm, ConfirmDeleteForm } from '@/components/transactions/forms';
 import { TransactionResponse } from '@/components/transactions/types';
@@ -132,16 +134,24 @@ const Index: React.FC = () => {
             {isTransactionsLoading ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
-                  <p className="text-gray-500 text-lg">Loading transactions...</p>
+                  <Spinner className="size-8" />
                 </div>
               </div>
             ) : transactions.length === 0 ? (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center">
-                  <p className="text-gray-500 text-lg">No transactions for this date</p>
-                  <p className="text-gray-400 text-sm mt-2">Select a different date or add a new transaction</p>
-                </div>
-              </div>
+              <Empty className="flex items-center justify-center h-full">
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <Scroll />
+                  </EmptyMedia>
+                  <EmptyTitle>No transactions for this date</EmptyTitle>
+                  <EmptyDescription>You haven&apos;t added any transactions for this date.</EmptyDescription>
+                </EmptyHeader>
+                <EmptyContent>
+                  <div className="flex gap-2">
+                    <Button onClick={() => setIsOpenTransactionsDialog(true)}>+ Add transactions</Button>
+                  </div>
+                </EmptyContent>
+              </Empty>
             ) : (
               <TransactionsTable transactions={transactions} />
             )}
