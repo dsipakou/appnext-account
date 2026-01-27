@@ -96,7 +96,7 @@ export const useGetDuplicates = (type: 'month' | 'week', date: string): Response
     week: 'weekly',
     month: 'monthly',
   };
-  let url = `budget/duplicate/?type=${typeMap[type]}&date=${date}&include_occasional=true`;
+  let url = `budget/duplicate/?type=${typeMap[type]}&date=${date}`;
   const { data, error, isLoading } = useSWRImmutable(url, fetchReq);
 
   return {
