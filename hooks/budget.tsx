@@ -6,7 +6,6 @@ import {
   GroupedByCategoryBudget,
   BudgetItem,
   WeekBudgetItem,
-  DuplicateBudgetResponse,
   MonthSummedUsage,
 } from '@/components/budget/types';
 import { fetchReq, postReq, deleteReq, patchReq } from '@/plugins/axios';
@@ -91,21 +90,6 @@ export const usePendingBudget = (): Response<WeekBudgetItem[]> => {
   } as Response<WeekBudgetItem[]>;
 };
 
-export const useGetDuplicates = (type: 'month' | 'week', date: string): Response<DuplicateBudgetResponse[]> => {
-  const typeMap = {
-    week: 'weekly',
-    month: 'monthly',
-  };
-  let url = `budget/duplicate/?type=${typeMap[type]}&date=${date}`;
-  const { data, error, isLoading } = useSWRImmutable(url, fetchReq);
-
-  return {
-    data,
-    isLoading,
-    isError: error,
-    url,
-  } as Response<DuplicateBudgetResponse[]>;
-};
 
 export const useGetUpcommingBudget = (): Response<BudgetItem[]> => {
   const { data, error, isLoading } = useSWRImmutable('budget/upcomming/', fetchReq);
@@ -129,14 +113,6 @@ export const useBudgetLastMonthsUsage = (month: string, category?: string): Resp
   } as Response<MonthSummedUsage[]>;
 };
 
-export const useDuplicateBudget = () => {
-  const { trigger, isMutating } = useSWRMutation('budget/duplicate/', postReq, { revalidate: true });
-
-  return {
-    trigger,
-    isMutating,
-  };
-};
 
 export const useOccasionalBudgets = (user?: string): Response<BudgetItem[]> => {
   let url = 'budget/?recurrent=occasional';

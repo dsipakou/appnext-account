@@ -22,7 +22,6 @@ interface Types {
   currency: string;
   weekUrl: string;
   monthUrl: string;
-  duplicateListUrl: string;
   clickShowTransactions: (uuid: string) => void;
 }
 
@@ -32,7 +31,6 @@ const CalendarBudgetItem: React.FC<Types> = ({
   currency,
   weekUrl,
   monthUrl,
-  duplicateListUrl,
   clickShowTransactions,
 }) => {
   const [isEditDialogOpened, setIsEditDialogOpened] = React.useState<boolean>(false);
@@ -121,7 +119,6 @@ const CalendarBudgetItem: React.FC<Types> = ({
           setOpen={setIsConfirmDeleteDialogOpened}
           weekUrl={weekUrl}
           monthUrl={monthUrl}
-          duplicateListUrl={duplicateListUrl}
         />
       )}
     </div>

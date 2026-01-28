@@ -18,14 +18,14 @@ import { Spinner } from '@/components/ui/spinner';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { Button } from '@/components/ui/button';
 import { useUsers } from '@/hooks/users';
-import { useBudgetMonth, useBudgetWeek, useGetDuplicates } from '@/hooks/budget';
+import { useBudgetMonth, useBudgetWeek } from '@/hooks/budget';
 import { User } from '@/components/users/types';
 import { getStartOfMonth, getEndOfMonth, getStartOfWeek, getEndOfWeek, getFormattedDate } from '@/utils/dateUtils';
 import { GeneralSummaryCard } from '@/components/budget/components';
 import WeekCalendar from '@/components/budget/components/week/WeekCalendar';
 import MonthCalendar from '@/components/budget/components/month/MonthCalendar';
 import { PlannedMap, SpentMap, CompactWeekItem } from '@/components/budget/types';
-import { AddForm, DuplicateForm, SavedForLaterForm, TransactionsForm } from '@/components/budget/forms';
+import { AddForm, SavedForLaterForm, TransactionsForm } from '@/components/budget/forms';
 
 type BudgetType = 'month' | 'week' | 'recurrent';
 
@@ -61,10 +61,6 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
       url: weekUrl,
       isLoading: isWeekBudgetLoading,
     } = useBudgetWeek(startOfWeek, endOfWeek, user);
-    const { data: duplicateList = [], url: duplicateListUrl } = useGetDuplicates(
-      activeType,
-      activeType === 'month' ? getFormattedDate(monthDate) : getFormattedDate(weekDate)
-    );
 
     const handleClickTransactions = (uuid: string): void => {
       setActiveBudgetUuid(uuid);
@@ -180,7 +176,6 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           {/*   </span> */}
           {/* </Link> */}
           <SavedForLaterForm weekUrl={weekUrl} monthUrl={monthUrl} />
-          <DuplicateForm budgetList={duplicateList} urlToMutate={duplicateListUrl} mutateBudget={mutateBudget} />
           <AddForm monthUrl={monthUrl} weekUrl={weekUrl} />
         </div>
       </div>
@@ -225,8 +220,8 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
       <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon"></EmptyMedia>
-          <EmptyTitle>No plans for this week</EmptyTitle>
-          <EmptyDescription>You haven&apos;t planned anything for this week.</EmptyDescription>
+          <EmptyTitle>No plans for this {activeType}</EmptyTitle>
+          <EmptyDescription>You haven&apos;t planned anything for this {activeType}.</EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
           <div className="flex gap-2">
@@ -258,7 +253,6 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
                 user={user}
                 weekUrl={weekUrl}
                 monthUrl={monthUrl}
-                duplicateListUrl={duplicateListUrl}
               />
             )}
           </div>

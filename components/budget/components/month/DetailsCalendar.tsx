@@ -24,7 +24,6 @@ interface Types {
   date: string
   weekUrl: string
   monthUrl: string
-  duplicateListUrl: string
   handleClose: () => void
   clickShowTransactions: (uuid: string) => void
 }
@@ -35,7 +34,6 @@ const DetailsCalendar: React.FC<Types> = ({
   date,
   weekUrl,
   monthUrl,
-  duplicateListUrl,
   handleClose,
   clickShowTransactions,
 }) => {
@@ -92,7 +90,6 @@ const DetailsCalendar: React.FC<Types> = ({
             currency={user.currency}
             weekUrl={weekUrl}
             monthUrl={monthUrl}
-            duplicateListUrl={duplicateListUrl}
             clickShowTransactions={clickShowTransactions}
           />
         </div>

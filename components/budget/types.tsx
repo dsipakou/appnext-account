@@ -106,15 +106,6 @@ export interface BudgetItem {
   isCompleted: boolean;
 }
 
-export interface DuplicateBudgetResponse {
-  uuid: string;
-  title: string;
-  date: string;
-  amount: number;
-  currency: string;
-  recurrent: RecurrentTypes;
-}
-
 export interface MonthSummedUsage {
   month: string;
   amount: number;

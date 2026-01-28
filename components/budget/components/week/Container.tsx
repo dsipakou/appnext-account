@@ -27,7 +27,6 @@ interface Types {
   user: string;
   weekUrl: string;
   monthUrl: string;
-  duplicateListUrl: string;
   mutateBudget: (updatedBudget: unknown) => void;
   clickShowTransactions: (uuid: string) => void;
 }
@@ -42,7 +41,6 @@ const Container: React.FC<Types> = ({
   user,
   weekUrl,
   monthUrl,
-  duplicateListUrl,
   mutateBudget,
   clickShowTransactions,
 }) => {
@@ -182,7 +180,6 @@ const Container: React.FC<Types> = ({
                         weekUrl={weekUrl}
                         monthUrl={monthUrl}
                         mutateBudget={mutateBudget}
-                        duplicateListUrl={duplicateListUrl}
                         isDragging={isDragging}
                         isDragLoading={isMutating}
                         clickShowTransactions={clickShowTransactions}
