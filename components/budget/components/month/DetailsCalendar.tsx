@@ -22,8 +22,6 @@ interface Types {
   title: string
   items: MonthBudgetItem[]
   date: string
-  weekUrl: string
-  monthUrl: string
   handleClose: () => void
   clickShowTransactions: (uuid: string) => void
 }
@@ -32,8 +30,6 @@ const DetailsCalendar: React.FC<Types> = ({
   title,
   items,
   date,
-  weekUrl,
-  monthUrl,
   handleClose,
   clickShowTransactions,
 }) => {
@@ -88,8 +84,6 @@ const DetailsCalendar: React.FC<Types> = ({
             item={budgetOnDate}
             date={currentDate}
             currency={user.currency}
-            weekUrl={weekUrl}
-            monthUrl={monthUrl}
             clickShowTransactions={clickShowTransactions}
           />
         </div>

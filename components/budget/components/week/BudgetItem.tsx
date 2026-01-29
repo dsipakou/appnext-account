@@ -242,8 +242,8 @@ const BudgetItem: React.FC<Types> = ({
             open={isConfirmDeleteDialogOpened}
             setOpen={setIsConfirmDeleteDialogOpened}
             uuid={budget.uuid}
-            weekUrl={weekUrl}
-            monthUrl={monthUrl}
+            recurrent={budget.recurrent}
+            budgetDate={budget.budgetDate}
           />
         )}
         {isAddTransactionDialogOpened && (

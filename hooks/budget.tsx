@@ -29,6 +29,19 @@ export const useDeleteBudget = (uuid: string) => {
   };
 };
 
+export const useStopBudgetSeries = (uuid: string) => {
+  const { trigger, isMutating } = useSWRMutation(
+    `budget/series/${uuid}/stop/`,
+    postReq,
+    { revalidate: true }
+  );
+
+  return {
+    trigger,
+    isMutating,
+  };
+};
+
 export const useBudgetDetails = (uuid: string): Response<any> => {
   const url = `budget/${uuid}/`;
   const { data, error, isLoading } = useSWRImmutable(url, fetchReq);

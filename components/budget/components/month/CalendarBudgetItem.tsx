@@ -20,8 +20,6 @@ interface Types {
   item: MonthBudgetItem | undefined;
   date: Date;
   currency: string;
-  weekUrl: string;
-  monthUrl: string;
   clickShowTransactions: (uuid: string) => void;
 }
 
@@ -29,8 +27,6 @@ const CalendarBudgetItem: React.FC<Types> = ({
   item,
   date,
   currency,
-  weekUrl,
-  monthUrl,
   clickShowTransactions,
 }) => {
   const [isEditDialogOpened, setIsEditDialogOpened] = React.useState<boolean>(false);
@@ -106,8 +102,6 @@ const CalendarBudgetItem: React.FC<Types> = ({
       {isEditDialogOpened && (
         <EditForm
           uuid={item.uuid}
-          weekUrl={weekUrl}
-          monthUrl={monthUrl}
           open={isEditDialogOpened}
           setOpen={setIsEditDialogOpened}
         />
@@ -117,8 +111,8 @@ const CalendarBudgetItem: React.FC<Types> = ({
           uuid={item.uuid}
           open={isConfirmDeleteDialogOpened}
           setOpen={setIsConfirmDeleteDialogOpened}
-          weekUrl={weekUrl}
-          monthUrl={monthUrl}
+          recurrent={item.recurrent}
+          budgetDate={item.budgetDate}
         />
       )}
     </div>

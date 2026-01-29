@@ -9,8 +9,6 @@ interface Types {
   startDate: string
   endDate: string
   user: string
-  weekUrl: string
-  monthUrl: string
   clickShowTransactions: (uuid: string) => void
 }
 
@@ -18,8 +16,6 @@ const Container: React.FC<Types> = ({
   startDate,
   endDate,
   user,
-  weekUrl,
-  monthUrl,
   clickShowTransactions
 }) => {
   const { data: { user: authUser } } = useSession()
@@ -60,8 +56,6 @@ const Container: React.FC<Types> = ({
           endDate={endDate}
           user={user}
           clickShowTransactions={clickShowTransactions}
-          weekUrl={weekUrl}
-          monthUrl={monthUrl}
         />
       </div>
     </div>

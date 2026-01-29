@@ -251,8 +251,6 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
                 clickShowTransactions={handleClickTransactions}
                 mutateBudget={mutateBudget}
                 user={user}
-                weekUrl={weekUrl}
-                monthUrl={monthUrl}
               />
             )}
           </div>
