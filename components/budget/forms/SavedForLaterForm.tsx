@@ -111,13 +111,13 @@ const SavedForLaterForm: React.FC<Types> = ({ weekUrl, monthUrl }) => {
                       monthUrl={monthUrl}
                     />
                   )}
-                  {isConfirmDeleteDialogOpened && (
+                  {isConfirmDeleteDialogOpened && activeBudgetUuid === budgetItem.uuid && (
                     <ConfirmDeleteForm
                       open={isConfirmDeleteDialogOpened}
                       setOpen={() => clickDelete(budgetItem.uuid)}
                       uuid={activeBudgetUuid}
-                      weekUrl={weekUrl}
-                      monthUrl={monthUrl}
+                      recurrent={budgetItem.recurrent}
+                      budgetDate={budgetItem.budgetDate}
                     />
                   )}
                 </div>

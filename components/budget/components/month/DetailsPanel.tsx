@@ -11,9 +11,6 @@ interface Types {
   startDate: string;
   endDate: string;
   user: string;
-  weekUrl: string;
-  monthUrl: string;
-  duplicateListUrl: string;
   clickShowTransactions: (uuid: string) => void;
 }
 
@@ -22,9 +19,6 @@ const DetailsPanel: FC<Types> = ({
   startDate,
   endDate,
   user,
-  weekUrl,
-  monthUrl,
-  duplicateListUrl,
   clickShowTransactions,
 }) => {
   const [budgetTitle, setBudgetTitle] = useState<string | undefined>();
@@ -76,9 +70,6 @@ const DetailsPanel: FC<Types> = ({
           date={startDate}
           handleClose={handleCloseBudgetDetails}
           clickShowTransactions={clickShowTransactions}
-          weekUrl={weekUrl}
-          monthUrl={monthUrl}
-          duplicateListUrl={duplicateListUrl}
         />
       ) : (
         activeCategory != null && (

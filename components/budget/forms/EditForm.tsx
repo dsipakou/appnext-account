@@ -1,147 +1,160 @@
 // System
-import React from 'react'
-import * as z from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useSWRConfig } from 'swr'
-import { useForm } from 'react-hook-form'
+import React from 'react';
+import * as z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useSWRConfig } from 'swr';
+import { useForm } from 'react-hook-form';
 // Components
-import { User } from '@/components/users/types'
-import { Category, CategoryType } from '@/components/categories/types'
-import { Currency } from '@/components/currencies/types'
+import { User } from '@/components/users/types';
+import { Category, CategoryType } from '@/components/categories/types';
+import { Currency } from '@/components/currencies/types';
 // UI
-import * as Dialog from '@/components/ui/dialog'
-import * as Form from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import * as Select from '@/components/ui/select'
-import * as RadioGroup from '@/components/ui/radio-group'
-import { Calendar } from '@/components/ui/calendar'
-import { Textarea } from '@/components/ui/textarea'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { useToast } from '@/components/ui/use-toast'
+import * as Dialog from '@/components/ui/dialog';
+import * as Form from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import * as Select from '@/components/ui/select';
+import * as RadioGroup from '@/components/ui/radio-group';
+import { Calendar } from '@/components/ui/calendar';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/components/ui/use-toast';
 // Hooks
-import { useUsers } from '@/hooks/users'
-import { useCategories } from '@/hooks/categories'
-import { useCurrencies } from '@/hooks/currencies'
-import { useBudgetDetails, useEditBudget } from '@/hooks/budget'
+import { useUsers } from '@/hooks/users';
+import { useCategories } from '@/hooks/categories';
+import { useCurrencies } from '@/hooks/currencies';
+import { useBudgetDetails, useEditBudget } from '@/hooks/budget';
 // Utils
-import { getFormattedDate, parseDate } from '@/utils/dateUtils'
-import { extractErrorMessage } from '@/utils/stringUtils'
+import { getFormattedDate, parseDate } from '@/utils/dateUtils';
+import { extractErrorMessage } from '@/utils/stringUtils';
 // Styles
-import styles from '../style/AddForm.module.css'
+import styles from '../style/AddForm.module.css';
 
 interface Types {
-  open: boolean
-  setOpen: (open: boolean) => void
-  uuid: string
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  uuid: string;
 }
 
 const formSchema = z.object({
   title: z.string().min(2, {
-    message: 'Title must be at least 2 characters'
+    message: 'Title must be at least 2 characters',
   }),
   amount: z.coerce.number().min(0, {
-    message: 'Should be positive number'
+    message: 'Should be positive number',
   }),
   currency: z.string().uuid({ message: 'Please, select currency' }),
   user: z.string().uuid({ message: 'Please, select user' }),
   category: z.string().uuid({ message: 'Please, select category' }),
-  repeatType: z.enum(['', 'weekly', 'monthly', 'occasional']),
+  repeatType: z.enum(['', 'weekly', 'monthly']),
+  numberOfRepetitions: z.coerce.number().int().positive().optional(),
   budgetDate: z.date({
-    message: 'Budget date is required'
+    message: 'Budget date is required',
   }),
-  description: z.string().or(z.null())
-})
+  description: z.string().or(z.null()),
+});
 
 const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
-  const { mutate } = useSWRConfig()
-  const [parentList, setParentList] = React.useState<Category[]>([])
-  const [month, setMonth] = React.useState<Date>(new Date())
-  const [isSomeDay, setIsSomeDay] = React.useState<boolean>(false)
-  const { toast } = useToast()
+  const { mutate } = useSWRConfig();
+  const [parentList, setParentList] = React.useState<Category[]>([]);
+  const [month, setMonth] = React.useState<Date>(new Date());
+  const [isSomeDay, setIsSomeDay] = React.useState<boolean>(false);
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       repeatType: '',
       amount: 0,
-      title: ''
-    }
-  })
+      title: '',
+    },
+  });
 
-  const { data: users = [] } = useUsers()
-  const { data: categories = [] } = useCategories()
-  const { data: currencies = [] } = useCurrencies()
-  const { trigger: editBudget, isMutating: isEditing } = useEditBudget(uuid)
-  const { data: budgetDetails } = useBudgetDetails(uuid)
+  const { data: users = [] } = useUsers();
+  const { data: categories = [] } = useCategories();
+  const { data: currencies = [] } = useCurrencies();
+  const { trigger: editBudget, isMutating: isEditing } = useEditBudget(uuid);
+  const { data: budgetDetails } = useBudgetDetails(uuid);
 
   React.useEffect(() => {
-    if (!categories) return
+    if (!categories) return;
 
     const parents = categories.filter(
-      (category: Category) => (
-        category.parent === null && category.type === CategoryType.Expense
-      )
-    )
-    setParentList(parents)
-  }, [categories])
+      (category: Category) => category.parent === null && category.type === CategoryType.Expense
+    );
+    setParentList(parents);
+  }, [categories]);
 
   React.useEffect(() => {
-    if (!budgetDetails || (parentList.length === 0)) return
+    if (!budgetDetails || parentList.length === 0) return;
 
-    setIsSomeDay(!budgetDetails.budgetDate)
+    setIsSomeDay(!budgetDetails.budgetDate);
 
-    form.setValue('category', budgetDetails.category)
-    form.setValue('user', budgetDetails.user)
-    form.setValue('currency', budgetDetails.currency)
-    form.setValue('amount', budgetDetails.amount || '')
-    form.setValue('title', budgetDetails.title || '')
-    form.setValue('category', budgetDetails.category)
-    form.setValue('repeatType', budgetDetails.recurrent || '')
-    form.setValue('budgetDate', budgetDetails.budgetDate ? parseDate(budgetDetails.budgetDate) : new Date())
-    form.setValue('description', budgetDetails.description || '')
+    form.setValue('category', budgetDetails.category);
+    form.setValue('user', budgetDetails.user);
+    form.setValue('currency', budgetDetails.currency);
+    form.setValue('amount', budgetDetails.amount || '');
+    form.setValue('title', budgetDetails.title || '');
+    form.setValue('category', budgetDetails.category);
+    form.setValue('repeatType', budgetDetails.recurrent || '');
+    form.setValue('numberOfRepetitions', budgetDetails.numberOfRepetitions ?? undefined);
+    form.setValue('budgetDate', budgetDetails.budgetDate ? parseDate(budgetDetails.budgetDate) : new Date());
+    form.setValue('description', budgetDetails.description || '');
 
-    setMonth(parseDate(budgetDetails.budgetDate))
-  }, [budgetDetails, parentList])
+    setMonth(parseDate(budgetDetails.budgetDate));
+  }, [budgetDetails, parentList]);
 
   const getCurrencySign = (): string => {
-    return currencies.find((item: Currency) => item.uuid === form.getValues().currency)?.sign
-  }
+    return currencies.find((item: Currency) => item.uuid === form.getValues().currency)?.sign;
+  };
 
   const handleSave = async (payload: z.infer<typeof formSchema>): void => {
+    const budgetData: any = {
+      title: payload.title,
+      amount: payload.amount,
+      currency: payload.currency,
+      user: payload.user,
+      category: payload.category,
+      budgetDate: isSomeDay ? null : getFormattedDate(payload.budgetDate),
+      description: payload.description,
+      recurrent: payload.repeatType,
+    };
+
+    // Add numberOfRepetitions only if specified (null = infinite)
+    if (payload.numberOfRepetitions !== undefined) {
+      budgetData.numberOfRepetitions = payload.numberOfRepetitions;
+    } else {
+      budgetData.numberOfRepetitions = null; // Explicitly null for infinite
+    }
+
     try {
       // TODO: Optimistic update here
-      await editBudget({
-        ...payload,
-
-        budgetDate: isSomeDay ? null : getFormattedDate(payload.budgetDate),
-        recurrent: payload.repeatType,
-      })
-      mutate(key => typeof key === 'string' && key.includes('budget/usage'), undefined)
-      mutate(key => typeof key === 'string' && key.includes('budget/weekly-usage'), undefined)
-      mutate('budget/pending/')
+      await editBudget(budgetData);
+      mutate((key) => typeof key === 'string' && key.includes('budget/usage'), undefined);
+      mutate((key) => typeof key === 'string' && key.includes('budget/weekly-usage'), undefined);
+      mutate('budget/pending/');
       toast({
-        title: 'Successfully updated!'
-      })
-      setOpen(false)
+        title: 'Successfully updated!',
+      });
+      setOpen(false);
     } catch (error) {
-      const message = extractErrorMessage(error)
+      const message = extractErrorMessage(error);
       toast({
         variant: 'destructive',
         title: 'Cannot be updated',
         description: message,
-      })
+      });
     }
-  }
+  };
 
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
-      form.clearErrors()
-      form.reset()
+      form.clearErrors();
+      form.reset();
     }
-    setOpen(false)
-  }
+    setOpen(false);
+  };
 
   return (
     <Dialog.Dialog open={open} onOpenChange={cleanFormErrors}>
@@ -180,9 +193,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                             <div>
                               <Input disabled={isEditing} id="amount" {...field} />
                             </div>
-                            <span className="flex items-center w-5">
-                              {form.watch('currency') && getCurrencySign()}
-                            </span>
+                            <span className="flex items-center w-5">{form.watch('currency') && getCurrencySign()}</span>
                           </div>
                         </Form.FormControl>
                         <Form.FormMessage />
@@ -198,21 +209,18 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                       <Form.FormItem>
                         <Form.FormLabel>Currency</Form.FormLabel>
                         <Form.FormControl>
-                          <Select.Select
-                            disabled={isEditing}
-                            onValueChange={field.onChange}
-                            value={field.value}
-                          >
+                          <Select.Select disabled={isEditing} onValueChange={field.onChange} value={field.value}>
                             <Select.SelectTrigger className="relative w-full">
                               <Select.SelectValue placeholder="Select currency" />
                             </Select.SelectTrigger>
                             <Select.SelectContent>
                               <Select.SelectGroup>
-                                {currencies && currencies.map((item: Currency) => (
-                                  <Select.SelectItem key={item.uuid} value={item.uuid}>
-                                    {item.verbalName}
-                                  </Select.SelectItem>
-                                ))}
+                                {currencies &&
+                                  currencies.map((item: Currency) => (
+                                    <Select.SelectItem key={item.uuid} value={item.uuid}>
+                                      {item.verbalName}
+                                    </Select.SelectItem>
+                                  ))}
                               </Select.SelectGroup>
                             </Select.SelectContent>
                           </Select.Select>
@@ -233,7 +241,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                         <Form.FormLabel>Category</Form.FormLabel>
                         <Form.FormControl>
                           <Select.Select
-                            disabled={isEditing || (parentList.length === 0)}
+                            disabled={isEditing || parentList.length === 0}
                             onValueChange={field.onChange}
                             value={field.value}
                           >
@@ -245,7 +253,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                                 <Select.SelectLabel>Categories</Select.SelectLabel>
                                 {parentList.map((item: Category) => (
                                   <Select.SelectItem key={item.uuid} value={item.uuid} className="flex items-center">
-                                    {item.icon && (<span className="mr-2 text-lg">{item.icon}</span>)}
+                                    {item.icon && <span className="mr-2 text-lg">{item.icon}</span>}
                                     <span>{item.name}</span>
                                   </Select.SelectItem>
                                 ))}
@@ -264,20 +272,19 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                       <Form.FormItem>
                         <Form.FormLabel>User</Form.FormLabel>
                         <Form.FormControl>
-                          <Select.Select
-                            disabled={isEditing}
-                            onValueChange={field.onChange}
-                            value={field.value}
-                          >
+                          <Select.Select disabled={isEditing} onValueChange={field.onChange} value={field.value}>
                             <Select.SelectTrigger className="relative w-[180px]">
                               <Select.SelectValue placeholder="Select user" />
                             </Select.SelectTrigger>
                             <Select.SelectContent>
                               <Select.SelectGroup>
                                 <Select.SelectLabel>Users</Select.SelectLabel>
-                                {users && users.map((item: User) => (
-                                  <Select.SelectItem key={item.uuid} value={item.uuid}>{item.username}</Select.SelectItem>
-                                ))}
+                                {users &&
+                                  users.map((item: User) => (
+                                    <Select.SelectItem key={item.uuid} value={item.uuid}>
+                                      {item.username}
+                                    </Select.SelectItem>
+                                  ))}
                               </Select.SelectGroup>
                             </Select.SelectContent>
                           </Select.Select>
@@ -310,16 +317,29 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                               <RadioGroup.RadioGroupItem value="monthly" id="r1" />
                               <span>Repeat Monthly</span>
                             </Label>
-                            <Label>
-                              <RadioGroup.RadioGroupItem value="occasional" id="r1" />
-                              <span>Occasional</span>
-                            </Label>
                           </RadioGroup.RadioGroup>
                         </Form.FormControl>
                         <Form.FormMessage />
                       </Form.FormItem>
                     )}
                   />
+                  {(form.watch('repeatType') === 'weekly' || form.watch('repeatType') === 'monthly') && (
+                    <Form.FormField
+                      control={form.control}
+                      name="numberOfRepetitions"
+                      render={({ field }) => (
+                        <Form.FormItem>
+                          <Label className="text-sm text-muted-foreground">
+                            Number of repetitions (leave empty for infinite)
+                          </Label>
+                          <Form.FormControl>
+                            <Input placeholder="Infinite" disabled={isEditing} {...field} />
+                          </Form.FormControl>
+                          <Form.FormMessage />
+                        </Form.FormItem>
+                      )}
+                    />
+                  )}
                   <Form.FormField
                     control={form.control}
                     name="isSomeday"
@@ -327,11 +347,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                       <Form.FormItem className="flex justify-center">
                         <Form.FormControl>
                           <div className="flex gap-2 mt-1 items-center">
-                            <Switch
-                              id="isSomeday"
-                              checked={isSomeDay}
-                              onClick={() => setIsSomeDay(!isSomeDay)}
-                            />
+                            <Switch id="isSomeday" checked={isSomeDay} onClick={() => setIsSomeDay(!isSomeDay)} />
                             <Label htmlFor="isSomeday">Save for later</Label>
                           </div>
                         </Form.FormControl>
@@ -341,37 +357,35 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                   />
                 </div>
                 <div className="flex-1 w-3/5">
-                  {
-                    isSomeDay
-                      ? (
-                        <div className="flex flex-col items-center pt-10">
-                          <span className="font-semibold text-lg">Someday later</span>
-                          <span className="">This budget will appear in 'Saved for later' list</span>
-                        </div>
-                      )
-                      : !isEditing && (
-                        <Form.FormField
-                          control={form.control}
-                          name="budgetDate"
-                          render={({ field }) => (
-                            <Form.FormItem className="flex justify-center">
-                              <Form.FormControl>
-                                <Calendar
-                                  mode="single"
-                                  className="justify-center"
-                                  selected={isSomeDay ? null : field.value}
-                                  onSelect={field.onChange}
-                                  disabled={(date) => isEditing || date < new Date('1900-01-01') || isSomeDay}
-                                  weekStartsOn={1}
-                                  initialFocus
-                                />
-                              </Form.FormControl>
-                              <Form.FormMessage />
-                            </Form.FormItem>
-                          )}
-                        />
-                      )
-                  }
+                  {isSomeDay ? (
+                    <div className="flex flex-col items-center pt-10">
+                      <span className="font-semibold text-lg">Someday later</span>
+                      <span className="">This budget will appear in 'Saved for later' list</span>
+                    </div>
+                  ) : (
+                    !isEditing && (
+                      <Form.FormField
+                        control={form.control}
+                        name="budgetDate"
+                        render={({ field }) => (
+                          <Form.FormItem className="flex justify-center">
+                            <Form.FormControl>
+                              <Calendar
+                                mode="single"
+                                className="justify-center"
+                                selected={isSomeDay ? null : field.value}
+                                onSelect={field.onChange}
+                                disabled={(date) => isEditing || date < new Date('1900-01-01') || isSomeDay}
+                                weekStartsOn={1}
+                                initialFocus
+                              />
+                            </Form.FormControl>
+                            <Form.FormMessage />
+                          </Form.FormItem>
+                        )}
+                      />
+                    )
+                  )}
                 </div>
               </div>
             </div>
@@ -399,7 +413,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
         </Form.Form>
       </Dialog.DialogContent>
     </Dialog.Dialog>
-  )
-}
+  );
+};
 
-export default React.memo(EditForm)
+export default React.memo(EditForm);

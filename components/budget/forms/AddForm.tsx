@@ -42,34 +42,21 @@ interface Types {
   customTrigger?: React.ReactElement;
 }
 
-const formSchema = z
-  .object({
-    title: z.string().min(2, {
-      message: 'Title must be at least 2 characters',
-    }),
-    amount: z.coerce.number().min(0, {
-      message: 'Should be positive number',
-    }),
-    currency: z.string().uuid({ message: 'Please, select currency' }),
-    user: z.string().uuid({ message: 'Please, select user' }),
-    category: z.string().uuid({ message: 'Please, select category' }),
-    repeatType: z.enum(['', 'weekly', 'monthly', 'occasional']),
-    budgetDate: z.date().optional(),
-    weekDay: z.enum(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']).optional(),
-    description: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.repeatType === 'occasional') {
-        return !!data.weekDay;
-      }
-      return !!data.budgetDate;
-    },
-    {
-      message: 'Please select a date or day of the week',
-      path: ['budgetDate'],
-    }
-  );
+const formSchema = z.object({
+  title: z.string().min(2, {
+    message: 'Title must be at least 2 characters',
+  }),
+  amount: z.coerce.number().min(0, {
+    message: 'Should be positive number',
+  }),
+  currency: z.string().uuid({ message: 'Please, select currency' }),
+  user: z.string().uuid({ message: 'Please, select user' }),
+  category: z.string().uuid({ message: 'Please, select category' }),
+  repeatType: z.enum(['', 'weekly', 'monthly']),
+  numberOfRepetitions: z.coerce.number().int().positive().optional(),
+  budgetDate: z.date(),
+  description: z.string().optional(),
+});
 
 const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
   const { mutate } = useSWRConfig();
@@ -87,7 +74,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
       user: '',
       category: '',
       repeatType: '',
-      weekDay: 'monday',
+      numberOfRepetitions: undefined,
       budgetDate: date || new Date(),
       description: '',
     },
@@ -169,13 +156,14 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
       const budgetData: any = {
         ...payload,
         recurrent: payload.repeatType,
+        budgetDate: isSomeDay ? null : getFormattedDate(payload.budgetDate),
       };
 
-      if (payload.repeatType === 'occasional') {
-        budgetData.weekDay = payload.weekDay;
-        budgetData.budgetDate = null;
+      // Add numberOfRepetitions only if specified (null = infinite)
+      if (payload.numberOfRepetitions !== undefined) {
+        budgetData.numberOfRepetitions = payload.numberOfRepetitions;
       } else {
-        budgetData.budgetDate = isSomeDay ? null : getFormattedDate(payload.budgetDate!);
+        budgetData.numberOfRepetitions = null; // Explicitly null for infinite
       }
 
       await createBudget(budgetData);
@@ -360,16 +348,40 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                               <RadioGroupItem value="monthly" id="r1" />
                               <span>Repeat Monthly</span>
                             </Label>
-                            <Label>
-                              <RadioGroupItem value="occasional" id="r1" />
-                              <span>Occasional</span>
-                            </Label>
                           </RadioGroup>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+                  {(form.watch('repeatType') === 'weekly' || form.watch('repeatType') === 'monthly') && (
+                    <FormField
+                      control={form.control}
+                      name="numberOfRepetitions"
+                      render={({ field }) => (
+                        <FormItem>
+                          <Label className="text-sm text-muted-foreground">
+                            Number of repetitions (leave empty for infinite)
+                          </Label>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min="1"
+                              placeholder="Infinite"
+                              disabled={isCreating}
+                              {...field}
+                              value={field.value ?? ''}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                field.onChange(value === '' ? undefined : parseInt(value, 10));
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
                   <FormField
                     control={form.control}
                     name="description"
@@ -389,95 +401,41 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                   />
                 </div>
                 <div className="flex-1 w-3/5">
-                  {form.watch('repeatType') === 'occasional' ? (
-                    <FormField
-                      control={form.control}
-                      name="weekDay"
-                      render={({ field }) => (
-                        <FormItem className="flex justify-center">
-                          <FormControl>
-                            <div className="space-y-3">
-                              <Label className="text-sm font-medium">Select day of the week</Label>
-                              <RadioGroup
-                                disabled={isCreating}
-                                onValueChange={field.onChange}
-                                value={field.value}
-                                className="grid grid-cols-1 gap-2"
-                              >
-                                <Label className="flex items-center space-x-2 cursor-pointer">
-                                  <RadioGroupItem value="monday" />
-                                  <span>Monday</span>
-                                </Label>
-                                <Label className="flex items-center space-x-2 cursor-pointer">
-                                  <RadioGroupItem value="tuesday" />
-                                  <span>Tuesday</span>
-                                </Label>
-                                <Label className="flex items-center space-x-2 cursor-pointer">
-                                  <RadioGroupItem value="wednesday" />
-                                  <span>Wednesday</span>
-                                </Label>
-                                <Label className="flex items-center space-x-2 cursor-pointer">
-                                  <RadioGroupItem value="thursday" />
-                                  <span>Thursday</span>
-                                </Label>
-                                <Label className="flex items-center space-x-2 cursor-pointer">
-                                  <RadioGroupItem value="friday" />
-                                  <span>Friday</span>
-                                </Label>
-                                <Label className="flex items-center space-x-2 cursor-pointer">
-                                  <RadioGroupItem value="saturday" />
-                                  <span>Saturday</span>
-                                </Label>
-                                <Label className="flex items-center space-x-2 cursor-pointer">
-                                  <RadioGroupItem value="sunday" />
-                                  <span>Sunday</span>
-                                </Label>
-                              </RadioGroup>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  ) : (
-                    <>
-                      <FormField
-                        control={form.control}
-                        name="budgetDate"
-                        render={({ field }) => (
-                          <FormItem className="flex justify-center">
-                            <FormControl>
-                              <Calendar
-                                mode="single"
-                                className="justify-center"
-                                selected={isSomeDay ? null : field.value}
-                                onSelect={field.onChange}
-                                disabled={(date) => isCreating || date < new Date('1900-01-01') || isSomeDay}
-                                weekStartsOn={1}
-                                initialFocus
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="isSomeday"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <div className="flex gap-2 mt-1 items-center">
-                                <Switch id="isSomeday" checked={isSomeDay} onClick={() => setIsSomeDay(!isSomeDay)} />
-                                <Label htmlFor="isSomeday">Someday</Label>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </>
-                  )}
+                  <FormField
+                    control={form.control}
+                    name="budgetDate"
+                    render={({ field }) => (
+                      <FormItem className="flex justify-center">
+                        <FormControl>
+                          <Calendar
+                            mode="single"
+                            className="justify-center"
+                            selected={isSomeDay ? null : field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) => isCreating || date < new Date('1900-01-01') || isSomeDay}
+                            weekStartsOn={1}
+                            initialFocus
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="isSomeday"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div className="flex gap-2 mt-1 items-center">
+                            <Switch id="isSomeday" checked={isSomeDay} onClick={() => setIsSomeDay(!isSomeDay)} />
+                            <Label htmlFor="isSomeday">Someday</Label>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
             </div>

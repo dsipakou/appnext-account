@@ -4,7 +4,7 @@ import { useStore } from '@/app/store';
 import { cn } from '@/lib/utils';
 import { useSession } from 'next-auth/react';
 import { useToast } from '@/components/ui/use-toast';
-import { Check, CheckCircle, Edit, Loader, Plus, Repeat, ScrollText, Trash } from 'lucide-react';
+import { Check, Edit, Loader, Plus, Repeat, ScrollText, Trash, BadgeCheck } from 'lucide-react';
 import { formatMoney } from '@/utils/numberUtils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -25,7 +25,6 @@ interface Types {
   budget: CompactWeekItem;
   weekUrl: string;
   monthUrl: string;
-  duplicateListUrl: string;
   isDragging: boolean;
   isDragLoading: boolean;
   mutateBudget: (updatedBudget: unknown) => void;
@@ -37,7 +36,6 @@ const BudgetItem: React.FC<Types> = ({
   budget,
   weekUrl,
   monthUrl,
-  duplicateListUrl,
   isDragging,
   isDragLoading,
   mutateBudget,
@@ -85,33 +83,45 @@ const BudgetItem: React.FC<Types> = ({
         id={budget.uuid}
         isLoading={isDragLoading}
         className={cn(
-          'absolute flex flex-col group p-2 h-[80px] justify-between rounded-md border w-full',
+          'absolute flex flex-col group p-2 h-[80px] justify-between rounded-md border w-full border-gray-300 border-l-3',
           day === 1 && 'hover:left-4',
           day === 0 && 'hover:right-4',
 
-          !isDragging &&
-            'hover:h-[100px] hover:w-[290px] hover:scale-110 hover:border-double hover:border-2 hover:z-20 hover:shadow-xl',
+          !isDragging && 'hover:h-[100px] hover:w-[290px] hover:scale-110 hover:border hover:z-20 hover:shadow-xl',
           !budget.isCompleted && ['bg-white', isSameUser ? 'shadow-md' : 'text-blue-500'],
-          budget.isCompleted && 'bg-slate-300 grayscale-[40%] opacity-[90%]',
-          budget.recurrent && [
-            'border-gray-300 border-l-8',
-            budget.recurrent === 'monthly' ? 'p-2 border-blue-400' : 'border-yellow-400',
-          ]
+          budget.isCompleted && 'bg-slate-300 grayscale-[40%] opacity-[90%]'
         )}
       >
+        <div
+          className={cn(
+            'absolute top-0 left-0 w-0 h-0 border-r-transparent',
+            budget.recurrent === 'monthly' && 'border-t-[25px] border-r-[25px] border-t-cyan-400',
+            budget.recurrent === 'weekly' && 'border-t-[25px] border-r-[25px] border-t-orange-400'
+          )}
+        ></div>
+        {budget.isCompleted && (
+          <div className={cn('absolute flex align-middle items-center top-1 right-1 group-hover:right-3')}>
+            <BadgeCheck className="text-green-600 h-4 w-4" />
+          </div>
+        )}
         <div className="flex flex-row gap-1 items-center">
           {!isSameUser && (
             <>
-              <div className={cn('flex group-hover:hidden')}>
-                <Avatar className="h-6 w-6">
-                  <AvatarFallback className="text-xs font-bold bg-sky-400 text-white">
+              <div className={cn('absolute flex align-middle items-center top-[2px] left-7 group-hover:hidden')}>
+                <Avatar className="h-4 w-4">
+                  <AvatarFallback className="text-xs font-bold bg-violet-500 text-white">
                     {budgetUser?.username.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
               </div>
               <div className="justify-center text-sm font-bold">
-                <div className={cn('hidden', !isDragging && 'group-hover:flex')}>
-                  <Badge className="bg-sky-400">{budgetUser?.username}</Badge>
+                <div
+                  className={cn(
+                    'absolute align-middle items-center top-1 left-6 hidden',
+                    !isDragging && 'group-hover:flex'
+                  )}
+                >
+                  <Badge className="bg-violet-500 h-4">{budgetUser?.username}</Badge>
                 </div>
               </div>
             </>
@@ -124,23 +134,36 @@ const BudgetItem: React.FC<Types> = ({
           >
             <span>{budget.title}</span>
           </div>
-          {budget.isCompleted && (
-            <div className="flex-none justify-end">
-              <CheckCircle className="text-green-600 h-4" />
-            </div>
-          )}
           {!!budget.recurrent && (
-            <div
-              className={cn(
-                'hidden items-center',
-                !isDragging && 'group-hover:flex',
-                budget.recurrent === 'monthly' && 'text-blue-500',
-                budget.recurrent === 'weekly' && 'text-red-500'
-              )}
-            >
-              <Repeat className="h-3" />
-              <span className="text-xs">{budget.recurrent}</span>
-            </div>
+            <>
+              <div
+                className={cn(
+                  'absolute flex align-middle top-[2px] left-[2px] items-center',
+                  budget.recurrent === 'weekly' && 'text-orange-500',
+                  budget.recurrent === 'monthly' && 'text-cyan-500'
+                )}
+              >
+                <Repeat className={cn('h-3 w-3 mr-1 text-white')} />
+              </div>
+              <div
+                className={cn(
+                  'absolute align-middle top-1 right-9 hidden items-center',
+                  !isDragging && 'group-hover:flex',
+                  budget.recurrent === 'weekly' && 'text-orange-500',
+                  budget.recurrent === 'monthly' && 'text-cyan-500'
+                )}
+              >
+                <span
+                  className={cn(
+                    'text-xs',
+                    budget.recurrent === 'weekly' && 'text-orange-500',
+                    budget.recurrent === 'monthly' && 'text-cyan-500'
+                  )}
+                >
+                  {budget.recurrent}
+                </span>
+              </div>
+            </>
           )}
         </div>
         <div className="flex h-full justify-center items-center">
@@ -176,7 +199,7 @@ const BudgetItem: React.FC<Types> = ({
           ) : (
             <Badge
               variant="secondary"
-              className="flex font-normal group-hover:hidden text-xs tracking-widest bg-violet-500 text-white"
+              className="flex h-3 font-normal group-hover:hidden text-xs tracking-widest bg-white text-violet-600"
             >
               Not Planned
             </Badge>
@@ -244,9 +267,8 @@ const BudgetItem: React.FC<Types> = ({
             open={isConfirmDeleteDialogOpened}
             setOpen={setIsConfirmDeleteDialogOpened}
             uuid={budget.uuid}
-            weekUrl={weekUrl}
-            monthUrl={monthUrl}
-            duplicateListUrl={duplicateListUrl}
+            recurrent={budget.recurrent}
+            budgetDate={budget.budgetDate}
           />
         )}
         {isAddTransactionDialogOpened && (

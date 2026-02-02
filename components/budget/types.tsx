@@ -1,4 +1,4 @@
-export type RecurrentTypes = 'monthly' | 'weekly' | 'occasional';
+export type RecurrentTypes = 'monthly' | 'weekly';
 
 export interface CurrencyMap {
   [key: string]: number;
@@ -48,6 +48,7 @@ export interface MonthBudgetItem extends PlannedMap, SpentMap {
   currency: string;
   description: string;
   recurrent: RecurrentTypes;
+  numberOfRepetitions?: number | null;
   isCompleted: boolean;
   createdAt: string;
   modifiedAt: string;
@@ -61,6 +62,7 @@ export interface WeekBudgetItem extends PlannedMap, SpentMap {
   currency: string;
   transactions: TransactionItem[];
   recurrent: RecurrentTypes;
+  numberOfRepetitions?: number | null;
   description: string;
   isCompleted: boolean;
   budgetDate: string;
@@ -83,6 +85,7 @@ export interface CompactWeekItem {
   planned: number;
   spent: number;
   recurrent: RecurrentTypes;
+  numberOfRepetitions?: number | null;
   isCompleted: boolean;
   budgetDate: string;
 }
@@ -101,18 +104,10 @@ export interface BudgetItem {
   user: string;
   category: string;
   recurrent: RecurrentTypes;
+  numberOfRepetitions?: number | null;
   budgetDate: string;
   description: string;
   isCompleted: boolean;
-}
-
-export interface DuplicateBudgetResponse {
-  uuid: string;
-  title: string;
-  date: string;
-  amount: number;
-  currency: string;
-  recurrent: RecurrentTypes;
 }
 
 export interface MonthSummedUsage {
