@@ -83,18 +83,18 @@ const BudgetItem: React.FC<Types> = ({
         id={budget.uuid}
         isLoading={isDragLoading}
         className={cn(
-          'absolute flex flex-col group p-2 h-[80px] justify-between rounded-md border w-full border-gray-300 border-l-3',
+          'absolute flex flex-col group p-2 h-[80px] justify-between rounded-md w-full',
           day === 1 && 'hover:left-4',
           day === 0 && 'hover:right-4',
 
-          !isDragging && 'hover:h-[100px] hover:w-[290px] hover:scale-110 hover:border hover:z-20 hover:shadow-xl',
+          !isDragging && 'hover:h-[100px] hover:w-[290px] hover:scale-110 hover:z-20 hover:shadow-xl',
           !budget.isCompleted && ['bg-white', isSameUser ? 'shadow-md' : 'text-blue-500'],
           budget.isCompleted && 'bg-slate-300 grayscale-[40%] opacity-[90%]'
         )}
       >
         <div
           className={cn(
-            'absolute top-0 left-0 w-0 h-0 border-r-transparent',
+            'absolute top-0 left-0 w-0 h-0 border-r-transparent rounded-tl-sm',
             budget.recurrent === 'monthly' && 'border-t-[25px] border-r-[25px] border-t-cyan-400',
             budget.recurrent === 'weekly' && 'border-t-[25px] border-r-[25px] border-t-orange-400'
           )}
@@ -107,7 +107,7 @@ const BudgetItem: React.FC<Types> = ({
         <div className="flex flex-row gap-1 items-center">
           {!isSameUser && (
             <>
-              <div className={cn('absolute flex align-middle items-center top-[2px] left-7 group-hover:hidden')}>
+              <div className={cn('absolute flex align-middle items-center top-[4px] left-6 group-hover:hidden')}>
                 <Avatar className="h-4 w-4">
                   <AvatarFallback className="text-xs font-bold bg-violet-500 text-white">
                     {budgetUser?.username.charAt(0)}

@@ -55,7 +55,11 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
 
     const { data: users } = useUsers();
 
-    const { data: budgetMonth = [], url: monthUrl } = useBudgetMonth(startOfMonth, endOfMonth, user);
+    const {
+      data: budgetMonth = [],
+      url: monthUrl,
+      isLoading: isMonthBudgetLoading,
+    } = useBudgetMonth(startOfMonth, endOfMonth, user);
     const {
       data: budgetWeek = [],
       url: weekUrl,
@@ -242,7 +246,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             {(activeType === 'month' && budgetMonth.length === 0) ||
             (activeType === 'week' && budgetWeek.length === 0) ? (
               <div className="flex w-full h-full justify-center items-center">
-                {isWeekBudgetLoading ? <Spinner className="size-8" /> : emptyState}
+                {isWeekBudgetLoading || isMonthBudgetLoading ? <Spinner className="size-8" /> : emptyState}
               </div>
             ) : (
               <Component
