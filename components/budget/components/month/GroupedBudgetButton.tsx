@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { useStore } from '@/app/store';
 import { useSession } from 'next-auth/react';
-import { CheckCircle, Repeat2 } from 'lucide-react';
+import { BadgeCheck, Repeat2 } from 'lucide-react';
 import { getDate, format } from 'date-fns';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -39,9 +39,9 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
 
   const getRepeatDay = (item: MonthBudgetItem) => {
     if (item.recurrent === 'monthly') {
-      return `Each ${getNumberWithPostfix(getDate(parseDate(item.budgetDate)))} day`;
+      return `Montly on day ${format(parseDate(item.budgetDate), 'dd')}`;
     } else if (item.recurrent === 'weekly') {
-      return `Each ${format(parseDate(item.budgetDate), 'EEEE')}`;
+      return `Weekly on ${format(parseDate(item.budgetDate), 'EEEE')}`;
     }
     return '';
   };
@@ -108,18 +108,30 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
   return (
     <div
       className={cn(
-        'h-[172px] border cursor-pointer p-2 rounded-lg',
-        recurrent && [
-          'border-gray-300',
-          recurrent === 'monthly' ? 'p-2 border-l-8 border-blue-400' : 'border-l-8 border-yellow-400',
-        ],
-        isCompleted ? 'bg-slate-200 text-slate-500' : 'drop-shadow outline-zinc-200 bg-slate-50'
+        'h-[172px] cursor-pointer p-2 rounded-lg hover:drop-shadow-lg',
+        recurrent && 'border-gray-300',
+        isCompleted && 'drop-shadow-sm bg-slate-200 text-slate-500',
+        !isCompleted && 'drop-shadow outline-zinc-200 bg-slate-50'
       )}
     >
+      {!!recurrent && (
+        <>
+          <div
+            className={cn(
+              'absolute z-60 top-0 left-0 w-0 h-0 border-r-transparent rounded-tl-lg',
+              recurrent === 'monthly' && ' border-t-[28px] border-r-[28px] border-t-cyan-400',
+              recurrent === 'weekly' && 'border-t-[28px] border-r-[28px] border-t-orange-400'
+            )}
+          ></div>
+          <div className="absolute top-[2px] left-[2px] text-white">
+            <Repeat2 className="h-4 w-4"></Repeat2>
+          </div>
+        </>
+      )}
       <div className="flex flex-col gap-3">
         <div className="flex justify-between w-full">
           <div className="relative">
-            <span className="text-lg ml-2">{item.title}</span>
+            <span className="text-lg ml-4">{item.title}</span>
             {repeatedFor > 1 && (
               <span className="absolute px-1 text-xs rounded-full bg-sky-500 text-white">{`x${repeatedFor}`}</span>
             )}
@@ -129,7 +141,7 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
-                    <CheckCircle className="text-green-600 hover:h-6" />
+                    <BadgeCheck className="text-green-600 h-5 w-5" />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Completed</p>
@@ -167,7 +179,6 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
           <div className="flex-1 justify-end">
             {item.items[0].recurrent && (
               <Badge variant="outline" className={cn('bg-white', isCompleted && 'text-slate-500')}>
-                <Repeat2 className="mr-1 h-4" />
                 {getRepeatDay(item.items[0])}
               </Badge>
             )}
