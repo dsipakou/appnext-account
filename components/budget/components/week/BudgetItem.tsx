@@ -172,13 +172,12 @@ const BudgetItem: React.FC<Types> = ({
             <span>{currencySign}</span>
           </div>
           {budget.planned !== 0 && (
-            <div className={cn('hidden text-xs font-semibold mx-2', !isDragging && 'group-hover:flex')}>of</div>
+            <div className={cn('hidden text-sm font-bold mx-2', !isDragging && 'group-hover:flex')}>of</div>
           )}
           {budget.planned !== 0 && (
             <div className={cn('flex text-xs', isDragging && 'hidden')}>
-              <span className="group-hover:hidden pl-1">(</span>
+              <span className="group-hover:hidden px-1">of</span>
               <span>{formatMoney(budget.planned)}</span>
-              <span className="group-hover:hidden">)</span>
               <span className="hidden group-hover:flex">{currencySign}</span>
             </div>
           )}
