@@ -1,114 +1,91 @@
-import React from 'react'
-import { X } from 'lucide-react'
-import * as z from 'zod'
-import EmojiPicker from 'emoji-picker-react'
+import React from 'react';
+import { X } from 'lucide-react';
+import * as z from 'zod';
+import EmojiPicker from 'emoji-picker-react';
 
-import { useSWRConfig } from 'swr'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { useCategories, useCreateCategory } from '@/hooks/categories'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import {
-  Popover,
-  PopoverClose,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectGroup,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
-import { useToast } from '@/components/ui/use-toast'
+import { useSWRConfig } from 'swr';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { useCategories, useCreateCategory } from '@/hooks/categories';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectGroup, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/components/ui/use-toast';
 
-import { Category, CategoryType } from '../types'
+import { Category, CategoryType } from '../types';
 
-const formSchema = z.object({
-  title: z.string().min(2, {
-    message: 'Must be at least 2 characters long'
-  }),
-  type: z.nativeEnum(CategoryType),
-  isParent: z.boolean(),
-  parentCategory: z.string().uuid().optional(),
-  description: z.string().optional()
-}).superRefine((values, ctx) => {
-  if (values.type === CategoryType.Expense && values.isParent && !values.parentCategory) {
-    ctx.addIssue({
-      message: 'Non-parent category should have parent selected',
-      code: z.ZodIssueCode.custom,
-      path: ['parentCategory']
-    })
-  }
-})
+const formSchema = z
+  .object({
+    title: z.string().min(2, {
+      message: 'Must be at least 2 characters long',
+    }),
+    type: z.nativeEnum(CategoryType),
+    isParent: z.boolean(),
+    parentCategory: z.string().uuid().optional(),
+    description: z.string().optional(),
+  })
+  .superRefine((values, ctx) => {
+    if (values.type === CategoryType.Expense && values.isParent && !values.parentCategory) {
+      ctx.addIssue({
+        message: 'Non-parent category should have parent selected',
+        code: z.ZodIssueCode.custom,
+        path: ['parentCategory'],
+      });
+    }
+  });
 
 interface Types {
-  parent?: Category | undefined
+  parent?: Category | undefined;
 }
 
 const AddForm: React.FC<Types> = ({ parent }) => {
-  const { data: categories = [] } = useCategories()
-  const { trigger: createCategory, isMutating: isCreating } = useCreateCategory()
+  const { data: categories = [] } = useCategories();
+  const { trigger: createCategory, isMutating: isCreating } = useCreateCategory();
 
-  const [parentList, setParentList] = React.useState<Category[]>([])
-  const [selectedEmoji, setSelectedEmoji] = React.useState<string | null>(null)
+  const [parentList, setParentList] = React.useState<Category[]>([]);
+  const [selectedEmoji, setSelectedEmoji] = React.useState<string | null>(null);
 
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
       type: CategoryType.Expense,
-      isParent: false
-    }
-  })
+      isParent: false,
+    },
+  });
 
-  const watchIsParent = form.watch('isParent')
-  const watchType = form.watch('type')
+  const watchIsParent = form.watch('isParent');
+  const watchType = form.watch('type');
 
   React.useEffect(() => {
-    if (!categories) return
+    if (!categories) return;
 
     const parents = categories.filter(
       (category: Category) => category.parent === null && category.type === CategoryType.Expense
-    )
-    setParentList(parents)
-  }, [categories])
+    );
+    setParentList(parents);
+  }, [categories]);
 
   React.useEffect(() => {
     if (!watchIsParent) {
-      form.setValue('parentCategory', undefined)
+      form.setValue('parentCategory', undefined);
     }
-  }, [watchIsParent])
+  }, [watchIsParent]);
 
   React.useEffect(() => {
     if (parent != null) {
-      form.setValue('isParent', true)
-      form.setValue('parentCategory', parent.uuid)
+      form.setValue('isParent', true);
+      form.setValue('parentCategory', parent.uuid);
     }
-  }, [parent])
+  }, [parent]);
 
   const handleSave = async (payload: z.infer<typeof formSchema>) => {
     try {
@@ -117,27 +94,27 @@ const AddForm: React.FC<Types> = ({ parent }) => {
         name: payload.title,
         parent: payload.parentCategory || '',
         type: payload.type,
-        description: payload.description
-      })
+        description: payload.description,
+      });
       toast({
-        title: 'Saved!'
-      })
+        title: 'Saved!',
+      });
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Something went wrong',
-        description: 'Please, check your fields'
-      })
+        description: 'Please, check your fields',
+      });
     }
-  }
+  };
 
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
-      form.clearErrors()
-      form.reset()
-      setSelectedEmoji(null)
+      form.clearErrors();
+      form.reset();
+      setSelectedEmoji(null);
     }
-  }
+  };
 
   return (
     <Dialog onOpenChange={cleanFormErrors}>
@@ -265,7 +242,9 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                               <SelectContent>
                                 <SelectGroup>
                                   {parentList.map((category: Category) => (
-                                    <SelectItem key={category.uuid} value={category.uuid}>{category.name}</SelectItem>
+                                    <SelectItem key={category.uuid} value={category.uuid}>
+                                      {category.name}
+                                    </SelectItem>
                                   ))}
                                 </SelectGroup>
                               </SelectContent>
@@ -303,7 +282,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
         </Form>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default AddForm
+export default AddForm;
