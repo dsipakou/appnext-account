@@ -58,29 +58,72 @@ const WeekWidget = () => {
   const weekSpendingOption = {
     tooltip: {
       trigger: 'axis',
-      axisPointer: {
-        type: 'shadow',
+      axisPointer: { type: 'shadow' },
+      formatter: (params: any[]) => {
+        const planned = params.find((p) => p.seriesName === 'Planned');
+        const actual = params.find((p) => p.seriesName === 'Actual');
+        const day = params[0]?.axisValue ?? '';
+        return `
+          <div class="font-sans p-1">
+            <div class="font-bold mb-1">${day}</div>
+            <div class="text-sm">
+              <div>Planned: <strong>${Number(planned?.value ?? 0).toFixed(2)}</strong> ${currencySign}</div>
+              <div>Actual: <strong>${Number(actual?.value ?? 0).toFixed(2)}</strong> ${currencySign}</div>
+            </div>
+          </div>
+        `;
       },
+      extraCssText: 'box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-radius: 4px;',
     },
     legend: {
       data: ['Planned', 'Actual'],
+      top: 0,
+      textStyle: { color: '#6B7280' },
+    },
+    grid: {
+      top: '12%',
+      left: '3%',
+      right: '3%',
+      bottom: '3%',
+      containLabel: true,
     },
     xAxis: {
       data: weeklySummary.map((item) => item.name),
+      axisLabel: { color: '#6B7280', fontWeight: 500 },
+      axisLine: { lineStyle: { color: '#E5E7EB' } },
     },
-    yAxis: {},
+    yAxis: {
+      type: 'value',
+      splitNumber: 4,
+      axisLabel: { color: '#9CA3AF' },
+      splitLine: { lineStyle: { color: '#F3F4F6' } },
+    },
     series: [
       {
         name: 'Planned',
         type: 'bar',
         data: weeklySummary.map((item) => item.planned.toFixed(2)),
-        color: '#3B82F6',
+        itemStyle: {
+          color: '#3B82F6',
+          borderRadius: [6, 6, 0, 0],
+        },
+        emphasis: {
+          focus: 'series',
+          itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.2)' },
+        },
       },
       {
         name: 'Actual',
         type: 'bar',
         data: weeklySummary.map((item) => item.actual.toFixed(2)),
-        color: '#10B981',
+        itemStyle: {
+          color: '#10B981',
+          borderRadius: [6, 6, 0, 0],
+        },
+        emphasis: {
+          focus: 'series',
+          itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.2)' },
+        },
       },
     ],
   };
