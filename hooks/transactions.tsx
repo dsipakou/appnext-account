@@ -199,3 +199,21 @@ export const useTransaction = (
   } as Response<TransactionResponse>
 }
 
+export const useTransactionsByDateRange = (
+  dateFrom: string | null,
+  dateTo: string | null
+): Response<TransactionResponse[]> => {
+  const url = dateFrom && dateTo
+    ? `transactions/date-range/?dateFrom=${dateFrom}&dateTo=${dateTo}`
+    : null
+
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq)
+
+  return {
+    data,
+    isLoading,
+    isError: error,
+    url
+  } as Response<TransactionResponse[]>
+}
+

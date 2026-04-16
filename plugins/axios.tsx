@@ -18,3 +18,12 @@ export const fetchReq = (url: string) => axios.get(url).then((res) => res.data);
 export const postReq = (url: string, { arg }) => axios.post(url, arg).then((res) => res.data);
 export const deleteReq = (url: string) => axios.delete(url).then((res) => res.data);
 export const patchReq = (url: string, { arg }) => axios.patch(url, arg).then((res) => res.data);
+export const downloadFile = (url: string, filename: string): Promise<void> =>
+  axios.get(url, { responseType: 'blob' }).then((res) => {
+    const href = URL.createObjectURL(res.data);
+    const a = document.createElement('a');
+    a.href = href;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(href);
+  });

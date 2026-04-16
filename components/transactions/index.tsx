@@ -8,7 +8,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { Spinner } from '@/components/ui/spinner';
 import { useTransactions } from '@/hooks/transactions';
-import { AddForm, AddIncomeForm, EditForm, ConfirmDeleteForm } from '@/components/transactions/forms';
+import { AddForm, AddIncomeForm, EditForm, ConfirmDeleteForm, ExportForm } from '@/components/transactions/forms';
 import { TransactionResponse } from '@/components/transactions/types';
 import EDailyChart from '@/components/transactions/components/EDailyChart';
 import { getFormattedDate } from '@/utils/dateUtils';
@@ -118,6 +118,7 @@ const Index: React.FC = () => {
         </div>
         <div className="flex gap-2">
           <LastAdded />
+          <ExportForm />
           <Button
             variant="outline"
             className="text-blue-500 border-blue-500 hover:text-blue-600"
