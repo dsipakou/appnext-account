@@ -23,6 +23,7 @@ import { Category } from '@/components/categories/types'
 import { useToast } from '@/components/ui/use-toast'
 import { User } from '@/components/users/types'
 import { AvailableRate } from '@/components/rates/types'
+import { AccountResponse } from '@/components/accounts/types'
 
 interface Types {
   open: boolean
@@ -65,6 +66,10 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
   const { data: users = [] } = useUsers()
   const { trigger: createTransaction, isMutating: isCreating } = useCreateTransaction()
 
+  const spendingAccounts = React.useMemo(
+    () => accounts.filter((item: AccountResponse) => item.kind === 'spending'),
+    [accounts]
+  )
   const incomeCategories: Category[] = categories.filter((item: Category) => item.type === 'INC')
 
   const watchCalendar = form.watch('transactionDate')
@@ -189,7 +194,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                             <Slc.SelectContent>
                               <Slc.SelectGroup>
                                 <Slc.SelectLabel>Accounts</Slc.SelectLabel>
-                                {accounts.map((item: AccountResponse) => (
+                                {spendingAccounts.map((item: AccountResponse) => (
                                   <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.title}</Slc.SelectItem>
                                 ))}
                               </Slc.SelectGroup>

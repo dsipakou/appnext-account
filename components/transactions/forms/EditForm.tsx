@@ -82,6 +82,11 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   const { data: currencies = [] } = useCurrencies()
   const { trigger: updateTransaction, isMutating: isUpdating } = useUpdateTransaction(uuid)
 
+  const spendingAccounts = React.useMemo(
+    () => accounts.filter((item: AccountResponse) => item.kind === 'spending'),
+    [accounts]
+  )
+
   const {
     data: availableRates = []
   } = useAvailableRates(selectedDate)
@@ -117,12 +122,12 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   React.useEffect(() => {
     if (isBudgetLoading) return
 
-    const _account = accounts.find((item: WeekBudgetItem) => item.uuid === form.getValues().account)
+    const _account = spendingAccounts.find((item: AccountResponse) => item.uuid === form.getValues().account)
 
     if (_account != null) {
       setFilteredBudgets(budgets.filter((item: WeekBudgetItem) => item.user === _account.user))
     }
-  }, [isBudgetLoading, budgets, accounts, watchAccount])
+  }, [isBudgetLoading, budgets, spendingAccounts, watchAccount])
 
   React.useEffect(() => {
     const date = form.getValues().transactionDate
@@ -137,9 +142,11 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   React.useEffect(() => {
     if (!accountUuid || !budgets) return
 
-    const _account = accounts.find((item: Account) => item.uuid === accountUuid)
+    const _account = spendingAccounts.find((item: Account) => item.uuid === accountUuid)
+    if (!_account) return
+
     setFilteredBudgets(budgets.filter((item: WeekBudgetItem) => item.user === _account.user))
-  }, [accountUuid, budgets])
+  }, [accountUuid, budgets, spendingAccounts])
 
   const handleSave = async (payload: z.infer<typeof formSchema>): void => {
     try {
@@ -326,7 +333,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                             <Slc.SelectContent>
                               <Slc.SelectGroup>
                                 <Slc.SelectLabel>Accounts</Slc.SelectLabel>
-                                {accounts.map((item: AccountResponse) => (
+                                {spendingAccounts.map((item: AccountResponse) => (
                                   <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.title}</Slc.SelectItem>
                                 ))}
                               </Slc.SelectGroup>

@@ -36,8 +36,9 @@ export default function AccountComponent({
 
   const { data: budgets = [] } = useBudgetWeek(weekStart, weekEnd);
 
-  const yourAccounts = accounts.filter((item: Account) => item.user === user);
-  const otherAccounts = accounts.filter((item: Account) => item.user !== user);
+  const spendingAccounts = accounts.filter((item: Account) => item.kind === 'spending');
+  const yourAccounts = spendingAccounts.filter((item: Account) => item.user === user);
+  const otherAccounts = spendingAccounts.filter((item: Account) => item.user !== user);
   const defaultAccount = yourAccounts.find((item: Account) => item.isMain);
 
   React.useEffect(() => {
@@ -57,7 +58,7 @@ export default function AccountComponent({
     if (!row.budget) {
       return true;
     }
-    const accountUser = accounts.find((item: Account) => item.uuid === newValue)?.user;
+    const accountUser = spendingAccounts.find((item: Account) => item.uuid === newValue)?.user;
     return budgets.some((item: WeekBudgetItem) => item.user === accountUser);
   };
 

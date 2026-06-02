@@ -67,6 +67,11 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   const { data: currencies = [] } = useCurrencies()
   const { trigger: updateTransaction, isMutating: isUpdating } = useUpdateTransaction(uuid)
 
+  const spendingAccounts = React.useMemo(
+    () => accounts.filter((item: AccountResponse) => item.kind === 'spending'),
+    [accounts]
+  )
+
   const {
     data: availableRates = [],
     isLoading: isRatesLoading
@@ -255,7 +260,7 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                             <Slc.SelectContent>
                               <Slc.SelectGroup>
                                 <Slc.SelectLabel>Accounts</Slc.SelectLabel>
-                                {accounts.map((item: AccountResponse) => (
+                                {spendingAccounts.map((item: AccountResponse) => (
                                   <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.title}</Slc.SelectItem>
                                 ))}
                               </Slc.SelectGroup>
