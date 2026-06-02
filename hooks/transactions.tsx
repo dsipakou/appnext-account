@@ -2,7 +2,7 @@ import useSWRImmutable from 'swr/immutable'
 import useSWR from 'swr'
 import useSWRMutation from 'swr/mutation'
 import { Response } from './types';
-import { TransactionsReportResponse, AccountUsage } from '@/components/transactions/types'
+import { TransactionsReportResponse, AccountUsage, TransferResponse } from '@/components/transactions/types'
 import { ChartData } from '@/components/reports/types'
 import { fetchReq, patchReq, postReq, deleteReq } from '@/plugins/axios';
 
@@ -217,3 +217,46 @@ export const useTransactionsByDateRange = (
   } as Response<TransactionResponse[]>
 }
 
+export const useTransfers = (): Response<TransferResponse[]> => {
+  const url = 'transactions/transfers/'
+
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq)
+
+  return {
+    data,
+    isLoading,
+    isError: error,
+    url
+  } as Response<TransferResponse[]>
+}
+
+export const useTransfer = (uuid: string): Response<TransferResponse> => {
+  const url = uuid ? `transactions/transfers/${uuid}/` : null
+
+  const { data, error, isLoading } = useSWRImmutable(url, fetchReq)
+
+  return {
+    data,
+    isLoading,
+    isError: error,
+    url
+  } as Response<TransferResponse>
+}
+
+export const useCreateTransfer = () => {
+  const { trigger, isMutating } = useSWRMutation('transactions/transfers/', postReq, { revalidate: true })
+
+  return {
+    trigger,
+    isMutating,
+  }
+}
+
+export const useDeleteTransfer = (uuid: string) => {
+  const { trigger, isMutating } = useSWRMutation(`transactions/transfers/${uuid}/`, deleteReq, { revalidate: true })
+
+  return {
+    trigger,
+    isMutating
+  }
+}

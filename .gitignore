@@ -49,4 +49,8 @@ fly.toml
 .claude
 CLAUDE.MD
 
+# OpenCode
+.opencode/
+OPENCODE.md
+
 public/*

@@ -2,7 +2,7 @@
 
 import useSWRImmutable from 'swr/immutable'
 import useSWRMutation from 'swr/mutation'
-import { AccountResponse } from '@/components/accounts/types'
+import { AccountDetailsResponse, AccountResponse } from '@/components/accounts/types'
 import {
   fetchReq,
   postReq,
@@ -22,14 +22,14 @@ export const useAccounts = (): Response<AccountResponse[]> => {
   } as Response<AccountResponse[]>
 }
 
-export const useAccount = (uuid: string): Response<unknown> => {
+export const useAccount = (uuid: string): Response<AccountDetailsResponse> => {
   const { data, error, isLoading } = useSWRImmutable(uuid ? `accounts/${uuid}/` : null, fetchReq)
 
   return {
     data,
     isLoading,
     isError: error,
-  } as Response<unknown>
+  } as Response<AccountDetailsResponse>
 }
 
 export const useCreateAccount = () => {
