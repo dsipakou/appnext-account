@@ -48,6 +48,7 @@ const formSchema = z.object({
   user: z.string().uuid({ message: 'Please, select user' }),
   category: z.union([z.string().uuid(), z.string().length(0)]).optional(),
   isMain: z.boolean(),
+  kind: z.enum(['spending', 'savings']),
   description: z.string().optional()
 })
 
@@ -58,7 +59,8 @@ const AddForm: React.FC = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
-      isMain: false
+      isMain: false,
+      kind: 'spending'
     }
   })
 
@@ -165,6 +167,35 @@ const AddForm: React.FC = () => {
                     )}
                   />
                 </div>
+              </div>
+              <div className="flex w-full">
+                <FormField
+                  control={form.control}
+                  name="kind"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Account kind</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          disabled={isCreating}
+                        >
+                          <SelectTrigger className="relative w-full">
+                            <SelectValue placeholder="Select account kind" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value="spending">Spending</SelectItem>
+                              <SelectItem value="savings">Savings</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
               <div className="flex w-full">
                 <div className="flex w-1/2">

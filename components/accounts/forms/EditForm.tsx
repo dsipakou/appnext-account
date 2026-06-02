@@ -50,6 +50,7 @@ const formSchema = z.object({
   user: z.string().uuid({ message: 'Please, select user' }),
   category: z.union([z.string().uuid(), z.string().length(0)]).optional().nullable(),
   isMain: z.boolean(),
+  kind: z.enum(['spending', 'savings']),
   description: z.string().optional()
 })
 
@@ -61,7 +62,8 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      isMain: false
+      isMain: false,
+      kind: 'spending'
     }
   })
 
@@ -86,6 +88,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
     form.setValue('title', _account.title)
     form.setValue('user', _account.user)
     form.setValue('isMain', _account.isMain)
+    form.setValue('kind', _account.kind)
     form.setValue('category', _account.category)
     form.setValue('description', _account.description)
   }, [accounts])
@@ -164,6 +167,35 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                     )}
                   />
                 </div>
+              </div>
+              <div className="flex w-full">
+                <FormField
+                  control={form.control}
+                  name="kind"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Account kind</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          disabled={isUpdating}
+                        >
+                          <SelectTrigger className="relative w-full">
+                            <SelectValue placeholder="Select account kind" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value="spending">Spending</SelectItem>
+                              <SelectItem value="savings">Savings</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
               <div className="flex w-full">
                 <div className="flex w-1/2">
