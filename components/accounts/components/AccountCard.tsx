@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useStore } from '@/app/store';
 import { Progress } from '@/components/ui/progress';
 import { EditForm as EditAccount, ConfirmDeleteForm, ReassignTransactionsForm } from '@/components/accounts/forms';
+import { Badge } from '@/components/ui/badge';
 // UI
 import * as Card from '@/components/ui/card';
 // Hooks
@@ -64,6 +65,7 @@ const AccountCard: React.FC<Types> = ({ account }) => {
   } = useSession();
   // By default income and spent are 0
   const { data: usage = { income: 0, spent: 0 } as AccountUsage } = useAccountUsage(account.uuid);
+  const isSavings = account.kind === 'savings';
   const income = usage.income;
   const expenses = usage.spent;
 
@@ -92,13 +94,21 @@ const AccountCard: React.FC<Types> = ({ account }) => {
                   {getUser(account.user)?.username}
                 </span>
               </div>
+              <Badge variant="outline" className="capitalize">
+                {account.kind}
+              </Badge>
             </Card.CardTitle>
           </div>
         </div>
       </Card.CardHeader>
       <Card.CardContent>
         <div className="flex flex-col h-[120px]">
-          {isZeroState ? (
+          {isSavings ? (
+            <div className="flex flex-col items-center justify-center h-full gap-1 text-center">
+              <div className="text-muted-foreground">Savings account</div>
+              <div className="text-sm text-muted-foreground/80">Use transfers to move money in or out.</div>
+            </div>
+          ) : isZeroState ? (
             <div className="flex flex-col items-center justify-center h-full gap-1">
               <div className="text-muted-foreground">No expenses for this month yet</div>
               <div className="text-sm text-muted-foreground/80">Add your first transaction to see the progress 😊</div>

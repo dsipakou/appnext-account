@@ -5,6 +5,7 @@ import { Wallet, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 // Components
 import AccountDetailsCard from '@/components/accounts/components/AccountDetailsCard'
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from '@/components/ui/empty'
 // Hooks
 import { useAccount } from '@/hooks/accounts'
 
@@ -38,16 +39,27 @@ const AccountDetails = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {account && account.usage.map(item => (
-            <AccountDetailsCard
-              key={item.month}
-              month={item.month}
-              spendings={item.spendings}
-              income={item.income || 0}
-            />
-          ))}
-        </div>
+        {account.kind === 'savings' ? (
+          <Empty className="bg-white rounded-lg border py-16">
+            <EmptyHeader>
+              <EmptyTitle>Savings account</EmptyTitle>
+              <EmptyDescription>
+                Spending and income usage charts are not shown for savings accounts. Use transfers to track movement.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {account.usage.map(item => (
+              <AccountDetailsCard
+                key={item.month}
+                month={item.month}
+                spendings={item.spendings}
+                income={item.income || 0}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
