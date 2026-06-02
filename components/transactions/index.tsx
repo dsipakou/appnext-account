@@ -16,8 +16,9 @@ import { cn } from '@/lib/utils';
 import { TransactionsTable } from './components/transactionTable';
 import IncomeComponent from './components/IncomeContainer';
 import LastAdded from './forms/LastAdded';
+import Transfers from './components/Transfers';
 
-export type TransactionType = 'outcome' | 'income';
+export type TransactionType = 'outcome' | 'income' | 'transfer';
 
 const Index: React.FC = () => {
   const {
@@ -115,6 +116,23 @@ const Index: React.FC = () => {
               Outcome
             </span>
           </Button>
+          <Button
+            className="w-[180px] disabled:opacity-100 p-1"
+            disabled={activeType === 'transfer'}
+            variant="none"
+            onClick={() => setActiveType('transfer')}
+          >
+            <span
+              className={cn(
+                'text-xl',
+                activeType === 'transfer'
+                  ? 'flex justify-center items-center text-xl rounded-md text-blue-500 bg-white w-full h-full'
+                  : 'text-white'
+              )}
+            >
+              Transfers
+            </span>
+          </Button>
         </div>
         <div className="flex gap-2">
           <LastAdded />
@@ -175,7 +193,7 @@ const Index: React.FC = () => {
             </div>
           </div>
         </div>
-      ) : (
+      ) : activeType === 'income' ? (
         <div className="flex-1 min-h-0 px-6">
           <IncomeComponent
             transactions={incomeTransactions}
@@ -185,6 +203,8 @@ const Index: React.FC = () => {
             setYear={setIncomeYear}
           />
         </div>
+      ) : (
+        <Transfers />
       )}
       <AddForm open={isOpenTransactionsDialog} onOpenChange={setIsOpenTransactionsDialog} url={transactionsUrl} />
       <AddIncomeForm open={isOpenAddIncomeTransactions} url={incomeTransactionsUrl} handleClose={handleCloseModal} />
