@@ -1,80 +1,88 @@
-import * as React from 'react'
-import * as z from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { ArrowRight, Trash2 } from 'lucide-react'
-import { useSWRConfig } from 'swr'
-import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
-import * as Dlg from '@/components/ui/dialog'
-import * as Frm from '@/components/ui/form'
-import * as Slc from '@/components/ui/select'
-import * as Tbl from '@/components/ui/table'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from '@/components/ui/empty'
-import { Spinner } from '@/components/ui/spinner'
-import { useToast } from '@/components/ui/use-toast'
-import { useAccounts } from '@/hooks/accounts'
-import { useCurrencies } from '@/hooks/currencies'
-import { useCreateTransfer, useDeleteTransfer, useTransfers } from '@/hooks/transactions'
-import { AccountResponse } from '@/components/accounts/types'
-import { Currency } from '@/components/currencies/types'
-import { TransferResponse } from '@/components/transactions/types'
-import { getFormattedDate } from '@/utils/dateUtils'
+import * as React from 'react';
+import { useStore } from '@/app/store';
+import * as z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { ArrowRight, Trash2 } from 'lucide-react';
+import { useSWRConfig } from 'swr';
+import { useSession } from 'next-auth/react';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import * as Dlg from '@/components/ui/dialog';
+import * as Frm from '@/components/ui/form';
+import * as Slc from '@/components/ui/select';
+import * as Tbl from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from '@/components/ui/empty';
+import { Spinner } from '@/components/ui/spinner';
+import { useToast } from '@/components/ui/use-toast';
+import { useAccounts } from '@/hooks/accounts';
+import { useCurrencies } from '@/hooks/currencies';
+import { useCreateTransfer, useDeleteTransfer, useTransfers } from '@/hooks/transactions';
+import { AccountResponse } from '@/components/accounts/types';
+import { Currency } from '@/components/currencies/types';
+import { TransferResponse } from '@/components/transactions/types';
+import { getFormattedDate } from '@/utils/dateUtils';
 
-const formSchema = z.object({
-  fromAccount: z.string().uuid({ message: 'Please, select source account' }),
-  toAccount: z.string().uuid({ message: 'Please, select destination account' }),
-  currency: z.string().uuid({ message: 'Please, select currency' }),
-  amount: z.coerce.number().positive({ message: 'Should be positive number' }),
-  description: z.string().optional(),
-  transferDate: z.date({ message: 'Transfer date is required' }),
-}).superRefine((value, ctx) => {
-  if (value.fromAccount === value.toAccount) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Source and destination accounts must be different',
-      path: ['toAccount'],
-    })
-  }
-})
+const formSchema = z
+  .object({
+    fromAccount: z.string().uuid({ message: 'Please, select source account' }),
+    toAccount: z.string().uuid({ message: 'Please, select destination account' }),
+    currency: z.string().uuid({ message: 'Please, select currency' }),
+    amount: z.coerce.number().positive({ message: 'Should be positive number' }),
+    description: z.string().optional(),
+    transferDate: z.date({ message: 'Transfer date is required' }),
+  })
+  .superRefine((value, ctx) => {
+    if (value.fromAccount === value.toAccount) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Source and destination accounts must be different',
+        path: ['toAccount'],
+      });
+    }
+  });
 
 const DeleteTransferButton: React.FC<{ transfer: TransferResponse }> = ({ transfer }) => {
-  const { mutate } = useSWRConfig()
-  const { toast } = useToast()
-  const { trigger: deleteTransfer, isMutating } = useDeleteTransfer(transfer.uuid)
+  const { mutate } = useSWRConfig();
+  const { toast } = useToast();
+  const { trigger: deleteTransfer, isMutating } = useDeleteTransfer(transfer.uuid);
 
   const handleDelete = async () => {
     try {
-      await deleteTransfer()
-      mutate('transactions/transfers/')
-      toast({ title: 'Transfer deleted' })
+      await deleteTransfer();
+      mutate('transactions/transfers/');
+      toast({ title: 'Transfer deleted' });
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Cannot delete transfer',
-      })
+      });
     }
-  }
+  };
 
   return (
     <Button variant="ghost" size="sm" disabled={isMutating} onClick={handleDelete}>
       <Trash2 className="h-4 w-4" />
     </Button>
-  )
-}
+  );
+};
 
 const Transfers: React.FC = () => {
-  const [isOpen, setIsOpen] = React.useState(false)
-  const [month, setMonth] = React.useState<Date>(new Date())
-  const { mutate } = useSWRConfig()
-  const { toast } = useToast()
+  const {
+    data: { user },
+  } = useSession();
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [month, setMonth] = React.useState<Date>(new Date());
+  const { mutate } = useSWRConfig();
+  const { toast } = useToast();
+  const currencySign = useStore((state) => state.currency.sign);
 
-  const { data: transfers = [], isLoading } = useTransfers()
-  const { data: accounts = [] } = useAccounts()
-  const { data: currencies = [] } = useCurrencies()
-  const { trigger: createTransfer, isMutating: isCreating } = useCreateTransfer()
+  const { data: transfers = [], isLoading } = useTransfers();
+  const { data: accounts = [] } = useAccounts();
+  const { data: currencies = [] } = useCurrencies();
+  const { trigger: createTransfer, isMutating: isCreating } = useCreateTransfer();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -83,55 +91,55 @@ const Transfers: React.FC = () => {
       description: '',
       transferDate: new Date(),
     },
-  })
+  });
 
-  const fromAccount = form.watch('fromAccount')
-  const toAccount = form.watch('toAccount')
+  const fromAccount = form.watch('fromAccount');
+  const toAccount = form.watch('toAccount');
 
   const getAccount = (uuid: string): AccountResponse | undefined => {
-    return accounts.find((item: AccountResponse) => item.uuid === uuid)
-  }
+    return accounts.find((item: AccountResponse) => item.uuid === uuid);
+  };
 
   const isSpendingToSpending = (source?: AccountResponse, destination?: AccountResponse): boolean => {
-    return source?.kind === 'spending' && destination?.kind === 'spending'
-  }
+    return source?.kind === 'spending' && destination?.kind === 'spending';
+  };
 
   React.useEffect(() => {
-    const source = getAccount(fromAccount)
-    const destination = getAccount(toAccount)
+    const source = getAccount(fromAccount);
+    const destination = getAccount(toAccount);
 
     if (source && destination && isSpendingToSpending(source, destination)) {
-      form.setError('toAccount', { message: 'At least one transfer account must be savings' })
+      form.setError('toAccount', { message: 'At least one transfer account must be savings' });
     } else {
-      form.clearErrors('toAccount')
+      form.clearErrors('toAccount');
     }
-  }, [fromAccount, toAccount, accounts])
+  }, [fromAccount, toAccount, accounts]);
 
   const handleSave = async (payload: z.infer<typeof formSchema>) => {
-    const source = getAccount(payload.fromAccount)
-    const destination = getAccount(payload.toAccount)
+    const source = getAccount(payload.fromAccount);
+    const destination = getAccount(payload.toAccount);
 
     if (isSpendingToSpending(source, destination)) {
-      form.setError('toAccount', { message: 'At least one transfer account must be savings' })
-      return
+      form.setError('toAccount', { message: 'At least one transfer account must be savings' });
+      return;
     }
 
     try {
       await createTransfer({
         ...payload,
         transferDate: getFormattedDate(payload.transferDate),
-      })
-      mutate('transactions/transfers/')
-      toast({ title: 'Transfer saved' })
-      form.reset({ amount: '', description: '', transferDate: new Date() })
-      setIsOpen(false)
+      });
+      mutate('transactions/transfers/');
+      toast({ title: 'Transfer saved' });
+      form.reset({ amount: '', description: '', transferDate: new Date() });
+      setIsOpen(false);
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Cannot create transfer',
-      })
+      });
     }
-  }
+  };
 
   return (
     <div className="flex flex-col gap-4 px-6 min-h-0 flex-1">
@@ -228,7 +236,9 @@ const Transfers: React.FC = () => {
                             <Slc.SelectContent>
                               <Slc.SelectGroup>
                                 {currencies.map((item: Currency) => (
-                                  <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.code}</Slc.SelectItem>
+                                  <Slc.SelectItem key={item.uuid} value={item.uuid}>
+                                    {item.code}
+                                  </Slc.SelectItem>
                                 ))}
                               </Slc.SelectGroup>
                             </Slc.SelectContent>
@@ -245,7 +255,12 @@ const Transfers: React.FC = () => {
                   render={({ field }) => (
                     <Frm.FormItem>
                       <Frm.FormControl>
-                        <Textarea disabled={isCreating} placeholder="Add transfer note" className="resize-none" {...field} />
+                        <Textarea
+                          disabled={isCreating}
+                          placeholder="Add transfer note"
+                          className="resize-none"
+                          {...field}
+                        />
                       </Frm.FormControl>
                       <Frm.FormMessage />
                     </Frm.FormItem>
@@ -272,7 +287,9 @@ const Transfers: React.FC = () => {
                     </Frm.FormItem>
                   )}
                 />
-                <Button type="submit" disabled={isCreating}>Save transfer</Button>
+                <Button type="submit" disabled={isCreating}>
+                  Save transfer
+                </Button>
               </form>
             </Frm.Form>
           </Dlg.DialogContent>
@@ -309,10 +326,12 @@ const Transfers: React.FC = () => {
                 <Tbl.TableRow key={transfer.uuid}>
                   <Tbl.TableCell>{transfer.transferDate}</Tbl.TableCell>
                   <Tbl.TableCell>{transfer.fromAccountDetails.title}</Tbl.TableCell>
-                  <Tbl.TableCell><ArrowRight className="h-4 w-4 text-muted-foreground" /></Tbl.TableCell>
+                  <Tbl.TableCell>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                  </Tbl.TableCell>
                   <Tbl.TableCell>{transfer.toAccountDetails.title}</Tbl.TableCell>
                   <Tbl.TableCell>
-                    {transfer.amount.toFixed(2)} {transfer.currencyDetails.sign}
+                    {transfer.spentInCurrencies[user?.currency].toFixed(2)} {currencySign}
                   </Tbl.TableCell>
                   <Tbl.TableCell>{transfer.description}</Tbl.TableCell>
                   <Tbl.TableCell className="text-right">
@@ -325,7 +344,7 @@ const Transfers: React.FC = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Transfers
+export default Transfers;
