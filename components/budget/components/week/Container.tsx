@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { DndContext } from '@dnd-kit/core';
 import { getDay, isToday, isThisWeek } from 'date-fns';
 import { useBudgetWeek, useEditBudget } from '@/hooks/budget';
+import { useTransferBudgetWeek } from '@/hooks/transfers';
 import { useToast } from '@/components/ui/use-toast';
 import { extractErrorMessage } from '@/utils/stringUtils';
 import { CompactWeekItem, WeekBudgetItem, WeekBudgetResponse } from '@/components/budget/types';
@@ -49,6 +50,7 @@ const Container: React.FC<Types> = ({
   const [isDragging, setIsDragging] = React.useState(false);
   const [draggingUuid, setDraggingUuid] = React.useState<string>('');
   const { data: budget }: WeekBudgetResponse = useBudgetWeek(startDate, endDate, user);
+  const { data: transferBudget }: WeekBudgetResponse = useTransferBudgetWeek(startDate, endDate, user);
   const { trigger: dragBudget, isMutating } = useEditBudget(draggingUuid);
   const {
     data: { user: authUser },

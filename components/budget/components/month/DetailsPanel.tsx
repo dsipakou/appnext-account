@@ -1,6 +1,7 @@
 import { FC, useEffect, useState } from 'react';
 import GroupedBudgetButton from './GroupedBudgetButton';
 import { useBudgetMonth } from '@/hooks/budget';
+import { useTransferBudgetMonth } from '@/hooks/transfers';
 import { GroupedByCategoryBudget, MonthGroupedBudgetItem, MonthBudgetItem } from '@/components/budget/types';
 import CategorySummaryCard from './CategorySummaryCard';
 import PreviousMonthsCard from './PreviousMonthsCard';
@@ -14,17 +15,16 @@ interface Types {
   clickShowTransactions: (uuid: string) => void;
 }
 
-const DetailsPanel: FC<Types> = ({
-  activeCategoryUuid,
-  startDate,
-  endDate,
-  user,
-  clickShowTransactions,
-}) => {
+const DetailsPanel: FC<Types> = ({ activeCategoryUuid, startDate, endDate, user, clickShowTransactions }) => {
   const [budgetTitle, setBudgetTitle] = useState<string | undefined>();
   const [budgetItems, setBudgetItems] = useState<MonthBudgetItem[]>([]);
   const [activeBudgetUuid, setActiveBudgetUuid] = useState<string | null>(null);
   const { data: budgetList = [], isLoading: isBudgetLoading } = useBudgetMonth(startDate, endDate, user);
+  const { data: transferBudgetList = [], isLoading: isTransferBudgetLoading } = useTransferBudgetMonth(
+    startDate,
+    endDate,
+    user
+  );
 
   const activeCategory =
     budgetList.length > 0 ? budgetList.find((item: GroupedByCategoryBudget) => item.uuid === activeCategoryUuid) : null;
