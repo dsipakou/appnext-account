@@ -60,6 +60,7 @@ export type RowData = {
   account: string;
   budget: string | null;
   budgetName: string;
+  isCompleted: boolean;
   category: string;
   categoryName: string;
   categoryParentName: string;
@@ -73,8 +74,8 @@ const allColumns = ['date', 'account', 'budget', 'category', 'outcome'];
 const cellWidthMap = {
   date: 'w-[12%]', // 15% on small displays, 10% on medium+ displays
   account: 'w-[8%]', // Minimal - just to identify account
-  budget: 'w-[15%]', // Shrinked - okay to truncate
-  category: 'w-[38%]', // 35% on small displays, 40% on medium+ displays (most important column)
+  budget: 'w-[21%]', // Shrinked - okay to truncate
+  category: 'w-[32%]', // 35% on small displays, 40% on medium+ displays (most important column)
   outcome: 'w-[20%]', // As needed - fits amount + conversions
 };
 
@@ -149,6 +150,7 @@ export const TransactionsTable = ({
         account: item.account,
         budget: item.budget,
         budgetName: item.budgetDetails?.title,
+        isCompleted: item.budgetDetails?.isCompleted,
         category: item.category,
         categoryName: item.categoryDetails.name,
         categoryParentName: item.categoryDetails.parentName,
@@ -557,6 +559,20 @@ export const TransactionsTable = ({
     });
   };
 
+  const handleBudgetCompleted = (id: number) => {
+    setData((prevData: RowData[]) => prevData.map((row) => (row.id === id ? { ...row, isCompleted: true } : row)));
+    setEditedRows((prev) => {
+      if (!prev[id]) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        [id]: { ...prev[id], isCompleted: true },
+      };
+    });
+  };
+
   const handleCancel = (id: number) => {
     setEditingRows((prev) => {
       const newSet = new Set(prev);
@@ -771,6 +787,7 @@ export const TransactionsTable = ({
       handleChange,
       handleAmountChange,
       handleKeyDown,
+      handleBudgetCompleted,
     });
   };
 

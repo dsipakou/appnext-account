@@ -81,6 +81,7 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
     const budget = filteredBudgets.find((item: WeekBudgetItem) => item.uuid === value);
     handleChange(row.id, 'budget', value);
     handleChange(row.id, 'budgetName', budget?.title || '');
+    handleChange(row.id, 'isCompleted', budget?.isCompleted || false);
     handleChange(row.id, 'category', budget?.category || '');
   };
 

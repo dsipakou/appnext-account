@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '@/components/ui/button';
 import { RowData } from '.';
 import { AccountResponse } from '@/components/accounts/types';
 import { Currency } from '@/components/currencies/types';
@@ -12,6 +13,7 @@ interface RenderCellProps {
   row: RowData;
   key: keyof RowData;
   isEditing: boolean;
+  isCompleted: boolean;
   value: any;
   currencyValue: string;
   editedRow: RowData;
@@ -35,6 +37,7 @@ interface RenderCellProps {
   handleChange: (id: number, field: keyof RowData, value: any) => void;
   handleAmountChange: (id: number, field: keyof RowData, value: any) => void;
   handleKeyDown: (e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>, id: number) => void;
+  handleBudgetCompleted: (id: number) => void;
 }
 
 export const renderCellFromRegistry = ({
@@ -63,6 +66,7 @@ export const renderCellFromRegistry = ({
   handleChange,
   handleAmountChange,
   handleKeyDown,
+  handleBudgetCompleted,
 }: RenderCellProps): React.ReactNode => {
   switch (key) {
     case 'date':
@@ -97,7 +101,9 @@ export const renderCellFromRegistry = ({
           isEditing={isEditing}
           budgetName={row.budgetName}
           value={value as string}
+          isCompleted={row.isCompleted}
           cellStyle={cellStyle}
+          handleCompleted={() => handleBudgetCompleted(row.id)}
           accounts={accounts}
           handleChange={handleChange}
           handleKeyDown={handleKeyDown}
