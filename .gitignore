@@ -50,3 +50,4 @@ fly.toml
 CLAUDE.MD
 
 public/*
+.tool-versions
