@@ -31,7 +31,7 @@ const formSchema = z
     description: z.string().optional(),
   })
   .superRefine((values, ctx) => {
-    if (values.type === CategoryType.Expense && values.isParent && !values.parentCategory) {
+    if (values.type !== CategoryType.Income && values.isParent && !values.parentCategory) {
       ctx.addIssue({
         message: 'Non-parent category should have parent selected',
         code: z.ZodIssueCode.custom,
@@ -69,7 +69,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
     if (!categories) return;
 
     const parents = categories.filter(
-      (category: Category) => category.parent === null && category.type === CategoryType.Expense
+      (category: Category) => category.parent === null && category.type !== CategoryType.Income
     );
     setParentList(parents);
   }, [categories]);
@@ -189,6 +189,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                             <SelectGroup>
                               <SelectItem value={CategoryType.Income}>Income</SelectItem>
                               <SelectItem value={CategoryType.Expense}>Expense</SelectItem>
+                              <SelectItem value={CategoryType.CapitalExpense}>Capital Expense</SelectItem>
                             </SelectGroup>
                           </SelectContent>
                         </Select>
@@ -199,7 +200,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                 />
               </div>
               <div className="flex">
-                {watchType === CategoryType.Expense && (
+                {watchType !== CategoryType.Income && (
                   <div className="flex w-1/2 items-center h-12">
                     <FormField
                       control={form.control}
@@ -223,7 +224,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                     />
                   </div>
                 )}
-                {watchType === CategoryType.Expense && watchIsParent && (
+                {watchType !== CategoryType.Income && watchIsParent && (
                   <div className="flex w-1/2">
                     <FormField
                       control={form.control}
