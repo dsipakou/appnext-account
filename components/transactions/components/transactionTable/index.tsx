@@ -72,11 +72,11 @@ export type RowData = {
 
 const allColumns = ['date', 'account', 'budget', 'category', 'outcome'];
 const cellWidthMap = {
-  date: 'w-[12%]', // 15% on small displays, 10% on medium+ displays
+  date: 'w-[10%]', // 15% on small displays, 10% on medium+ displays
   account: 'w-[8%]', // Minimal - just to identify account
   budget: 'w-[15%]', // Shrinked - okay to truncate
   category: 'w-[30%]', // 35% on small displays, 40% on medium+ displays (most important column)
-  outcome: 'w-[16%]', // As needed - fits amount + conversions
+  outcome: 'w-[20%]', // As needed - fits amount + conversions
 };
 
 export const TransactionsTable = ({
@@ -1001,14 +1001,14 @@ export const TransactionsTable = ({
                                         )
                                     )}
                                     <td className="p-0 w-1/12">
-                                      <div className="h-full flex items-center justify-end px-2">
+                                      <div className="h-full flex items-center justify-end px-0">
                                         <div className="flex items-center gap-1">
                                           {isEditing ? (
                                             <>
                                               <Button
                                                 size="sm"
                                                 variant="ghost"
-                                                className="h-8 w-8 p-0 hover:bg-green-100 hover:text-green-700 transition-colors"
+                                                className="h-7 w-7 p-0 hover:bg-green-100 hover:text-green-700 transition-colors"
                                                 onClick={() => handleSave(row.id)}
                                               >
                                                 <CheckIcon className="h-4 w-4" />
@@ -1016,7 +1016,7 @@ export const TransactionsTable = ({
                                               <Button
                                                 size="sm"
                                                 variant="ghost"
-                                                className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-700 transition-colors"
+                                                className="h-7 w-7 p-0 hover:bg-red-100 hover:text-red-700 transition-colors"
                                                 onClick={() => handleCancel(row.id)}
                                               >
                                                 <XIcon className="h-4 w-4" />
@@ -1025,7 +1025,7 @@ export const TransactionsTable = ({
                                                 <Button
                                                   size="sm"
                                                   variant="ghost"
-                                                  className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-700 transition-colors"
+                                                  className="h-7 w-7 p-0 hover:bg-red-100 hover:text-red-700 transition-colors"
                                                   onClick={() => handleRemove(row.id)}
                                                 >
                                                   <MinusCircle className="h-4 w-4" />
@@ -1037,7 +1037,7 @@ export const TransactionsTable = ({
                                               <Button
                                                 size="sm"
                                                 variant="ghost"
-                                                className="h-8 w-8 p-0 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+                                                className="h-7 w-7 p-0 hover:bg-slate-100 hover:text-slate-700 transition-colors"
                                                 onClick={() => handleEdit(row)}
                                               >
                                                 <PencilIcon className="h-4 w-4" />
@@ -1046,7 +1046,7 @@ export const TransactionsTable = ({
                                                 <Button
                                                   size="sm"
                                                   variant="ghost"
-                                                  className="h-8 w-8 p-0 hover:bg-blue-100 hover:text-blue-700 transition-colors"
+                                                  className="h-7 w-7 p-0 hover:bg-blue-100 hover:text-blue-700 transition-colors"
                                                   onClick={() => handleDuplicate(row)}
                                                 >
                                                   <Copy className="h-4 w-4" />
@@ -1055,7 +1055,7 @@ export const TransactionsTable = ({
                                               <Button
                                                 size="sm"
                                                 variant="ghost"
-                                                className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-700 transition-colors"
+                                                className="h-7 w-7 p-0 hover:bg-red-100 hover:text-red-700 transition-colors"
                                                 onClick={() => handleRemove(row.id)}
                                               >
                                                 <Trash2 className="h-4 w-4" />
@@ -1067,7 +1067,7 @@ export const TransactionsTable = ({
                                                 <Button
                                                   size="sm"
                                                   variant="ghost"
-                                                  className="h-8 w-8 p-0 hover:bg-amber-100 hover:text-amber-700 transition-colors"
+                                                  className="h-7 w-7 p-0 hover:bg-amber-100 hover:text-amber-700 transition-colors"
                                                   onClick={() => handleRevert(row.id)}
                                                 >
                                                   <RotateCcw className="h-4 w-4" />
