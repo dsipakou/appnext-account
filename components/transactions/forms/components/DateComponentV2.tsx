@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowBigLeft, ArrowBigRight, CalendarIcon } from 'lucide-react';
+import { ArrowBigLeft, ArrowBigRight } from 'lucide-react';
 import { addDays, format, subDays, isSameWeek } from 'date-fns';
 // UI
 import * as Ppv from '@/components/ui/popover';
@@ -45,7 +45,6 @@ export default function DateComponent({ user, value, handleChange, row, isInvali
               isInvalid && 'outline outline-red-400'
             )}
           >
-            <CalendarIcon className="mr-2 h-5 w-5" />
             {format(value as Date, 'dd MMM')}
           </Button>
         </Ppv.PopoverTrigger>
