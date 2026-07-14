@@ -74,9 +74,9 @@ const allColumns = ['date', 'account', 'budget', 'category', 'outcome'];
 const cellWidthMap = {
   date: 'w-[12%]', // 15% on small displays, 10% on medium+ displays
   account: 'w-[8%]', // Minimal - just to identify account
-  budget: 'w-[21%]', // Shrinked - okay to truncate
-  category: 'w-[32%]', // 35% on small displays, 40% on medium+ displays (most important column)
-  outcome: 'w-[20%]', // As needed - fits amount + conversions
+  budget: 'w-[15%]', // Shrinked - okay to truncate
+  category: 'w-[30%]', // 35% on small displays, 40% on medium+ displays (most important column)
+  outcome: 'w-[16%]', // As needed - fits amount + conversions
 };
 
 export const TransactionsTable = ({
