@@ -1,7 +1,9 @@
-import React from 'react';
 import { format } from 'date-fns';
-import { Badge } from '@/components/ui/badge';
+import React from 'react';
+
 import DateComponent from '@/components/transactions/forms/components/DateComponentV2';
+import { Badge } from '@/components/ui/badge';
+
 import { RowData } from '..';
 
 interface DateCellProps {
@@ -30,7 +32,7 @@ export const DateCell: React.FC<DateCellProps> = ({
   }
 
   return (
-    <div className="px-1 flex items-center justify-center">
+    <div className="flex items-center justify-center px-1">
       <Badge variant="outline" className={`text-xs font-medium ${cellStyle}`}>
         {format(value, 'dd MMM yyyy')}
       </Badge>

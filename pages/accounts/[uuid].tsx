@@ -1,9 +1,7 @@
-import AccountDetails from '@/components/accounts/AccountDetails'
+import AccountDetails from '@/components/accounts/AccountDetails';
 
-Index.auth = {}
+Index.auth = {};
 
 export default function Index() {
-  return (
-    <AccountDetails />
-  )
+  return <AccountDetails />;
 }

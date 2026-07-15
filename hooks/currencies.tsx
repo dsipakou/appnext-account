@@ -1,6 +1,7 @@
 import useSWRImmutable from 'swr/immutable';
 import useSWRMutation from 'swr/mutation';
-import { fetchReq, postReq, deleteReq, patchReq } from '@/plugins/axios';
+
+import { deleteReq, fetchReq, patchReq, postReq } from '@/plugins/axios';
 
 export const useCurrencies = () => {
   const { data, error, isLoading } = useSWRImmutable('currencies/', fetchReq);

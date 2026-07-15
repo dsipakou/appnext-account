@@ -1,9 +1,7 @@
-import Category from '@/components/categories/category'
+import Category from '@/components/categories/category';
 
-Index.auth = {}
+Index.auth = {};
 
-export default function Index () {
-  return (
-    <Category />
-  )
+export default function Index() {
+  return <Category />;
 }

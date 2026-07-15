@@ -1,13 +1,14 @@
-import React from 'react';
-import type { MouseEvent, KeyboardEvent } from 'react';
-import { GripHorizontal } from 'lucide-react';
 import {
+  KeyboardSensor as LibKeyboardSensor,
+  MouseSensor as LibMouseSensor,
+  PointerSensor,
   useDraggable,
   useDroppable,
-  MouseSensor as LibMouseSensor,
-  KeyboardSensor as LibKeyboardSensor,
-  PointerSensor,
 } from '@dnd-kit/core';
+import { GripHorizontal } from 'lucide-react';
+import type { KeyboardEvent, MouseEvent } from 'react';
+import React from 'react';
+
 import { cn } from '@/lib/utils';
 
 interface DroppableTypes {
@@ -109,14 +110,14 @@ const Draggable: React.ReactNode<DraggableTypes> = ({ id, isLoading, children, c
   return (
     <div ref={setNodeRef} style={style} className={cn(className, 'pt-0')}>
       {isLoading ? (
-        <button className={cn('flex h-4 w-4 self-center mb-1 text-zinc-200 cursor-default')}>
+        <button className={cn('mb-1 flex h-4 w-4 cursor-default self-center text-zinc-200')}>
           <GripHorizontal />
         </button>
       ) : (
         <button
           {...listeners}
           {...attributes}
-          className={cn('flex h-4 w-4 self-center mb-1 text-zinc-700 cursor-move')}
+          className={cn('mb-1 flex h-4 w-4 cursor-move self-center text-zinc-700')}
         >
           <GripHorizontal />
         </button>

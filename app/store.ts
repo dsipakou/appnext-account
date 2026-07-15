@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+
 import { ReportPages } from '@/components/reports/components/ReportTypeSwitcher';
 
 interface Currency {

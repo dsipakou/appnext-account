@@ -1,119 +1,98 @@
 // System
-import * as React from 'react'
-import * as z from 'zod'
-import { useSession } from 'next-auth/react'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useSession } from 'next-auth/react';
+import * as React from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+
+import { Category, CategoryType } from '@/components/categories/types';
 // Components
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/button';
 // UI
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import { useUsers } from '@/hooks/users'
-import { useCategories } from '@/hooks/categories'
-import { useCreateAccount } from '@/hooks/accounts'
-import { Category, CategoryType } from '@/components/categories/types'
-import { User } from '@/components/users/types'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { useToast } from '@/components/ui/use-toast'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/components/ui/use-toast';
+import { User } from '@/components/users/types';
+import { useCreateAccount } from '@/hooks/accounts';
+import { useCategories } from '@/hooks/categories';
+import { useUsers } from '@/hooks/users';
 
 const formSchema = z.object({
   title: z.string().min(2, {
-    message: 'Title must be at least 2 characters'
+    error: 'Title must be at least 2 characters',
   }),
-  user: z.string().uuid({ message: 'Please, select user' }),
-  category: z.union([z.string().uuid(), z.string().length(0)]).optional(),
+  user: z.uuid({ error: 'Please, select user' }),
+  category: z.union([z.uuid(), z.string().length(0)]).optional(),
   isMain: z.boolean(),
-  description: z.string().optional()
-})
+  description: z.string().optional(),
+});
 
 const AddForm: React.FC = () => {
-  const [incomeCategories, setIncomeCategories] = React.useState<Category[]>([])
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
-      isMain: false
-    }
-  })
+      isMain: false,
+    },
+  });
 
-  const { toast } = useToast()
+  const { toast } = useToast();
 
-  const { data: { user: authUser } } = useSession()
-  const { data: users } = useUsers()
+  const {
+    data: { user: authUser },
+  } = useSession();
+  const { data: users } = useUsers();
 
-  const { data: categories = [] } = useCategories()
+  const { data: categories = [] } = useCategories();
+  const incomeCategories = React.useMemo(
+    () => categories.filter((item: Category) => item.type === CategoryType.Income),
+    [categories],
+  );
 
-  const { trigger: createAccount, isMutating: isCreating } = useCreateAccount()
-
-  React.useEffect(() => {
-    if (!categories) return
-
-    setIncomeCategories(categories.filter((item: Category) => item.type === CategoryType.Income))
-  }, [categories])
+  const { trigger: createAccount, isMutating: isCreating } = useCreateAccount();
 
   const getDefaultUser = (): string => {
     if (!authUser || !users) {
-      return ''
+      return '';
     }
 
-    const _user = users.find((item: User) => item.username === authUser?.username)
+    const _user = users.find((item: User) => item.username === authUser?.username);
     if (_user != null) {
-      return _user.uuid
+      return _user.uuid;
     }
 
-    return ''
-  }
+    return '';
+  };
 
   React.useEffect(() => {
-    form.setValue('user', getDefaultUser())
-  }, [authUser, users])
+    form.setValue('user', getDefaultUser());
+  }, [authUser, users]);
 
   const handleSave = async (payload: z.infer<typeof formSchema>) => {
     try {
-      await createAccount(payload)
+      await createAccount(payload);
       toast({
-        title: 'Saved!'
-      })
+        title: 'Saved!',
+      });
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Something went wrong',
-        description: 'Please, check your fields'
-      })
+        description: 'Please, check your fields',
+      });
     }
-  }
+  };
 
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
-      form.clearErrors()
+      form.clearErrors();
     }
-  }
+  };
 
   return (
     <Dialog onOpenChange={cleanFormErrors}>
@@ -175,19 +154,18 @@ const AddForm: React.FC = () => {
                       <FormItem>
                         <FormLabel>User</FormLabel>
                         <FormControl>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            disabled={isCreating}
-                          >
+                          <Select onValueChange={field.onChange} value={field.value} disabled={isCreating}>
                             <SelectTrigger className="relative w-full">
                               <SelectValue placeholder="Select user" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                {users && users.map((item: User) => (
-                                  <SelectItem key={item.uuid} value={item.uuid}>{item.username}</SelectItem>
-                                ))}
+                                {users &&
+                                  users.map((item: User) => (
+                                    <SelectItem key={item.uuid} value={item.uuid}>
+                                      {item.username}
+                                    </SelectItem>
+                                  ))}
                               </SelectGroup>
                             </SelectContent>
                           </Select>
@@ -205,19 +183,19 @@ const AddForm: React.FC = () => {
                       <FormItem>
                         <FormLabel>Income category</FormLabel>
                         <FormControl>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            disabled={isCreating}
-                          >
+                          <Select onValueChange={field.onChange} value={field.value} disabled={isCreating}>
                             <SelectTrigger className="relative w-full">
                               <SelectValue placeholder="Without category" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                <SelectItem value="none"><em className="text-gray-400">Without category</em></SelectItem>
+                                <SelectItem value="none">
+                                  <em className="text-gray-400">Without category</em>
+                                </SelectItem>
                                 {incomeCategories.map((item: Category) => (
-                                  <SelectItem key={item.uuid} value={item.uuid}>{item.name}</SelectItem>
+                                  <SelectItem key={item.uuid} value={item.uuid}>
+                                    {item.name}
+                                  </SelectItem>
                                 ))}
                               </SelectGroup>
                             </SelectContent>
@@ -254,7 +232,7 @@ const AddForm: React.FC = () => {
         </Form>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default AddForm
+export default AddForm;

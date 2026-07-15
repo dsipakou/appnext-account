@@ -1,12 +1,13 @@
-import React from 'react';
+import { addDays, format, isSameWeek, subDays } from 'date-fns';
 import { ArrowBigLeft, ArrowBigRight } from 'lucide-react';
-import { addDays, format, subDays, isSameWeek } from 'date-fns';
-// UI
-import * as Ppv from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
+import React from 'react';
+
 // Types
 import { RowData } from '@/components/transactions/components/transactionTable';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+// UI
+import * as Ppv from '@/components/ui/popover';
 // Utils
 import { cn } from '@/lib/utils';
 
@@ -31,7 +32,7 @@ export default function DateComponent({ user, value, handleChange, row, isInvali
   };
 
   return (
-    <div className="w-full flex items-center justify-center">
+    <div className="flex w-full items-center justify-center">
       <Button size="sm" variant="ghost" onClick={() => onChange(subDays(value as Date, 1))}>
         <ArrowBigLeft className="h-4 w-4" />
       </Button>
@@ -40,9 +41,9 @@ export default function DateComponent({ user, value, handleChange, row, isInvali
           <Button
             variant="outline"
             className={cn(
-              'w-full h-8 px-2 text-sm border-0 bg-white justify-start text-left font-normal mx-1',
-              'focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700 focus:ring-0 focus:outline-none focus:border-primary',
-              isInvalid && 'outline outline-red-400'
+              'mx-1 h-8 w-full justify-start border-0 bg-white px-2 text-left text-sm font-normal',
+              'focus:border-primary focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700',
+              isInvalid && 'outline outline-red-400',
             )}
           >
             {format(value as Date, 'dd MMM')}

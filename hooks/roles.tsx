@@ -1,10 +1,12 @@
 import useSWRImmutable from 'swr/immutable';
 import useSWRMutation from 'swr/mutation';
-import { Response } from './types';
+
 import { fetchReq, patchReq } from '@/plugins/axios';
 
+import { Response } from './types';
+
 export interface Roles {
-  name: string
+  name: string;
 }
 
 export const useRoles = (): Response<Roles[]> => {
@@ -19,10 +21,9 @@ export const useRoles = (): Response<Roles[]> => {
 };
 
 export const useUpdateRole = (uuid: string) => {
-  const { trigger } = useSWRMutation(`users/role/${uuid}/`, patchReq)
+  const { trigger } = useSWRMutation(`users/role/${uuid}/`, patchReq);
 
   return {
     trigger,
-  }
-}
-
+  };
+};

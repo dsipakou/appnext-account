@@ -1,7 +1,8 @@
 import { FC } from 'react';
+
 import { useStore } from '@/app/store';
-import { formatMoney } from '@/utils/numberUtils';
 import { cn } from '@/lib/utils';
+import { formatMoney } from '@/utils/numberUtils';
 
 interface Types {
   title: string;
@@ -22,15 +23,15 @@ const CategorySummaryButton: FC<Types> = ({ title, isActive, planned, spent }) =
   return (
     <div
       className={cn(
-        'h-[80px] rounded-md cursor-pointer',
+        'h-[80px] cursor-pointer rounded-md',
         isActive
           ? 'w-[92%] border-slate-300 bg-slate-400 text-slate-50'
-          : 'hover:drop-shadow-lg drop-shadow bg-white w-[90%]'
+          : 'w-[90%] bg-white drop-shadow hover:drop-shadow-lg',
       )}
     >
-      <div className="flex flex-col h-full justify-center p-2">
-        <div className="flex w-full h-1/2">
-          <div className="flex flex-1 gap-2 justify-end items-end">
+      <div className="flex h-full flex-col justify-center p-2">
+        <div className="flex h-1/2 w-full">
+          <div className="flex flex-1 items-end justify-end gap-2">
             <span className="self-right text-xl">
               {formatMoney(planned)} {currencySign}
             </span>
@@ -39,7 +40,7 @@ const CategorySummaryButton: FC<Types> = ({ title, isActive, planned, spent }) =
               style={{ height: `${plannedPercent}%` }}
             ></div>
           </div>
-          <div className="flex flex-1 gap-2 items-end">
+          <div className="flex flex-1 items-end gap-2">
             {spentPercent > plannedPercent ? (
               <div className="flex w-3 bg-red-500" style={{ height: `${spentPercent}%` }}></div>
             ) : (
@@ -50,7 +51,7 @@ const CategorySummaryButton: FC<Types> = ({ title, isActive, planned, spent }) =
             </span>
           </div>
         </div>
-        <div className="flex flex-1 items-top h-1/2 justify-center">
+        <div className="items-top flex h-1/2 flex-1 justify-center">
           <span className="text-lg">{title}</span>
         </div>
       </div>

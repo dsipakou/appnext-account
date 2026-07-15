@@ -1,12 +1,13 @@
+import { useSession } from 'next-auth/react';
 import React from 'react';
 import { useSWRConfig } from 'swr';
-import { useSession } from 'next-auth/react';
+
+import { TransactionsTable } from '@/components/transactions/components/transactionTable';
 import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
-import { TransactionsTable } from '@/components/transactions/components/transactionTable';
+import { useToast } from '@/components/ui/use-toast';
 import { useLastAddedTransactions, useReadLastAddedTransactions } from '@/hooks/transactions';
 import { useUsers } from '@/hooks/users';
-import { useToast } from '@/components/ui/use-toast';
 
 const LastAdded: React.FC = () => {
   const [user, setUser] = React.useState();
@@ -54,7 +55,7 @@ const LastAdded: React.FC = () => {
       <Dlg.DialogTrigger asChild>
         <Button variant="link">See last added</Button>
       </Dlg.DialogTrigger>
-      <Dlg.DialogContent className="flex flex-col min-w-[1000px] h-screen my-20">
+      <Dlg.DialogContent className="my-20 flex h-screen min-w-[1000px] flex-col">
         <Dlg.DialogHeader>
           <div className="flex justify-between pr-7">
             <Dlg.DialogTitle>Transactions added since your last visit</Dlg.DialogTitle>

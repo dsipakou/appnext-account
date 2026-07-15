@@ -1,6 +1,8 @@
-import React from 'react';
+import { addMonths, endOfMonth, getDate, startOfMonth, subMonths } from 'date-fns';
 import ReactECharts from 'echarts-for-react';
 import { useSession } from 'next-auth/react';
+import React from 'react';
+
 import { useStore } from '@/app/store';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -14,7 +16,7 @@ import {
 } from '@/components/ui/select';
 import { useTransactionsMonthlyReport } from '@/hooks/transactions';
 import { getFormattedDate } from '@/utils/dateUtils';
-import { addMonths, endOfMonth, getDate, startOfMonth, subMonths } from 'date-fns';
+
 import { ChartCategory, ChartData } from '../types';
 import RangeSwitcher from './RangeSwitcher';
 
@@ -97,7 +99,7 @@ const EChartReport: React.FC = () => {
     dateFrom,
     dateTo,
     authUser?.currency,
-    showUpToDay ? upToDay : undefined
+    showUpToDay ? upToDay : undefined,
   );
   const currencySign = useStore((state) => state.currency.sign);
 
@@ -191,7 +193,7 @@ const EChartReport: React.FC = () => {
             textBorderWidth: 2,
             color: 'black',
           },
-        }))
+        })),
       );
     }
 
@@ -325,11 +327,11 @@ const EChartReport: React.FC = () => {
     () => ({
       mouseover: onChartHover,
     }),
-    [onChartHover]
+    [onChartHover],
   );
 
   return (
-    <div className="flex flex-col relative gap-2 h-full">
+    <div className="relative flex h-full flex-col gap-2">
       <div className="flex flex-row justify-center">
         <RangeSwitcher
           dateFrom={dateFrom}
@@ -339,11 +341,11 @@ const EChartReport: React.FC = () => {
         />
       </div>
       <div className="flex justify-start">
-        <div className="flex items-center gap-2 m-3">
+        <div className="m-3 flex items-center gap-2">
           <Checkbox checked={showUpToDay} onClick={() => setShowUpToDay(!showUpToDay)} />
           <span className="flex items-center text-sm">Show till this</span>
           <Select defaultValue={upToDay} onValueChange={setUpToDay}>
-            <SelectTrigger className="relative bg-white h-8 w-14">
+            <SelectTrigger className="relative h-8 w-14 bg-white">
               <SelectValue placeholder="Show up to this day" />
             </SelectTrigger>
             <SelectContent>
@@ -362,7 +364,7 @@ const EChartReport: React.FC = () => {
           <span className="flex items-center text-sm">Show income</span>
         </div>
       </div>
-      <div className="flex-1 min-h-0">
+      <div className="min-h-0 flex-1">
         <ReactECharts
           option={options}
           notMerge={true}

@@ -1,12 +1,13 @@
 // System
-import React from 'react';
+import { addMonths, endOfMonth, format, isSameMonth, startOfMonth, subMonths } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
+import React from 'react';
 import { DateRange } from 'react-day-picker';
-import { isSameMonth, format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
+
 // UI
 import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 // Utils
 import { cn } from '@/lib/utils';
 
@@ -33,7 +34,7 @@ const MonthCalendar: React.FC<Types> = ({ date: monthDate, setMonthDate }) => {
   };
 
   return (
-    <div className="flex flex-row h-full items-center">
+    <div className="flex h-full flex-row items-center">
       <Button variant="ghost" onClick={() => setMonthDate(subMonths(monthDate, 1))}>
         <span className="text-lg">&#8592;</span>
       </Button>
@@ -42,8 +43,8 @@ const MonthCalendar: React.FC<Types> = ({ date: monthDate, setMonthDate }) => {
           <Button
             variant="outline"
             className={cn(
-              'flex justify-between w-[280px] hover:bg-white border-2 h-12 text-left font-normal',
-              monthDate && 'text-muted-foreground'
+              'flex h-12 w-[280px] justify-between border-2 text-left font-normal hover:bg-white',
+              monthDate && 'text-muted-foreground',
             )}
           >
             <div className="flex items-center">

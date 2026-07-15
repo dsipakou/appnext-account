@@ -1,8 +1,8 @@
-import AddForm from './AddForm'
-import ConfirmDeleteForm from './ConfirmDeleteForm'
-import EditForm from './EditForm'
-import EditIncomeForm from './EditIncomeForm'
-import AddIncomeForm from './AddIncomeForm'
-import ExportForm from './ExportForm'
+import AddForm from './AddForm';
+import AddIncomeForm from './AddIncomeForm';
+import ConfirmDeleteForm from './ConfirmDeleteForm';
+import EditForm from './EditForm';
+import EditIncomeForm from './EditIncomeForm';
+import ExportForm from './ExportForm';
 
-export { AddForm, ConfirmDeleteForm, EditForm, AddIncomeForm, EditIncomeForm, ExportForm }
+export { AddForm, AddIncomeForm, ConfirmDeleteForm, EditForm, EditIncomeForm, ExportForm };

@@ -1,9 +1,11 @@
-import React from 'react';
 import ReactECharts from 'echarts-for-react';
+import React from 'react';
+
 import { useStore } from '@/app/store';
 import { useBudgetLastMonthsUsage } from '@/hooks/budget';
+import { MONTH_ONLY_FORMAT, parseAndFormatDate } from '@/utils/dateUtils';
+
 import { MonthSummedUsage } from '../../types';
-import { parseAndFormatDate, MONTH_ONLY_FORMAT } from '@/utils/dateUtils';
 
 interface Types {
   month: string;
@@ -70,11 +72,11 @@ const PreviousMonthsCard: React.FC<Types> = ({ month, category }) => {
   }, [lastMonths]);
 
   return (
-    <div className="flex flex-col w-full h-full">
+    <div className="flex h-full w-full flex-col">
       <div>
         <span className="text-xl font-semibold">Previous 6 months</span>
       </div>
-      <div className="flex h-44 justify-center w-full align-center">
+      <div className="align-center flex h-44 w-full justify-center">
         <ReactECharts style={{ height: '100%', width: '100%' }} option={options} notMerge={true} />
       </div>
     </div>

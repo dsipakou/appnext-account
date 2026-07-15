@@ -1,22 +1,24 @@
 // System
+import EmojiPicker from 'emoji-picker-react';
+import { Pencil, X } from 'lucide-react';
 import React from 'react';
 import { useSWRConfig } from 'swr';
-import EmojiPicker from 'emoji-picker-react';
 import * as z from 'zod';
-import { X, Pencil } from 'lucide-react';
+
 // Components
 import { TransactionsForm } from '@/components/categories/forms';
 import { ConfirmDeleteForm } from '@/components/categories/forms';
+import * as Acd from '@/components/ui/accordion';
 // UI
 import { Button } from '@/components/ui/button';
-import * as Acd from '@/components/ui/accordion';
-import * as Ppv from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
+import * as Ppv from '@/components/ui/popover';
 import { useToast } from '@/components/ui/use-toast';
 // Hooks
 import { useUpdateCategory } from '@/hooks/categories';
 // Utils
 import { extractErrorMessage } from '@/utils/stringUtils';
+
 // Types
 import { Category } from '../types';
 import { SortableCategoryList } from './SortableCategoryList';
@@ -121,13 +123,13 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
         <Ppv.PopoverContent className="flex w-[400px] justify-center" sideOffset={5}>
           <div>
             <EmojiPicker
-              className="flex mt-5 h-20"
+              className="mt-5 flex h-20"
               skinTonesDisabled={true}
               onEmojiClick={(event) => setSelectedEmoji(event.emoji)}
             />
           </div>
-          <Ppv.PopoverClose className="absolute top-5 right-5">
-            <X className="w-4 h-4" />
+          <Ppv.PopoverClose className="absolute right-5 top-5">
+            <X className="h-4 w-4" />
           </Ppv.PopoverClose>
         </Ppv.PopoverContent>
       </Ppv.Popover>
@@ -139,33 +141,33 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
       <Acd.Accordion type="multiple">
         {parentCategories.map((item: Category) => (
           <Acd.AccordionItem key={item.uuid} value={item.uuid}>
-            <div className="group flex h-12 w-full justify-start shadow-lg items-center bg-white">
-              <Acd.AccordionTrigger className="flex gap-1 group text-lg">
+            <div className="group flex h-12 w-full items-center justify-start bg-white shadow-lg">
+              <Acd.AccordionTrigger className="group flex gap-1 text-lg">
                 <span>{item.icon}</span>
                 <span>{item.name}</span>
               </Acd.AccordionTrigger>
               <Ppv.Popover onOpenChange={(open) => onOpenPopup(open, item)}>
                 <Ppv.PopoverTrigger asChild>
                   <span>
-                    <Pencil className="hidden group-hover:flex w-7 h-7 ml-3 p-1 cursor-pointer hover:text-blue-400" />
+                    <Pencil className="ml-3 hidden h-7 w-7 cursor-pointer p-1 hover:text-blue-400 group-hover:flex" />
                   </span>
                 </Ppv.PopoverTrigger>
                 <Ppv.PopoverAnchor />
                 <Ppv.PopoverContent
-                  className="flex flex-col gap-3 w-80 rounded-md bg-white border-none"
+                  className="flex w-80 flex-col gap-3 rounded-md border-none bg-white"
                   sideOffset={10}
                 >
-                  <Ppv.PopoverClose className="absolute top-5 right-5">
-                    <X className="w-4 h-4" />
+                  <Ppv.PopoverClose className="absolute right-5 top-5">
+                    <X className="h-4 w-4" />
                   </Ppv.PopoverClose>
                   <span className="text-lg">Editing</span>
                   <div className="flex justify-between">
-                    <div className="flex justify-center w-1/2">
+                    <div className="flex w-1/2 justify-center">
                       {selectedEmoji && (
                         <>
-                          <span className="flex justify-center items-center text-2xl">{selectedEmoji}</span>
+                          <span className="flex items-center justify-center text-2xl">{selectedEmoji}</span>
                           <Button variant="link" onClick={() => setSelectedEmoji(null)}>
-                            <X className="w-4 h-4 mr-2" />
+                            <X className="mr-2 h-4 w-4" />
                           </Button>
                         </>
                       )}
@@ -180,7 +182,7 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
                       onChange={(event) => setCategoryName(event.target.value)}
                     />
                   </div>
-                  <div className="flex items-end mt-2 justify-between">
+                  <div className="mt-2 flex items-end justify-between">
                     <div className="flex gap-2">
                       <Button
                         size="sm"
@@ -192,11 +194,11 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
                     </div>
                     <ConfirmDeleteForm uuid={item.uuid} />
                   </div>
-                  <Ppv.PopoverArrow width={20} height={10} className="fill-white shadow-lg border-none" />
+                  <Ppv.PopoverArrow width={20} height={10} className="border-none fill-white shadow-lg" />
                 </Ppv.PopoverContent>
               </Ppv.Popover>
             </div>
-            <Acd.AccordionContent className="bg-white ml-2 pb-1 mb-2">
+            <Acd.AccordionContent className="mb-2 ml-2 bg-white pb-1">
               <SortableCategoryList
                 categories={categoriesByParent(item.uuid) as Category[]}
                 selectedEmoji={selectedEmoji}

@@ -1,5 +1,7 @@
-import React from 'react';
 import { GridRenderEditCellParams, useGridApiContext } from '@mui/x-data-grid';
+import React from 'react';
+
+import { WeekBudgetItem } from '@/components/budget/types';
 import {
   Select,
   SelectContent,
@@ -10,9 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { WeekBudgetItem } from '@/components/budget/types';
 import { useBudgetWeek } from '@/hooks/budget';
-import { getStartOfWeek, getEndOfWeek } from '@/utils/dateUtils';
+import { getEndOfWeek, getStartOfWeek } from '@/utils/dateUtils';
 
 interface BudgetComponentTypes extends GridRenderEditCellParams {}
 
@@ -51,12 +52,12 @@ const BudgetComponent: React.FC<BudgetComponentTypes> = (params) => {
   };
 
   return (
-    <div className="flex w-full h-full bg-slate-100 justify-center select-none items-center">
+    <div className="flex h-full w-full select-none items-center justify-center bg-slate-100">
       {!user ? (
         <span className="italic">No account selected</span>
       ) : (
         <Select onValueChange={handleChange} value={[...completedItems, ...incompletedItems].length > 0 ? value : ''}>
-          <SelectTrigger className="relative bg-white text-xs rounded-lg h-full border">
+          <SelectTrigger className="relative h-full rounded-lg border bg-white text-xs">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

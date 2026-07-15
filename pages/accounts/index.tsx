@@ -1,10 +1,9 @@
-import React from 'react'
-import Index from '@/components/accounts'
+import React from 'react';
 
-Accounts.auth = {}
+import Index from '@/components/accounts';
 
-export default function Accounts () {
-  return (
-    <Index />
-  )
+Accounts.auth = {};
+
+export default function Accounts() {
+  return <Index />;
 }

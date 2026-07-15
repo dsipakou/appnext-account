@@ -1,16 +1,17 @@
-import React from 'react';
 import { Clock2 } from 'lucide-react';
+import React from 'react';
+
+// Types
+import { WeekBudgetItem } from '@/components/budget/types';
+import { Currency } from '@/components/currencies/types';
+import { AvailableRate } from '@/components/rates/types';
+import { RowData } from '@/components/transactions/components/transactionTable';
 // UI
 import * as Slc from '@/components/ui/select';
 // Hooks
 import { useBudgetWeek } from '@/hooks/budget';
 import { useCurrencies } from '@/hooks/currencies';
 import { useAvailableRates } from '@/hooks/rates';
-// Types
-import { WeekBudgetItem } from '@/components/budget/types';
-import { Currency } from '@/components/currencies/types';
-import { AvailableRate } from '@/components/rates/types';
-import { RowData } from '@/components/transactions/components/transactionTable';
 // Utils
 import { cn } from '@/lib/utils';
 import { getEndOfWeek, getFormattedDate, getStartOfWeek } from '@/utils/dateUtils';
@@ -67,7 +68,7 @@ export default function CurrencyComponent({
 
   const defaultCurrency = currencies.find((item: Currency) => item.isDefault);
   const isDefaultCurrencyAvailable = availableRates.find(
-    (item: AvailableRate) => item.currencyCode === defaultCurrency?.code
+    (item: AvailableRate) => item.currencyCode === defaultCurrency?.code,
   );
 
   const preselectedValue = () => {
@@ -121,9 +122,9 @@ export default function CurrencyComponent({
     >
       <Slc.SelectTrigger
         className={cn(
-          'w-24 h-8 px-2 text-sm border-0 bg-white text-left',
-          'focus:ring-0 focus:outline-none focus:border-primary focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700',
-          isInvalid && 'outline outline-red-400'
+          'h-8 w-24 border-0 bg-white px-2 text-left text-sm',
+          'focus:border-primary focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700',
+          isInvalid && 'outline outline-red-400',
         )}
         onKeyDown={(e) => handleKeyDown(e, row.id)}
       >
@@ -146,10 +147,10 @@ export default function CurrencyComponent({
           <Slc.SelectGroup>
             <Slc.SelectLabel className="flex justify-start">Outdated</Slc.SelectLabel>
             {outdatedCurrencies.map((item: Currency) => (
-              <Slc.SelectItem className="italic pr-0" key={item.uuid} value={item.uuid}>
-                <div className="flex gap-2 items-center">
+              <Slc.SelectItem className="pr-0 italic" key={item.uuid} value={item.uuid}>
+                <div className="flex items-center gap-2">
                   {item.code}
-                  <Clock2 className="w-4 h-4" />
+                  <Clock2 className="h-4 w-4" />
                 </div>
               </Slc.SelectItem>
             ))}

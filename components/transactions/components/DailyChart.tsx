@@ -1,6 +1,7 @@
 import dynamic from 'next/dynamic';
-import React from 'react';
 import { useSession } from 'next-auth/react';
+import React from 'react';
+
 import { TransactionResponse } from '@/components/transactions/types';
 
 const Chart = dynamic(async () => await import('react-apexcharts'), { ssr: false });
@@ -22,7 +23,7 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
         const summ = (acc[item.categoryDetails.parentName] || 0) + item.spentInCurrencies[user?.currency];
         acc[item.categoryDetails.parentName] = Number(summ.toFixed(2));
         return acc;
-      }, {})
+      }, {}),
     );
   }, [transactions]);
 

@@ -1,3 +1,3 @@
-import Index from '@/components/logout'
+import Index from '@/components/logout';
 
-export default Index
+export default Index;

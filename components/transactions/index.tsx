@@ -1,20 +1,22 @@
 'use client';
 
-import * as React from 'react';
 import { Scroll } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import * as React from 'react';
+
+import EDailyChart from '@/components/transactions/components/EDailyChart';
+import { AddForm, AddIncomeForm, ConfirmDeleteForm, EditForm, ExportForm } from '@/components/transactions/forms';
+import { TransactionResponse } from '@/components/transactions/types';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { Spinner } from '@/components/ui/spinner';
 import { useTransactions } from '@/hooks/transactions';
-import { AddForm, AddIncomeForm, EditForm, ConfirmDeleteForm, ExportForm } from '@/components/transactions/forms';
-import { TransactionResponse } from '@/components/transactions/types';
-import EDailyChart from '@/components/transactions/components/EDailyChart';
-import { getFormattedDate } from '@/utils/dateUtils';
 import { cn } from '@/lib/utils';
-import { TransactionsTable } from './components/transactionTable';
+import { getFormattedDate } from '@/utils/dateUtils';
+
 import IncomeComponent from './components/IncomeContainer';
+import { TransactionsTable } from './components/transactionTable';
 import LastAdded from './forms/LastAdded';
 
 export type TransactionType = 'outcome' | 'income';
@@ -77,12 +79,12 @@ const Index: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full pt-2">
-      <div className="flex w-full px-6 pb-3 justify-between items-center flex-shrink-0">
+    <div className="flex h-full flex-col pt-2">
+      <div className="flex w-full flex-shrink-0 items-center justify-between px-6 pb-3">
         <span className="text-xl font-semibold">Transactions</span>
-        <div className="flex border bg-blue-500 rounded-md">
+        <div className="flex rounded-md border bg-blue-500">
           <Button
-            className="w-[180px] disabled:opacity-100 p-1"
+            className="w-[180px] p-1 disabled:opacity-100"
             disabled={activeType === 'income'}
             variant="none"
             onClick={() => setActiveType('income')}
@@ -91,15 +93,15 @@ const Index: React.FC = () => {
               className={cn(
                 'text-xl',
                 activeType === 'income'
-                  ? 'flex justify-center items-center text-xl rounded-md text-blue-500 bg-white w-full h-full'
-                  : 'text-white'
+                  ? 'flex h-full w-full items-center justify-center rounded-md bg-white text-xl text-blue-500'
+                  : 'text-white',
               )}
             >
               Income
             </span>
           </Button>
           <Button
-            className="w-[180px] disabled:opacity-100 p-1"
+            className="w-[180px] p-1 disabled:opacity-100"
             disabled={activeType === 'outcome'}
             variant="none"
             onClick={() => setActiveType('outcome')}
@@ -108,8 +110,8 @@ const Index: React.FC = () => {
               className={cn(
                 'text-xl',
                 activeType === 'outcome'
-                  ? 'flex justify-center items-center text-xl rounded-md text-blue-500 bg-white w-full h-full'
-                  : 'text-white'
+                  ? 'flex h-full w-full items-center justify-center rounded-md bg-white text-xl text-blue-500'
+                  : 'text-white',
               )}
             >
               Outcome
@@ -121,7 +123,7 @@ const Index: React.FC = () => {
           <ExportForm />
           <Button
             variant="outline"
-            className="text-blue-500 border-blue-500 hover:text-blue-600"
+            className="border-blue-500 text-blue-500 hover:text-blue-600"
             onClick={() => setIsOpenAddIncomeTransactions(true)}
           >
             Add income
@@ -130,16 +132,16 @@ const Index: React.FC = () => {
         </div>
       </div>
       {activeType === 'outcome' ? (
-        <div className="grid grid-cols-7 gap-2 flex-1 min-h-0 px-6">
-          <div className="col-span-5 bg-white flex flex-col min-h-0">
+        <div className="grid min-h-0 flex-1 grid-cols-7 gap-2 px-6">
+          <div className="col-span-5 flex min-h-0 flex-col bg-white">
             {isTransactionsLoading ? (
-              <div className="flex items-center justify-center h-full">
+              <div className="flex h-full items-center justify-center">
                 <div className="text-center">
                   <Spinner className="size-8" />
                 </div>
               </div>
             ) : transactions.length === 0 ? (
-              <Empty className="flex items-center justify-center h-full">
+              <Empty className="flex h-full items-center justify-center">
                 <EmptyHeader>
                   <EmptyMedia variant="icon">
                     <Scroll />
@@ -158,8 +160,8 @@ const Index: React.FC = () => {
             )}
           </div>
           <div className="col-span-2 flex flex-col gap-2 overflow-y-auto">
-            <div className="flex flex-col justify-center items-center border bg-white rounded-md p-3">
-              <span className="text-xl font-semibold mt-2">Transaction day</span>
+            <div className="flex flex-col items-center justify-center rounded-md border bg-white p-3">
+              <span className="mt-2 text-xl font-semibold">Transaction day</span>
               <Calendar
                 mode="single"
                 selected={transactionDate}
@@ -167,8 +169,8 @@ const Index: React.FC = () => {
                 weekStartsOn={1}
               />
             </div>
-            <div className="flex flex-col flex-nowrap bg-white items-center justify-center rounded-md p-3">
-              <span className="text-xl font-semibold my-2">Day summary</span>
+            <div className="flex flex-col flex-nowrap items-center justify-center rounded-md bg-white p-3">
+              <span className="my-2 text-xl font-semibold">Day summary</span>
               <div className="flex w-full">
                 <EDailyChart transactions={transactions} />
               </div>
@@ -176,7 +178,7 @@ const Index: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div className="flex-1 min-h-0 px-6">
+        <div className="min-h-0 flex-1 px-6">
           <IncomeComponent
             transactions={incomeTransactions}
             transactionsUrl={transactionsUrl}

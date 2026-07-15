@@ -1,16 +1,17 @@
-import React from 'react';
+import { Calendar, CheckCircle, DollarSign, User } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import React from 'react';
+
 import { useStore } from '@/app/store';
-import { formatMoney } from '@/utils/numberUtils';
-import { parseDate, getFormattedDate } from '@/utils/dateUtils';
-import { useOccasionalBudgets } from '@/hooks/budget';
-import { useCategories } from '@/hooks/categories';
 import { BudgetItem } from '@/components/budget/types';
 import { Category } from '@/components/categories/types';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, Calendar, DollarSign, User } from 'lucide-react';
+import { useOccasionalBudgets } from '@/hooks/budget';
+import { useCategories } from '@/hooks/categories';
 import { cn } from '@/lib/utils';
+import { getFormattedDate, parseDate } from '@/utils/dateUtils';
+import { formatMoney } from '@/utils/numberUtils';
 
 interface OccasionalBudgetItemProps {
   budget: BudgetItem;
@@ -24,12 +25,12 @@ const OccasionalBudgetItem: React.FC<OccasionalBudgetItemProps> = ({ budget, cat
   const getCategoryName = (uuid: string) => categories.find((cat) => cat.uuid === uuid)?.name || 'Unknown';
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow">
-      <div className="flex items-start justify-between mb-3">
+    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-md transition-shadow hover:shadow-lg">
+      <div className="mb-3 flex items-start justify-between">
         <div className="flex items-center gap-2">
           <span className="text-2xl">{getCategoryIcon(budget.category)}</span>
           <div>
-            <h3 className="font-semibold text-lg text-gray-800">{budget.title}</h3>
+            <h3 className="text-lg font-semibold text-gray-800">{budget.title}</h3>
             <p className="text-sm text-gray-500">{getCategoryName(budget.category)}</p>
           </div>
         </div>
@@ -64,7 +65,7 @@ const OccasionalBudgetItem: React.FC<OccasionalBudgetItemProps> = ({ budget, cat
         </div>
 
         {budget.description && (
-          <div className="mt-3 p-2 bg-gray-50 rounded text-sm text-gray-700">{budget.description}</div>
+          <div className="mt-3 rounded bg-gray-50 p-2 text-sm text-gray-700">{budget.description}</div>
         )}
       </div>
     </div>
@@ -80,10 +81,10 @@ const Container: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col h-full max-h-full">
-        <div className="flex w-full h-full items-center justify-center">
+      <div className="flex h-full max-h-full flex-col">
+        <div className="flex h-full w-full items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-500"></div>
             <span className="text-lg text-gray-600">Loading occasional budgets...</span>
           </div>
         </div>
@@ -93,8 +94,8 @@ const Container: React.FC = () => {
 
   if (isError) {
     return (
-      <div className="flex flex-col h-full max-h-full">
-        <div className="flex w-full h-full items-center justify-center">
+      <div className="flex h-full max-h-full flex-col">
+        <div className="flex h-full w-full items-center justify-center">
           <div className="text-center text-red-600">
             <span className="text-lg">Error loading occasional budgets</span>
           </div>
@@ -105,12 +106,12 @@ const Container: React.FC = () => {
 
   if (budgets.length === 0) {
     return (
-      <div className="flex flex-col h-full max-h-full">
-        <div className="flex w-full h-full items-center justify-center">
+      <div className="flex h-full max-h-full flex-col">
+        <div className="flex h-full w-full items-center justify-center">
           <div className="text-center">
-            <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <Calendar className="mx-auto mb-4 h-16 w-16 text-gray-300" />
             <span className="text-xl text-gray-500">No occasional budgets found</span>
-            <p className="text-gray-400 mt-2">Create an occasional budget to see it here</p>
+            <p className="mt-2 text-gray-400">Create an occasional budget to see it here</p>
           </div>
         </div>
       </div>
@@ -118,15 +119,15 @@ const Container: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col h-full max-h-full">
-      <div className="flex w-full mt-5 h-full max-h-full">
+    <div className="flex h-full max-h-full flex-col">
+      <div className="mt-5 flex h-full max-h-full w-full">
         <div className="w-full p-4">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Occasional Budgets</h1>
+            <h1 className="mb-2 text-2xl font-bold text-gray-800">Occasional Budgets</h1>
             <p className="text-gray-600">Manage your one-time and irregular budget items</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto">
+          <div className="grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3">
             {budgets.map((budget) => (
               <OccasionalBudgetItem
                 key={`${budget.title}-${budget.budgetDate}-${budget.user}`}

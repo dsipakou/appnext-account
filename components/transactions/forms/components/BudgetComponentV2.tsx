@@ -1,26 +1,27 @@
+import { Plus } from 'lucide-react';
 import React from 'react';
-// UI
-import * as Slc from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useSWRConfig } from 'swr';
+
+// Types
+import { Account } from '@/components/accounts/types';
+import { WeekBudgetItem } from '@/components/budget/types';
+import { Category, CategoryType } from '@/components/categories/types';
+import { Currency } from '@/components/currencies/types';
+import { RowData } from '@/components/transactions/components/transactionTable';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Plus } from 'lucide-react';
+// UI
+import * as Slc from '@/components/ui/select';
+import { useToast } from '@/components/ui/use-toast';
 // Hooks
 import { useBudgetWeek, useCreateBudget } from '@/hooks/budget';
 import { useCategories } from '@/hooks/categories';
 import { useCurrencies } from '@/hooks/currencies';
-import { useToast } from '@/components/ui/use-toast';
-import { useSWRConfig } from 'swr';
-// Types
-import { Account } from '@/components/accounts/types';
-import { WeekBudgetItem } from '@/components/budget/types';
-import { RowData } from '@/components/transactions/components/transactionTable';
-import { Category, CategoryType } from '@/components/categories/types';
-import { Currency } from '@/components/currencies/types';
 // Utils
 import { cn } from '@/lib/utils';
-import { getEndOfWeek, getStartOfWeek, getFormattedDate } from '@/utils/dateUtils';
+import { getEndOfWeek, getFormattedDate, getStartOfWeek } from '@/utils/dateUtils';
 
 type Props = {
   user: string;
@@ -56,7 +57,7 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
   const incompletedBudgets = filteredBudgets.filter((item: WeekBudgetItem) => !item.isCompleted);
 
   const parentCategories = categories.filter(
-    (category: Category) => category.parent === null && category.type === CategoryType.Expense
+    (category: Category) => category.parent === null && category.type === CategoryType.Expense,
   );
 
   const defaultCurrency = currencies.find((item: Currency) => item.isDefault)?.uuid || '';
@@ -151,8 +152,8 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
       >
         <Slc.SelectTrigger
           className={cn(
-            'w-full h-8 px-2 text-sm border-0 focus:ring-0 focus:outline-none focus:border-primary bg-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700 text-left',
-            isInvalid && 'outline outline-red-400'
+            'h-8 w-full border-0 bg-white px-2 text-left text-sm focus:border-primary focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700',
+            isInvalid && 'outline outline-red-400',
           )}
           onKeyDown={(e) => handleKeyDown(e, row.id)}
         >

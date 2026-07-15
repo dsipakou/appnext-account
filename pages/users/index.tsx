@@ -1,9 +1,7 @@
-import Index from '@/components/users'
+import Index from '@/components/users';
 
-Users.auth = {}
+Users.auth = {};
 
-export default function Users () {
-  return (
-    <Index />
-  )
+export default function Users() {
+  return <Index />;
 }

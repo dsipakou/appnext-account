@@ -1,9 +1,11 @@
 import React from 'react';
-import { cn } from '@/lib/utils';
-import { Input } from '@/components/ui/input';
+
 import { Currency } from '@/components/currencies/types';
-import { RowData } from '..';
 import CurrencyComponent from '@/components/transactions/forms/components/CurrencyComponentV2';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
+
+import { RowData } from '..';
 
 interface OutcomeCellProps {
   isEditing: boolean;
@@ -72,7 +74,7 @@ export const OutcomeCell: React.FC<OutcomeCellProps> = ({
   ) {
     return (
       <div className="flex gap-2">
-        <div className="flex items-center h-8 min-w-0 flex-1">
+        <div className="flex h-8 min-w-0 flex-1 items-center">
           <Input
             type="text"
             placeholder="0.00"
@@ -83,7 +85,7 @@ export const OutcomeCell: React.FC<OutcomeCellProps> = ({
             onChange={(e) => handleAmountChange(row.id, 'outcome', e.target.value)}
             onKeyDown={(e) => handleKeyDown(e, row.id)}
             onClick={(e) => e.currentTarget.select()}
-            className={`${commonInputClass} text-right flex-1 min-w-0`}
+            className={`${commonInputClass} min-w-0 flex-1 text-right`}
             ref={row.id === nextId - 1 ? currencyInputRef : null}
             required
           />
@@ -123,14 +125,14 @@ export const OutcomeCell: React.FC<OutcomeCellProps> = ({
 
   return (
     <div className={cn(cellStyle, 'flex gap-2')}>
-      <div className="flex items-center justify-end px-2 text-right min-w-0 flex-1">
+      <div className="flex min-w-0 flex-1 items-center justify-end px-2 text-right">
         <div className="flex items-center gap-1">
           <span className="font-semibold">{getDisplayAmount()}</span>
-          <span className={cn(isCurrencyChanged && 'text-amber-600 font-bold')}>{getDisplayCurrency()}</span>
+          <span className={cn(isCurrencyChanged && 'font-bold text-amber-600')}>{getDisplayCurrency()}</span>
         </div>
       </div>
       {/* Reserve space matching the currency dropdown width in edit mode */}
-      <div className="flex items-center justify-center flex-shrink-0 w-20">
+      <div className="flex w-20 flex-shrink-0 items-center justify-center">
         {shouldShowConversions ? (
           <CurrencyConversions
             row={row}
@@ -139,7 +141,7 @@ export const OutcomeCell: React.FC<OutcomeCellProps> = ({
             baseCurrency={baseCurrency}
           />
         ) : (
-          transactionCurrency && <span className="text-xs text-slate-400 font-medium">{transactionCurrency.code}</span>
+          transactionCurrency && <span className="text-xs font-medium text-slate-400">{transactionCurrency.code}</span>
         )}
       </div>
     </div>
@@ -153,16 +155,16 @@ const CurrencyConversions: React.FC<CurrencyConversionsProps> = ({
   baseCurrency,
 }) => {
   return (
-    <div className="flex flex-col w-20">
+    <div className="flex w-20 flex-col">
       {defaultCurrency !== transactionCurrency && baseCurrency !== transactionCurrency && (
-        <div className="ml-1 text-slate-500 text-[0.6rem] select-none">
+        <div className="ml-1 select-none text-[0.6rem] text-slate-500">
           <span>(</span>
           <span className="mr-1 select-text font-semibold">{row.outcome}</span>
           <span>{transactionCurrency?.sign}</span>
           <span>)</span>
         </div>
       )}
-      <div className="ml-1 text-slate-500 text-[0.6rem] select-none">
+      <div className="ml-1 select-none text-[0.6rem] text-slate-500">
         <span>(</span>
         <span className="mr-1 select-text font-semibold">{Number(row.inBase)?.toFixed(2)}</span>
         <span>{baseCurrency?.sign}</span>

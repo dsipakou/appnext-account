@@ -1,11 +1,11 @@
-import Index from '@/components/reports'
+import Index from '@/components/reports';
 
-Reports.auth = {}
+Reports.auth = {};
 
-export default function Reports () {
+export default function Reports() {
   return (
-    <div className="h-screen flex flex-col">
+    <div className="flex h-screen flex-col">
       <Index />
     </div>
-  )
+  );
 }

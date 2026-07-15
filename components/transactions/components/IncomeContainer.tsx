@@ -1,5 +1,6 @@
 import React from 'react';
-import { EditIncomeForm, ConfirmDeleteForm } from '@/components/transactions/forms';
+
+import { ConfirmDeleteForm, EditIncomeForm } from '@/components/transactions/forms';
 import {
   Select,
   SelectContent,
@@ -9,8 +10,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { TransactionsTable } from './transactionTable';
+
 import { TransactionResponse } from '../types';
+import { TransactionsTable } from './transactionTable';
 
 interface Types {
   transactions: TransactionResponse[];
@@ -49,10 +51,10 @@ const IncomeComponent: React.FC<Types> = ({ transactions = [], transactionsUrl, 
   };
 
   return (
-    <div className="flex flex-col w-full h-full">
-      <div className="flex items-center justify-center gap-2 m-3 flex-shrink-0">
+    <div className="flex h-full w-full flex-col">
+      <div className="m-3 flex flex-shrink-0 items-center justify-center gap-2">
         <Select defaultValue={year} onValueChange={setYear} disabled={isLoading}>
-          <SelectTrigger className="relative bg-white text-lg h-8 w-24">
+          <SelectTrigger className="relative h-8 w-24 bg-white text-lg">
             <SelectValue placeholder="Show income for the year" />
           </SelectTrigger>
           <SelectContent>
@@ -67,7 +69,7 @@ const IncomeComponent: React.FC<Types> = ({ transactions = [], transactionsUrl, 
           </SelectContent>
         </Select>
       </div>
-      <div className="flex bg-white flex-1 min-h-0">
+      <div className="flex min-h-0 flex-1 bg-white">
         <TransactionsTable
           transactions={transactions}
           url={transactionsUrl}

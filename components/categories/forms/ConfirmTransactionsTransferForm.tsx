@@ -1,9 +1,10 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+
 import { CategoryResponse } from '@/components/categories/types';
-import { useReassignTransactions } from '@/hooks/categories';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
+import { useReassignTransactions } from '@/hooks/categories';
 
 interface Types {
   open: boolean;

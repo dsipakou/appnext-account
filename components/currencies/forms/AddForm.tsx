@@ -1,79 +1,80 @@
 // System
-import React from 'react'
-import * as z from 'zod'
-import { useSWRConfig } from 'swr'
-import { useSession } from 'next-auth/react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Info } from 'lucide-react'
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Info } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { useSWRConfig } from 'swr';
+import * as z from 'zod';
+
 // UI
-import { Button } from '@/components/ui/button'
-import * as Dlg from '@/components/ui/dialog'
-import * as Frm from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
-import * as Tlp from '@/components/ui/tooltip'
-import { useToast } from '@/components/ui/use-toast'
+import { Button } from '@/components/ui/button';
+import * as Dlg from '@/components/ui/dialog';
+import * as Frm from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import * as Tlp from '@/components/ui/tooltip';
+import { useToast } from '@/components/ui/use-toast';
 // Hooks
-import { useCreateCurrency } from '@/hooks/currencies'
+import { useCreateCurrency } from '@/hooks/currencies';
 // Utils
-import { extractErrorMessage } from '@/utils/stringUtils'
+import { extractErrorMessage } from '@/utils/stringUtils';
 
 interface Types {
-  handleClose: () => void
+  handleClose: () => void;
 }
 
 const formSchema = z.object({
   verbalName: z.string().min(2, { message: 'Must be at least 2 characters long' }),
   code: z.string().length(3, {
-    message: 'Must be 3 characters long'
+    message: 'Must be 3 characters long',
   }),
   sign: z.string({
-    message: 'You need to specify currency sign'
+    message: 'You need to specify currency sign',
   }),
   isDefault: z.boolean().optional(),
-  comments: z.string().optional()
-})
+  comments: z.string().optional(),
+});
 
 const AddForm: React.FC<Types> = ({ handleClose }) => {
-  const { mutate } = useSWRConfig()
-  const { update: updateSession } = useSession()
+  const { mutate } = useSWRConfig();
+  const { update: updateSession } = useSession();
 
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema)
-  })
+    resolver: zodResolver(formSchema),
+  });
 
-  const { toast } = useToast()
-  const { trigger: createCurrency, isMutating: isCreating } = useCreateCurrency()
+  const { toast } = useToast();
+  const { trigger: createCurrency, isMutating: isCreating } = useCreateCurrency();
 
   const handleSave = async (payload: z.infer<typeof formSchema>) => {
     try {
-      const currency = await createCurrency(payload)
+      const currency = await createCurrency(payload);
       if (currency.isBase) {
-        updateSession({ currency: payload.code })
+        updateSession({ currency: payload.code });
       }
       toast({
-        title: 'Saved!'
-      })
-      mutate(key => typeof key === 'string' && key.includes('rates/'), undefined)
-      handleClose()
+        title: 'Saved!',
+      });
+      mutate((key) => typeof key === 'string' && key.includes('rates/'), undefined);
+      handleClose();
     } catch (error) {
-      const message = extractErrorMessage(error)
+      const message = extractErrorMessage(error);
       toast({
         variant: 'destructive',
         title: 'Something went wrong',
         description: message,
-      })
+      });
     }
-  }
+  };
 
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
-      form.clearErrors()
+      form.clearErrors();
     }
-  }
+  };
 
   return (
     <Dlg.Dialog onOpenChange={cleanFormErrors}>
@@ -170,10 +171,13 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                             <Tlp.TooltipProvider>
                               <Tlp.Tooltip>
                                 <Tlp.TooltipTrigger asChild>
-                                  <Info className="text-black h-4 w-4" />
+                                  <Info className="h-4 w-4 text-black" />
                                 </Tlp.TooltipTrigger>
                                 <Tlp.TooltipContent>
-                                  <p>Making this currency as default <br />will make current default currency as non-default</p>
+                                  <p>
+                                    Making this currency as default <br />
+                                    will make current default currency as non-default
+                                  </p>
                                 </Tlp.TooltipContent>
                               </Tlp.Tooltip>
                             </Tlp.TooltipProvider>
@@ -192,12 +196,7 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                   render={({ field }) => (
                     <Frm.FormItem>
                       <Frm.FormControl>
-                        <Textarea
-                          placeholder="Any comments"
-                          className="resize-none"
-                          disabled={isCreating}
-                          {...field}
-                        />
+                        <Textarea placeholder="Any comments" className="resize-none" disabled={isCreating} {...field} />
                       </Frm.FormControl>
                       <Frm.FormMessage />
                     </Frm.FormItem>
@@ -210,7 +209,7 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
         </Frm.Form>
       </Dlg.DialogContent>
     </Dlg.Dialog>
-  )
-}
+  );
+};
 
-export default AddForm
+export default AddForm;

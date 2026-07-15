@@ -1,24 +1,25 @@
 // System
-import React from 'react';
-import { X, Pencil, ScrollText, GripVertical } from 'lucide-react';
-import { useSortable } from "@dnd-kit/sortable";
+import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { roundToNearestMinutes } from 'date-fns';
+import { GripVertical, Pencil, ScrollText, X } from 'lucide-react';
+import React from 'react';
+
 // Components
 import { ReassignTransactionsForm } from '@/components/categories/forms';
 import { ConfirmDeleteForm } from '@/components/categories/forms';
 // UI
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import * as Ppv from '@/components/ui/popover';
 import * as Slc from '@/components/ui/select';
-import * as Tlt from '@/components/ui/tooltip';
-import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-// Types
-import { Category } from '../types';
-import { roundToNearestMinutes } from 'date-fns';
+import * as Tlt from '@/components/ui/tooltip';
 // Utils
 import { cn } from '@/lib/utils';
 
+// Types
+import { Category } from '../types';
 
 interface Props {
   id: string;
@@ -53,39 +54,32 @@ export const CategoryItem: React.FC<Props> = ({
   onSave,
   emojiPopover,
 }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id, disabled: isReordering });
-  
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+    disabled: isReordering,
+  });
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    zIndex: isDragging ? "100" : "auto",
+    zIndex: isDragging ? '100' : 'auto',
     boxShadow: isDragging ? '0 2px 0 rgba(0,0,0,0.5), 0 -1px 0 rgba(0,0,0,0.5)' : 'none',
     opacity: isDragging ? 0.5 : 1,
   };
   return (
     <div key={category.uuid} ref={setNodeRef} style={style}>
       <Separator />
-      <div className="group flex flex-nowrap my-1 p-1" key={category.uuid}>
-        <div className="flex items-center ml-2">
-          <div className={cn(
-            "flex items-center cursor-grab active:cursor-grabbing",
-          )}
-           {...attributes} {...listeners}>
-            <GripVertical className={cn("w-4 h-4 text-gray-400", isReordering && "invisible")} />
+      <div className="group my-1 flex flex-nowrap p-1" key={category.uuid}>
+        <div className="ml-2 flex items-center">
+          <div className={cn('flex cursor-grab items-center active:cursor-grabbing')} {...attributes} {...listeners}>
+            <GripVertical className={cn('h-4 w-4 text-gray-400', isReordering && 'invisible')} />
           </div>
         </div>
-        <span className="flex items-center ml-4 h-6">{category.name}</span>
+        <span className="ml-4 flex h-6 items-center">{category.name}</span>
         <span>
           {!isDragging && (
             <ScrollText
-              className="hidden group-hover:flex w-6 h-6 ml-3 p-1 cursor-pointer hover:text-blue-400"
+              className="ml-3 hidden h-6 w-6 cursor-pointer p-1 hover:text-blue-400 group-hover:flex"
               onClick={() => onClickShowTransactions(category.uuid)}
             />
           )}
@@ -94,28 +88,23 @@ export const CategoryItem: React.FC<Props> = ({
           <Ppv.PopoverTrigger asChild>
             <span>
               {!isDragging && (
-                <Pencil className="hidden group-hover:flex w-6 h-6 ml-3 px-1 cursor-pointer hover:text-blue-400" />
+                <Pencil className="ml-3 hidden h-6 w-6 cursor-pointer px-1 hover:text-blue-400 group-hover:flex" />
               )}
             </span>
           </Ppv.PopoverTrigger>
           <Ppv.PopoverAnchor />
-          <Ppv.PopoverContent
-            className="flex flex-col gap-3 w-80 rounded-md bg-white border-none"
-            sideOffset={10}
-          >
-            <Ppv.PopoverClose className="absolute top-5 right-5">
-              <X className="w-4 h-4" />
+          <Ppv.PopoverContent className="flex w-80 flex-col gap-3 rounded-md border-none bg-white" sideOffset={10}>
+            <Ppv.PopoverClose className="absolute right-5 top-5">
+              <X className="h-4 w-4" />
             </Ppv.PopoverClose>
             <span className="text-lg">Editing</span>
             <div className="flex justify-between">
-              <div className="flex justify-center w-1/2">
+              <div className="flex w-1/2 justify-center">
                 {selectedEmoji && (
                   <>
-                    <span className="flex justify-center items-center text-2xl">
-                      {selectedEmoji}
-                    </span>
+                    <span className="flex items-center justify-center text-2xl">{selectedEmoji}</span>
                     <Button variant="link" onClick={onEmojiClear}>
-                      <X className="w-4 h-4 mr-2" />
+                      <X className="mr-2 h-4 w-4" />
                     </Button>
                   </>
                 )}
@@ -150,15 +139,13 @@ export const CategoryItem: React.FC<Props> = ({
                 onChange={(event) => onCategoryNameChange(event.target.value)}
               />
             </div>
-            <div className="flex items-end mt-2 justify-between">
+            <div className="mt-2 flex items-end justify-between">
               <div className="flex gap-2">
                 <Button
                   size="sm"
                   disabled={
                     !category.name ||
-                    (category.icon === selectedEmoji &&
-                      category.name === category.name &&
-                      parent === category.parent)
+                    (category.icon === selectedEmoji && category.name === category.name && parent === category.parent)
                   }
                   onClick={() =>
                     onSave(
@@ -167,7 +154,7 @@ export const CategoryItem: React.FC<Props> = ({
                         name: category.name,
                         parent: parent || category.parent,
                       },
-                      category.name
+                      category.name,
                     )
                   }
                 >
@@ -186,14 +173,10 @@ export const CategoryItem: React.FC<Props> = ({
               </div>
               <ConfirmDeleteForm uuid={category.uuid} />
             </div>
-            <Ppv.PopoverArrow
-              width={20}
-              height={10}
-              className="fill-white shadow-lg border-none"
-            />
+            <Ppv.PopoverArrow width={20} height={10} className="border-none fill-white shadow-lg" />
           </Ppv.PopoverContent>
         </Ppv.Popover>
       </div>
     </div>
   );
-}; 
+};

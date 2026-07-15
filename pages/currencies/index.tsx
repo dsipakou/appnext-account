@@ -1,9 +1,7 @@
-import Currencies from '@/components/currencies'
+import Currencies from '@/components/currencies';
 
-Index.auth = {}
+Index.auth = {};
 
-export default function Index () {
-  return (
-    <Currencies />
-  )
+export default function Index() {
+  return <Currencies />;
 }

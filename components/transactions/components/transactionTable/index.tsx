@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import {
-  ArrowUpDown,
-  ArrowUp,
   ArrowDown,
-  CheckIcon,
+  ArrowUp,
+  ArrowUpDown,
   CheckCheck,
+  CheckIcon,
+  ChevronRight,
   Copy,
   MinusCircle,
   PencilIcon,
@@ -16,32 +15,35 @@ import {
   Trash2,
   Upload,
   XIcon,
-  ChevronRight,
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+
 import { useStore } from '@/app/store';
+import { CompactWeekItem } from '@/components/budget/types';
+// Types
+import { Currency } from '@/components/currencies/types';
+import { ConfirmDeleteForm } from '@/components/transactions/forms';
+import { TransactionBulkResponse, TransactionResponse } from '@/components/transactions/types';
 // UI
 import { Button } from '@/components/ui/button';
 import * as Tbl from '@/components/ui/table';
 import { User } from '@/components/users/types';
-import { ConfirmDeleteForm } from '@/components/transactions/forms';
-// Cell Registry
-import { renderCellFromRegistry } from './cellRegistry';
-// Utils
-import { validateRow } from './utils/validation';
-import { getInputStyle } from './utils/styles';
 // Hooks
 import { useAccounts } from '@/hooks/accounts';
 import { useCategories } from '@/hooks/categories';
 import { useCurrencies } from '@/hooks/currencies';
-import { useUsers } from '@/hooks/users';
 import { useBulkCreateTransaction, useCreateTransaction, useUpdateTransaction } from '@/hooks/transactions';
-// Types
-import { Currency } from '@/components/currencies/types';
-import { TransactionBulkResponse, TransactionResponse } from '@/components/transactions/types';
-import { CompactWeekItem } from '@/components/budget/types';
+import { useUsers } from '@/hooks/users';
+import { cn } from '@/lib/utils';
 // Date Utils
 import { getFormattedDate, parseDate } from '@/utils/dateUtils';
-import { cn } from '@/lib/utils';
+
+// Cell Registry
+import { renderCellFromRegistry } from './cellRegistry';
+import { getInputStyle } from './utils/styles';
+// Utils
+import { validateRow } from './utils/validation';
 
 interface Types {
   transactions?: TransactionResponse[];
@@ -102,7 +104,7 @@ export const TransactionsTable = ({
   const [nextId, setNextId] = useState<number>(0);
   const [invalidFields, setInvalidFields] = useState<{ [key: number]: Set<keyof RowData> }>({});
   const [sortConfig, setSortConfig] = useState<{ key: keyof RowData; direction: 'ascending' | 'descending' } | null>(
-    null
+    null,
   );
   const [newRows, setNewRows] = useState<Set<number>>(new Set());
   const [visibleColumns, setVisibleColumns] = useState<Set<string>>(new Set(allColumns));
@@ -254,7 +256,7 @@ export const TransactionsTable = ({
   }, [data, sortConfig]);
 
   const sortedData = useMemo(() => {
-    let sortableItems = [...data];
+    const sortableItems = [...data];
     let keys: Array<keyof RowData>;
     switch (sortConfig?.key) {
       case 'date':
@@ -367,8 +369,8 @@ export const TransactionsTable = ({
               outcomeInDefaultCurrency: res.spentInCurrencies[authUser.currency],
               inBase: res.spentInCurrencies[baseCurrency?.code],
             }
-          : r
-      )
+          : r,
+      ),
     );
     setIsSavedRemote(true);
   };
@@ -386,7 +388,7 @@ export const TransactionsTable = ({
         transactionDate: getFormattedDate(row.date),
         type: 'outcome',
         user,
-      }))
+      })),
     );
     const resultMap = new Map(res.map((transaction: TransactionBulkResponse) => [transaction.rowId, transaction]));
     setData((prevData: RowData[]) =>
@@ -407,8 +409,8 @@ export const TransactionsTable = ({
               outcomeInDefaultCurrency: resultMap.get(r.id)!.spentInCurrencies[authUser.currency],
               inBase: resultMap.get(r.id)!.spentInCurrencies[baseCurrency?.code],
             }
-          : r
-      )
+          : r,
+      ),
     );
     setIsSavedRemote(true);
   };
@@ -466,7 +468,7 @@ export const TransactionsTable = ({
         const changedKeys = Object.keys(rowToSave).filter(
           (key) =>
             JSON.stringify(rowToSave[key as keyof RowData]) !==
-            JSON.stringify(snapshots[currentSnapshotIndex]?.find((r) => r.id === id)?.[key as keyof RowData])
+            JSON.stringify(snapshots[currentSnapshotIndex]?.find((r) => r.id === id)?.[key as keyof RowData]),
         ) as Array<keyof RowData>;
 
         setChangedFields((prev) => ({
@@ -792,14 +794,14 @@ export const TransactionsTable = ({
   };
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="flex h-full w-full flex-col">
       {mode === 'bulk' && (
-        <div className="flex justify-between items-center flex-shrink-0 mb-4">
+        <div className="mb-4 flex flex-shrink-0 items-center justify-between">
           <div className="flex items-center space-x-2">
             <Button
               onClick={() => handleAddNewTransaction()}
               variant="outline"
-              className="text-blue-500 border-blue-500 border hover:text-blue-600"
+              className="border border-blue-500 text-blue-500 hover:text-blue-600"
               size="sm"
             >
               <PlusCircle className="mr-2 h-4 w-4" />
@@ -811,31 +813,31 @@ export const TransactionsTable = ({
             Object.values(changedFields).every((set) => {
               return set.size === 0;
             }) ? (
-              <span className="text-gray-500 text-xs">Nothing to upload</span>
+              <span className="text-xs text-gray-500">Nothing to upload</span>
             ) : (
               <Button
                 onClick={handleSubmit}
                 disabled={editingRows.size > 0 || isLoading}
-                className="h-8 px-2 border-green-600 text-xs font-medium bg-green-600 text-white hover:bg-green-800"
+                className="h-8 border-green-600 bg-green-600 px-2 text-xs font-medium text-white hover:bg-green-800"
               >
                 <Upload className="mr-2 h-4 w-4" />
                 {isLoading ? 'Saving...' : 'Upload transactions'}
               </Button>
             )}
           </div>
-          <div className="flex gap-3 items-center">
+          <div className="flex items-center gap-3">
             <span>Total:</span>
-            <span className="font-bold text-lg">{totalSum.toFixed(2)}</span>
+            <span className="text-lg font-bold">{totalSum.toFixed(2)}</span>
             <Button variant="secondary" onClick={() => clearTable()} disabled={data.length === 0}>
               Clear the table
             </Button>
           </div>
         </div>
       )}
-      <div className="rounded-lg flex-1 min-h-0 flex flex-col">
-        <div className="flex-1 min-h-0 overflow-auto relative">
+      <div className="flex min-h-0 flex-1 flex-col rounded-lg">
+        <div className="relative min-h-0 flex-1 overflow-auto">
           <Tbl.Table>
-            <Tbl.TableHeader className="sticky top-0 bg-white z-10 after:absolute after:bottom-0 after:w-full after:h-px after:bg-border">
+            <Tbl.TableHeader className="sticky top-0 z-10 bg-white after:absolute after:bottom-0 after:h-px after:w-full after:bg-border">
               <Tbl.TableRow className="bg-muted/50">
                 {visibleColumns.has('date') && (
                   <Tbl.TableHead className="flex cursor-pointer" onClick={() => requestSort('date')}>
@@ -903,7 +905,7 @@ export const TransactionsTable = ({
                 )}
                 {visibleColumns.has('outcome') && (
                   <Tbl.TableHead className="cursor-pointer" onClick={() => requestSort('outcome')}>
-                    <div className="flex items-center w-28">
+                    <div className="flex w-28 items-center">
                       Spent
                       {sortConfig?.key === 'outcome' ? (
                         sortConfig.direction === 'ascending' ? (
@@ -919,7 +921,7 @@ export const TransactionsTable = ({
                 )}
                 {visibleColumns.has('currency') && (
                   <Tbl.TableHead className="cursor-pointer" onClick={() => requestSort('currency')}>
-                    <div className="flex items-center w-24"></div>
+                    <div className="flex w-24 items-center"></div>
                   </Tbl.TableHead>
                 )}
                 <Tbl.TableHead className="w-[120px]"></Tbl.TableHead>
@@ -933,35 +935,35 @@ export const TransactionsTable = ({
                 return (
                   <React.Fragment key={parentCategory}>
                     {/* Group Header Row */}
-                    <Tbl.TableRow className="bg-slate-50/70 border-slate-200 hover:bg-slate-100/70 transition-colors duration-150 h-8">
+                    <Tbl.TableRow className="h-8 border-slate-200 bg-slate-50/70 transition-colors duration-150 hover:bg-slate-100/70">
                       <Tbl.TableCell
                         colSpan={Array.from(visibleColumns).length + 1}
-                        className="px-4 py-1 border-b border-slate-200 h-8"
+                        className="h-8 border-b border-slate-200 px-4 py-1"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="p-1 h-6 w-6 hover:bg-slate-200/60 rounded transition-colors"
+                              className="h-6 w-6 rounded p-1 transition-colors hover:bg-slate-200/60"
                               onClick={() => toggleGroupCollapse(parentCategory)}
                             >
                               <ChevronRight
-                                className={`h-3 w-3 transition-all duration-200 text-slate-500 ${
+                                className={`h-3 w-3 text-slate-500 transition-all duration-200 ${
                                   isCollapsed ? 'rotate-0' : 'rotate-90'
                                 }`}
                               />
                             </Button>
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-medium text-slate-700">{parentCategory}</span>
-                              <span className="text-xs text-slate-500 bg-slate-200/60 px-1.5 py-0.5 rounded-full">
+                              <span className="rounded-full bg-slate-200/60 px-1.5 py-0.5 text-xs text-slate-500">
                                 {rows.length}
                               </span>
                             </div>
                           </div>
                           <div className="flex items-center">
                             <span className="text mr-2">Group total: </span>
-                            <span className="text text-slate-800 font-semibold mr-8">{groupTotal.toFixed(2)}</span>
+                            <span className="text mr-8 font-semibold text-slate-800">{groupTotal.toFixed(2)}</span>
                           </div>
                         </div>
                       </Tbl.TableCell>
@@ -992,23 +994,23 @@ export const TransactionsTable = ({
                                           <td
                                             key={key}
                                             className={cn(
-                                              'pl-1 pr-0 py-0 overflow-hidden whitespace-nowrap',
-                                              cellWidthMap[key]
+                                              'overflow-hidden whitespace-nowrap py-0 pl-1 pr-0',
+                                              cellWidthMap[key],
                                             )}
                                           >
                                             {renderCell(row, key)}
                                           </td>
-                                        )
+                                        ),
                                     )}
-                                    <td className="p-0 w-1/12">
-                                      <div className="h-full flex items-center justify-end px-0">
+                                    <td className="w-1/12 p-0">
+                                      <div className="flex h-full items-center justify-end px-0">
                                         <div className="flex items-center gap-1">
                                           {isEditing ? (
                                             <>
                                               <Button
                                                 size="sm"
                                                 variant="ghost"
-                                                className="h-7 w-7 p-0 hover:bg-green-100 hover:text-green-700 transition-colors"
+                                                className="h-7 w-7 p-0 transition-colors hover:bg-green-100 hover:text-green-700"
                                                 onClick={() => handleSave(row.id)}
                                               >
                                                 <CheckIcon className="h-4 w-4" />
@@ -1016,7 +1018,7 @@ export const TransactionsTable = ({
                                               <Button
                                                 size="sm"
                                                 variant="ghost"
-                                                className="h-7 w-7 p-0 hover:bg-red-100 hover:text-red-700 transition-colors"
+                                                className="h-7 w-7 p-0 transition-colors hover:bg-red-100 hover:text-red-700"
                                                 onClick={() => handleCancel(row.id)}
                                               >
                                                 <XIcon className="h-4 w-4" />
@@ -1025,7 +1027,7 @@ export const TransactionsTable = ({
                                                 <Button
                                                   size="sm"
                                                   variant="ghost"
-                                                  className="h-7 w-7 p-0 hover:bg-red-100 hover:text-red-700 transition-colors"
+                                                  className="h-7 w-7 p-0 transition-colors hover:bg-red-100 hover:text-red-700"
                                                   onClick={() => handleRemove(row.id)}
                                                 >
                                                   <MinusCircle className="h-4 w-4" />
@@ -1037,7 +1039,7 @@ export const TransactionsTable = ({
                                               <Button
                                                 size="sm"
                                                 variant="ghost"
-                                                className="h-7 w-7 p-0 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+                                                className="h-7 w-7 p-0 transition-colors hover:bg-slate-100 hover:text-slate-700"
                                                 onClick={() => handleEdit(row)}
                                               >
                                                 <PencilIcon className="h-4 w-4" />
@@ -1046,7 +1048,7 @@ export const TransactionsTable = ({
                                                 <Button
                                                   size="sm"
                                                   variant="ghost"
-                                                  className="h-7 w-7 p-0 hover:bg-blue-100 hover:text-blue-700 transition-colors"
+                                                  className="h-7 w-7 p-0 transition-colors hover:bg-blue-100 hover:text-blue-700"
                                                   onClick={() => handleDuplicate(row)}
                                                 >
                                                   <Copy className="h-4 w-4" />
@@ -1055,19 +1057,19 @@ export const TransactionsTable = ({
                                               <Button
                                                 size="sm"
                                                 variant="ghost"
-                                                className="h-7 w-7 p-0 hover:bg-red-100 hover:text-red-700 transition-colors"
+                                                className="h-7 w-7 p-0 transition-colors hover:bg-red-100 hover:text-red-700"
                                                 onClick={() => handleRemove(row.id)}
                                               >
                                                 <Trash2 className="h-4 w-4" />
                                               </Button>
                                               {isSaved && !isEdited && mode === 'bulk' && (
-                                                <CheckCheck className="h-4 w-4 text-green-500 self-center" />
+                                                <CheckCheck className="h-4 w-4 self-center text-green-500" />
                                               )}
                                               {changedFields[row.id]?.size > 0 && isSaved && (
                                                 <Button
                                                   size="sm"
                                                   variant="ghost"
-                                                  className="h-7 w-7 p-0 hover:bg-amber-100 hover:text-amber-700 transition-colors"
+                                                  className="h-7 w-7 p-0 transition-colors hover:bg-amber-100 hover:text-amber-700"
                                                   onClick={() => handleRevert(row.id)}
                                                 >
                                                   <RotateCcw className="h-4 w-4" />

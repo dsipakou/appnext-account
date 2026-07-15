@@ -1,10 +1,11 @@
-import React from 'react';
 import ReactECharts from 'echarts-for-react';
 import { useSession } from 'next-auth/react';
+import React from 'react';
+
 import { useStore } from '@/app/store';
-import { useBudgetMonth } from '@/hooks/budget';
-import { getStartOfMonth, getEndOfMonth } from '@/utils/dateUtils';
 import { GroupedByCategoryBudget } from '@/components/budget/types';
+import { useBudgetMonth } from '@/hooks/budget';
+import { getEndOfMonth, getStartOfMonth } from '@/utils/dateUtils';
 
 const WeekWidget = () => {
   const [options, setOptions] = React.useState<object>({});
@@ -60,18 +61,18 @@ const WeekWidget = () => {
   }, [budget]);
 
   return (
-    <div className="flex flex-col w-full h-60 bg-white p-4 rounded-md shadow-md">
+    <div className="flex h-60 w-full flex-col rounded-md bg-white p-4 shadow-md">
       <span className="text-2xl font-bold">This month</span>
-      <div className="flex w-full h-full">
-        <div className="flex flex-col justify-center w-full h-full">
-          <span className="text-lg font-bold mt-1">Your plans</span>
+      <div className="flex h-full w-full">
+        <div className="flex h-full w-full flex-col justify-center">
+          <span className="mt-1 text-lg font-bold">Your plans</span>
           <span className="">
             {budget.reduce((acc: number, item: GroupedByCategoryBudget) => {
               return acc + item.plannedInCurrencies[authUser?.currency];
             }, 0) || 0}{' '}
             {currencySign}
           </span>
-          <span className="text-lg font-bold mt-1">Your spendings</span>
+          <span className="mt-1 text-lg font-bold">Your spendings</span>
           <span className="">
             {budget.reduce((acc: number, item: GroupedByCategoryBudget) => {
               return acc + item.spentInCurrencies[authUser?.currency];
@@ -79,7 +80,7 @@ const WeekWidget = () => {
             {currencySign}
           </span>
         </div>
-        <div className="flex w-full h-full">
+        <div className="flex h-full w-full">
           <ReactECharts style={{ width: '100%', height: '100%' }} option={options} notMerge={true} />
         </div>
       </div>

@@ -1,10 +1,12 @@
 import { FC, useEffect, useState } from 'react';
-import GroupedBudgetButton from './GroupedBudgetButton';
+
+import { GroupedByCategoryBudget, MonthBudgetItem, MonthGroupedBudgetItem } from '@/components/budget/types';
 import { useBudgetMonth } from '@/hooks/budget';
-import { GroupedByCategoryBudget, MonthGroupedBudgetItem, MonthBudgetItem } from '@/components/budget/types';
+
 import CategorySummaryCard from './CategorySummaryCard';
-import PreviousMonthsCard from './PreviousMonthsCard';
 import DetailsCalendar from './DetailsCalendar';
+import GroupedBudgetButton from './GroupedBudgetButton';
+import PreviousMonthsCard from './PreviousMonthsCard';
 
 interface Types {
   activeCategoryUuid: string;
@@ -14,13 +16,7 @@ interface Types {
   clickShowTransactions: (uuid: string) => void;
 }
 
-const DetailsPanel: FC<Types> = ({
-  activeCategoryUuid,
-  startDate,
-  endDate,
-  user,
-  clickShowTransactions,
-}) => {
+const DetailsPanel: FC<Types> = ({ activeCategoryUuid, startDate, endDate, user, clickShowTransactions }) => {
   const [budgetTitle, setBudgetTitle] = useState<string | undefined>();
   const [budgetItems, setBudgetItems] = useState<MonthBudgetItem[]>([]);
   const [activeBudgetUuid, setActiveBudgetUuid] = useState<string | null>(null);
@@ -62,7 +58,7 @@ const DetailsPanel: FC<Types> = ({
   };
 
   return (
-    <div className="flex h-min-full flex-col p-2 rounded-lg bg-white border">
+    <div className="h-min-full flex flex-col rounded-lg border bg-white p-2">
       {activeBudgetUuid ? (
         <DetailsCalendar
           title={title + ' > ' + budgetTitle}

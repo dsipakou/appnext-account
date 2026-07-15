@@ -1,10 +1,7 @@
+import Index from '@/components/budget/week';
 
-import Index from '@/components/budget/week'
+Week.auth = {};
 
-Week.auth = {}
-
-export default function Week () {
-  return (
-    <Index />
-  )
+export default function Week() {
+  return <Index />;
 }

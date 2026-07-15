@@ -1,13 +1,7 @@
-import AddForm from './AddForm'
-import EditForm from './EditForm'
-import ConfirmDeleteForm from './ConfirmDeleteForm'
-import TransactionsForm from './TransactionsForm'
-import SavedForLaterForm from './SavedForLaterForm'
+import AddForm from './AddForm';
+import ConfirmDeleteForm from './ConfirmDeleteForm';
+import EditForm from './EditForm';
+import SavedForLaterForm from './SavedForLaterForm';
+import TransactionsForm from './TransactionsForm';
 
-export {
-  AddForm,
-  EditForm,
-  ConfirmDeleteForm,
-  TransactionsForm,
-  SavedForLaterForm
-}
+export { AddForm, ConfirmDeleteForm, EditForm, SavedForLaterForm, TransactionsForm };

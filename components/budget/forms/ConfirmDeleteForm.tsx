@@ -1,13 +1,14 @@
 import React from 'react';
+import { useSWRConfig } from 'swr';
+
+import { RecurrentTypes } from '@/components/budget/types';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Spinner } from '@/components/ui/spinner';
-import { useSWRConfig } from 'swr';
 import { useToast } from '@/components/ui/use-toast';
 import { useDeleteBudget, useStopBudgetSeries } from '@/hooks/budget';
-import { RecurrentTypes } from '@/components/budget/types';
 
 interface Types {
   open: boolean;
@@ -44,7 +45,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, recurrent, bu
           typeof key === 'string' &&
           (key.includes('budget/weekly-usage/') || key.includes('budget/usage/') || key.includes('budget/pending/')),
         undefined,
-        { revalidate: true }
+        { revalidate: true },
       );
     } catch (error) {
       toast({
@@ -69,7 +70,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, recurrent, bu
             <RadioGroup value={deletionMode} onValueChange={(value) => setDeletionMode(value as 'instance' | 'series')}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="instance" id="instance" disabled={isLoading} />
-                <Label htmlFor="instance" className="font-normal cursor-pointer">
+                <Label htmlFor="instance" className="cursor-pointer font-normal">
                   <div className="flex flex-col">
                     <span className="font-semibold">Delete only this instance</span>
                     <span className="text-sm text-muted-foreground">
@@ -81,7 +82,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, recurrent, bu
 
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="series" id="series" disabled={isLoading} />
-                <Label htmlFor="series" className="font-normal cursor-pointer">
+                <Label htmlFor="series" className="cursor-pointer font-normal">
                   <div className="flex flex-col">
                     <span className="font-semibold">Stop the series from this date</span>
                     <span className="text-sm text-muted-foreground">

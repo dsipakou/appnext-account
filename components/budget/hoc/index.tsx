@@ -1,31 +1,32 @@
+import { useRouter } from 'next/router';
+import { useSession } from 'next-auth/react';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { useStore } from '@/app/store';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/router';
 import { mutate } from 'swr';
+
+import { useStore } from '@/app/store';
+import { GeneralSummaryCard } from '@/components/budget/components';
+import MonthCalendar from '@/components/budget/components/month/MonthCalendar';
+import WeekCalendar from '@/components/budget/components/week/WeekCalendar';
+import { AddForm, SavedForLaterForm, TransactionsForm } from '@/components/budget/forms';
+import { CompactWeekItem, PlannedMap, SpentMap } from '@/components/budget/types';
+import { Button } from '@/components/ui/button';
 import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import {
   Select,
   SelectContent,
-  SelectItem,
   SelectGroup,
+  SelectItem,
   SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { Button } from '@/components/ui/button';
-import { useUsers } from '@/hooks/users';
-import { useBudgetMonth, useBudgetWeek } from '@/hooks/budget';
 import { User } from '@/components/users/types';
-import { getStartOfMonth, getEndOfMonth, getStartOfWeek, getEndOfWeek, getFormattedDate } from '@/utils/dateUtils';
-import { GeneralSummaryCard } from '@/components/budget/components';
-import WeekCalendar from '@/components/budget/components/week/WeekCalendar';
-import MonthCalendar from '@/components/budget/components/month/MonthCalendar';
-import { PlannedMap, SpentMap, CompactWeekItem } from '@/components/budget/types';
-import { AddForm, SavedForLaterForm, TransactionsForm } from '@/components/budget/forms';
+import { useBudgetMonth, useBudgetWeek } from '@/hooks/budget';
+import { useUsers } from '@/hooks/users';
+import { getEndOfMonth, getEndOfWeek, getFormattedDate, getStartOfMonth, getStartOfWeek } from '@/utils/dateUtils';
 
 type BudgetType = 'month' | 'week' | 'recurrent';
 
@@ -136,7 +137,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
               return item;
             });
           },
-          { revalidate: false }
+          { revalidate: false },
         );
       } else {
         mutate(weekUrl);
@@ -145,29 +146,29 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     };
 
     const toolbar = (
-      <div className="flex justify-between items-center py-3 h-20">
+      <div className="flex h-20 items-center justify-between py-3">
         <span className="text-xl font-bold">Budget</span>
-        <div className="flex border bg-blue-500 rounded-md">
+        <div className="flex rounded-md border bg-blue-500">
           <Button
-            className="w-[180px] disabled:opacity-100 p-1"
+            className="w-[180px] p-1 disabled:opacity-100"
             disabled={activeType === 'month'}
             variant="none"
             onClick={() => handleTypeButtonClick('month')}
           >
             <span
-              className={`text-xl ${activeType === 'month' ? 'flex justify-center items-center text-xl rounded-md text-blue-500 bg-white w-full h-full' : 'text-white'}`}
+              className={`text-xl ${activeType === 'month' ? 'flex h-full w-full items-center justify-center rounded-md bg-white text-xl text-blue-500' : 'text-white'}`}
             >
               Monthly
             </span>
           </Button>
           <Button
-            className="w-[180px] disabled:opacity-100 p-1"
+            className="w-[180px] p-1 disabled:opacity-100"
             disabled={activeType === 'week'}
             variant="none"
             onClick={() => handleTypeButtonClick('week')}
           >
             <span
-              className={`text-xl ${activeType === 'week' ? 'flex justify-center items-center text-xl rounded-md text-blue-500 bg-white w-full h-full' : 'text-white'}`}
+              className={`text-xl ${activeType === 'week' ? 'flex h-full w-full items-center justify-center rounded-md bg-white text-xl text-blue-500' : 'text-white'}`}
             >
               Weekly
             </span>
@@ -186,13 +187,13 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     );
 
     const header = (
-      <div className="flex justify-between items-center gap-3 h-auto">
+      <div className="flex h-auto items-center justify-between gap-3">
         <div className="w-1/3">
           <GeneralSummaryCard planned={plannedSum} spent={spentSum} title={activeType} />
         </div>
         <div className="w-1/3 px-7">
           <Select onValueChange={changeUser} defaultValue="all" disabled={!users}>
-            <SelectTrigger className="relative w-full border-2 hover:text-black text-muted-foreground font-normal">
+            <SelectTrigger className="relative w-full border-2 font-normal text-muted-foreground hover:text-black">
               <SelectValue placeholder="User" />
             </SelectTrigger>
             <SelectContent>
@@ -210,7 +211,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             </SelectContent>
           </Select>
         </div>
-        <div className="w-1/3 h-auto">
+        <div className="h-auto w-1/3">
           {activeType === 'month' ? (
             <MonthCalendar date={monthDate} setMonthDate={setMonthDate} />
           ) : (
@@ -238,14 +239,14 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     return (
       <>
         {toolbar}
-        <div className="flex flex-col h-full max-h-full">
+        <div className="flex h-full max-h-full flex-col">
           {activeType !== 'recurrent' && (
-            <div className="w-full p-1 rounded shadow-sm shadow-zinc-300 bg-white">{header}</div>
+            <div className="w-full rounded bg-white p-1 shadow-sm shadow-zinc-300">{header}</div>
           )}
-          <div className="@container-[size] flex w-full mt-5 h-full max-h-full">
+          <div className="@container-[size] mt-5 flex h-full max-h-full w-full">
             {(activeType === 'month' && budgetMonth.length === 0) ||
             (activeType === 'week' && budgetWeek.length === 0) ? (
-              <div className="flex w-full h-full justify-center items-center">
+              <div className="flex h-full w-full items-center justify-center">
                 {isWeekBudgetLoading || isMonthBudgetLoading ? <Spinner className="size-8" /> : emptyState}
               </div>
             ) : (

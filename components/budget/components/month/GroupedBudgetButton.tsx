@@ -1,17 +1,18 @@
-import { FC } from 'react';
-import { useStore } from '@/app/store';
-import { useSession } from 'next-auth/react';
+import { format, getDate } from 'date-fns';
 import { BadgeCheck, Repeat2 } from 'lucide-react';
-import { getDate, format } from 'date-fns';
+import { useSession } from 'next-auth/react';
+import { FC } from 'react';
+
+import { useStore } from '@/app/store';
+import { MonthBudgetItem, MonthGroupedBudgetItem } from '@/components/budget/types';
+import { Category } from '@/components/categories/types';
+import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Badge } from '@/components/ui/badge';
-import { MonthGroupedBudgetItem, MonthBudgetItem } from '@/components/budget/types';
-import { getNumberWithPostfix, formatMoney } from '@/utils/numberUtils';
 import { useCategories } from '@/hooks/categories';
-import { parseDate, getFormattedDate, LONG_YEAR_SHORT_MONTH_FORMAT } from '@/utils/dateUtils';
-import { Category } from '@/components/categories/types';
 import { cn } from '@/lib/utils';
+import { getFormattedDate, LONG_YEAR_SHORT_MONTH_FORMAT, parseDate } from '@/utils/dateUtils';
+import { formatMoney, getNumberWithPostfix } from '@/utils/numberUtils';
 
 interface Types {
   item: MonthGroupedBudgetItem;
@@ -56,9 +57,9 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
           indicatorclassname={cn(percentage > 100 ? 'bg-red-500' : 'bg-blue-500')}
           value={percentage > 100 ? percentage % 100 : percentage}
         />
-        <div className="absolute top-0 w-full h-full">
-          <span className="flex text-white text-lg font-semibold h-full items-center justify-center">
-            <div className="flex gap-2 items-center">{planned === 0 ? 'Not planned' : `${percentage}%`}</div>
+        <div className="absolute top-0 h-full w-full">
+          <span className="flex h-full items-center justify-center text-lg font-semibold text-white">
+            <div className="flex items-center gap-2">{planned === 0 ? 'Not planned' : `${percentage}%`}</div>
           </span>
         </div>
       </>
@@ -67,13 +68,13 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
 
   const anotherCategoryProgress = () => (
     <>
-      <div className="flex justify-center w-full h-8">
-        <span className="flex text-sm text-gray-700 h-full items-center justify-center">
-          <div className="flex gap-1 items-center">
+      <div className="flex h-8 w-full justify-center">
+        <span className="flex h-full items-center justify-center text-sm text-gray-700">
+          <div className="flex items-center gap-1">
             <span className="font-semibold">From</span>
             <Badge
               variant="outline"
-              className="flex justify-center whitespace-nowrap overflow-hidden bg-sky-500 h-5 text-white w-full"
+              className="flex h-5 w-full justify-center overflow-hidden whitespace-nowrap bg-sky-500 text-white"
             >
               <span className="font-bold">
                 {getCategoryIcon(item.items[0].category)} {getCategoryName(item.items[0].category)}
@@ -87,13 +88,13 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
 
   const anotherMonthProgress = () => (
     <>
-      <div className="flex justify-center w-full h-8">
-        <span className="flex text-blue-500 font-semibold h-full items-center justify-center">
-          <div className="flex gap-1 items-center">
+      <div className="flex h-8 w-full justify-center">
+        <span className="flex h-full items-center justify-center font-semibold text-blue-500">
+          <div className="flex items-center gap-1">
             <span className="font-semibold">From</span>
             <Badge
               variant="outline"
-              className="flex justify-center whitespace-nowrap overflow-hidden bg-sky-500 h-5 text-white w-full"
+              className="flex h-5 w-full justify-center overflow-hidden whitespace-nowrap bg-sky-500 text-white"
             >
               <span className="font-bold">
                 {getFormattedDate(parseDate(item.items[0].budgetDate), LONG_YEAR_SHORT_MONTH_FORMAT)}
@@ -108,32 +109,32 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
   return (
     <div
       className={cn(
-        'h-[172px] cursor-pointer p-2 rounded-lg hover:drop-shadow-lg',
+        'h-[172px] cursor-pointer rounded-lg p-2 hover:drop-shadow-lg',
         recurrent && 'border-gray-300',
-        isCompleted && 'drop-shadow-sm bg-slate-200 text-slate-500',
-        !isCompleted && 'drop-shadow outline-zinc-200 bg-slate-50'
+        isCompleted && 'bg-slate-200 text-slate-500 drop-shadow-sm',
+        !isCompleted && 'bg-slate-50 outline-zinc-200 drop-shadow',
       )}
     >
       {!!recurrent && (
         <>
           <div
             className={cn(
-              'absolute z-60 top-0 left-0 w-0 h-0 border-r-transparent rounded-tl-lg',
-              recurrent === 'monthly' && ' border-t-[28px] border-r-[28px] border-t-cyan-400',
-              recurrent === 'weekly' && 'border-t-[28px] border-r-[28px] border-t-orange-400'
+              'z-60 absolute left-0 top-0 h-0 w-0 rounded-tl-lg border-r-transparent',
+              recurrent === 'monthly' && ' border-r-[28px] border-t-[28px] border-t-cyan-400',
+              recurrent === 'weekly' && 'border-r-[28px] border-t-[28px] border-t-orange-400',
             )}
           ></div>
-          <div className="absolute top-[2px] left-[2px] text-white">
+          <div className="absolute left-[2px] top-[2px] text-white">
             <Repeat2 className="h-4 w-4"></Repeat2>
           </div>
         </>
       )}
       <div className="flex flex-col gap-3">
-        <div className="flex justify-between w-full">
+        <div className="flex w-full justify-between">
           <div className="relative">
-            <span className="text-lg ml-4">{item.title}</span>
+            <span className="ml-4 text-lg">{item.title}</span>
             {repeatedFor > 1 && (
-              <span className="absolute px-1 text-xs rounded-full bg-sky-500 text-white">{`x${repeatedFor}`}</span>
+              <span className="absolute rounded-full bg-sky-500 px-1 text-xs text-white">{`x${repeatedFor}`}</span>
             )}
           </div>
           {isCompleted && !item.isAnotherCategory && !item.isAnotherMonth && (
@@ -141,7 +142,7 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
-                    <BadgeCheck className="text-green-600 h-5 w-5" />
+                    <BadgeCheck className="h-5 w-5 text-green-600" />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Completed</p>
@@ -154,9 +155,9 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
         <div className="flex justify-center">
           <div className="flex items-start">
             <span className="text-xl font-bold">{formatMoney(spent)}</span>
-            <span className="text-xl font-bold mx-1">{currencySign}</span>
+            <span className="mx-1 text-xl font-bold">{currencySign}</span>
             {!item.isAnotherCategory && spent !== spentOverall && (
-              <span className="text-xs font-light italic mr-1">+{formatMoney(spentOverall - spent)}</span>
+              <span className="mr-1 text-xs font-light italic">+{formatMoney(spentOverall - spent)}</span>
             )}
           </div>
           {planned !== 0 && (
