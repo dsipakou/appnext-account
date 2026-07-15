@@ -1,7 +1,6 @@
 // System
 import { User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
 import * as React from 'react';
 
 // Components
@@ -60,9 +59,7 @@ const ExpensesDisplay: React.FC<{
 
 const AccountCard: React.FC<Types> = ({ account }) => {
   const { data: users = [] } = useUsers();
-  const {
-    data: { user: authUser },
-  } = useSession();
+
   // By default income and spent are 0
   const { data: usage = { income: 0, spent: 0 } as AccountUsage } = useAccountUsage(account.uuid);
   const income = usage.income;

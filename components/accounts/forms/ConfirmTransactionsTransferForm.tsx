@@ -7,7 +7,7 @@ import { useReassignTransactions } from '@/hooks/accounts';
 
 interface Types {
   open: boolean;
-  setOpen: (value: boolean) => {};
+  setOpen: (value: boolean) => void;
   sourceAccount: string;
   destAccount: string | undefined;
 }
@@ -22,7 +22,7 @@ const ConfirmTransactionsTransferForm: React.FC<Types> = ({ open, setOpen, sourc
       toast({
         title: 'Transactions transfered!',
       });
-    } catch (error) {
+    } catch {
       toast({
         variant: 'destructive',
         title: 'Something went wrong',

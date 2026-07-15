@@ -14,7 +14,6 @@ interface Types {
 }
 
 const ConfirmDeleteForm: FC<Types> = ({ uuid }) => {
-  console.log('uuid', uuid);
   const [account, setAccount] = useState<AccountResponse>();
   const [open, setOpen] = useState<boolean>(false);
 

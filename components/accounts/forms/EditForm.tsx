@@ -26,11 +26,11 @@ interface Types {
 
 const formSchema = z.object({
   title: z.string().min(2, {
-    message: 'Title must be at least 2 characters',
+    error: 'Title must be at least 2 characters',
   }),
-  user: z.string().uuid({ message: 'Please, select user' }),
+  user: z.uuid({ error: 'Please, select user' }),
   category: z
-    .union([z.string().uuid(), z.string().length(0)])
+    .union([z.uuid(), z.string().length(0)])
     .optional()
     .nullable(),
   isMain: z.boolean(),
@@ -39,7 +39,6 @@ const formSchema = z.object({
 
 const EditForm: React.FC<Types> = ({ uuid }) => {
   const { mutate } = useSWRConfig();
-  const [incomeCategories, setIncomeCategories] = React.useState<Category[]>([]);
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -55,12 +54,10 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
   const { data: users = [] } = useUsers();
 
   const { data: categories = [] } = useCategories();
-
-  React.useEffect(() => {
-    if (categories.length === 0) return;
-
-    setIncomeCategories(categories.filter((item: Category) => item.type === CategoryType.Income));
-  }, [categories]);
+  const incomeCategories = React.useMemo(
+    () => categories.filter((item) => item.type === CategoryType.Income),
+    [categories],
+  );
 
   React.useEffect(() => {
     if (accounts.length === 0) return;

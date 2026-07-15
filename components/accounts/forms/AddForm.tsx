@@ -43,14 +43,13 @@ const AddForm: React.FC = () => {
 
   const { toast } = useToast();
 
-  const {
-    data: { user: authUser },
-  } = useSession();
-  const { data: users } = useUsers();
+  const { data: session } = useSession();
+  const authUser = session?.user;
 
+  const { data: users } = useUsers();
   const { data: categories = [] } = useCategories();
   const incomeCategories = React.useMemo(
-    () => categories.filter((item: Category) => item.type === CategoryType.Income),
+    () => categories.filter((item) => item.type === CategoryType.Income),
     [categories],
   );
 
@@ -79,7 +78,7 @@ const AddForm: React.FC = () => {
       toast({
         title: 'Saved!',
       });
-    } catch (error) {
+    } catch {
       toast({
         variant: 'destructive',
         title: 'Something went wrong',

@@ -20,7 +20,6 @@ interface Types {
 }
 
 const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [isConfirmTransferOpen, setIsConfirmTransferOpen] = React.useState<boolean>(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -56,7 +55,7 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
-                          disabled={isLoading || filteredAccounts.length === 0}
+                          disabled={filteredAccounts.length === 0}
                         >
                           <SelectTrigger className="relative w-full">
                             <SelectValue
