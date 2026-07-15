@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import { Category, CategoryType } from '@/components/categories/types';
+import { CategoryType } from '@/components/categories/types';
 // Components
 import { Button } from '@/components/ui/button';
 // UI
@@ -191,7 +191,7 @@ const AddForm: React.FC = () => {
                                 <SelectItem value="none">
                                   <em className="text-gray-400">Without category</em>
                                 </SelectItem>
-                                {incomeCategories.map((item: Category) => (
+                                {incomeCategories.map((item) => (
                                   <SelectItem key={item.uuid} value={item.uuid}>
                                     {item.name}
                                   </SelectItem>

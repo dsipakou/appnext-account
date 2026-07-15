@@ -83,7 +83,7 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
             </div>
           </form>
         </Form>
-        <Button disabled={isLoading || !watchAccount} onClick={() => setIsConfirmTransferOpen(true)}>
+        <Button disabled={!watchAccount} onClick={() => setIsConfirmTransferOpen(true)}>
           Transfer
         </Button>
         {isConfirmTransferOpen && (

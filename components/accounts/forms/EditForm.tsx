@@ -162,7 +162,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                             <SelectContent>
                               <SelectGroup>
                                 {users.length > 0 &&
-                                  users.map((item: unknown) => (
+                                  users.map((item) => (
                                     <SelectItem key={item.uuid} value={item.uuid}>
                                       {item.username}
                                     </SelectItem>
@@ -184,7 +184,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                       <FormItem>
                         <FormLabel>Income category</FormLabel>
                         <FormControl>
-                          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isUpdating}>
+                          <Select onValueChange={field.onChange} value={field.value} disabled={isUpdating}>
                             <SelectTrigger className="relative w-full">
                               <SelectValue placeholder="Select category" />
                             </SelectTrigger>
