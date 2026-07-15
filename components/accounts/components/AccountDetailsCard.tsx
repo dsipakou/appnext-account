@@ -1,6 +1,7 @@
-import React from 'react';
-import { useStore } from '@/app/store';
 import { ArrowDownRight, ArrowUpRight, DollarSign } from 'lucide-react';
+import React from 'react';
+
+import { useStore } from '@/app/store';
 import { ProgressBar } from '@/components/accounts/components/ProgressBar';
 import { getFormattedDate } from '@/utils/dateUtils';
 
@@ -19,20 +20,20 @@ const AccountDetailsCard: React.FC<AccountDetailsCardProps> = ({ month, income, 
   const currencySign = useStore((state) => state.currency.sign);
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 flex flex-col h-full">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">{formattedMonth}</h3>
+    <div className="flex h-full flex-col rounded-lg bg-white p-6 shadow-md">
+      <h3 className="mb-4 text-lg font-semibold text-gray-800">{formattedMonth}</h3>
 
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-1 flex-col">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="p-2 bg-green-100 rounded-full">
-                <ArrowUpRight className="w-5 h-5 text-green-600" />
+              <div className="rounded-full bg-green-100 p-2">
+                <ArrowUpRight className="h-5 w-5 text-green-600" />
               </div>
               <span className="text-gray-600">Income</span>
             </div>
             {hasIncome ? (
-              <span className="text-green-600 font-medium">
+              <span className="font-medium text-green-600">
                 {income.toFixed(2)} {currencySign}
               </span>
             ) : (
@@ -42,8 +43,8 @@ const AccountDetailsCard: React.FC<AccountDetailsCardProps> = ({ month, income, 
 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="p-2 bg-red-100 rounded-full">
-                <ArrowDownRight className="w-5 h-5 text-red-600" />
+              <div className="rounded-full bg-red-100 p-2">
+                <ArrowDownRight className="h-5 w-5 text-red-600" />
               </div>
               <span className="text-gray-600">Expenses</span>
             </div>
@@ -58,7 +59,7 @@ const AccountDetailsCard: React.FC<AccountDetailsCardProps> = ({ month, income, 
         </div>
 
         {(hasIncome || hasExpenses) && (
-          <div className="space-y-4 mt-6">
+          <div className="mt-6 space-y-4">
             <ProgressBar
               value={spendings}
               maxValue={hasIncome ? income : spendings}
@@ -76,17 +77,17 @@ const AccountDetailsCard: React.FC<AccountDetailsCardProps> = ({ month, income, 
           </div>
         )}
 
-        <div className="mt-auto pt-4 border-t">
-          <div className="flex items-center justify-between mb-2">
+        <div className="mt-auto border-t pt-4">
+          <div className="mb-2 flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="p-2 bg-blue-100 rounded-full">
-                <DollarSign className="w-5 h-5 text-blue-600" />
+              <div className="rounded-full bg-blue-100 p-2">
+                <DollarSign className="h-5 w-5 text-blue-600" />
               </div>
               <span className="text-gray-600">Monthly Stats</span>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="bg-gray-100 p-3 rounded-lg">
+            <div className="rounded-lg bg-gray-100 p-3">
               <p className="text-gray-600">Spending Ratio</p>
               {hasIncome || hasExpenses ? (
                 <p className="text-lg font-semibold text-gray-800">{spendingRatio.toFixed(1)}%</p>
@@ -94,7 +95,7 @@ const AccountDetailsCard: React.FC<AccountDetailsCardProps> = ({ month, income, 
                 <p className="text-lg font-semibold text-gray-400">-</p>
               )}
             </div>
-            <div className="bg-gray-100 p-3 rounded-lg">
+            <div className="rounded-lg bg-gray-100 p-3">
               <p className="text-gray-600">Savings Ratio</p>
               {hasIncome ? (
                 <p className="text-lg font-semibold text-gray-800">{savingsRatio.toFixed(1)}%</p>

@@ -1,11 +1,6 @@
 'use client';
 
-import React, { FC, ReactElement, ReactNode } from 'react';
-import { useSWRConfig } from 'swr';
-import { signOut, useSession } from 'next-auth/react';
-import { useStore } from '@/app/store';
 import axios from 'axios';
-import Link from 'next/link';
 import {
   CreditCard,
   DollarSign,
@@ -17,6 +12,13 @@ import {
   ScrollText,
   User2,
 } from 'lucide-react';
+import Link from 'next/link';
+import { signOut, useSession } from 'next-auth/react';
+import React, { FC, ReactElement, ReactNode } from 'react';
+import { useSWRConfig } from 'swr';
+
+import { useStore } from '@/app/store';
+import { Currency } from '@/components/currencies/types';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -28,7 +30,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useCurrencies } from '@/hooks/currencies';
-import { Currency } from '@/components/currencies/types';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -138,9 +139,9 @@ const Layout: FC<Props> = ({ children }) => {
   ];
 
   const menuComponent = (name: string, icon: ReactElement, link: string): ReactElement => (
-    <div onClick={handleDrawerClose} key={name} className="block hover:bg-slate-500 hover:text-white w-full">
+    <div onClick={handleDrawerClose} key={name} className="block w-full hover:bg-slate-500 hover:text-white">
       <Link href={link}>
-        <div className="flex h-12 justify-start items-center pl-5">
+        <div className="flex h-12 items-center justify-start pl-5">
           <div className="pr-5">{icon}</div>
           <span>{name}</span>
         </div>
@@ -149,15 +150,15 @@ const Layout: FC<Props> = ({ children }) => {
   );
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex h-screen flex-col">
       <div
         className={cn(
-          'fixed flex flex-col justify-between drop-shadow-sm transition-all ease-in-out delay-50 bg-white overflow-hidden z-40 h-screen',
-          open ? 'w-60 shadow-xl' : 'w-16'
+          'delay-50 fixed z-40 flex h-screen flex-col justify-between overflow-hidden bg-white drop-shadow-sm transition-all ease-in-out',
+          open ? 'w-60 shadow-xl' : 'w-16',
         )}
       >
         <div className="flex flex-col items-start">
-          <div className="flex flex-col w-full items-start justify-center pt-16">
+          <div className="flex w-full flex-col items-start justify-center pt-16">
             {menuItems.map(({ name, icon, link }) => menuComponent(name, icon, link))}
           </div>
         </div>
@@ -169,16 +170,16 @@ const Layout: FC<Props> = ({ children }) => {
           ))}
         </div>
       </div>
-      <header className="flex w-full z-50 bg-blue-500 text-white">
-        <div className="flex mx-2 py-2 pl-20 justify-between w-full items-center">
+      <header className="z-50 flex w-full bg-blue-500 text-white">
+        <div className="mx-2 flex w-full items-center justify-between py-2 pl-20">
           <div className="flex items-center gap-2">
             <Menu
-              className="text-white absolute left-4 cursor-pointer"
+              className="absolute left-4 cursor-pointer text-white"
               onClick={open ? handleDrawerClose : handleDrawerOpen}
             />
 
-            <span className="text-2xl font-light uppercase font-sans select-none">I spent a</span>
-            <span className="text-2xl font-bold uppercase font-sans select-none">dollar</span>
+            <span className="select-none font-sans text-2xl font-light uppercase">I spent a</span>
+            <span className="select-none font-sans text-2xl font-bold uppercase">dollar</span>
           </div>
           <div className="flex items-center justify-between">
             {!!currencies?.length && (
@@ -187,7 +188,7 @@ const Layout: FC<Props> = ({ children }) => {
                   <SelectTrigger className="relative w-full text-black">
                     <SelectValue placeholder="Select currency" />
                   </SelectTrigger>
-                  <SelectContent className="flex bg-white color-black w-full pt-1" position="popper">
+                  <SelectContent className="color-black flex w-full bg-white pt-1" position="popper">
                     <SelectGroup>
                       <SelectLabel>Displayed currency</SelectLabel>
                       {currencies &&
@@ -212,7 +213,7 @@ const Layout: FC<Props> = ({ children }) => {
           </div>
         </div>
       </header>
-      <div className="container flex flex-col mx-auto pl-20 flex-1 min-h-0 overflow-hidden">{children}</div>
+      <div className="container mx-auto flex min-h-0 flex-1 flex-col overflow-hidden pl-20">{children}</div>
     </div>
   );
 };

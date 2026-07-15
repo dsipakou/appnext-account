@@ -1,24 +1,25 @@
-import React from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { parseAndFormatDate, REPORT_FORMAT } from '@/utils/dateUtils'
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React from 'react';
+
+import { Button } from '@/components/ui/button';
+import { parseAndFormatDate, REPORT_FORMAT } from '@/utils/dateUtils';
 
 interface Types {
-  dateFrom: string
-  dateTo: string
-  clickBack: () => void
-  clickForward: () => void
+  dateFrom: string;
+  dateTo: string;
+  clickBack: () => void;
+  clickForward: () => void;
 }
 
 const RangeSwitcher: React.FC<Types> = ({ dateFrom, dateTo, clickBack, clickForward }) => {
-  const formattedDateFrom = parseAndFormatDate(dateFrom, REPORT_FORMAT)
-  const formattedDateTo = parseAndFormatDate(dateTo, REPORT_FORMAT)
+  const formattedDateFrom = parseAndFormatDate(dateFrom, REPORT_FORMAT);
+  const formattedDateTo = parseAndFormatDate(dateTo, REPORT_FORMAT);
 
   return (
     <div className="flex">
       <div>
         <Button variant="ghost" onClick={clickBack}>
-          <ChevronLeft className="w-6 h-6" />
+          <ChevronLeft className="h-6 w-6" />
         </Button>
       </div>
       <div className="flex items-center gap-4">
@@ -28,11 +29,11 @@ const RangeSwitcher: React.FC<Types> = ({ dateFrom, dateTo, clickBack, clickForw
       </div>
       <div>
         <Button variant="ghost" onClick={clickForward}>
-          <ChevronRight className="w-6 h-6" />
+          <ChevronRight className="h-6 w-6" />
         </Button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default RangeSwitcher
+export default RangeSwitcher;

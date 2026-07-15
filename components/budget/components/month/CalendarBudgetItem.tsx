@@ -1,8 +1,10 @@
-import React from 'react';
-import { useStore } from '@/app/store';
+import { format, isSameDay } from 'date-fns';
 import { MoreVertical, Pencil, Trash2 } from 'lucide-react';
-import { isSameDay, format } from 'date-fns';
-import { Progress } from '@/components/ui/progress';
+import React from 'react';
+
+import { useStore } from '@/app/store';
+import { ConfirmDeleteForm, EditForm } from '@/components/budget/forms';
+import { MonthBudgetItem } from '@/components/budget/types';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,10 +13,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { formatMoney } from '@/utils/numberUtils';
+import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { ConfirmDeleteForm, EditForm } from '@/components/budget/forms';
-import { MonthBudgetItem } from '@/components/budget/types';
+import { formatMoney } from '@/utils/numberUtils';
 
 interface Types {
   item: MonthBudgetItem | undefined;
@@ -23,12 +24,7 @@ interface Types {
   clickShowTransactions: (uuid: string) => void;
 }
 
-const CalendarBudgetItem: React.FC<Types> = ({
-  item,
-  date,
-  currency,
-  clickShowTransactions,
-}) => {
+const CalendarBudgetItem: React.FC<Types> = ({ item, date, currency, clickShowTransactions }) => {
   const [isEditDialogOpened, setIsEditDialogOpened] = React.useState<boolean>(false);
   const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] = React.useState<boolean>(false);
 
@@ -36,9 +32,9 @@ const CalendarBudgetItem: React.FC<Types> = ({
 
   if (item == null) {
     return (
-      <div className="flex flex-col w-full gap-2">
+      <div className="flex w-full flex-col gap-2">
         <div className="flex w-full">
-          <span className={cn(isSameDay(date, new Date()) && 'text-white font-bold bg-blue-500 rounded-full px-1')}>
+          <span className={cn(isSameDay(date, new Date()) && 'rounded-full bg-blue-500 px-1 font-bold text-white')}>
             {format(date, 'd')}
           </span>
         </div>
@@ -57,14 +53,14 @@ const CalendarBudgetItem: React.FC<Types> = ({
   };
 
   return (
-    <div className="flex flex-col w-full gap-2">
+    <div className="flex w-full flex-col gap-2">
       <div className="flex w-full justify-between">
-        <span className={isSameDay(date, new Date()) && 'text-white font-bold bg-blue-500 rounded-full px-1'}>
+        <span className={isSameDay(date, new Date()) && 'rounded-full bg-blue-500 px-1 font-bold text-white'}>
           {format(date, 'd')}
         </span>
         <DropdownMenu>
           <DropdownMenuTrigger>
-            <MoreVertical className="h-4 w-4 border bg-white rounded-full" />
+            <MoreVertical className="h-4 w-4 rounded-full border bg-white" />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
@@ -72,17 +68,17 @@ const CalendarBudgetItem: React.FC<Types> = ({
             <DropdownMenuItem onClick={handleClickTransactions}>Transactions</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => setIsEditDialogOpened(true)}>
-              <Pencil className="h-4 w-4 mr-4" />
+              <Pencil className="mr-4 h-4 w-4" />
               <span>Edit</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setIsConfirmDeleteDialogOpened(true)}>
-              <Trash2 className="h-4 w-4 mr-4" />
+              <Trash2 className="mr-4 h-4 w-4" />
               <span>Delete</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="flex flex-col justify-center items-center w-full">
+      <div className="flex w-full flex-col items-center justify-center">
         <span className="text-xs">
           {formatMoney(spent)} {currencySign}
         </span>
@@ -92,20 +88,14 @@ const CalendarBudgetItem: React.FC<Types> = ({
             indicatorclassname={`${percentage > 100 ? 'bg-red-500' : 'bg-green-500'}`}
             value={percentage > 100 ? percentage % 100 : percentage}
           />
-          <div className="absolute top-0 w-full h-full">
-            <span className="flex text-white text-xs font-semibold h-full items-center justify-center">
+          <div className="absolute top-0 h-full w-full">
+            <span className="flex h-full items-center justify-center text-xs font-semibold text-white">
               {planned === 0 ? 'Not planned' : percentage}
             </span>
           </div>
         </div>
       </div>
-      {isEditDialogOpened && (
-        <EditForm
-          uuid={item.uuid}
-          open={isEditDialogOpened}
-          setOpen={setIsEditDialogOpened}
-        />
-      )}
+      {isEditDialogOpened && <EditForm uuid={item.uuid} open={isEditDialogOpened} setOpen={setIsEditDialogOpened} />}
       {isConfirmDeleteDialogOpened && (
         <ConfirmDeleteForm
           uuid={item.uuid}

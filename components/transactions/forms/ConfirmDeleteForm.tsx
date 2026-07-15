@@ -1,10 +1,11 @@
 import React from 'react';
 import { useSWRConfig } from 'swr';
+
+import { RowData } from '@/components/transactions/components/transactionTable';
 import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
 import { useDeleteTransaction } from '@/hooks/transactions';
-import { RowData } from '@/components/transactions/components/transactionTable';
 import { getFormattedDate } from '@/utils/dateUtils';
 
 interface Types {

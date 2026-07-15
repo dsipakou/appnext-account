@@ -1,8 +1,10 @@
 import useSWRImmutable from 'swr/immutable';
 import useSWRMutation from 'swr/mutation';
+
 import { CategoryResponse } from '@/components/categories/types';
+import { deleteReq, fetchReq, patchReq, postReq } from '@/plugins/axios';
+
 import { Response } from './types';
-import { fetchReq, postReq, deleteReq, patchReq } from '@/plugins/axios';
 
 export const useCategories = (): Response<CategoryResponse[]> => {
   const { data = [], error, isLoading } = useSWRImmutable('categories/', fetchReq);
@@ -68,4 +70,3 @@ export const useReorderCategories = () => {
     isMutating,
   };
 };
-

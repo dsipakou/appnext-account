@@ -1,9 +1,10 @@
 import React from 'react';
-import * as Dialog from '@/components/ui/dialog';
 import { useSWRConfig } from 'swr';
+
 import { Button } from '@/components/ui/button';
-import { useClearCurrenciesOnDate } from '@/hooks/currencies';
+import * as Dialog from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
+import { useClearCurrenciesOnDate } from '@/hooks/currencies';
 import { getFormattedDate } from '@/utils/dateUtils';
 import { extractErrorMessage } from '@/utils/stringUtils';
 

@@ -1,15 +1,16 @@
-import React from 'react';
 import { Info, Pencil, Trash } from 'lucide-react';
+import React from 'react';
+
+import ConfirmDeleteForm from '@/components/budget/forms/ConfirmDeleteForm';
+import EditForm from '@/components/budget/forms/EditForm';
+import { WeekBudgetItem } from '@/components/budget/types';
+import { Category } from '@/components/categories/types';
+import { Currency } from '@/components/currencies/types';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { usePendingBudget } from '@/hooks/budget';
 import { useCategories } from '@/hooks/categories';
 import { useCurrencies } from '@/hooks/currencies';
-import EditForm from '@/components/budget/forms/EditForm';
-import ConfirmDeleteForm from '@/components/budget/forms/ConfirmDeleteForm';
-import { Category } from '@/components/categories/types';
-import { WeekBudgetItem } from '@/components/budget/types';
-import { Currency } from '@/components/currencies/types';
 
 interface Types {
   weekUrl: string;
@@ -48,7 +49,7 @@ const SavedForLaterForm: React.FC<Types> = ({ weekUrl, monthUrl }) => {
   return (
     <Dialog onOpenChange={clearForm}>
       <DialogTrigger asChild>
-        <Button variant="ghost" className="text-blue-500 border-blue-500 hover:text-blue-600">
+        <Button variant="ghost" className="border-blue-500 text-blue-500 hover:text-blue-600">
           Saved for later
         </Button>
       </DialogTrigger>
@@ -60,10 +61,10 @@ const SavedForLaterForm: React.FC<Types> = ({ weekUrl, monthUrl }) => {
         )}
         <div className="flex flex-col gap-3">
           {pendingBudget.length === 0 ? (
-            <div className="flex flex-col col-span-4 justify-center">
-              <span className="text-2xl mb-2">You have no pending items</span>
+            <div className="col-span-4 flex flex-col justify-center">
+              <span className="mb-2 text-2xl">You have no pending items</span>
               <div className="flex">
-                <Info className="h-4 w-4 text-blue-500 mr-1" />
+                <Info className="mr-1 h-4 w-4 text-blue-500" />
                 <div className="flex flex-col">
                   <span className="text-m flex">If you want to plan something but haven't decided on a date yet</span>
                   <span className="text-sm">just create a budget and don't specify a date for it.</span>
@@ -75,15 +76,15 @@ const SavedForLaterForm: React.FC<Types> = ({ weekUrl, monthUrl }) => {
               {pendingBudget.map((budgetItem: WeekBudgetItem) => (
                 <div key={budgetItem.uuid}>
                   <div
-                    className="flex gap-3 justify-between items-center rounded px-4 py-2 border border-slate-200"
+                    className="flex items-center justify-between gap-3 rounded border border-slate-200 px-4 py-2"
                     key={budgetItem.uuid}
                   >
-                    <div className="flex w-3/5 flex-col h-full justify-center">
+                    <div className="flex h-full w-3/5 flex-col justify-center">
                       <div>
                         <span className="text-xl">{budgetItem.title}</span>
                       </div>
                       <div>
-                        <span className="text-sm rounded bg-blue-400 text-white px-2 py-1">
+                        <span className="rounded bg-blue-400 px-2 py-1 text-sm text-white">
                           {getCategoryName(budgetItem.category)}
                         </span>
                       </div>
@@ -93,7 +94,7 @@ const SavedForLaterForm: React.FC<Types> = ({ weekUrl, monthUrl }) => {
                         {budgetItem.amount} {getCurrencySign(budgetItem.currency)}
                       </span>
                     </div>
-                    <div className="flex items-center h-full justify-end">
+                    <div className="flex h-full items-center justify-end">
                       <Button variant="ghost" size="xs" onClick={() => clickEdit(budgetItem.uuid)}>
                         <Pencil className="h-4 w-4" />
                       </Button>

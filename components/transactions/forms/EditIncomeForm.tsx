@@ -1,133 +1,126 @@
-import React from 'react'
-import * as z from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { useSWRConfig } from 'swr'
-import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
-import * as Dlg from '@/components/ui/dialog'
-import * as Frm from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import * as Slc from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { useToast } from '@/components/ui/use-toast'
-import { useTransaction, useUpdateTransaction } from '@/hooks/transactions'
-import { useAccounts } from '@/hooks/accounts'
-import { useCategories } from '@/hooks/categories'
-import { useCurrencies } from '@/hooks/currencies'
-import { useAvailableRates } from '@/hooks/rates'
-import { AccountResponse } from '@/components/accounts/types'
-import { Category, CategoryType } from '@/components/categories/types'
-import {
-  getFormattedDate,
-  parseDate
-} from '@/utils/dateUtils'
-import { Currency } from '@/components/currencies/types'
-import { AvailableRate } from '@/components/rates/types'
+import { zodResolver } from '@hookform/resolvers/zod';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { useSWRConfig } from 'swr';
+import * as z from 'zod';
+
+import { AccountResponse } from '@/components/accounts/types';
+import { Category, CategoryType } from '@/components/categories/types';
+import { Currency } from '@/components/currencies/types';
+import { AvailableRate } from '@/components/rates/types';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import * as Dlg from '@/components/ui/dialog';
+import * as Frm from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import * as Slc from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/components/ui/use-toast';
+import { useAccounts } from '@/hooks/accounts';
+import { useCategories } from '@/hooks/categories';
+import { useCurrencies } from '@/hooks/currencies';
+import { useAvailableRates } from '@/hooks/rates';
+import { useTransaction, useUpdateTransaction } from '@/hooks/transactions';
+import { getFormattedDate, parseDate } from '@/utils/dateUtils';
 
 interface Types {
-  uuid: string
-  open: boolean
-  url: string
-  handleClose: () => void
+  uuid: string;
+  open: boolean;
+  url: string;
+  handleClose: () => void;
 }
 
 const formSchema = z.object({
   account: z.string().uuid({ message: 'Please, select account' }),
   amount: z.coerce.number().min(0, {
-    message: 'Should be positive number'
+    message: 'Should be positive number',
   }),
   category: z.string().uuid({ message: 'Please, select category' }),
   currency: z.string().uuid({ message: 'Please, select currency' }),
   description: z.string().optional(),
   transactionDate: z.date({
-    message: 'Transaction date is required'
-  })
-})
+    message: 'Transaction date is required',
+  }),
+});
 
 const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
-  const [selectedDate, setSelectedDate] = React.useState<string>(getFormattedDate(new Date()))
-  const [month, setMonth] = React.useState<Date>(new Date())
-  const { mutate } = useSWRConfig()
+  const [selectedDate, setSelectedDate] = React.useState<string>(getFormattedDate(new Date()));
+  const [month, setMonth] = React.useState<Date>(new Date());
+  const { mutate } = useSWRConfig();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      amount: ''
-    }
-  })
+      amount: '',
+    },
+  });
 
-  const watchCalendar = form.watch('transactionDate')
+  const watchCalendar = form.watch('transactionDate');
 
-  const { toast } = useToast()
+  const { toast } = useToast();
 
-  const { data: transaction, isLoading: isTransactionLoading } = useTransaction(uuid)
-  const { data: accounts = [] } = useAccounts()
-  const { data: categories = [] } = useCategories()
-  const { data: currencies = [] } = useCurrencies()
-  const { trigger: updateTransaction, isMutating: isUpdating } = useUpdateTransaction(uuid)
+  const { data: transaction, isLoading: isTransactionLoading } = useTransaction(uuid);
+  const { data: accounts = [] } = useAccounts();
+  const { data: categories = [] } = useCategories();
+  const { data: currencies = [] } = useCurrencies();
+  const { trigger: updateTransaction, isMutating: isUpdating } = useUpdateTransaction(uuid);
 
-  const {
-    data: availableRates = [],
-    isLoading: isRatesLoading
-  } = useAvailableRates(selectedDate)
+  const { data: availableRates = [], isLoading: isRatesLoading } = useAvailableRates(selectedDate);
 
   const incomeCategories = categories.filter(
-    (category: Category) => (
-      category.parent === null && category.type === CategoryType.Income
-    )
-  )
+    (category: Category) => category.parent === null && category.type === CategoryType.Income,
+  );
 
   React.useEffect(() => {
-    if (!transaction || (accounts.length === 0)) return
+    if (!transaction || accounts.length === 0) return;
 
-    form.setValue('account', transaction.account)
-    form.setValue('amount', transaction.amount)
-    form.setValue('category', transaction.category)
-    form.setValue('currency', transaction.currency)
-    form.setValue('description', transaction.description)
-    form.setValue('transactionDate', parseDate(transaction.transactionDate))
+    form.setValue('account', transaction.account);
+    form.setValue('amount', transaction.amount);
+    form.setValue('category', transaction.category);
+    form.setValue('currency', transaction.currency);
+    form.setValue('description', transaction.description);
+    form.setValue('transactionDate', parseDate(transaction.transactionDate));
 
-    setSelectedDate(transaction.transactionDate)
+    setSelectedDate(transaction.transactionDate);
 
-    setMonth(parseDate(transaction.transactionDate))
-  }, [transaction])
+    setMonth(parseDate(transaction.transactionDate));
+  }, [transaction]);
 
   React.useEffect(() => {
-    const date = form.getValues().transactionDate
+    const date = form.getValues().transactionDate;
 
     if (date) {
-      setSelectedDate(getFormattedDate(form.getValues().transactionDate))
+      setSelectedDate(getFormattedDate(form.getValues().transactionDate));
     }
-  }, [watchCalendar])
+  }, [watchCalendar]);
 
   const handleSave = async (payload: z.infer<typeof formSchema>): void => {
     try {
       await updateTransaction({
         ...payload,
-        transactionDate: getFormattedDate(payload.transactionDate)
-      })
+        transactionDate: getFormattedDate(payload.transactionDate),
+      });
       // TODO: wrong url - outcome instead of outcome
-      mutate(url)
+      mutate(url);
       toast({
         title: 'Transaction updated',
-      })
+      });
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Cannot update transaction',
-        description: 'Something went wrong, please try again later.'
-      })
+        description: 'Something went wrong, please try again later.',
+      });
     }
-  }
+  };
 
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
-      form.clearErrors()
-      form.reset()
+      form.clearErrors();
+      form.reset();
     }
-    handleClose()
-  }
+    handleClose();
+  };
 
   return (
     <Dlg.Dialog open={open} onOpenChange={cleanFormErrors}>
@@ -147,7 +140,12 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                       <Frm.FormItem>
                         <Frm.FormLabel>Amount</Frm.FormLabel>
                         <Frm.FormControl>
-                          <Input disabled={isUpdating || isTransactionLoading || isRatesLoading} id="amount" autoFocus {...field} />
+                          <Input
+                            disabled={isUpdating || isTransactionLoading || isRatesLoading}
+                            id="amount"
+                            autoFocus
+                            {...field}
+                          />
                         </Frm.FormControl>
                         <Frm.FormMessage />
                       </Frm.FormItem>
@@ -173,24 +171,33 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                             <Slc.SelectContent>
                               <Slc.SelectGroup>
                                 <Slc.SelectLabel>Currencies</Slc.SelectLabel>
-                                {currencies && currencies.map((item: Currency) => {
-                                  const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code)
-                                  if (rate) {
-                                    if (rate.rateDate === selectedDate) {
-                                      return (
-                                        <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.code}</Slc.SelectItem>
-                                      )
+                                {currencies &&
+                                  currencies.map((item: Currency) => {
+                                    const rate = availableRates.find(
+                                      (rate: AvailableRate) => rate.currencyCode === item.code,
+                                    );
+                                    if (rate) {
+                                      if (rate.rateDate === selectedDate) {
+                                        return (
+                                          <Slc.SelectItem key={item.uuid} value={item.uuid}>
+                                            {item.code}
+                                          </Slc.SelectItem>
+                                        );
+                                      } else {
+                                        return (
+                                          <Slc.SelectItem key={item.uuid} value={item.uuid}>
+                                            {item.code} (old)
+                                          </Slc.SelectItem>
+                                        );
+                                      }
                                     } else {
                                       return (
-                                        <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.code} (old)</Slc.SelectItem>
-                                      )
+                                        <Slc.SelectItem key={item.uuid} value={item.uuid} disabled>
+                                          {item.code}
+                                        </Slc.SelectItem>
+                                      );
                                     }
-                                  } else {
-                                    return (
-                                      <Slc.SelectItem key={item.uuid} value={item.uuid} disabled>{item.code}</Slc.SelectItem>
-                                    )
-                                  }
-                                })}
+                                  })}
                               </Slc.SelectGroup>
                             </Slc.SelectContent>
                           </Slc.Select>
@@ -202,7 +209,7 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                 </div>
               </div>
               <div className="flex w-full">
-                <div className="flex flex-col w-2/5 gap-4">
+                <div className="flex w-2/5 flex-col gap-4">
                   <Frm.FormField
                     control={form.control}
                     name="category"
@@ -256,7 +263,9 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                               <Slc.SelectGroup>
                                 <Slc.SelectLabel>Accounts</Slc.SelectLabel>
                                 {accounts.map((item: AccountResponse) => (
-                                  <Slc.SelectItem key={item.uuid} value={item.uuid}>{item.title}</Slc.SelectItem>
+                                  <Slc.SelectItem key={item.uuid} value={item.uuid}>
+                                    {item.title}
+                                  </Slc.SelectItem>
                                 ))}
                               </Slc.SelectGroup>
                             </Slc.SelectContent>
@@ -278,7 +287,9 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            disabled={(date) => isUpdating || isTransactionLoading || isRatesLoading || date < new Date('1900-01-01')}
+                            disabled={(date) =>
+                              isUpdating || isTransactionLoading || isRatesLoading || date < new Date('1900-01-01')
+                            }
                             month={month}
                             onMonthChange={setMonth}
                             weekStartsOn={1}
@@ -316,7 +327,7 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
         </Frm.Form>
       </Dlg.DialogContent>
     </Dlg.Dialog>
-  )
-}
+  );
+};
 
-export default EditIncomeForm
+export default EditIncomeForm;

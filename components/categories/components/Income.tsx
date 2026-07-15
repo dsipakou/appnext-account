@@ -1,6 +1,7 @@
 import React from 'react';
-import { useCategories } from '@/hooks/categories';
+
 import { Category } from '@/components/categories/types';
+import { useCategories } from '@/hooks/categories';
 
 interface Types {}
 
@@ -14,7 +15,7 @@ const Income: React.FC<Types> = () => {
       {filteredCategories.map((item: Category) => (
         <div
           key={item.uuid}
-          className="w-40 bg-white rounded-lg h-[100px] overflow-hidden hover:drop-shadow p-3 border cursor-pointer"
+          className="h-[100px] w-40 cursor-pointer overflow-hidden rounded-lg border bg-white p-3 hover:drop-shadow"
         >
           {item.name}
         </div>

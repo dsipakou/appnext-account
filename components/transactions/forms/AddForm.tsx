@@ -1,17 +1,19 @@
 // System
-import * as React from 'react';
 import { useSession } from 'next-auth/react';
+import * as React from 'react';
 import { useSWRConfig } from 'swr';
-// Components
-import { TransactionsTable } from '../components/transactionTable';
+
+// Types
+import { CompactWeekItem } from '@/components/budget/types';
 // UI
 import * as Alr from '@/components/ui/alert-dialog';
 import * as Dlg from '@/components/ui/dialog';
+import { User } from '@/components/users/types';
 // Hooks
 import { useUsers } from '@/hooks/users';
-import { User } from '@/components/users/types';
-// Types
-import { CompactWeekItem } from '@/components/budget/types';
+
+// Components
+import { TransactionsTable } from '../components/transactionTable';
 
 interface Types {
   open: boolean;
@@ -84,11 +86,11 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
     <>
       <Dlg.Dialog open={open} onOpenChange={onClose}>
         <Dlg.DialogTrigger asChild></Dlg.DialogTrigger>
-        <Dlg.DialogContent className="flex flex-col sm:max-w-full w-4/5 h-5/6 items-start mx-3 overflow-hidden">
+        <Dlg.DialogContent className="mx-3 flex h-5/6 w-4/5 flex-col items-start overflow-hidden sm:max-w-full">
           <Dlg.DialogHeader className="flex-shrink-0">
             <Dlg.DialogTitle>Add transactions</Dlg.DialogTitle>
           </Dlg.DialogHeader>
-          <div className="flex h-full w-full min-h-0">
+          <div className="flex h-full min-h-0 w-full">
             <TransactionsTable budget={budget} handleCanClose={handleCanClose} mode="bulk" />
           </div>
         </Dlg.DialogContent>

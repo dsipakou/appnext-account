@@ -1,15 +1,16 @@
 import React from 'react';
+
+// Types
+import { Account } from '@/components/accounts/types';
+import { WeekBudgetItem } from '@/components/budget/types';
+import { RowData } from '@/components/transactions/components/transactionTable';
 // UI
 import * as Slc from '@/components/ui/select';
 // Hooks
 import { useBudgetWeek } from '@/hooks/budget';
-// Types
-import { Account } from '@/components/accounts/types';
-import { RowData } from '@/components/transactions/components/transactionTable';
-import { WeekBudgetItem } from '@/components/budget/types';
 // Utils
 import { cn } from '@/lib/utils';
-import { getStartOfWeek, getEndOfWeek } from '@/utils/dateUtils';
+import { getEndOfWeek, getStartOfWeek } from '@/utils/dateUtils';
 
 type Props = {
   user: string;
@@ -80,8 +81,8 @@ export default function AccountComponent({
     >
       <Slc.SelectTrigger
         className={cn(
-          'w-full h-8 px-2 text-sm border-0 focus:ring-0 focus:outline-none focus:border-primary bg-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700 text-left',
-          isInvalid && 'outline outline-red-400'
+          'h-8 w-full border-0 bg-white px-2 text-left text-sm focus:border-primary focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700',
+          isInvalid && 'outline outline-red-400',
         )}
         onKeyDown={(e) => handleKeyDown(e, row.id)}
       >

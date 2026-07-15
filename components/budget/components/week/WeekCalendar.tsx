@@ -1,8 +1,9 @@
 // System
-import * as React from 'react';
-import { startOfWeek, endOfWeek, getWeekOfMonth, format, addDays, subDays, isSameWeek } from 'date-fns';
-import { DateRange } from 'react-day-picker';
+import { addDays, endOfWeek, format, getWeekOfMonth, isSameWeek, startOfWeek, subDays } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
+import * as React from 'react';
+import { DateRange } from 'react-day-picker';
+
 // UI
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -39,7 +40,7 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
   };
 
   return (
-    <div className="flex flex-row h-full items-center">
+    <div className="flex h-full flex-row items-center">
       <Button variant="ghost" onClick={() => setWeekDate(subDays(weekDate, 7))}>
         <span className="text-lg">&#8592;</span>
       </Button>
@@ -48,8 +49,8 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
           <Button
             variant="outline"
             className={cn(
-              'w-[280px] justify-between hover:bg-white border-2 h-12 text-left font-normal',
-              weekDate && 'text-muted-foreground'
+              'h-12 w-[280px] justify-between border-2 text-left font-normal hover:bg-white',
+              weekDate && 'text-muted-foreground',
             )}
           >
             <div className="flex items-center">

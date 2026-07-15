@@ -1,11 +1,12 @@
-import React from 'react';
 import { Trash } from 'lucide-react';
-import { Dialog, DialogContent, DialogFooter, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { useSWRConfig } from 'swr';
 import { useRouter } from 'next/router';
-import { useToast } from '@/components/ui/use-toast';
+import React from 'react';
+import { useSWRConfig } from 'swr';
+
 import { CategoryResponse } from '@/components/categories/types';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogFooter, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useToast } from '@/components/ui/use-toast';
 import { useCategories, useDeleteCategory } from '@/hooks/categories';
 import { extractErrorMessage } from '@/utils/stringUtils';
 
@@ -77,7 +78,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ uuid }) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost">
-          <Trash className="w-5 h-5 text-red-500" />
+          <Trash className="h-5 w-5 text-red-500" />
         </Button>
       </DialogTrigger>
       <DialogContent>

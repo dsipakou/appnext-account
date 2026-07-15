@@ -1,26 +1,26 @@
-import { SessionProvider, useSession } from 'next-auth/react'
-import type { Session } from 'next-auth'
-import React, { lazy } from 'react'
-import Head from 'next/head'
-import type { AppProps } from 'next/app'
-import { useRouter } from 'next/router'
-import typography from '../theme/typography'
-import { ThemeProvider, createTheme } from '@mui/material/styles'
-import '@/plugins/axios'
-import axios from 'axios'
-import { Toaster } from '@/components/ui/toaster'
-import '@/date-fns.config.js'
-import '../styles/globals.css'
+import '@/plugins/axios';
+import '@/date-fns.config.js';
+import '../styles/globals.css';
 
-const Layout = lazy(async () => await import('../components/common/layout/Layout'))
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import axios from 'axios';
+import type { AppProps } from 'next/app';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import type { Session } from 'next-auth';
+import { SessionProvider, useSession } from 'next-auth/react';
+import React, { lazy } from 'react';
 
-const App = ({
-  Component,
-  pageProps: { session, ...pageProps }
-}: AppProps<{ session: Session }>) => {
-  const themeOptions = { typography }
+import { Toaster } from '@/components/ui/toaster';
 
-  const theme = createTheme({ ...themeOptions })
+import typography from '../theme/typography';
+
+const Layout = lazy(async () => await import('../components/common/layout/Layout'));
+
+const App = ({ Component, pageProps: { session, ...pageProps } }: AppProps<{ session: Session }>) => {
+  const themeOptions = { typography };
+
+  const theme = createTheme({ ...themeOptions });
 
   if (Component.layout === 'public') {
     return (
@@ -34,7 +34,7 @@ const App = ({
           </ThemeProvider>
         </SessionProvider>
       </>
-    )
+    );
   }
 
   return (
@@ -45,46 +45,44 @@ const App = ({
       <SessionProvider session={session}>
         <ThemeProvider theme={theme}>
           <Toaster />
-          {Component.auth
-            ? (
-              <Auth>
-                <Layout>
-                  <Component {...pageProps} />
-                </Layout>
-              </Auth>
-            )
-            : (
+          {Component.auth ? (
+            <Auth>
               <Layout>
                 <Component {...pageProps} />
               </Layout>
-            )}
+            </Auth>
+          ) : (
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          )}
         </ThemeProvider>
       </SessionProvider>
     </>
-  )
-}
+  );
+};
 
 interface AuthProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 function Auth({ children }: AuthProps) {
-  const router = useRouter()
+  const router = useRouter();
 
   const { data: session, status } = useSession({
     required: true,
     onUnauthenticated() {
-      router.push('/login')
-    }
-  })
+      router.push('/login');
+    },
+  });
 
   if (status === 'loading') {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
 
-  axios.defaults.headers.common.Authorization = `Token ${session.user.token}`
+  axios.defaults.headers.common.Authorization = `Token ${session.user.token}`;
 
-  return children
+  return children;
 }
 
-export default App
+export default App;

@@ -1,110 +1,91 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Info } from 'lucide-react';
+import { FC, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { useSWRConfig } from 'swr';
+import * as z from 'zod';
 
-import { FC, useEffect } from 'react'
-import { useSWRConfig } from 'swr'
-import * as z from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { Info } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/ui/tooltip'
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useToast } from '@/components/ui/use-toast';
+import { useCurrencies, useUpdateCurrency } from '@/hooks/currencies';
+import { extractErrorMessage } from '@/utils/stringUtils';
 
-import { useCurrencies, useUpdateCurrency } from '@/hooks/currencies'
-import { useToast } from '@/components/ui/use-toast'
-import { extractErrorMessage } from '@/utils/stringUtils'
-
-import { Currency } from '../types'
+import { Currency } from '../types';
 
 interface Types {
-  uuid: string
-  open: boolean
-  setOpen: (value: boolean) => void
+  uuid: string;
+  open: boolean;
+  setOpen: (value: boolean) => void;
 }
 
 const formSchema = z.object({
   verbalName: z.string().min(2, { message: 'Must be at least 2 characters long' }),
   code: z.string().length(3, {
-    message: 'Must be 3 characters long'
+    message: 'Must be 3 characters long',
   }),
   sign: z.string({
-    message: 'You need to specify currency sign'
+    message: 'You need to specify currency sign',
   }),
   isDefault: z.boolean(),
-  comments: z.string().optional()
-})
+  comments: z.string().optional(),
+});
 
 const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
-  const { mutate } = useSWRConfig()
-  const { data: currencies = [] } = useCurrencies()
-  const { trigger: updateCurrency, isMutating: isUpdating } = useUpdateCurrency(uuid)
+  const { mutate } = useSWRConfig();
+  const { data: currencies = [] } = useCurrencies();
+  const { trigger: updateCurrency, isMutating: isUpdating } = useUpdateCurrency(uuid);
 
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema)
-  })
-  const { toast } = useToast()
+    resolver: zodResolver(formSchema),
+  });
+  const { toast } = useToast();
 
   useEffect(() => {
-    if (!currencies.length) return
+    if (!currencies.length) return;
 
-    const _currency = currencies.find((item: Currency) => item.uuid === uuid)
-    if (!_currency) return
+    const _currency = currencies.find((item: Currency) => item.uuid === uuid);
+    if (!_currency) return;
 
-    form.setValue('verbalName', _currency.verbalName)
-    form.setValue('code', _currency.code)
-    form.setValue('sign', _currency.sign)
-    form.setValue('isDefault', _currency.isDefault)
-    form.setValue('comments', _currency.comments)
-    return () => {
-    }
-  }, [currencies, uuid])
+    form.setValue('verbalName', _currency.verbalName);
+    form.setValue('code', _currency.code);
+    form.setValue('sign', _currency.sign);
+    form.setValue('isDefault', _currency.isDefault);
+    form.setValue('comments', _currency.comments);
+    return () => {};
+  }, [currencies, uuid]);
 
   const handleUpdate = async (payload: z.infer<typeof formSchema>): void => {
     try {
-      await updateCurrency(payload)
-      mutate('currencies/')
-      cleanFormErrors()
+      await updateCurrency(payload);
+      mutate('currencies/');
+      cleanFormErrors();
       toast({
-        title: 'Saved!'
-      })
+        title: 'Saved!',
+      });
     } catch (error) {
-      const message = extractErrorMessage(error)
+      const message = extractErrorMessage(error);
       toast({
         variant: 'destructive',
         title: 'Something went wrong',
         description: message,
-      })
+      });
     }
-  }
+  };
 
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
-      form.clearErrors()
-      form.reset()
+      form.clearErrors();
+      form.reset();
     }
-    setOpen(false)
-  }
+    setOpen(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={cleanFormErrors}>
@@ -144,13 +125,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                       <FormItem>
                         <FormLabel>Sign</FormLabel>
                         <FormControl>
-                          <Input
-                            className="w-full"
-                            disabled={isUpdating}
-                            placeholder="$"
-                            id="sign"
-                            {...field}
-                          />
+                          <Input className="w-full" disabled={isUpdating} placeholder="$" id="sign" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -166,13 +141,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                       <FormItem>
                         <FormLabel>Code</FormLabel>
                         <FormControl>
-                          <Input
-                            className="w-full"
-                            disabled={isUpdating}
-                            placeholder="USD"
-                            id="code"
-                            {...field}
-                          />
+                          <Input className="w-full" disabled={isUpdating} placeholder="USD" id="code" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -196,10 +165,13 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger>
-                                  <Info className="text-black h-4 w-4" />
+                                  <Info className="h-4 w-4 text-black" />
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p>Making this currency as default <br />will make current default currency as non-default</p>
+                                  <p>
+                                    Making this currency as default <br />
+                                    will make current default currency as non-default
+                                  </p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
@@ -218,12 +190,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Textarea
-                          placeholder="Any comments"
-                          className="resize-none"
-                          disabled={isUpdating}
-                          {...field}
-                        />
+                        <Textarea placeholder="Any comments" className="resize-none" disabled={isUpdating} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -236,7 +203,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
         </Form>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default EditForm
+export default EditForm;

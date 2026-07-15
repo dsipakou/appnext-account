@@ -1,7 +1,8 @@
-import React from 'react';
+import { GridRenderCellParams, GridRowId, GridRowModes, GridRowModesModel } from '@mui/x-data-grid';
 import { Check, CheckCheck, Minus, Pencil, Split, Trash2 } from 'lucide-react';
+import React from 'react';
+
 import { Button } from '@/components/ui/button';
-import { GridRenderCellParams, GridRowModesModel, GridRowModes, GridRowId } from '@mui/x-data-grid';
 
 interface Types extends GridRenderCellParams {
   rowModesModel: GridRowModesModel;
@@ -30,17 +31,17 @@ const ActionsReadComponent: React.FC<Types> = (params) => {
 
   if (isInEditMode) {
     return (
-      <div className="flex gap-0 px-0 justify-center items-center w-full h-full bg-slate-100">
+      <div className="flex h-full w-full items-center justify-center gap-0 bg-slate-100 px-0">
         {!params.row.saved && (
           <>
             <div
-              className="flex border-2 border-green-500 items-center justify-center w-5 h-5 rounded-full text-green-500"
+              className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-green-500 text-green-500"
               onClick={params.handleApplyChanges(params.id)}
             >
               <Check className="h-4" />
             </div>
             <div
-              className="flex border-2 border-red-500 items-center justify-center w-5 h-5 rounded-full text-red-500"
+              className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-red-500 text-red-500"
               onClick={() => params.handleDeleteClick(params)}
             >
               <Minus />
@@ -49,7 +50,7 @@ const ActionsReadComponent: React.FC<Types> = (params) => {
         )}
         {params.row.saved && (
           <div
-            className="flex border-2 border-green-500 items-center justify-center w-5 h-5 rounded-full text-green-500"
+            className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-green-500 text-green-500"
             onClick={() => checkAndApply(params.id)}
           >
             <Check className="h-4" />
@@ -59,7 +60,7 @@ const ActionsReadComponent: React.FC<Types> = (params) => {
     );
   } else if (params.value) {
     return (
-      <div className="flex gap-p px-0 justify-center items-center w-full h-full bg-slate-100">
+      <div className="gap-p flex h-full w-full items-center justify-center bg-slate-100 px-0">
         <div className="text-gray-700">
           <Pencil className="h-4 w-4 cursor-pointer" onClick={params.handleEditClick(params.id)} />
         </div>
@@ -70,7 +71,7 @@ const ActionsReadComponent: React.FC<Types> = (params) => {
     );
   } else {
     return (
-      <div className="flex w-full justify-center gap-0 items-center">
+      <div className="flex w-full items-center justify-center gap-0">
         <Button
           size="xs"
           className="border-2 border-blue-400 bg-blue-400 text-white"

@@ -1,36 +1,34 @@
-import React from 'react'
-import {
-  GridRenderEditCellParams,
-  useGridApiContext
-} from '@mui/x-data-grid'
-import { Input } from '@/components/ui/input'
+import { GridRenderEditCellParams, useGridApiContext } from '@mui/x-data-grid';
+import React from 'react';
 
-interface AmountComponentTypes extends GridRenderEditCellParams { }
+import { Input } from '@/components/ui/input';
+
+interface AmountComponentTypes extends GridRenderEditCellParams {}
 
 const AmountComponent: React.FC<AmountComponentTypes> = (params) => {
-  const { id, field, value } = params
-  const apiRef = useGridApiContext()
-  const inputRef = React.createRef<HTMLInputElement>()
+  const { id, field, value } = params;
+  const apiRef = useGridApiContext();
+  const inputRef = React.createRef<HTMLInputElement>();
 
   React.useEffect(() => {
-    inputRef.current?.select()
-  }, [])
+    inputRef.current?.select();
+  }, []);
 
   const handleChange = (event: InputEvent) => {
-    apiRef.current.setEditCellValue({ id, field, value: event.target.value })
-  }
+    apiRef.current.setEditCellValue({ id, field, value: event.target.value });
+  };
 
   return (
-    <div className="flex w-full h-full bg-slate-100 select-none items-center">
+    <div className="flex h-full w-full select-none items-center bg-slate-100">
       <Input
-        className="flex bg-white rounded-lg h-full border text-xs"
+        className="flex h-full rounded-lg border bg-white text-xs"
         value={value}
         ref={inputRef}
         onChange={handleChange}
       />
-      <span className="xl:pr-2 pl-1 text-xs font-semibold">{params.row.currency?.sign}</span>
+      <span className="pl-1 text-xs font-semibold xl:pr-2">{params.row.currency?.sign}</span>
     </div>
-  )
-}
+  );
+};
 
-export default AmountComponent
+export default AmountComponent;

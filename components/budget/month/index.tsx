@@ -1,13 +1,12 @@
-import { FC } from 'react'
-import withBudgetTemplate from '@/components/budget/hoc'
-import Container from '@/components/budget/components/month/Container'
+import { FC } from 'react';
 
-const MonthTemplate = withBudgetTemplate(Container)
+import Container from '@/components/budget/components/month/Container';
+import withBudgetTemplate from '@/components/budget/hoc';
+
+const MonthTemplate = withBudgetTemplate(Container);
 
 const Index: FC = () => {
-  return (
-    <MonthTemplate activeType="month" />
-  )
-}
+  return <MonthTemplate activeType="month" />;
+};
 
-export default Index
+export default Index;

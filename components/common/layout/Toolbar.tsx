@@ -7,7 +7,7 @@ interface Types {
 
 const Toolbar: React.FC<Types> = ({ title, children }) => {
   return (
-    <div className="flex w-full px-6 my-3 justify-between items-center">
+    <div className="my-3 flex w-full items-center justify-between px-6">
       {!!title && <span className="text-xl font-semibold">{title}</span>}
       {children}
     </div>

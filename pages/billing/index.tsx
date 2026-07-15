@@ -1,10 +1,9 @@
-import React from 'react'
-import Index from '@/components/billing'
+import React from 'react';
 
-Billing.auth = {}
+import Index from '@/components/billing';
+
+Billing.auth = {};
 
 export default function Billing() {
-  return (
-    <Index />
-  )
+  return <Index />;
 }

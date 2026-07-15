@@ -1,9 +1,7 @@
-import Index from '@/components/transactions'
+import Index from '@/components/transactions';
 
-Transactions.auth = {}
+Transactions.auth = {};
 
-export default function Transactions () {
-  return (
-    <Index />
-  )
+export default function Transactions() {
+  return <Index />;
 }

@@ -1,6 +1,7 @@
-import React from 'react';
 import ReactECharts from 'echarts-for-react';
 import { useSession } from 'next-auth/react';
+import React from 'react';
+
 import { useStore } from '@/app/store';
 // Types
 import { TransactionResponse } from '@/components/transactions/types';
@@ -28,11 +29,11 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
         acc[item.categoryDetails.parentName] = summ;
         return acc;
       }, {}),
-    [transactions]
+    [transactions],
   );
   const totalAmount = React.useMemo(
     () => transactions.reduce((sum, item) => sum + item.spentInCurrencies[user?.currency] || 0, 0),
-    [transactions]
+    [transactions],
   );
 
   React.useEffect(() => {
@@ -107,9 +108,9 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
   }, [transactions]);
 
   return (
-    <div className="w-full h-[330px] relative">
+    <div className="relative h-[330px] w-full">
       <ReactECharts style={{ height: '100%', width: '100%' }} option={options} notMerge={true} />
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform text-center">
         <p className="text-2xl font-bold">
           {totalAmount.toFixed(2)} {currencySign}
         </p>

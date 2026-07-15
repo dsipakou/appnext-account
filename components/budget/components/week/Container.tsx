@@ -1,23 +1,25 @@
-import React from 'react';
-import { useStore } from '@/app/store';
-import { useSession } from 'next-auth/react';
-import { cn } from '@/lib/utils';
 import { DndContext } from '@dnd-kit/core';
-import { getDay, isToday, isThisWeek } from 'date-fns';
-import { useBudgetWeek, useEditBudget } from '@/hooks/budget';
-import { useToast } from '@/components/ui/use-toast';
-import { extractErrorMessage } from '@/utils/stringUtils';
+import { getDay, isThisWeek, isToday } from 'date-fns';
+import { useSession } from 'next-auth/react';
+import React from 'react';
+
+import { useStore } from '@/app/store';
+import { AddForm } from '@/components/budget/forms';
 import { CompactWeekItem, WeekBudgetItem, WeekBudgetResponse } from '@/components/budget/types';
-import {
-  getWeekDaysWithFullDays,
-  parseDate,
-  FULL_DAY_ONLY_FORMAT,
-  WeekDayWithFullDate,
-  getFormattedDate,
-} from '@/utils/dateUtils';
 import { Button } from '@/components/ui/button';
 import { Droppable } from '@/components/ui/dnd';
-import { AddForm } from '@/components/budget/forms';
+import { useToast } from '@/components/ui/use-toast';
+import { useBudgetWeek, useEditBudget } from '@/hooks/budget';
+import { cn } from '@/lib/utils';
+import {
+  FULL_DAY_ONLY_FORMAT,
+  getFormattedDate,
+  getWeekDaysWithFullDays,
+  parseDate,
+  WeekDayWithFullDate,
+} from '@/utils/dateUtils';
+import { extractErrorMessage } from '@/utils/stringUtils';
+
 import BudgetItem from './BudgetItem';
 import Header from './ContainerHeader';
 
@@ -56,7 +58,7 @@ const Container: React.FC<Types> = ({
   const weekDaysArray: number[] = [1, 2, 3, 4, 5, 6, 0];
   const daysFullFormatArray: WeekDayWithFullDate[] = getWeekDaysWithFullDays(
     parseDate(startDate),
-    FULL_DAY_ONLY_FORMAT
+    FULL_DAY_ONLY_FORMAT,
   );
   const currencySign = useStore((state) => state.currency.sign);
   const { toast } = useToast();
@@ -92,7 +94,7 @@ const Container: React.FC<Types> = ({
   }, [budgetState]);
 
   const addBudgetButton = (
-    <Button className="mt-2 shadow-sm bg-white hover:bg-white h-[60px] w-full text-3xl text-stone-400" variant="ghost">
+    <Button className="mt-2 h-[60px] w-full bg-white text-3xl text-stone-400 shadow-sm hover:bg-white" variant="ghost">
       +
     </Button>
   );
@@ -148,12 +150,12 @@ const Container: React.FC<Types> = ({
 
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} autoScroll={false}>
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-1 flex-col">
         <Header date={startDate} />
         <div
           className={cn(
-            'grid gap-2 flex-1 p-1 pb-3 max-w-full justify-between grid-cols-7 overflow-y-auto',
-            isThisWeek(daysFullFormatArray[0].fullDate) && 'grid-cols-8'
+            'grid max-w-full flex-1 grid-cols-7 justify-between gap-2 overflow-y-auto p-1 pb-3',
+            isThisWeek(daysFullFormatArray[0].fullDate) && 'grid-cols-8',
           )}
         >
           {weekDaysArray.map((day: number, weekDayIndex: number) => (
@@ -161,16 +163,16 @@ const Container: React.FC<Types> = ({
               id={weekDayIndex}
               key={weekDayIndex}
               onHover={cn('ring-sky-200 ring rounded')}
-              className={cn(isToday(daysFullFormatArray[weekDayIndex].fullDate) && 'col-span-2 bg-sky-100 rounded p-1')}
+              className={cn(isToday(daysFullFormatArray[weekDayIndex].fullDate) && 'col-span-2 rounded bg-sky-100 p-1')}
             >
               <div
                 key={day}
                 className={cn(
-                  'flex flex-col group/col',
-                  isToday(daysFullFormatArray[weekDayIndex].fullDate) && 'col-span-2 bg-sky-100 rounded p-1'
+                  'group/col flex flex-col',
+                  isToday(daysFullFormatArray[weekDayIndex].fullDate) && 'col-span-2 rounded bg-sky-100 p-1',
                 )}
               >
-                <div className="flex flex-col justify-center items-center gap-1">
+                <div className="flex flex-col items-center justify-center gap-1">
                   {weekGroup[day] &&
                     weekGroup[day].map((item: CompactWeekItem) => (
                       <BudgetItem
@@ -187,7 +189,7 @@ const Container: React.FC<Types> = ({
                     ))}
                 </div>
                 {weekGroup[day] && (
-                  <div className="flex justify-center p-1 mt-2 gap-1 items-center">
+                  <div className="mt-2 flex items-center justify-center gap-1 p-1">
                     <span className="font-semibold">
                       {weekGroup[day].reduce((acc: number, item: CompactWeekItem) => acc + item.spent, 0).toFixed(2)}
                     </span>
@@ -199,8 +201,8 @@ const Container: React.FC<Types> = ({
                 )}
                 <div
                   className={cn(
-                    'flex invisible self-center w-4/5 h-15 text-2xl',
-                    !isDragging && 'group-hover/col:visible'
+                    'h-15 invisible flex w-4/5 self-center text-2xl',
+                    !isDragging && 'group-hover/col:visible',
                   )}
                 >
                   <AddForm

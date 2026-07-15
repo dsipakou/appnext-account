@@ -1,11 +1,13 @@
-import React from 'react';
-import { useStore } from '@/app/store';
-import { useSession } from 'next-auth/react';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { addMonths, endOfMonth, format, startOfMonth, subMonths } from 'date-fns';
+import { useSession } from 'next-auth/react';
+import React from 'react';
+
+import { useStore } from '@/app/store';
+import { TransactionsReportResponse } from '@/components/transactions/types';
 import { useTransactionsReport } from '@/hooks/transactions';
 import { getFormattedDate, parseAndFormatDate, REPORT_FORMAT, SHORT_YEAR_MONTH_FORMAT } from '@/utils/dateUtils';
-import { TransactionsReportResponse } from '@/components/transactions/types';
+
 import RangeSwitcher from './RangeSwitcher';
 
 const ReportOverall: React.FC = () => {
@@ -41,7 +43,7 @@ const ReportOverall: React.FC = () => {
       headerName: formatedDate,
       flex: 1,
       renderCell: (params) => (
-        <span className="border border-slate-200 text-normal rounded-md px-1 bg-white">
+        <span className="text-normal rounded-md border border-slate-200 bg-white px-1">
           {Number(params.value).toFixed(2)} {currencySign}
         </span>
       ),
@@ -90,7 +92,7 @@ const ReportOverall: React.FC = () => {
   return (
     <div className="flex flex-col items-center gap-2">
       <RangeSwitcher dateFrom={dateFrom} dateTo={dateTo} clickBack={clickBack} clickForward={clickForward} />
-      <div className="flex bg-white rounded-md drop-shadow-sm h-full w-full">
+      <div className="flex h-full w-full rounded-md bg-white drop-shadow-sm">
         <DataGrid
           columns={columns}
           rows={aggregatedRows}

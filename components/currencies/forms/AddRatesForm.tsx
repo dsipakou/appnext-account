@@ -1,24 +1,26 @@
 // System
-import React from 'react';
-import InputMask from 'react-input-mask';
-import { useSWRConfig } from 'swr';
-import { useForm } from 'react-hook-form';
 // UI
 import { Trash } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import InputMask from 'react-input-mask';
+import { useSWRConfig } from 'swr';
+
+import ConfirmClearRatesForm from '@/components/currencies/forms/ConfirmClearRatesForm';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import * as Dlg from '@/components/ui/dialog';
 import * as Frm from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/use-toast';
 // Hooks
-import { useRatesOnDate, useCreateBatchedRates, RateResponse } from '@/hooks/rates';
+import { RateResponse, useCreateBatchedRates, useRatesOnDate } from '@/hooks/rates';
 // Utils
 import { getFormattedDate } from '@/utils/dateUtils';
 import { extractErrorMessage } from '@/utils/stringUtils';
+
 // Types
-import { Currency, RatePostRequest, RateItemPostRequest } from '../types';
-import ConfirmClearRatesForm from '@/components/currencies/forms/ConfirmClearRatesForm';
+import { Currency, RateItemPostRequest, RatePostRequest } from '../types';
 
 interface Types {
   currencies: Currency[];
@@ -114,7 +116,7 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
   return (
     <Dlg.Dialog>
       <Dlg.DialogTrigger asChild className="mx-2">
-        <Button variant="outline" className="text-blue-500 border-blue-500 hover:text-blue-600">
+        <Button variant="outline" className="border-blue-500 text-blue-500 hover:text-blue-600">
           + Add rates
         </Button>
       </Dlg.DialogTrigger>
@@ -125,7 +127,7 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
         <Frm.Form {...form}>
           <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
             <div className="flex space-y-3">
-              <div className="flex flex-col space-y-2 w-1/3">
+              <div className="flex w-1/3 flex-col space-y-2">
                 {currencies.map(
                   (item: Currency) =>
                     !item.isBase && (
@@ -145,7 +147,7 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
                           )}
                         />
                       </div>
-                    )
+                    ),
                 )}
               </div>
               <div>
@@ -177,7 +179,7 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
               {ratesOnDate.length > 0 && (
                 <>
                   <Button type="button" variant="ghost" onClick={() => setIsClearRatesDialogOpen(true)}>
-                    <Trash className="w-5 h-5 text-red-500" />
+                    <Trash className="h-5 w-5 text-red-500" />
                   </Button>
                   <ConfirmClearRatesForm
                     date={selectedDate}

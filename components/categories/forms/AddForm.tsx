@@ -1,22 +1,22 @@
-import React from 'react';
-import { X } from 'lucide-react';
-import * as z from 'zod';
-import EmojiPicker from 'emoji-picker-react';
-
-import { useSWRConfig } from 'swr';
 import { zodResolver } from '@hookform/resolvers/zod';
+import EmojiPicker from 'emoji-picker-react';
+import { X } from 'lucide-react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
-import { useCategories, useCreateCategory } from '@/hooks/categories';
+import { useSWRConfig } from 'swr';
+import * as z from 'zod';
+
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectGroup, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
+import { useCategories, useCreateCategory } from '@/hooks/categories';
 
 import { Category, CategoryType } from '../types';
 
@@ -69,7 +69,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
     if (!categories) return;
 
     const parents = categories.filter(
-      (category: Category) => category.parent === null && category.type !== CategoryType.Income
+      (category: Category) => category.parent === null && category.type !== CategoryType.Income,
     );
     setParentList(parents);
   }, [categories]);
@@ -125,7 +125,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
         <DialogHeader>
           <DialogTitle>Add category</DialogTitle>
         </DialogHeader>
-        <div className="flex gap-4 items-center">
+        <div className="flex items-center gap-4">
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline">Choose icon</Button>
@@ -133,20 +133,20 @@ const AddForm: React.FC<Types> = ({ parent }) => {
             <PopoverContent className="flex w-[400px] justify-center" sideOffset={5}>
               <div>
                 <EmojiPicker
-                  className="flex mt-5 h-20"
+                  className="mt-5 flex h-20"
                   skinTonesDisabled={true}
                   onEmojiClick={(event) => setSelectedEmoji(event.emoji)}
                 />
               </div>
-              <PopoverClose className="absolute top-5 right-5">
-                <X className="w-4 h-4" />
+              <PopoverClose className="absolute right-5 top-5">
+                <X className="h-4 w-4" />
               </PopoverClose>
             </PopoverContent>
           </Popover>
           <span>{selectedEmoji}</span>
           {selectedEmoji && (
             <Button variant="link" onClick={() => setSelectedEmoji(null)}>
-              <X className="w-4 h-4 mr-2" />
+              <X className="mr-2 h-4 w-4" />
               <span>clear icon</span>
             </Button>
           )}
@@ -201,7 +201,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
               </div>
               <div className="flex">
                 {watchType !== CategoryType.Income && (
-                  <div className="flex w-1/2 items-center h-12">
+                  <div className="flex h-12 w-1/2 items-center">
                     <FormField
                       control={form.control}
                       name="isParent"

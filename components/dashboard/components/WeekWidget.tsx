@@ -1,13 +1,14 @@
-import React from 'react';
-import { BarChartIcon } from 'lucide-react';
 import ReactECharts from 'echarts-for-react';
-import { useStore } from '@/app/store';
+import { BarChartIcon } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useBudgetWeek } from '@/hooks/budget';
-import { WeekBudgetResponse, WeekBudgetItem } from '@/components/budget/types';
+import React from 'react';
+
+import { useStore } from '@/app/store';
+import { WeekBudgetItem, WeekBudgetResponse } from '@/components/budget/types';
 import * as Crd from '@/components/ui/card';
-import { getStartOfWeek, getEndOfWeek } from '@/utils/dateUtils';
-import { parseDate, getFormattedDate } from '@/utils/dateUtils';
+import { useBudgetWeek } from '@/hooks/budget';
+import { getEndOfWeek, getStartOfWeek } from '@/utils/dateUtils';
+import { getFormattedDate, parseDate } from '@/utils/dateUtils';
 
 interface WeeklySummary {
   name: string;
@@ -31,7 +32,7 @@ const WeekWidget = () => {
   const { data: budget = [] }: WeekBudgetResponse = useBudgetWeek(
     getStartOfWeek(new Date()),
     getEndOfWeek(new Date()),
-    'all'
+    'all',
   );
   React.useEffect(() => {
     const template = Array(7)
@@ -129,10 +130,10 @@ const WeekWidget = () => {
   };
 
   return (
-    <Crd.Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 lg:col-span-2">
+    <Crd.Card className="shadow-lg transition-shadow duration-300 hover:shadow-xl lg:col-span-2">
       <Crd.CardHeader className="pb-2">
         <Crd.CardTitle className="flex items-center text-gray-700">
-          <BarChartIcon className="w-6 h-6 mr-2 text-gray-500" />
+          <BarChartIcon className="mr-2 h-6 w-6 text-gray-500" />
           Week Budget
         </Crd.CardTitle>
       </Crd.CardHeader>

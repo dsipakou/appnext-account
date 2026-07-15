@@ -1,10 +1,10 @@
 export interface ChartCategory {
-  name: string
-  value: number
-  categoryType: 'EXP' | 'INC'
+  name: string;
+  value: number;
+  categoryType: 'EXP' | 'INC';
 }
 
 export interface ChartData {
-  date: string
-  categories: ChartCategory[]
+  date: string;
+  categories: ChartCategory[];
 }

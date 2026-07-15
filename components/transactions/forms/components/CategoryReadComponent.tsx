@@ -1,38 +1,39 @@
-import React from 'react'
-import { GridRenderCellParams } from '@mui/x-data-grid'
-import { Category } from '@/components/categories/types'
-import { useCategories } from '@/hooks/categories'
+import { GridRenderCellParams } from '@mui/x-data-grid';
+import React from 'react';
+
+import { Category } from '@/components/categories/types';
+import { useCategories } from '@/hooks/categories';
 
 interface Types extends GridRenderCellParams<Category> {}
 
 const CategoryReadComponent: React.FC<Types> = (params) => {
-  const { data: categories = [] } = useCategories()
+  const { data: categories = [] } = useCategories();
 
   const getTrimmedCategoryName = (uuid: string): string => {
-    const categoryName = categories.find((item: Category) => item.uuid === uuid)?.name || ''
+    const categoryName = categories.find((item: Category) => item.uuid === uuid)?.name || '';
     if (categoryName.length > 10) {
-      return categoryName.substring(0, 10) + '...'
+      return categoryName.substring(0, 10) + '...';
     }
-    return categoryName
-  }
+    return categoryName;
+  };
 
   if (params.value == null) {
-    return
+    return;
   }
 
   return (
-    <div className="flex px-2 w-full overflow-x-hidden items-center gap-1">
-      { !!params.value.parent && (
+    <div className="flex w-full items-center gap-1 overflow-x-hidden px-2">
+      {!!params.value.parent && (
         <>
-          <span className="text-sm font-semibold py-1 rounded-md text-black pl-2">
+          <span className="rounded-md py-1 pl-2 text-sm font-semibold text-black">
             {getTrimmedCategoryName(params.value.parent)}
           </span>
           /
         </>
       )}
-      <span className="text-sm overflow-x-hidden">{params.value.name || ''}</span>
+      <span className="overflow-x-hidden text-sm">{params.value.name || ''}</span>
     </div>
-  )
-}
+  );
+};
 
-export default CategoryReadComponent
+export default CategoryReadComponent;

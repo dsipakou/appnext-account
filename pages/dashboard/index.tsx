@@ -1,9 +1,7 @@
-import Dashboard from '@/components/dashboard'
+import Dashboard from '@/components/dashboard';
 
-Index.auth = {}
+Index.auth = {};
 
 export default function Index() {
-  return (
-    <Dashboard />
-  )
+  return <Dashboard />;
 }

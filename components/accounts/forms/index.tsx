@@ -1,13 +1,7 @@
-import AddForm from './AddForm'
-import EditForm from './EditForm'
-import ConfirmDeleteForm from './ConfirmDeleteForm'
-import ReassignTransactionsForm from './ReassignTransactionsForm'
-import ConfirmTransactionsTransferForm from './ConfirmTransactionsTransferForm'
+import AddForm from './AddForm';
+import ConfirmDeleteForm from './ConfirmDeleteForm';
+import ConfirmTransactionsTransferForm from './ConfirmTransactionsTransferForm';
+import EditForm from './EditForm';
+import ReassignTransactionsForm from './ReassignTransactionsForm';
 
-export {
-  AddForm,
-  EditForm,
-  ConfirmDeleteForm,
-  ConfirmTransactionsTransferForm,
-  ReassignTransactionsForm
-}
+export { AddForm, ConfirmDeleteForm, ConfirmTransactionsTransferForm, EditForm, ReassignTransactionsForm };

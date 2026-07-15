@@ -1,4 +1,5 @@
 import { FC } from 'react';
+
 import { useStore } from '@/app/store';
 import { formatMoney } from '@/utils/numberUtils';
 
@@ -16,31 +17,31 @@ const GeneralSummaryCard: FC<Types> = ({ title, planned, spent }) => {
   const plannedPercent = (planned * 100) / maxValue;
 
   return (
-    <div className="flex flex-col border bg-slate-600 items-center justify-center text-white h-[80px]">
-      <div className="flex justify-center w-full">
+    <div className="flex h-[80px] flex-col items-center justify-center border bg-slate-600 text-white">
+      <div className="flex w-full justify-center">
         <span className="text-yellow-300">{title.charAt(0).toUpperCase() + title.slice(1)} Summary</span>
       </div>
       <div className="flex w-full">
         <div className="flex flex-1">
           <div className="flex flex-1 justify-end">
-            <div className="flex flex-col h-full">
+            <div className="flex h-full flex-col">
               <div className="flex justify-end text-xl">
                 {formatMoney(planned)} {currencySign}
               </div>
-              <div className="flex justify-end text-xs items-end">Planned</div>
+              <div className="flex items-end justify-end text-xs">Planned</div>
             </div>
           </div>
-          <div className="flex items-end ml-2">
-            <div className="rounded bg-yellow-400 w-5" style={{ height: `${plannedPercent}%` }}></div>
+          <div className="ml-2 flex items-end">
+            <div className="w-5 rounded bg-yellow-400" style={{ height: `${plannedPercent}%` }}></div>
           </div>
         </div>
-        <div className="w-[1px] bg-gray-500 mx-1"></div>
+        <div className="mx-1 w-[1px] bg-gray-500"></div>
         <div className="flex flex-1">
-          <div className="flex items-end mr-2 h-full">
-            <div className="rounded bg-yellow-400 w-5" style={{ height: `${spentPercent}%` }}></div>
+          <div className="mr-2 flex h-full items-end">
+            <div className="w-5 rounded bg-yellow-400" style={{ height: `${spentPercent}%` }}></div>
           </div>
           <div className="flex flex-1 justify-start">
-            <div className="flex flex-col h-full">
+            <div className="flex h-full flex-col">
               <div className="flex justify-start text-xl">
                 {formatMoney(spent)} {currencySign}
               </div>

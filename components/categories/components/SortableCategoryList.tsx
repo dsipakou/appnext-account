@@ -1,12 +1,14 @@
-import React from 'react';
-import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
-import { DndContext, DragEndEvent, DragStartEvent, closestCenter } from '@dnd-kit/core';
+import { closestCenter, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import React from 'react';
+import { useSWRConfig } from 'swr';
+
+import { useToast } from '@/components/ui/use-toast';
+import { useReorderCategories } from '@/hooks/categories';
+
 import { Category } from '../types';
 import { CategoryItem } from './CategoryItem';
-import { useSWRConfig } from 'swr';
-import { useReorderCategories } from '@/hooks/categories';
-import { useToast } from '@/components/ui/use-toast';
 
 interface Props {
   categories: Category[];
@@ -44,7 +46,7 @@ export const SortableCategoryList: React.FC<Props> = ({
   const { toast } = useToast();
 
   const memorizedCategories = React.useMemo(() => categories, [categories]);
-  
+
   const getCategoryName = (uuid: string) => {
     return categories.find((category) => category.uuid === uuid)?.name;
   };
@@ -56,15 +58,15 @@ export const SortableCategoryList: React.FC<Props> = ({
       setLoading(true);
       console.log('over', over);
       if (over.data?.current?.sortable.index === undefined) return;
-      
+
       // Optimistically update the UI
       setCategoriesState((categories) => {
         const oldIndex = categories.findIndex((item) => item.uuid === active.id);
         const newIndex = categories.findIndex((item) => item.uuid === over.id);
-        
+
         // Ensure indices are valid
         if (oldIndex === -1 || newIndex === -1) return categories;
-        
+
         return arrayMove(categories, oldIndex, newIndex);
       });
 
@@ -92,7 +94,7 @@ export const SortableCategoryList: React.FC<Props> = ({
 
   if (categoriesState.length === 0) {
     return (
-      <div className="flex h-full w-full p-5 justify-center text-slate-300">
+      <div className="flex h-full w-full justify-center p-5 text-slate-300">
         <span className="text-center">Need to add at least one subcategory</span>
       </div>
     );
@@ -104,7 +106,7 @@ export const SortableCategoryList: React.FC<Props> = ({
       onDragEnd={handleDragEnd}
       modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
     >
-      <SortableContext 
+      <SortableContext
         items={categoriesState.map((category: Category) => category.uuid)}
         strategy={verticalListSortingStrategy}
       >
@@ -130,4 +132,4 @@ export const SortableCategoryList: React.FC<Props> = ({
       </SortableContext>
     </DndContext>
   );
-}; 
+};

@@ -1,10 +1,11 @@
 import React from 'react';
-// UI
-import * as Slc from '@/components/ui/select';
-import * as Scr from '@/components/ui/scroll-area';
+
 // Types
 import { Category } from '@/components/categories/types';
 import { RowData } from '@/components/transactions/components/transactionTable';
+import * as Scr from '@/components/ui/scroll-area';
+// UI
+import * as Slc from '@/components/ui/select';
 // Utils
 import { cn } from '@/lib/utils';
 
@@ -50,7 +51,7 @@ export default function CategoryComponent({
     const scrollUuid = categories.find((item: Category) => item.uuid === value)?.parent || value;
 
     const parentElement = scrollAreaRef.current?.querySelector(`[data-parent-id="${scrollUuid}"]`);
-    if (!!parentElement) {
+    if (parentElement) {
       parentElement.scrollIntoView({ behavior: 'instant', block: 'start' });
       setScrollReady(false);
     }
@@ -65,7 +66,7 @@ export default function CategoryComponent({
       grouped[key].push(category);
       return grouped;
     },
-    {}
+    {},
   );
 
   const onChange = (value: string) => {
@@ -99,8 +100,8 @@ export default function CategoryComponent({
     <Slc.Select value={value} open={open} onValueChange={(value) => onChange(value)} onOpenChange={handleOpen}>
       <Slc.SelectTrigger
         className={cn(
-          'w-full h-8 px-2 text-sm border-0 focus:ring-0 focus:outline-none focus:border-primary bg-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700 text-left',
-          isInvalid && 'outline outline-red-400'
+          'h-8 w-full border-0 bg-white px-2 text-left text-sm focus:border-primary focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700',
+          isInvalid && 'outline outline-red-400',
         )}
         onKeyDown={(e) => handleKeyDown(e, row.id)}
       >

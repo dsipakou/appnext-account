@@ -1,7 +1,9 @@
-import React from 'react';
 import { CreditCardIcon } from 'lucide-react';
+import React from 'react';
+
 import { AccountResponse } from '@/components/accounts/types';
 import AccountComponent from '@/components/transactions/forms/components/AccountComponentV2';
+
 import { RowData } from '..';
 
 interface AccountCellProps {
@@ -45,7 +47,7 @@ export const AccountCell: React.FC<AccountCellProps> = ({
   const account = accounts.find((item: AccountResponse) => item.uuid === value);
 
   return (
-    <div className={`px-1 flex items-center ${cellStyle}`}>
+    <div className={`flex items-center px-1 ${cellStyle}`}>
       <CreditCardIcon className="mr-2 h-4 w-4 flex-shrink-0" />
       <span className="truncate">{account?.title}</span>
     </div>

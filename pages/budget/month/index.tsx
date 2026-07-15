@@ -1,9 +1,7 @@
-import Index from '@/components/budget/month'
+import Index from '@/components/budget/month';
 
-Month.auth = {}
+Month.auth = {};
 
-export default function Month () {
-  return (
-    <Index />
-  )
+export default function Month() {
+  return <Index />;
 }

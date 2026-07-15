@@ -1,6 +1,8 @@
 import React from 'react';
-import CategoryComponent from '@/components/transactions/forms/components/CategoryComponentV2';
+
 import { CategoryResponse } from '@/components/categories/types';
+import CategoryComponent from '@/components/transactions/forms/components/CategoryComponentV2';
+
 import { RowData } from '..';
 
 interface CategoryCellProps {
@@ -52,10 +54,10 @@ export const CategoryCell: React.FC<CategoryCellProps> = ({
   }
 
   return (
-    <div className={`px-1 py-1 flex items-center ${cellStyle}`}>
+    <div className={`flex items-center px-1 py-1 ${cellStyle}`}>
       <span className="font-medium">{categoryParentName}</span>
       <span className="mx-1">/</span>
-      <span className="text-slate-500 truncate">{categoryName}</span>
+      <span className="truncate text-slate-500">{categoryName}</span>
     </div>
   );
 };

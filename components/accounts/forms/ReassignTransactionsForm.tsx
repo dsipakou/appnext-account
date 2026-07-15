@@ -1,56 +1,37 @@
-import React from 'react'
-import * as z from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTrigger,
-  DialogTitle
-} from '@/components/ui/dialog'
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  FormControl
-} from '@/components/ui/form'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import { useAccounts } from '@/hooks/accounts'
-import { ConfirmTransactionsTransferForm } from '@/components/accounts/forms'
-import { AccountResponse } from '@/components/accounts/types'
+import { zodResolver } from '@hookform/resolvers/zod';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+
+import { ConfirmTransactionsTransferForm } from '@/components/accounts/forms';
+import { AccountResponse } from '@/components/accounts/types';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useAccounts } from '@/hooks/accounts';
 
 const formSchema = z.object({
-  account: z.string()
-})
+  account: z.string(),
+});
 
 interface Types {
-  uuid: string
+  uuid: string;
 }
 
 const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const [isConfirmTransferOpen, setIsConfirmTransferOpen] = React.useState<boolean>(false)
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [isConfirmTransferOpen, setIsConfirmTransferOpen] = React.useState<boolean>(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema)
-  })
+    resolver: zodResolver(formSchema),
+  });
 
-  const { data: accounts = [] } = useAccounts()
+  const { data: accounts = [] } = useAccounts();
 
-  const filteredAccounts = accounts.filter((item: AccountResponse) => item.uuid !== uuid)
+  const filteredAccounts = accounts.filter((item: AccountResponse) => item.uuid !== uuid);
 
-  const watchAccount = form.watch('account')
+  const watchAccount = form.watch('account');
 
   return (
     <Dialog>
@@ -78,12 +59,18 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
                           disabled={isLoading || filteredAccounts.length === 0}
                         >
                           <SelectTrigger className="relative w-full">
-                            <SelectValue placeholder={filteredAccounts.length > 0 ? "Choose account" : "You do not have applicable accounts"} />
+                            <SelectValue
+                              placeholder={
+                                filteredAccounts.length > 0 ? 'Choose account' : 'You do not have applicable accounts'
+                              }
+                            />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
                               {filteredAccounts.map((account: AccountResponse) => (
-                                <SelectItem key={account.uuid} value={account.uuid}>{account.title}</SelectItem>
+                                <SelectItem key={account.uuid} value={account.uuid}>
+                                  {account.title}
+                                </SelectItem>
                               ))}
                             </SelectGroup>
                           </SelectContent>
@@ -97,18 +84,20 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
             </div>
           </form>
         </Form>
-        <Button disabled={isLoading || !watchAccount} onClick={() => setIsConfirmTransferOpen(true)}>Transfer</Button>
-        {isConfirmTransferOpen &&
+        <Button disabled={isLoading || !watchAccount} onClick={() => setIsConfirmTransferOpen(true)}>
+          Transfer
+        </Button>
+        {isConfirmTransferOpen && (
           <ConfirmTransactionsTransferForm
             open={isConfirmTransferOpen}
             setOpen={setIsConfirmTransferOpen}
             sourceAccount={uuid}
             destAccount={watchAccount}
           />
-        }
+        )}
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default ReassignTransactionsForm
+export default ReassignTransactionsForm;

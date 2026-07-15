@@ -1,33 +1,35 @@
 // System
-import React from 'react';
-import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useSWRConfig } from 'swr';
+import React from 'react';
 import { useForm } from 'react-hook-form';
-// Components
-import { User } from '@/components/users/types';
+import { useSWRConfig } from 'swr';
+import * as z from 'zod';
+
 import { Category, CategoryType } from '@/components/categories/types';
 import { Currency } from '@/components/currencies/types';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 // UI
 import * as Dialog from '@/components/ui/dialog';
 import * as Form from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import * as Select from '@/components/ui/select';
-import * as RadioGroup from '@/components/ui/radio-group';
-import { Calendar } from '@/components/ui/calendar';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import * as RadioGroup from '@/components/ui/radio-group';
+import * as Select from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
-// Hooks
-import { useUsers } from '@/hooks/users';
+// Components
+import { User } from '@/components/users/types';
+import { useBudgetDetails, useEditBudget } from '@/hooks/budget';
 import { useCategories } from '@/hooks/categories';
 import { useCurrencies } from '@/hooks/currencies';
-import { useBudgetDetails, useEditBudget } from '@/hooks/budget';
+// Hooks
+import { useUsers } from '@/hooks/users';
 // Utils
 import { getFormattedDate, parseDate } from '@/utils/dateUtils';
 import { extractErrorMessage } from '@/utils/stringUtils';
+
 // Styles
 import styles from '../style/AddForm.module.css';
 
@@ -81,7 +83,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
     if (!categories) return;
 
     const parents = categories.filter(
-      (category: Category) => category.parent === null && category.type === CategoryType.Expense
+      (category: Category) => category.parent === null && category.type === CategoryType.Expense,
     );
     setParentList(parents);
   }, [categories]);
@@ -193,7 +195,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                             <div>
                               <Input disabled={isEditing} id="amount" {...field} />
                             </div>
-                            <span className="flex items-center w-5">{form.watch('currency') && getCurrencySign()}</span>
+                            <span className="flex w-5 items-center">{form.watch('currency') && getCurrencySign()}</span>
                           </div>
                         </Form.FormControl>
                         <Form.FormMessage />
@@ -232,7 +234,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                 </div>
               </div>
               <div className="flex w-full justify-between">
-                <div className="flex flex-col w-2/5 gap-4">
+                <div className="flex w-2/5 flex-col gap-4">
                   <Form.FormField
                     control={form.control}
                     name="category"
@@ -346,7 +348,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                     render={({ field }) => (
                       <Form.FormItem className="flex justify-center">
                         <Form.FormControl>
-                          <div className="flex gap-2 mt-1 items-center">
+                          <div className="mt-1 flex items-center gap-2">
                             <Switch id="isSomeday" checked={isSomeDay} onClick={() => setIsSomeDay(!isSomeDay)} />
                             <Label htmlFor="isSomeday">Save for later</Label>
                           </div>
@@ -356,10 +358,10 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
                     )}
                   />
                 </div>
-                <div className="flex-1 w-3/5">
+                <div className="w-3/5 flex-1">
                   {isSomeDay ? (
                     <div className="flex flex-col items-center pt-10">
-                      <span className="font-semibold text-lg">Someday later</span>
+                      <span className="text-lg font-semibold">Someday later</span>
                       <span className="">This budget will appear in 'Saved for later' list</span>
                     </div>
                   ) : (

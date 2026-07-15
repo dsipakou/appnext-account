@@ -1,12 +1,19 @@
-import { FC, useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { useSWRConfig } from 'swr';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { useSession } from 'next-auth/react';
+import { FC, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
+import { useSWRConfig } from 'swr';
+import * as z from 'zod';
+
+import { Category, CategoryType } from '@/components/categories/types';
+import { Currency } from '@/components/currencies/types';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Select,
   SelectContent,
@@ -16,22 +23,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Calendar } from '@/components/ui/calendar';
+import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogHeader, DialogTitle, DialogTrigger, DialogContent } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
-
-import { useUsers } from '@/hooks/users';
+import { User } from '@/components/users/types';
+import { useCreateBudget, usePendingBudget } from '@/hooks/budget';
 import { useCategories } from '@/hooks/categories';
 import { useCurrencies } from '@/hooks/currencies';
-import { usePendingBudget, useCreateBudget } from '@/hooks/budget';
-import { User } from '@/components/users/types';
-import { Category, CategoryType } from '@/components/categories/types';
-import { Currency } from '@/components/currencies/types';
+import { useUsers } from '@/hooks/users';
 import { getFormattedDate } from '@/utils/dateUtils';
-import { Label } from '@/components/ui/label';
 
 import styles from '../style/AddForm.module.css';
 
@@ -108,7 +108,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
     if (isCategoriesLoading) return;
 
     const parents = categories.filter(
-      (category: Category) => category.parent === null && category.type === CategoryType.Expense
+      (category: Category) => category.parent === null && category.type === CategoryType.Expense,
     );
     setParentList(parents);
   }, [isCategoriesLoading]);
@@ -246,7 +246,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                       <FormItem>
                         <FormControl>
                           <Select disabled={isCreating} onValueChange={field.onChange} defaultValue={field.value}>
-                            <SelectTrigger className="relative w-full h-full">
+                            <SelectTrigger className="relative h-full w-full">
                               <SelectValue placeholder="Select a currency" />
                             </SelectTrigger>
                             <SelectContent>
@@ -269,7 +269,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                 </div>
               </div>
               <div className="flex w-full">
-                <div className="flex flex-col w-2/5 gap-4">
+                <div className="flex w-2/5 flex-col gap-4">
                   <FormField
                     control={form.control}
                     name="category"
@@ -391,7 +391,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                           <Textarea
                             disabled={isCreating}
                             placeholder="Add description if you want"
-                            className="resize-none h-full"
+                            className="h-full resize-none"
                             {...field}
                           />
                         </FormControl>
@@ -400,7 +400,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                     )}
                   />
                 </div>
-                <div className="flex-1 w-3/5">
+                <div className="w-3/5 flex-1">
                   <FormField
                     control={form.control}
                     name="budgetDate"
@@ -427,7 +427,7 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="flex gap-2 mt-1 items-center">
+                          <div className="mt-1 flex items-center gap-2">
                             <Switch id="isSomeday" checked={isSomeDay} onClick={() => setIsSomeDay(!isSomeDay)} />
                             <Label htmlFor="isSomeday">Someday</Label>
                           </div>
