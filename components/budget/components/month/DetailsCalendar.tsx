@@ -9,7 +9,7 @@ import {
   startOfMonth,
   startOfWeek,
 } from 'date-fns';
-import { ArrowLeft, X } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import React from 'react';
 
@@ -29,10 +29,8 @@ interface Types {
 }
 
 const DetailsCalendar: React.FC<Types> = ({ title, items, date, handleClose, clickShowTransactions }) => {
-  const {
-    data: { user },
-  } = useSession();
-  const { data: currencies } = useCurrencies();
+  const { data: session } = useSession();
+  const authUser = session!.user;
 
   const generateWeeksForCurrentMonth = () => {
     const parsedDate = parseDate(date);
@@ -82,7 +80,7 @@ const DetailsCalendar: React.FC<Types> = ({ title, items, date, handleClose, cli
             key={day}
             item={budgetOnDate}
             date={currentDate}
-            currency={user.currency}
+            currency={authUser.currency}
             clickShowTransactions={clickShowTransactions}
           />
         </div>,

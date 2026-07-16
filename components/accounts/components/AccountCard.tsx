@@ -86,7 +86,7 @@ const AccountCard: React.FC<Types> = ({ account }) => {
               <span className="truncate text-lg">{account.title}</span>
               <div className="flex items-center gap-1.5 rounded-full bg-blue-50 px-2 py-0.5">
                 <UserIcon className="h-3 w-3 text-blue-500" />
-                <span className="max-w-[120px] truncate text-xs font-medium text-blue-600">
+                <span className="max-w-30 truncate text-xs font-medium text-blue-600">
                   {getUser(account.user)?.username}
                 </span>
               </div>
@@ -95,7 +95,7 @@ const AccountCard: React.FC<Types> = ({ account }) => {
         </div>
       </Card.CardHeader>
       <Card.CardContent>
-        <div className="flex h-[120px] flex-col">
+        <div className="h-30 flex flex-col">
           {isZeroState ? (
             <div className="flex h-full flex-col items-center justify-center gap-1">
               <div className="text-muted-foreground">No expenses for this month yet</div>
@@ -104,7 +104,7 @@ const AccountCard: React.FC<Types> = ({ account }) => {
           ) : (
             <div className="flex h-full flex-col">
               <div>
-                <div className="h-[44px]">
+                <div className="h-11">
                   {income > 0 ? (
                     <IncomeDisplay income={income} currencySign={currencySign} incomePercentage={incomePercentage} />
                   ) : (

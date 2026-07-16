@@ -84,20 +84,20 @@ const BudgetItem: React.FC<Types> = ({
         id={budget.uuid}
         isLoading={isDragLoading}
         className={cn(
-          'group absolute flex h-[80px] w-full flex-col justify-between rounded-md p-2',
+          'group absolute flex h-20 w-full flex-col justify-between rounded-md p-1',
           day === 1 && 'hover:left-4',
           day === 0 && 'hover:right-4',
 
-          !isDragging && 'hover:z-20 hover:h-[100px] hover:w-[290px] hover:scale-110 hover:shadow-xl',
+          !isDragging && 'hover:h-25 hover:w-72.5 hover:z-20 hover:scale-110 hover:shadow-xl',
           !budget.isCompleted && ['bg-white', isSameUser ? 'shadow-md' : 'text-blue-500'],
-          budget.isCompleted && 'bg-slate-300 opacity-[90%] grayscale-[40%]',
+          budget.isCompleted && 'grayscale-40 bg-slate-300 opacity-90',
         )}
       >
         <div
           className={cn(
             'absolute left-0 top-0 h-0 w-0 rounded-tl-sm border-r-transparent',
-            budget.recurrent === 'monthly' && 'border-r-[25px] border-t-[25px] border-t-cyan-400',
-            budget.recurrent === 'weekly' && 'border-r-[25px] border-t-[25px] border-t-orange-400',
+            budget.recurrent === 'monthly' && 'border-r-25 border-t-25 border-t-cyan-400',
+            budget.recurrent === 'weekly' && 'border-r-25 border-t-25 border-t-orange-400',
           )}
         ></div>
         {budget.isCompleted && (
@@ -108,7 +108,7 @@ const BudgetItem: React.FC<Types> = ({
         <div className="flex flex-row items-center gap-1">
           {!isSameUser && (
             <>
-              <div className={cn('absolute left-6 top-[4px] flex items-center align-middle group-hover:hidden')}>
+              <div className={cn('absolute left-6 top-1 flex items-center align-middle group-hover:hidden')}>
                 <Avatar className="h-4 w-4">
                   <AvatarFallback className="bg-violet-500 text-xs font-bold text-white">
                     {budgetUser?.username.charAt(0)}
@@ -130,7 +130,7 @@ const BudgetItem: React.FC<Types> = ({
           <div
             className={cn(
               'flex grow overflow-hidden text-ellipsis whitespace-nowrap text-sm font-semibold',
-              !isDragging && 'group-hover:ml-3 group-hover:text-base',
+              !isDragging && 'group-hover:ml-1 group-hover:text-base',
             )}
           >
             <span>{budget.title}</span>
@@ -216,16 +216,18 @@ const BudgetItem: React.FC<Types> = ({
           <Button
             disabled={isCompleting}
             variant="outline"
-            className={cn('h-2 bg-white px-3 text-xs', budget.isCompleted && 'bg-gray-400')}
+            size="xs"
+            className={cn('bg-background', budget.isCompleted && 'bg-muted-background')}
             onClick={handleClickComplete}
           >
-            {!isCompleting && <Check className={cn('h-4 text-gray-400', budget.isCompleted && 'text-white')} />}
+            {!isCompleting && <Check className={cn('h-4 text-muted-foreground', budget.isCompleted && 'text-white')} />}
             {isCompleting && <Loader className={cn('h-4 text-gray-400', budget.isCompleted && 'text-white')} />}
           </Button>
           <Button
             disabled={isLoading}
             variant="outline"
-            className="h-2 w-full bg-slate-200 px-3 text-xs"
+            size="xs"
+            className="bg-background"
             onClick={() => setIsAddTransactionDialogOpened(true)}
           >
             <Plus className="h-4 w-4" />
@@ -233,7 +235,8 @@ const BudgetItem: React.FC<Types> = ({
           <Button
             disabled={isLoading}
             variant="outline"
-            className="h-2 bg-white px-3 text-xs"
+            size="xs"
+            className="bg-background"
             onClick={() => clickShowTransactions(budget.uuid)}
           >
             <ScrollText className="h-4 w-4" />
@@ -241,16 +244,13 @@ const BudgetItem: React.FC<Types> = ({
           <Button
             disabled={isLoading}
             variant="outline"
-            className="h-2 bg-white px-3 text-xs"
+            size="xs"
+            className="bg-background"
             onClick={() => setIsEditDialogOpened(true)}
           >
             <Edit className="h-4 w-4" />
           </Button>
-          <Button
-            variant="destructive"
-            className="h-2 border-2 border-red-500 px-3"
-            onClick={() => setIsConfirmDeleteDialogOpened(true)}
-          >
+          <Button variant="destructive" size="xs" onClick={() => setIsConfirmDeleteDialogOpened(true)}>
             <Trash className="h-4 w-4" />
           </Button>
         </div>
