@@ -24,7 +24,6 @@ interface OutcomeCellProps {
   commonInputClass?: string;
   nextId?: number;
   currencyInputRef?: React.RefObject<HTMLInputElement>;
-  isInvalid?: boolean;
   handleAmountChange?: (id: number, field: keyof RowData, value: any) => void;
   handleChange?: (id: number, field: keyof RowData, value: any) => void;
   handleKeyDown?: (e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>, id: number) => void;
@@ -53,7 +52,6 @@ export const OutcomeCell: React.FC<OutcomeCellProps> = ({
   commonInputClass,
   nextId,
   currencyInputRef,
-  isInvalid,
   handleAmountChange,
   handleChange,
   handleKeyDown,
@@ -98,7 +96,6 @@ export const OutcomeCell: React.FC<OutcomeCellProps> = ({
             handleChange={handleChange}
             handleKeyDown={handleKeyDown}
             row={row}
-            isInvalid={isInvalid}
             isSaved={isSaved}
           />
         </div>

@@ -149,7 +149,6 @@ export const renderCellFromRegistry = ({
           commonInputClass={commonInputClass}
           nextId={nextId}
           currencyInputRef={currencyInputRef}
-          isInvalid={isInvalid}
           handleAmountChange={handleAmountChange}
           handleChange={handleChange}
           handleKeyDown={handleKeyDown}

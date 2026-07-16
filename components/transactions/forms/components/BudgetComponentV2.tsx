@@ -83,7 +83,7 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
     handleChange(row.id, 'budget', value);
     handleChange(row.id, 'budgetName', budget?.title || '');
     handleChange(row.id, 'isCompleted', budget?.isCompleted || false);
-    handleChange(row.id, 'category', budget?.category || '');
+    handleChange(row.id, 'category', '');
   };
 
   const handleCreateBudget = async () => {
@@ -153,7 +153,7 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
         <Slc.SelectTrigger
           className={cn(
             'h-8 w-full border-0 bg-white px-2 text-left text-sm focus:border-primary focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700',
-            isInvalid && 'outline outline-red-400',
+            isInvalid && 'border-2 border-red-400',
           )}
           onKeyDown={(e) => handleKeyDown(e, row.id)}
         >

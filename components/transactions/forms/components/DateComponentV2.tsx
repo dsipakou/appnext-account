@@ -23,7 +23,6 @@ export default function DateComponent({ user, value, handleChange, row, isInvali
   const [openCalendar, setOpenCalendar] = React.useState<number | null>(null);
 
   const onChange = (value: Date) => {
-    console.log(value);
     handleChange(row.id, 'date', value);
     if (!isSameWeek(value, row.date)) {
       handleChange(row.id, 'budget', null);
@@ -41,8 +40,7 @@ export default function DateComponent({ user, value, handleChange, row, isInvali
           <Button
             variant="outline"
             className={cn(
-              'mx-1 h-8 w-full justify-start border-0 bg-white px-2 text-left text-sm font-normal',
-              'focus:border-primary focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700',
+              'mx-1 h-8 cursor-pointer border-0 text-sm font-normal',
               isInvalid && 'outline outline-red-400',
             )}
           >

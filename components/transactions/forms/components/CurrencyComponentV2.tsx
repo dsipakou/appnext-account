@@ -20,21 +20,12 @@ type Props = {
   user: string;
   value: string;
   row: RowData;
-  isInvalid: boolean;
   isSaved: boolean;
   handleChange: (id: number, key: string, value: string) => void;
   handleKeyDown: (e: React.KeyboardEvent, id: number) => void;
 };
 
-export default function CurrencyComponent({
-  user,
-  value,
-  row,
-  isInvalid,
-  isSaved,
-  handleChange,
-  handleKeyDown,
-}: Props) {
+export default function CurrencyComponent({ user, value, row, isSaved, handleChange, handleKeyDown }: Props) {
   const [selectedDate, setSelectedDate] = React.useState<Date>(row.date || new Date());
   const [budgetUuid, setBudgetUuid] = React.useState<string>('');
   const [weekStart, setWeekStart] = React.useState<string>(getStartOfWeek(row.date || new Date()));
@@ -107,8 +98,6 @@ export default function CurrencyComponent({
     handleChange(row.id, 'currency', preselectedValue() as string);
   }, [isBudgetCurrencyAvailable, isDefaultCurrencyAvailable]);
 
-  console.log(row);
-
   return (
     <Slc.Select
       value={value as string}
@@ -124,7 +113,6 @@ export default function CurrencyComponent({
         className={cn(
           'h-8 w-24 border-0 bg-white px-2 text-left text-sm',
           'focus:border-primary focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700',
-          isInvalid && 'outline outline-red-400',
         )}
         onKeyDown={(e) => handleKeyDown(e, row.id)}
       >
