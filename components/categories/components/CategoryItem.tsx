@@ -1,25 +1,21 @@
 // System
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { roundToNearestMinutes } from 'date-fns';
 import { GripVertical, Pencil, ScrollText, X } from 'lucide-react';
 import React from 'react';
 
-// Components
 import { ReassignTransactionsForm } from '@/components/categories/forms';
 import { ConfirmDeleteForm } from '@/components/categories/forms';
-// UI
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import * as Ppv from '@/components/ui/popover';
 import * as Slc from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import * as Tlt from '@/components/ui/tooltip';
-// Utils
 import { cn } from '@/lib/utils';
 
-// Types
-import { Category } from '../types';
+import { Category, CategoryType } from '../types';
+import { Badge } from '@/components/ui/badge';
 
 interface Props {
   id: string;
@@ -69,13 +65,14 @@ export const CategoryItem: React.FC<Props> = ({
   return (
     <div key={category.uuid} ref={setNodeRef} style={style}>
       <Separator />
-      <div className="group my-1 flex flex-nowrap p-1" key={category.uuid}>
+      <div className="group my-1 flex flex-nowrap items-center p-1" key={category.uuid}>
         <div className="ml-2 flex items-center">
           <div className={cn('flex cursor-grab items-center active:cursor-grabbing')} {...attributes} {...listeners}>
             <GripVertical className={cn('h-4 w-4 text-gray-400', isReordering && 'invisible')} />
           </div>
         </div>
         <span className="ml-4 flex h-6 items-center">{category.name}</span>
+        <div className="pl-2">{category.type === CategoryType.CapitalExpense && <Badge>Capital Expense</Badge>}</div>
         <span>
           {!isDragging && (
             <ScrollText

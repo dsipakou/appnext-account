@@ -3,7 +3,7 @@ name: Test and Deploy
 on:
   push:
     branches:
-      - "**"
+      - '**'
   workflow_dispatch:
 
 jobs:

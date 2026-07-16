@@ -31,9 +31,8 @@ const Index = () => {
       <Toolbar title={'Categories'}>
         <div className="flex rounded-md border bg-blue-500">
           <Button
-            className="w-[180px] p-1 disabled:opacity-100"
+            className="w-45 p-1 disabled:opacity-100"
             disabled={activeType === 'outcome'}
-            variant="none"
             onClick={() => setActiveType('outcome')}
           >
             <span
@@ -43,9 +42,8 @@ const Index = () => {
             </span>
           </Button>
           <Button
-            className="w-[180px] p-1 disabled:opacity-100"
+            className="w-45 p-1 disabled:opacity-100"
             disabled={activeType === 'income'}
-            variant="none"
             onClick={() => setActiveType('income')}
           >
             <span

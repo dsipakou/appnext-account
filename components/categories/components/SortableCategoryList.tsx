@@ -56,7 +56,6 @@ export const SortableCategoryList: React.FC<Props> = ({
     if (!over) return;
     if (active.id !== over.id) {
       setLoading(true);
-      console.log('over', over);
       if (over.data?.current?.sortable.index === undefined) return;
 
       // Optimistically update the UI
