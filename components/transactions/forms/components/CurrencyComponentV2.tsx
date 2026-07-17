@@ -148,7 +148,7 @@ export default function CurrencyComponent({ user, value, row, isSaved, handleCha
               <Slc.SelectItem className="pr-0 italic" key={item.uuid} value={item.uuid}>
                 <div className="flex items-center gap-2">
                   {item.code}
-                  <Clock2 className="h-4 w-4" />
+                  <Clock2 className="h-3 w-3" />
                 </div>
               </Slc.SelectItem>
             ))}
