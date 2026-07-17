@@ -44,18 +44,28 @@ export default function CurrencyComponent({ user, value, row, isSaved, handleCha
   const isBudgetCurrencyAvailable = budgetCurrency
     ? availableRates.find((item: AvailableRate) => item.currencyCode === budgetCurrency.code)
     : false;
-  const activeCurrencies = currencies.filter((item: Currency) => {
-    const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code);
-    return rate && (item.isBase || rate.rateDate === getFormattedDate(row.date));
-  });
-  const outdatedCurrencies = currencies.filter((item: Currency) => {
-    const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code);
-    return rate && !(item.isBase || rate.rateDate === getFormattedDate(row.date));
-  });
-  const unavailableCurrencies = currencies.filter((item: Currency) => {
-    const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code);
-    return !rate;
-  });
+
+  const ratesByCode = React.useMemo(() => new Map(availableRates.map((r) => [r.currencyCode, r])), [availableRates]);
+  const formattedDate = React.useMemo(() => getFormattedDate(row.date || new Date()), [row.date]);
+  const { activeCurrencies, outdatedCurrencies, unavailableCurrencies } = React.useMemo(() => {
+    const active = [];
+    const outdated = [];
+    const unavailable = [];
+
+    for (const currency of currencies) {
+      const rate = ratesByCode.get(currency.code);
+
+      if (!rate) {
+        unavailable.push(currency);
+      } else if (currency.isBase || rate.rateDate === formattedDate) {
+        active.push(currency);
+      } else {
+        outdated.push(currency);
+      }
+    }
+
+    return { activeCurrencies: active, outdatedCurrencies: outdated, unavailableCurrencies: unavailable };
+  }, [currencies, ratesByCode, formattedDate]);
 
   const defaultCurrency = currencies.find((item: Currency) => item.isDefault);
   const isDefaultCurrencyAvailable = availableRates.find(
