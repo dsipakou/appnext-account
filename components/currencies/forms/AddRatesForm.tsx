@@ -3,7 +3,7 @@
 import { Trash } from 'lucide-react';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import InputMask from 'react-input-mask';
+import { MaskedInput } from '@/components/ui/currency-input';
 import { useSWRConfig } from 'swr';
 
 import ConfirmClearRatesForm from '@/components/currencies/forms/ConfirmClearRatesForm';
@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import * as Dlg from '@/components/ui/dialog';
 import * as Frm from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 // Hooks
 import { RateResponse, useCreateBatchedRates, useRatesOnDate } from '@/hooks/rates';
@@ -138,9 +137,12 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
                           render={({ field }) => (
                             <Frm.FormItem className="flex items-center gap-2">
                               <Frm.FormControl>
-                                <InputMask mask="9.9999" disabled={isCreating} {...field}>
-                                  {() => <Input className="w-20" />}
-                                </InputMask>
+                                <MaskedInput
+                                  mask="0.0000"
+                                  definitions={{
+                                    0: /[0-9]/,
+                                  }}
+                                />
                               </Frm.FormControl>
                               <Frm.FormLabel>{item.sign}</Frm.FormLabel>
                             </Frm.FormItem>
