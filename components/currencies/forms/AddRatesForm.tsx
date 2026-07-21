@@ -3,12 +3,12 @@
 import { Trash } from 'lucide-react';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { MaskedInput } from '@/components/ui/currency-input';
 import { useSWRConfig } from 'swr';
 
 import ConfirmClearRatesForm from '@/components/currencies/forms/ConfirmClearRatesForm';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
+import { MaskedInput } from '@/components/ui/currency-input';
 import * as Dlg from '@/components/ui/dialog';
 import * as Frm from '@/components/ui/form';
 import { useToast } from '@/components/ui/use-toast';

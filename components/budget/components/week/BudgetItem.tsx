@@ -216,7 +216,7 @@ const BudgetItem: React.FC<Types> = ({
           <Button
             disabled={isCompleting}
             variant="outline"
-            size="xs"
+            size="slim"
             className={cn('bg-background', budget.isCompleted && 'bg-muted-background')}
             onClick={handleClickComplete}
           >
@@ -226,7 +226,7 @@ const BudgetItem: React.FC<Types> = ({
           <Button
             disabled={isLoading}
             variant="outline"
-            size="xs"
+            size="slim"
             className="bg-background"
             onClick={() => setIsAddTransactionDialogOpened(true)}
           >
@@ -235,7 +235,7 @@ const BudgetItem: React.FC<Types> = ({
           <Button
             disabled={isLoading}
             variant="outline"
-            size="xs"
+            size="slim"
             className="bg-background"
             onClick={() => clickShowTransactions(budget.uuid)}
           >
@@ -244,13 +244,13 @@ const BudgetItem: React.FC<Types> = ({
           <Button
             disabled={isLoading}
             variant="outline"
-            size="xs"
+            size="slim"
             className="bg-background"
             onClick={() => setIsEditDialogOpened(true)}
           >
             <Edit className="h-4 w-4" />
           </Button>
-          <Button variant="destructive" size="xs" onClick={() => setIsConfirmDeleteDialogOpened(true)}>
+          <Button variant="destructive" size="slim" onClick={() => setIsConfirmDeleteDialogOpened(true)}>
             <Trash className="h-4 w-4" />
           </Button>
         </div>
