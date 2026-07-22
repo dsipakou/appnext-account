@@ -70,6 +70,8 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    mode: 'onSubmit',
+    reValidateMode: 'onBlur',
     defaultValues: {
       title: '',
       amount: 0,
@@ -187,7 +189,7 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
   const defaultTrigger = <Button className="mx-2">+ Add budget</Button>;
 
   return (
-    <Dialog onOpenChange={clean} open={open}>
+    <Dialog onOpenChange={clean} open={open} modal={false}>
       <DialogTrigger asChild>{customTrigger || defaultTrigger}</DialogTrigger>
       <DialogContent className="min-w-200">
         <DialogHeader>
@@ -473,7 +475,6 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                                 onSelect={field.onChange}
                                 disabled={(date) => isCreating || date < new Date('1900-01-01') || isSomeDay}
                                 weekStartsOn={1}
-                                initialFocus
                               />
                             </FormControl>
                             <FormMessage />
