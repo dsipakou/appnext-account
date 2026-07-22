@@ -1,7 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { MaskedInput } from '@/components/ui/currency-input';
 import { Repeat } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useSWRConfig } from 'swr';
 import * as z from 'zod';
@@ -29,7 +30,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ToggleGroup, ToggleGroupItem, ToggleGroupSeparator } from '@/components/ui/toggle-group';
 import { useToast } from '@/components/ui/use-toast';
 import { User } from '@/components/users/types';
-import { useCreateBudget, usePendingBudget } from '@/hooks/budget';
+import { useCreateBudget } from '@/hooks/budget';
 import { useCategories } from '@/hooks/categories';
 import { useCurrencies } from '@/hooks/currencies';
 import { useUsers } from '@/hooks/users';
@@ -37,34 +38,35 @@ import { cn } from '@/lib/utils';
 import { getFormattedDate } from '@/utils/dateUtils';
 
 interface Types {
-  monthUrl: string;
-  weekUrl: string;
   date?: Date;
   customTrigger?: React.ReactElement;
 }
 
 const formSchema = z.object({
   title: z.string().min(2, {
-    message: 'Title must be at least 2 characters',
+    error: 'Title must be at least 2 characters',
   }),
   amount: z.coerce.number().min(0, {
-    message: 'Should be positive number',
+    error: 'Should be positive number',
   }),
-  currency: z.string().uuid({ message: 'Please, select currency' }),
-  user: z.string().uuid({ message: 'Please, select user' }),
-  category: z.string().uuid({ message: 'Please, select category' }),
+  currency: z.uuid({ error: 'Please, select currency' }),
+  user: z.uuid({ error: 'Please, select user' }),
+  category: z.uuid({ error: 'Please, select category' }),
   repeatType: z.enum(['', 'weekly', 'monthly']),
   numberOfRepetitions: z.coerce.number().int().positive().optional(),
   budgetDate: z.date(),
   description: z.string().optional(),
 });
 
-const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
+const AddForm: FC<Types> = ({ date, customTrigger }) => {
   const { mutate } = useSWRConfig();
-  const [parentList, setParentList] = useState<Category[]>([]);
   const [isSomeDay, setIsSomeDay] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
-  const { url: pendingUrl } = usePendingBudget();
+
+  const { data: session } = useSession();
+  const authUser = session!.user;
+
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -81,6 +83,19 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
     },
   });
 
+  const { data: users } = useUsers();
+
+  const { data: currencies } = useCurrencies();
+
+  const { data: categories = [], isLoading: isCategoriesLoading } = useCategories();
+
+  const { trigger: createBudget, isMutating: isCreating } = useCreateBudget();
+
+  const parentList = useMemo(
+    () => categories.filter((category) => category.parent === null && category.type === CategoryType.Expense),
+    [categories],
+  );
+
   useEffect(() => {
     if (open) {
       form.setValue('budgetDate', date || new Date());
@@ -90,29 +105,6 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
       }, 100);
     }
   }, [open]);
-
-  const { toast } = useToast();
-
-  const {
-    data: { user: authUser },
-  } = useSession();
-
-  const { data: users } = useUsers();
-
-  const { data: currencies } = useCurrencies();
-
-  const { data: categories = [], isLoading: isCategoriesLoading } = useCategories();
-
-  const { trigger: createBudget, isMutating: isCreating } = useCreateBudget();
-
-  useEffect(() => {
-    if (isCategoriesLoading) return;
-
-    const parents = categories.filter(
-      (category: Category) => category.parent === null && category.type === CategoryType.Expense,
-    );
-    setParentList(parents);
-  }, [isCategoriesLoading]);
 
   useEffect(() => {
     form.setValue('currency', getDefaultCurrency());
@@ -237,7 +229,23 @@ const AddForm: FC<Types> = ({ monthUrl, weekUrl, date, customTrigger }) => {
                               <FormControl>
                                 <div className="flex gap-2">
                                   <div>
-                                    <Input placeholder="10" disabled={isCreating} id="amount" {...field} />
+                                    <MaskedInput
+                                      {...field}
+                                      mask={Number}
+                                      unmask="typed"
+                                      value={field.value}
+                                      onAccept={(value) => field.onChange(value)}
+                                      id="amount"
+                                      disabled={isCreating}
+                                      scale={2}
+                                      signed={false}
+                                      thousandsSeparator=","
+                                      radix="."
+                                      normalizeZeros
+                                      padFractionalZeros={false}
+                                      mapToRadix={[',']}
+                                    />
+                                    {/* <Input placeholder="10" disabled={isCreating} id="amount" {...field} /> */}
                                   </div>
                                   <span className="flex items-center text-sm">
                                     {form.watch('currency') && getCurrencySign()}

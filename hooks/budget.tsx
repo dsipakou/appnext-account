@@ -8,7 +8,7 @@ import { deleteReq, fetchReq, patchReq, postReq } from '@/plugins/axios';
 
 import { Response } from './types';
 
-export const useCreateBudget = (payload: any) => {
+export const useCreateBudget = () => {
   const { trigger, isMutating } = useSWRMutation('budget/', postReq, { revalidate: true });
 
   return {

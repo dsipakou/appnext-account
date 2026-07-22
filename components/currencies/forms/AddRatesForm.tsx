@@ -138,7 +138,11 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
                             <Frm.FormItem className="flex items-center gap-2">
                               <Frm.FormControl>
                                 <MaskedInput
+                                  {...field}
+                                  value={field.value}
+                                  onAccept={(value) => field.onChange(value)}
                                   mask="0.0000"
+                                  unmask="typed"
                                   definitions={{
                                     0: /[0-9]/,
                                   }}
