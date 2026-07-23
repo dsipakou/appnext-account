@@ -1,7 +1,4 @@
-import { GridRenderCellParams } from '@mui/x-data-grid';
 import React from 'react';
-
-import { BudgetSlim, WeekBudgetItem } from '@/components/budget/types';
 
 import { TransactionResponse } from '../../types';
 

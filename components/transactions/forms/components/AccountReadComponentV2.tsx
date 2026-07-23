@@ -1,10 +1,5 @@
-import { GridRenderCellParams } from '@mui/x-data-grid';
 import { CreditCard } from 'lucide-react';
 import React from 'react';
-
-import { Account } from '@/components/accounts/types';
-
-interface Types extends GridRenderCellParams<Account> {}
 
 const AccountReadComponentV2: React.FC<Types> = (params) => {
   return (
