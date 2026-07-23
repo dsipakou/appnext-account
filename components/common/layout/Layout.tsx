@@ -150,7 +150,7 @@ const Layout: FC<Props> = ({ children }) => {
   );
 
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex h-screen flex-col bg-secondary">
       <div
         className={cn(
           'delay-50 fixed z-40 flex h-screen flex-col justify-between overflow-hidden bg-white drop-shadow-sm transition-all ease-in-out',
