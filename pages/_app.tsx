@@ -2,7 +2,6 @@ import '@/plugins/axios';
 import '@/date-fns.config.js';
 import '../styles/globals.css';
 
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
@@ -13,15 +12,9 @@ import React, { lazy } from 'react';
 
 import { Toaster } from '@/components/ui/toaster';
 
-import typography from '../theme/typography';
-
 const Layout = lazy(async () => await import('../components/common/layout/Layout'));
 
 const App = ({ Component, pageProps: { session, ...pageProps } }: AppProps<{ session: Session }>) => {
-  const themeOptions = { typography };
-
-  const theme = createTheme({ ...themeOptions });
-
   if (Component.layout === 'public') {
     return (
       <>
@@ -29,9 +22,7 @@ const App = ({ Component, pageProps: { session, ...pageProps } }: AppProps<{ ses
           <title>I spent a Dollar</title>
         </Head>
         <SessionProvider session={session}>
-          <ThemeProvider theme={theme}>
-            <Component {...pageProps} />
-          </ThemeProvider>
+          <Component {...pageProps} />
         </SessionProvider>
       </>
     );
@@ -43,20 +34,18 @@ const App = ({ Component, pageProps: { session, ...pageProps } }: AppProps<{ ses
         <title>I spent a Dollar</title>
       </Head>
       <SessionProvider session={session}>
-        <ThemeProvider theme={theme}>
-          <Toaster />
-          {Component.auth ? (
-            <Auth>
-              <Layout>
-                <Component {...pageProps} />
-              </Layout>
-            </Auth>
-          ) : (
+        <Toaster />
+        {Component.auth ? (
+          <Auth>
             <Layout>
               <Component {...pageProps} />
             </Layout>
-          )}
-        </ThemeProvider>
+          </Auth>
+        ) : (
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        )}
       </SessionProvider>
     </>
   );
