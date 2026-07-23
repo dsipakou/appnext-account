@@ -205,12 +205,7 @@ const Container: React.FC<Types> = ({
                     !isDragging && 'group-hover/col:visible',
                   )}
                 >
-                  <AddForm
-                    date={daysFullFormatArray[weekDayIndex].fullDate}
-                    weekUrl={weekUrl}
-                    monthUrl={monthUrl}
-                    customTrigger={addBudgetButton}
-                  />
+                  <AddForm date={daysFullFormatArray[weekDayIndex].fullDate} customTrigger={addBudgetButton} />
                 </div>
               </div>
             </Droppable>

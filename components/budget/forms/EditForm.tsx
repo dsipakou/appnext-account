@@ -1,6 +1,6 @@
-// System
 import { zodResolver } from '@hookform/resolvers/zod';
-import React from 'react';
+import { Repeat } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useSWRConfig } from 'swr';
 import * as z from 'zod';
@@ -9,29 +9,33 @@ import { Category, CategoryType } from '@/components/categories/types';
 import { Currency } from '@/components/currencies/types';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-// UI
-import * as Dialog from '@/components/ui/dialog';
-import * as Form from '@/components/ui/form';
+import { MaskedInput } from '@/components/ui/currency-input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import * as RadioGroup from '@/components/ui/radio-group';
-import * as Select from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { ToggleGroup, ToggleGroupItem, ToggleGroupSeparator } from '@/components/ui/toggle-group';
 import { useToast } from '@/components/ui/use-toast';
-// Components
 import { User } from '@/components/users/types';
 import { useBudgetDetails, useEditBudget } from '@/hooks/budget';
 import { useCategories } from '@/hooks/categories';
 import { useCurrencies } from '@/hooks/currencies';
-// Hooks
 import { useUsers } from '@/hooks/users';
-// Utils
+import { cn } from '@/lib/utils';
 import { getFormattedDate, parseDate } from '@/utils/dateUtils';
 import { extractErrorMessage } from '@/utils/stringUtils';
-
-// Styles
-import styles from '../style/AddForm.module.css';
 
 interface Types {
   open: boolean;
@@ -46,9 +50,9 @@ const formSchema = z.object({
   amount: z.coerce.number().min(0, {
     message: 'Should be positive number',
   }),
-  currency: z.string().uuid({ message: 'Please, select currency' }),
-  user: z.string().uuid({ message: 'Please, select user' }),
-  category: z.string().uuid({ message: 'Please, select category' }),
+  currency: z.uuid({ error: 'Please, select currency' }),
+  user: z.uuid({ error: 'Please, select user' }),
+  category: z.uuid({ error: 'Please, select category' }),
   repeatType: z.enum(['', 'weekly', 'monthly']),
   numberOfRepetitions: z.coerce.number().int().positive().optional(),
   budgetDate: z.date({
@@ -57,19 +61,25 @@ const formSchema = z.object({
   description: z.string().or(z.null()),
 });
 
-const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) => {
+const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
   const { mutate } = useSWRConfig();
-  const [parentList, setParentList] = React.useState<Category[]>([]);
-  const [month, setMonth] = React.useState<Date>(new Date());
-  const [isSomeDay, setIsSomeDay] = React.useState<boolean>(false);
+  const [isSomeDay, setIsSomeDay] = useState<boolean>(false);
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    mode: 'onSubmit',
+    reValidateMode: 'onBlur',
     defaultValues: {
-      repeatType: '',
-      amount: 0,
       title: '',
+      amount: 0,
+      currency: '',
+      user: '',
+      category: '',
+      repeatType: '',
+      numberOfRepetitions: undefined,
+      budgetDate: new Date(),
+      description: '',
     },
   });
 
@@ -79,40 +89,46 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
   const { trigger: editBudget, isMutating: isEditing } = useEditBudget(uuid);
   const { data: budgetDetails } = useBudgetDetails(uuid);
 
-  React.useEffect(() => {
-    if (!categories) return;
+  const parentList = useMemo(
+    () => categories.filter((category) => category.parent === null && category.type === CategoryType.Expense),
+    [categories],
+  );
 
-    const parents = categories.filter(
-      (category: Category) => category.parent === null && category.type === CategoryType.Expense,
-    );
-    setParentList(parents);
-  }, [categories]);
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
 
-  React.useEffect(() => {
-    if (!budgetDetails || parentList.length === 0) return;
+    // Cannot focus immediately, need to wait for the dialog animation to finish
+    setTimeout(() => {
+      form.setFocus('title');
+    }, 100);
+  }, [form, open]);
+
+  useEffect(() => {
+    if (!budgetDetails || parentList.length === 0) {
+      return;
+    }
 
     setIsSomeDay(!budgetDetails.budgetDate);
 
     form.setValue('category', budgetDetails.category);
     form.setValue('user', budgetDetails.user);
     form.setValue('currency', budgetDetails.currency);
-    form.setValue('amount', budgetDetails.amount || '');
+    form.setValue('amount', budgetDetails.amount ?? 0);
     form.setValue('title', budgetDetails.title || '');
-    form.setValue('category', budgetDetails.category);
     form.setValue('repeatType', budgetDetails.recurrent || '');
     form.setValue('numberOfRepetitions', budgetDetails.numberOfRepetitions ?? undefined);
     form.setValue('budgetDate', budgetDetails.budgetDate ? parseDate(budgetDetails.budgetDate) : new Date());
     form.setValue('description', budgetDetails.description || '');
-
-    setMonth(parseDate(budgetDetails.budgetDate));
-  }, [budgetDetails, parentList]);
+  }, [budgetDetails, form, parentList]);
 
   const getCurrencySign = (): string => {
-    return currencies.find((item: Currency) => item.uuid === form.getValues().currency)?.sign;
+    return currencies.find((item: Currency) => item.uuid === form.getValues().currency)?.sign || '';
   };
 
-  const handleSave = async (payload: z.infer<typeof formSchema>): void => {
-    const budgetData: any = {
+  const handleSave = async (payload: z.infer<typeof formSchema>): Promise<void> => {
+    const budgetData = {
       title: payload.title,
       amount: payload.amount,
       currency: payload.currency,
@@ -121,17 +137,10 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
       budgetDate: isSomeDay ? null : getFormattedDate(payload.budgetDate),
       description: payload.description,
       recurrent: payload.repeatType,
+      numberOfRepetitions: payload.numberOfRepetitions ?? null,
     };
 
-    // Add numberOfRepetitions only if specified (null = infinite)
-    if (payload.numberOfRepetitions !== undefined) {
-      budgetData.numberOfRepetitions = payload.numberOfRepetitions;
-    } else {
-      budgetData.numberOfRepetitions = null; // Explicitly null for infinite
-    }
-
     try {
-      // TODO: Optimistic update here
       await editBudget(budgetData);
       mutate((key) => typeof key === 'string' && key.includes('budget/usage'), undefined);
       mutate((key) => typeof key === 'string' && key.includes('budget/weekly-usage'), undefined);
@@ -150,271 +159,329 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid, monthUrl, weekUrl }) =
     }
   };
 
-  const cleanFormErrors = (open: boolean) => {
-    if (!open) {
+  const cleanFormErrors = (nextOpen: boolean) => {
+    if (!nextOpen) {
       form.clearErrors();
       form.reset();
     }
-    setOpen(false);
+    setOpen(nextOpen);
   };
 
   return (
-    <Dialog.Dialog open={open} onOpenChange={cleanFormErrors}>
-      <Dialog.DialogContent className="min-w-[600px]">
-        <Dialog.DialogHeader>
-          <Dialog.DialogTitle>Edit budget</Dialog.DialogTitle>
-        </Dialog.DialogHeader>
-        <Form.Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
-            <div className="flex flex-col gap-3">
-              <div className="flex w-full">
-                <div className="flex sm:w-3/5">
-                  <Form.FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <Form.FormItem>
-                        <Form.FormLabel>Budget title</Form.FormLabel>
-                        <Form.FormControl>
-                          <Input disabled={isEditing} id="title" {...field} />
-                        </Form.FormControl>
-                        <Form.FormMessage />
-                      </Form.FormItem>
-                    )}
-                  />
-                </div>
-                <div className="flex sm:w-1/5">
-                  <Form.FormField
-                    control={form.control}
-                    name="amount"
-                    render={({ field }) => (
-                      <Form.FormItem>
-                        <Form.FormLabel>Amount</Form.FormLabel>
-                        <Form.FormControl>
-                          <div className="flex gap-2">
-                            <div>
-                              <Input disabled={isEditing} id="amount" {...field} />
-                            </div>
-                            <span className="flex w-5 items-center">{form.watch('currency') && getCurrencySign()}</span>
-                          </div>
-                        </Form.FormControl>
-                        <Form.FormMessage />
-                      </Form.FormItem>
-                    )}
-                  />
-                </div>
-                <div className="flex sm:w-1/5">
-                  <Form.FormField
-                    control={form.control}
-                    name="currency"
-                    render={({ field }) => (
-                      <Form.FormItem>
-                        <Form.FormLabel>Currency</Form.FormLabel>
-                        <Form.FormControl>
-                          <Select.Select disabled={isEditing} onValueChange={field.onChange} value={field.value}>
-                            <Select.SelectTrigger className="relative w-full">
-                              <Select.SelectValue placeholder="Select currency" />
-                            </Select.SelectTrigger>
-                            <Select.SelectContent>
-                              <Select.SelectGroup>
-                                {currencies &&
-                                  currencies.map((item: Currency) => (
-                                    <Select.SelectItem key={item.uuid} value={item.uuid}>
-                                      {item.verbalName}
-                                    </Select.SelectItem>
-                                  ))}
-                              </Select.SelectGroup>
-                            </Select.SelectContent>
-                          </Select.Select>
-                        </Form.FormControl>
-                        <Form.FormMessage />
-                      </Form.FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="flex w-full justify-between">
-                <div className="flex w-2/5 flex-col gap-4">
-                  <Form.FormField
-                    control={form.control}
-                    name="category"
-                    render={({ field }) => (
-                      <Form.FormItem>
-                        <Form.FormLabel>Category</Form.FormLabel>
-                        <Form.FormControl>
-                          <Select.Select
-                            disabled={isEditing || parentList.length === 0}
-                            onValueChange={field.onChange}
-                            value={field.value}
-                          >
-                            <Select.SelectTrigger className="relative w-[180px]">
-                              <Select.SelectValue placeholder="Select category" />
-                            </Select.SelectTrigger>
-                            <Select.SelectContent>
-                              <Select.SelectGroup>
-                                <Select.SelectLabel>Categories</Select.SelectLabel>
-                                {parentList.map((item: Category) => (
-                                  <Select.SelectItem key={item.uuid} value={item.uuid} className="flex items-center">
-                                    {item.icon && <span className="mr-2 text-lg">{item.icon}</span>}
-                                    <span>{item.name}</span>
-                                  </Select.SelectItem>
-                                ))}
-                              </Select.SelectGroup>
-                            </Select.SelectContent>
-                          </Select.Select>
-                        </Form.FormControl>
-                        <Form.FormMessage />
-                      </Form.FormItem>
-                    )}
-                  />
-                  <Form.FormField
-                    control={form.control}
-                    name="user"
-                    render={({ field }) => (
-                      <Form.FormItem>
-                        <Form.FormLabel>User</Form.FormLabel>
-                        <Form.FormControl>
-                          <Select.Select disabled={isEditing} onValueChange={field.onChange} value={field.value}>
-                            <Select.SelectTrigger className="relative w-[180px]">
-                              <Select.SelectValue placeholder="Select user" />
-                            </Select.SelectTrigger>
-                            <Select.SelectContent>
-                              <Select.SelectGroup>
-                                <Select.SelectLabel>Users</Select.SelectLabel>
-                                {users &&
-                                  users.map((item: User) => (
-                                    <Select.SelectItem key={item.uuid} value={item.uuid}>
-                                      {item.username}
-                                    </Select.SelectItem>
-                                  ))}
-                              </Select.SelectGroup>
-                            </Select.SelectContent>
-                          </Select.Select>
-                        </Form.FormControl>
-                        <Form.FormMessage />
-                      </Form.FormItem>
-                    )}
-                  />
-                  <Form.FormField
-                    control={form.control}
-                    name="repeatType"
-                    render={({ field }) => (
-                      <Form.FormItem>
-                        <Form.FormControl>
-                          <RadioGroup.RadioGroup
-                            disabled={isEditing}
-                            onValueChange={field.onChange}
-                            value={field.value}
-                            className={styles.radio}
-                          >
-                            <Label>
-                              <RadioGroup.RadioGroupItem value="" id="r1" />
-                              <span>Do not repeat</span>
+    <Dialog open={open} onOpenChange={cleanFormErrors}>
+      <DialogContent className="min-w-200">
+        <DialogHeader>
+          <DialogTitle>Edit budget</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-2">
+            <div className="flex flex-col gap-2">
+              <div className="grid grid-cols-12 gap-2">
+                <div className="col-span-7 flex flex-col gap-2">
+                  <div className="grid gap-2">
+                    <div className="flex flex-col gap-2">
+                      <FormField
+                        control={form.control}
+                        name="title"
+                        render={({ field }) => (
+                          <FormItem>
+                            <Label htmlFor="title" className="pl-1">
+                              Budget title
                             </Label>
-                            <Label>
-                              <RadioGroup.RadioGroupItem value="weekly" id="r1" />
-                              <span>Repeat Weekly</span>
+                            <FormControl>
+                              <Input placeholder="Title" disabled={isEditing} id="title" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="flex flex-col gap-2">
+                        <FormField
+                          control={form.control}
+                          name="amount"
+                          render={({ field }) => (
+                            <FormItem>
+                              <Label htmlFor="amount" className="pl-1">
+                                Amount
+                              </Label>
+                              <FormControl>
+                                <div className="flex gap-2">
+                                  <div>
+                                    <MaskedInput
+                                      {...field}
+                                      mask={Number}
+                                      unmask="typed"
+                                      value={field.value}
+                                      onAccept={(value) => field.onChange(value)}
+                                      id="amount"
+                                      disabled={isEditing}
+                                      scale={2}
+                                      signed={false}
+                                      thousandsSeparator=","
+                                      radix="."
+                                      normalizeZeros
+                                      padFractionalZeros={false}
+                                      mapToRadix={[',']}
+                                    />
+                                  </div>
+                                  <span className="flex items-center text-sm">
+                                    {form.watch('currency') && getCurrencySign()}
+                                  </span>
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <FormField
+                          control={form.control}
+                          name="currency"
+                          render={({ field }) => (
+                            <FormItem>
+                              <Label htmlFor="currency" className="pl-1">
+                                Currency
+                              </Label>
+                              <FormControl>
+                                <Select disabled={isEditing} onValueChange={field.onChange} value={field.value}>
+                                  <SelectTrigger className="relative w-full" id="currency">
+                                    <SelectValue placeholder="Select a currency" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectGroup>
+                                      <SelectLabel>Currencies</SelectLabel>
+                                      {currencies.map((item: Currency) => (
+                                        <SelectItem key={item.uuid} value={item.uuid}>
+                                          {item.code}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectGroup>
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <FormField
+                        control={form.control}
+                        name="category"
+                        render={({ field }) => (
+                          <FormItem>
+                            <Label htmlFor="category" className="pl-1">
+                              Category
                             </Label>
-                            <Label>
-                              <RadioGroup.RadioGroupItem value="monthly" id="r1" />
-                              <span>Repeat Monthly</span>
+                            <FormControl>
+                              <Select disabled={isEditing} onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger className="relative w-full" id="category">
+                                  <SelectValue placeholder="Select category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    <SelectLabel>Categories</SelectLabel>
+                                    {parentList.map((item: Category) => (
+                                      <SelectItem key={item.uuid} value={item.uuid} className="flex items-center">
+                                        {item.icon && <span className="mr-2 text-lg">{item.icon}</span>}
+                                        <span>{item.name}</span>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <FormField
+                        control={form.control}
+                        name="user"
+                        render={({ field }) => (
+                          <FormItem>
+                            <Label htmlFor="user" className="pl-1">
+                              User
                             </Label>
-                          </RadioGroup.RadioGroup>
-                        </Form.FormControl>
-                        <Form.FormMessage />
-                      </Form.FormItem>
-                    )}
-                  />
-                  {(form.watch('repeatType') === 'weekly' || form.watch('repeatType') === 'monthly') && (
-                    <Form.FormField
+                            <FormControl>
+                              <Select disabled={isEditing} onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger className="relative w-full" id="user">
+                                  <SelectValue placeholder="Select user" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    <SelectLabel>Budget owner</SelectLabel>
+                                    {users.map((item: User) => (
+                                      <SelectItem key={item.uuid} value={item.uuid}>
+                                        {item.username}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <FormField
+                        control={form.control}
+                        name="repeatType"
+                        render={({ field }) => (
+                          <FormItem>
+                            <Label htmlFor="repeat" className="pl-1">
+                              Repeat
+                            </Label>
+                            <FormControl>
+                              <ToggleGroup
+                                id="repeat"
+                                className="w-full"
+                                value={field.value ? [field.value] : ['__none__']}
+                                onValueChange={(values) => {
+                                  const value = values[0] ?? '__none__';
+
+                                  field.onChange(value === '__none__' ? '' : value);
+                                }}
+                                variant="outline"
+                              >
+                                <ToggleGroupItem className="w-1/3" value="__none__">
+                                  <span className="px-2">One-time budget</span>
+                                </ToggleGroupItem>
+                                <ToggleGroupSeparator />
+                                <ToggleGroupItem className="w-1/3" value="weekly">
+                                  <div className="mx-2 flex items-center gap-3">
+                                    <Repeat className="h-4 w-4" />
+                                    <span>Weekly</span>
+                                  </div>
+                                </ToggleGroupItem>
+                                <ToggleGroupSeparator />
+                                <ToggleGroupItem className="w-1/3" value="monthly">
+                                  <div className="mx-2 flex items-center gap-3">
+                                    <Repeat className="h-4 w-4" />
+                                    <span>Monthly</span>
+                                  </div>
+                                </ToggleGroupItem>
+                              </ToggleGroup>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div>
+                      {(form.watch('repeatType') === 'weekly' || form.watch('repeatType') === 'monthly') && (
+                        <FormField
+                          control={form.control}
+                          name="numberOfRepetitions"
+                          render={({ field }) => (
+                            <FormItem>
+                              <Label className="text-sm text-muted-foreground">
+                                Number of repetitions (leave empty for infinite)
+                              </Label>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min="1"
+                                  placeholder="Infinite"
+                                  disabled={isEditing}
+                                  {...field}
+                                  value={field.value ?? ''}
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+                                    field.onChange(value === '' ? undefined : parseInt(value, 10));
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+                    </div>
+                  </div>
+                  <div className="grid gap-2">
+                    <FormField
                       control={form.control}
-                      name="numberOfRepetitions"
+                      name="description"
                       render={({ field }) => (
-                        <Form.FormItem>
-                          <Label className="text-sm text-muted-foreground">
-                            Number of repetitions (leave empty for infinite)
+                        <FormItem>
+                          <Label htmlFor="description" className="pl-1">
+                            Descripion (optional)
                           </Label>
-                          <Form.FormControl>
-                            <Input placeholder="Infinite" disabled={isEditing} {...field} />
-                          </Form.FormControl>
-                          <Form.FormMessage />
-                        </Form.FormItem>
+                          <FormControl>
+                            <Textarea
+                              id="description"
+                              disabled={isEditing}
+                              placeholder="Add description if you want"
+                              className="h-full resize-none"
+                              {...field}
+                              value={field.value ?? ''}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
                     />
-                  )}
-                  <Form.FormField
-                    control={form.control}
-                    name="isSomeday"
-                    render={({ field }) => (
-                      <Form.FormItem className="flex justify-center">
-                        <Form.FormControl>
-                          <div className="mt-1 flex items-center gap-2">
-                            <Switch id="isSomeday" checked={isSomeDay} onClick={() => setIsSomeDay(!isSomeDay)} />
-                            <Label htmlFor="isSomeday">Save for later</Label>
-                          </div>
-                        </Form.FormControl>
-                        <Form.FormMessage />
-                      </Form.FormItem>
-                    )}
-                  />
+                  </div>
                 </div>
-                <div className="w-3/5 flex-1">
-                  {isSomeDay ? (
-                    <div className="flex flex-col items-center pt-10">
-                      <span className="text-lg font-semibold">Someday later</span>
-                      <span className="">This budget will appear in 'Saved for later' list</span>
+                <div className="col-span-5 h-full items-center justify-center">
+                  <div className="items-top flex h-full justify-center gap-2">
+                    <div className="h-full">
+                      <Separator orientation="vertical" className="h-full" />
                     </div>
-                  ) : (
-                    !isEditing && (
-                      <Form.FormField
+                    <div>
+                      <FormField
                         control={form.control}
                         name="budgetDate"
                         render={({ field }) => (
-                          <Form.FormItem className="flex justify-center">
-                            <Form.FormControl>
+                          <FormItem className="flex justify-center">
+                            <FormControl>
                               <Calendar
                                 mode="single"
-                                className="justify-center"
+                                className={cn('justify-center', isSomeDay && 'blur-xs')}
                                 selected={isSomeDay ? null : field.value}
                                 onSelect={field.onChange}
                                 disabled={(date) => isEditing || date < new Date('1900-01-01') || isSomeDay}
                                 weekStartsOn={1}
-                                initialFocus
                               />
-                            </Form.FormControl>
-                            <Form.FormMessage />
-                          </Form.FormItem>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
                         )}
                       />
-                    )
-                  )}
+                      <div className="flex flex-col items-start gap-2">
+                        <div>
+                          <Label htmlFor="isSomeday">Save for later</Label>
+                          <div className="mt-1 flex items-center gap-2">
+                            <Switch
+                              id="isSomeday"
+                              checked={isSomeDay}
+                              disabled={isEditing}
+                              onCheckedChange={setIsSomeDay}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
+              <div className="flex items-center justify-end gap-2">
+                <Button type="submit">Submit</Button>
+              </div>
             </div>
-            <div className="flex">
-              <Form.FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <Form.FormItem>
-                    <Form.FormControl>
-                      <Textarea
-                        disabled={isEditing}
-                        placeholder="Add description if you want"
-                        className="resize-none"
-                        {...field}
-                      />
-                    </Form.FormControl>
-                    <Form.FormMessage />
-                  </Form.FormItem>
-                )}
-              />
-            </div>
-            <Button type="submit">Submit</Button>
           </form>
-        </Form.Form>
-      </Dialog.DialogContent>
-    </Dialog.Dialog>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 };
 
