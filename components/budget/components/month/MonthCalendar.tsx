@@ -60,12 +60,17 @@ const MonthCalendar: React.FC<Types> = ({ date: monthDate, setMonthDate }) => {
         </PopoverTrigger>
         <PopoverContent className="h-full w-full p-0">
           <Calendar
-            mode="single"
+            captionLayout="dropdown"
+            startMonth={new Date(2020, 0)}
+            endMonth={new Date(2035, 11)}
             month={month}
-            onMonthChange={setMonth}
-            selected={range}
-            onSelect={(date: Date | undefined) => !(date == null) && setMonthDate(date)}
-            initialFocus
+            onMonthChange={(month) => {
+              setMonth(month);
+              setMonthDate(startOfMonth(month));
+            }}
+            hideWeekdays
+            showOutsideDays={false}
+            disabled
           />
         </PopoverContent>
       </Popover>
