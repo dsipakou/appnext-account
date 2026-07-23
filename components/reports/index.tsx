@@ -3,7 +3,6 @@ import React from 'react';
 import { useStore } from '@/app/store';
 import Toolbar from '@/components/common/layout/Toolbar';
 
-import ChartReport from './components/ChartReport';
 import EChartReport from './components/EChartReport';
 import ReportOverall from './components/ReportOverall';
 import ReportTypeSwitcher, { ReportPages } from './components/ReportTypeSwitcher';
@@ -19,7 +18,6 @@ const Index: React.FC = () => {
       </Toolbar>
       {reportType === ReportPages.Overall && <ReportOverall />}
       {reportType === ReportPages.Chart && <EChartReport />}
-      {reportType === ReportPages.Details && <ChartReport />}
     </div>
   );
 };

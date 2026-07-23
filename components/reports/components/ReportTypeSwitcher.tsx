@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 export enum ReportPages {
   Overall,
   Chart,
-  Details,
 }
 
 interface Types {
