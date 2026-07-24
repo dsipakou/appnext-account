@@ -1,14 +1,12 @@
-// System
 import { addDays, endOfWeek, format, getWeekOfMonth, isSameWeek, startOfWeek, subDays } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
 import * as React from 'react';
+import { rangeIncludesDate } from 'react-day-picker';
 import { DateRange } from 'react-day-picker';
 
-// UI
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-// Utils
 import { cn } from '@/lib/utils';
 
 interface Types {
@@ -17,27 +15,21 @@ interface Types {
 }
 
 const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
-  const [month, setMonth] = React.useState<Date>(weekDate);
+  const [month, setMonth] = React.useState(weekDate);
 
-  const range: DateRange = {
-    from: startOfWeek(weekDate),
-    to: endOfWeek(weekDate),
+  const resetDate = (event: React.MouseEvent) => {
+    event.preventDefault();
+    setWeekDate(new Date());
   };
 
-  const setWeekDateProxy = (date: Date | undefined) => {
-    if (date != null) {
-      setWeekDate(date);
-    }
+  const selectedWeek: DateRange = {
+    from: startOfWeek(weekDate, { weekStartsOn: 1 }),
+    to: endOfWeek(weekDate, { weekStartsOn: 1 }),
   };
 
   React.useEffect(() => {
     setMonth(weekDate);
   }, [weekDate]);
-
-  const resetDate = (event) => {
-    event.preventDefault();
-    setWeekDate(new Date());
-  };
 
   return (
     <div className="flex h-full flex-row items-center">
@@ -49,7 +41,7 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
           <Button
             variant="outline"
             className={cn(
-              'h-12 w-[280px] justify-between border-2 text-left font-normal hover:bg-white',
+              'w-70 h-12 justify-between border-2 text-left font-normal hover:bg-white',
               weekDate && 'text-muted-foreground',
             )}
           >
@@ -70,14 +62,22 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
         </PopoverTrigger>
         <PopoverContent className="h-full w-full p-0">
           <Calendar
-            mode="single"
             month={month}
             onMonthChange={setMonth}
-            selected={range}
-            onSelect={(date: Date | undefined) => !(date == null) && setWeekDateProxy(date)}
+
+            modifiers={{
+              selected: selectedWeek,
+              range_start: selectedWeek.from,
+              range_end: selectedWeek.to,
+              range_middle: (date) => rangeIncludesDate(selectedWeek, date, true),
+            }}
+            onDayClick={(day, modifiers) => {
+              if (modifiers.disabled || modifiers.hidden) return;
+
+              setWeekDate(day);
+            }}
             showWeekNumber
             ISOWeek
-            initialFocus
           />
         </PopoverContent>
       </Popover>
