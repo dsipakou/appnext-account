@@ -1,15 +1,14 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import EmojiPicker from 'emoji-picker-react';
 import { X } from 'lucide-react';
 import React from 'react';
-import { useForm } from 'react-hook-form';
 import { useSWRConfig } from 'swr';
 import * as z from 'zod';
 
 import { Category, CategoryResponse } from '@/components/categories/types';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -28,6 +27,8 @@ const formSchema = z.object({
   description: z.string().optional(),
 });
 
+type FormValues = z.infer<typeof formSchema>;
+
 const EditForm: React.FC<Types> = ({ uuid }) => {
   const { mutate } = useSWRConfig();
   const { data: categories = [] } = useCategories();
@@ -36,10 +37,8 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
 
   const [parentList, setParentList] = React.useState<Category[]>([]);
   const [selectedEmoji, setSelectedEmoji] = React.useState<string | null>(null);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-  });
+  const [values, setValues] = React.useState<FormValues>({ name: '', parent: null, description: '' });
+  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
 
   React.useEffect(() => {
     if (!categories) return;
@@ -48,16 +47,20 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
 
     if (_category == null) return;
 
-    const _parentCategories = categories.filter((item: any) => item.parent === null && item.type === _category.type);
+    const _parentCategories = categories.filter(
+      (item: Category) => item.parent === null && item.type === _category.type,
+    );
 
-    form.setValue('name', _category.name);
-    form.setValue('parent', _category.parent);
-    form.setValue('description', _category.description);
+    setValues({
+      name: _category.name,
+      parent: _category.parent,
+      description: _category.description || '',
+    });
 
     setParentList(_parentCategories);
   }, [categories, uuid]);
 
-  const handleSave = async (payload: z.infer<typeof formSchema>) => {
+  const handleSave = async (payload: FormValues) => {
     try {
       await updateCategory({
         ...payload,
@@ -75,6 +78,25 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
         description: message,
       });
     }
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const result = formSchema.safeParse(values);
+
+    if (!result.success) {
+      const { fieldErrors } = z.flattenError(result.error);
+      setErrors({
+        name: fieldErrors.name?.[0],
+        parent: fieldErrors.parent?.[0],
+        description: fieldErrors.description?.[0],
+      });
+      return;
+    }
+
+    setErrors({});
+    await handleSave(result.data);
   };
 
   return (
@@ -112,77 +134,62 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
             </Button>
           )}
         </div>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
-            <div className="flex flex-col space-y-3">
-              <div className="flex w-full">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category name</FormLabel>
-                      <FormControl>
-                        <Input className="w-full" disabled={isUpdating} id="name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+        <Form onSubmit={handleSubmit} className="space-y-8">
+          <div className="flex flex-col space-y-3">
+            <div className="flex w-full">
+              <Field name="name">
+                <FieldLabel>Category name</FieldLabel>
+                <Input
+                  className="w-full"
+                  disabled={isUpdating}
+                  id="name"
+                  value={values.name}
+                  onChange={(event) => setValues((current) => ({ ...current, name: event.target.value }))}
                 />
-              </div>
-              {form.getValues('parent') && (
-                <div className="flex w-full">
-                  <FormField
-                    control={form.control}
-                    name="parent"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isUpdating}>
-                            <SelectTrigger className="relative w-full">
-                              <SelectValue placeholder="Choose parent category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                {parentList.map((category: Category) => (
-                                  <SelectItem key={category.uuid} value={category.uuid}>
-                                    {category.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              )}
-              <div className="flex pt-6">
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Add description if you want"
-                          className="resize-none"
-                          disabled={isUpdating}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                <FieldError>{errors.name}</FieldError>
+              </Field>
             </div>
-            <Button disabled={isUpdating} type="submit">
-              Save
-            </Button>
-          </form>
+            {values.parent && (
+              <div className="flex w-full">
+                <Field name="parent">
+                  <Select
+                    onValueChange={(parentValue) => setValues((current) => ({ ...current, parent: parentValue }))}
+                    value={values.parent || undefined}
+                    disabled={isUpdating}
+                  >
+                    <SelectTrigger className="relative w-full">
+                      <SelectValue placeholder="Choose parent category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {parentList.map((category: Category) => (
+                          <SelectItem key={category.uuid} value={category.uuid}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <FieldError>{errors.parent}</FieldError>
+                </Field>
+              </div>
+            )}
+            <div className="flex pt-6">
+              <Field name="description">
+                <Textarea
+                  placeholder="Add description if you want"
+                  className="resize-none"
+                  disabled={isUpdating}
+                  value={values.description ?? ''}
+                  onChange={(event) => setValues((current) => ({ ...current, description: event.target.value }))}
+                />
+                <FieldError>{errors.description}</FieldError>
+              </Field>
+            </div>
+          </div>
+          <Button disabled={isUpdating} type="submit">
+            Save
+          </Button>
         </Form>
       </DialogContent>
     </Dialog>

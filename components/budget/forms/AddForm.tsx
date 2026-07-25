@@ -1,8 +1,6 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Repeat } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { FC, useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { useSWRConfig } from 'swr';
 import * as z from 'zod';
 
@@ -12,9 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { MaskedInput } from '@/components/ui/currency-input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -58,38 +56,36 @@ const formSchema = z.object({
   description: z.string().optional(),
 });
 
+type FormValues = z.infer<typeof formSchema>;
+
 const AddForm: FC<Types> = ({ date, customTrigger }) => {
   const { mutate } = useSWRConfig();
   const [isSomeDay, setIsSomeDay] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
+  const [values, setValues] = useState<FormValues>({
+    title: '',
+    amount: 0,
+    currency: '',
+    user: '',
+    category: '',
+    repeatType: '',
+    numberOfRepetitions: undefined,
+    budgetDate: date || new Date(),
+    description: '',
+  });
+  const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({});
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
   const { data: session } = useSession();
   const authUser = session!.user;
 
   const { toast } = useToast();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    mode: 'onSubmit',
-    reValidateMode: 'onBlur',
-    defaultValues: {
-      title: '',
-      amount: 0,
-      currency: '',
-      user: '',
-      category: '',
-      repeatType: '',
-      numberOfRepetitions: undefined,
-      budgetDate: date || new Date(),
-      description: '',
-    },
-  });
-
   const { data: users } = useUsers();
 
   const { data: currencies } = useCurrencies();
 
-  const { data: categories = [], isLoading: isCategoriesLoading } = useCategories();
+  const { data: categories = [] } = useCategories();
 
   const { trigger: createBudget, isMutating: isCreating } = useCreateBudget();
 
@@ -100,20 +96,28 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
 
   useEffect(() => {
     if (open) {
-      form.setValue('budgetDate', date || new Date());
+      setValues((current) => ({ ...current, budgetDate: date || new Date() }));
       // Cannot focus immediately, need to wait for the dialog animation to finish
       setTimeout(() => {
-        form.setFocus('title');
+        titleInputRef.current?.focus();
       }, 100);
     }
-  }, [open]);
+  }, [date, open]);
 
   useEffect(() => {
-    form.setValue('currency', getDefaultCurrency());
+    const defaultCurrency = getDefaultCurrency();
+
+    if (defaultCurrency) {
+      setValues((current) => (current.currency ? current : { ...current, currency: defaultCurrency }));
+    }
   }, [currencies]);
 
   useEffect(() => {
-    form.setValue('user', getDefaultUser());
+    const defaultUser = getDefaultUser();
+
+    if (defaultUser) {
+      setValues((current) => (current.user ? current : { ...current, user: defaultUser }));
+    }
   }, [authUser, users]);
 
   const getDefaultCurrency = (): string => {
@@ -143,23 +147,29 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
   };
 
   const getCurrencySign = (): string => {
-    return currencies.find((item: Currency) => item.uuid === form.getValues().currency)?.sign;
+    return currencies.find((item: Currency) => item.uuid === values.currency)?.sign || '';
   };
 
-  const handleSave = async (payload: z.infer<typeof formSchema>) => {
+  const getFormDefaults = (): FormValues => ({
+    title: '',
+    amount: 0,
+    currency: getDefaultCurrency(),
+    user: getDefaultUser(),
+    category: '',
+    repeatType: '',
+    numberOfRepetitions: undefined,
+    budgetDate: date || new Date(),
+    description: '',
+  });
+
+  const handleSave = async (payload: FormValues) => {
     try {
-      const budgetData: any = {
+      const budgetData = {
         ...payload,
         recurrent: payload.repeatType,
         budgetDate: isSomeDay ? null : getFormattedDate(payload.budgetDate),
+        numberOfRepetitions: payload.numberOfRepetitions ?? null,
       };
-
-      // Add numberOfRepetitions only if specified (null = infinite)
-      if (payload.numberOfRepetitions !== undefined) {
-        budgetData.numberOfRepetitions = payload.numberOfRepetitions;
-      } else {
-        budgetData.numberOfRepetitions = null; // Explicitly null for infinite
-      }
 
       await createBudget(budgetData);
       mutate((key) => typeof key === 'string' && key.includes('budget/usage'), undefined);
@@ -169,7 +179,7 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
       toast({
         title: 'Saved!',
       });
-    } catch (error) {
+    } catch {
       toast({
         variant: 'destructive',
         title: 'Something went wrong',
@@ -180,10 +190,38 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
 
   const clean = (open: boolean) => {
     if (!open) {
-      form.clearErrors();
-      form.reset();
+      setErrors({});
+      setValues(getFormDefaults());
+      setIsSomeDay(false);
     }
     setOpen(open);
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const result = formSchema.safeParse(values);
+
+    if (!result.success) {
+      const { fieldErrors } = z.flattenError(result.error);
+
+      setErrors({
+        title: fieldErrors.title?.[0],
+        amount: fieldErrors.amount?.[0],
+        currency: fieldErrors.currency?.[0],
+        user: fieldErrors.user?.[0],
+        category: fieldErrors.category?.[0],
+        repeatType: fieldErrors.repeatType?.[0],
+        numberOfRepetitions: fieldErrors.numberOfRepetitions?.[0],
+        budgetDate: fieldErrors.budgetDate?.[0],
+        description: fieldErrors.description?.[0],
+      });
+
+      return;
+    }
+
+    setErrors({});
+    await handleSave(result.data);
   };
 
   const defaultTrigger = <Button className="mx-2">+ Add budget</Button>;
@@ -195,319 +233,258 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
         <DialogHeader>
           <DialogTitle>Add budget</DialogTitle>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-2">
-            <div className="flex flex-col gap-2">
-              <div className="grid grid-cols-12 gap-2">
-                <div className="col-span-7 flex flex-col gap-2">
-                  <div className="grid gap-2">
-                    <div className="flex flex-col gap-2">
-                      <FormField
-                        control={form.control}
-                        name="title"
-                        render={({ field }) => (
-                          <FormItem>
-                            <Label htmlFor="title" className="pl-1">
-                              Budget title
-                            </Label>
-                            <FormControl>
-                              <Input placeholder="Title" disabled={isCreating} id="title" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+        <Form onSubmit={handleSubmit} className="space-y-2">
+          <div className="flex flex-col gap-2">
+            <div className="grid grid-cols-12 gap-2">
+              <div className="col-span-7 flex flex-col gap-2">
+                <div className="grid gap-2">
+                  <div className="flex flex-col gap-2">
+                    <Field name="title">
+                      <FieldLabel htmlFor="title" className="pl-1">
+                        Budget title
+                      </FieldLabel>
+                      <Input
+                        ref={titleInputRef}
+                        placeholder="Title"
+                        disabled={isCreating}
+                        id="title"
+                        value={values.title}
+                        onChange={(event) => setValues((current) => ({ ...current, title: event.target.value }))}
                       />
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="flex flex-col gap-2">
-                        <FormField
-                          control={form.control}
-                          name="amount"
-                          render={({ field }) => (
-                            <FormItem>
-                              <Label htmlFor="amount" className="pl-1">
-                                Amount
-                              </Label>
-                              <FormControl>
-                                <div className="flex gap-2">
-                                  <div>
-                                    <MaskedInput
-                                      {...field}
-                                      mask={Number}
-                                      unmask="typed"
-                                      value={field.value}
-                                      onAccept={(value) => field.onChange(value)}
-                                      id="amount"
-                                      disabled={isCreating}
-                                      scale={2}
-                                      signed={false}
-                                      thousandsSeparator=","
-                                      radix="."
-                                      normalizeZeros
-                                      padFractionalZeros={false}
-                                      mapToRadix={[',']}
-                                    />
-                                    {/* <Input placeholder="10" disabled={isCreating} id="amount" {...field} /> */}
-                                  </div>
-                                  <span className="flex items-center text-sm">
-                                    {form.watch('currency') && getCurrencySign()}
-                                  </span>
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <FormField
-                          control={form.control}
-                          name="currency"
-                          render={({ field }) => (
-                            <FormItem>
-                              <Label htmlFor="currency" className="pl-1">
-                                Currency
-                              </Label>
-                              <FormControl>
-                                <Select disabled={isCreating} onValueChange={field.onChange} defaultValue={field.value}>
-                                  <SelectTrigger className="relative w-full" id="currency">
-                                    <SelectValue placeholder="Select a currency" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectGroup>
-                                      <SelectLabel>Currencies</SelectLabel>
-                                      {currencies &&
-                                        currencies.map((item: Currency) => (
-                                          <SelectItem key={item.uuid} value={item.uuid}>
-                                            {item.code}
-                                          </SelectItem>
-                                        ))}
-                                    </SelectGroup>
-                                  </SelectContent>
-                                </Select>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+                      <FieldError>{errors.title}</FieldError>
+                    </Field>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex flex-col gap-2">
+                      <Field name="amount">
+                        <FieldLabel htmlFor="amount" className="pl-1">
+                          Amount
+                        </FieldLabel>
+                        <div className="flex gap-2">
+                          <div>
+                            <MaskedInput
+                              mask={Number}
+                              unmask="typed"
+                              value={values.amount}
+                              onAccept={(value) => setValues((current) => ({ ...current, amount: Number(value) || 0 }))}
+                              id="amount"
+                              disabled={isCreating}
+                              scale={2}
+                              signed={false}
+                              thousandsSeparator=","
+                              radix="."
+                              normalizeZeros
+                              padFractionalZeros={false}
+                              mapToRadix={[',']}
+                            />
+                          </div>
+                          <span className="flex items-center text-sm">{values.currency && getCurrencySign()}</span>
+                        </div>
+                        <FieldError>{errors.amount}</FieldError>
+                      </Field>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <FormField
-                        control={form.control}
-                        name="category"
-                        render={({ field }) => (
-                          <FormItem>
-                            <Label htmlFor="category" className="pl-1">
-                              Category
-                            </Label>
-                            <FormControl>
-                              <Select disabled={isCreating} onValueChange={field.onChange} defaultValue={field.value}>
-                                <SelectTrigger className="relative w-full" id="category">
-                                  <SelectValue placeholder="Select category" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectGroup>
-                                    <SelectLabel>Categories</SelectLabel>
-                                    {parentList.map((item: Category) => (
-                                      <SelectItem key={item.uuid} value={item.uuid} className="flex items-center">
-                                        {item.icon && <span className="mr-2 text-lg">{item.icon}</span>}
-                                        <span>{item.name}</span>
-                                      </SelectItem>
-                                    ))}
-                                  </SelectGroup>
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <FormField
-                        control={form.control}
-                        name="user"
-                        render={({ field }) => (
-                          <FormItem>
-                            <Label htmlFor="user" className="pl-1">
-                              User
-                            </Label>
-                            <FormControl>
-                              <Select disabled={isCreating} onValueChange={field.onChange} defaultValue={field.value}>
-                                <SelectTrigger className="relative w-full" id="user">
-                                  <SelectValue placeholder="Select user" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectGroup>
-                                    <SelectLabel>Budget owner</SelectLabel>
-                                    {users &&
-                                      users.map((item: User) => (
-                                        <SelectItem key={item.uuid} value={item.uuid}>
-                                          {item.username}
-                                        </SelectItem>
-                                      ))}
-                                  </SelectGroup>
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <FormField
-                        control={form.control}
-                        name="repeatType"
-                        render={({ field }) => (
-                          <FormItem>
-                            <Label htmlFor="repeat" className="pl-1">
-                              Repeat
-                            </Label>
-                            <FormControl>
-                              <ToggleGroup
-                                id="repeat"
-                                className="w-full"
-                                value={field.value ? [field.value] : ['__none__']}
-                                onValueChange={(values) => {
-                                  const value = values[0] ?? '__none__';
-
-                                  field.onChange(value === '__none__' ? '' : value);
-                                }}
-                                variant="outline"
-                              >
-                                <ToggleGroupItem className="w-1/3" value="__none__">
-                                  <span className="px-2">One-time budget</span>
-                                </ToggleGroupItem>
-                                <ToggleGroupSeparator />
-                                <ToggleGroupItem className="w-1/3" value="weekly">
-                                  <div className="mx-2 flex items-center gap-3">
-                                    <Repeat className="h-4 w-4" />
-                                    <span>Weekly</span>
-                                  </div>
-                                </ToggleGroupItem>
-                                <ToggleGroupSeparator />
-                                <ToggleGroupItem className="w-1/3" value="monthly">
-                                  <div className="mx-2 flex items-center gap-3">
-                                    <Repeat className="h-4 w-4" />
-                                    <span>Monthly</span>
-                                  </div>
-                                </ToggleGroupItem>
-                              </ToggleGroup>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div>
-                      {(form.watch('repeatType') === 'weekly' || form.watch('repeatType') === 'monthly') && (
-                        <FormField
-                          control={form.control}
-                          name="numberOfRepetitions"
-                          render={({ field }) => (
-                            <FormItem>
-                              <Label className="text-sm text-muted-foreground">
-                                Number of repetitions (leave empty for infinite)
-                              </Label>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  min="1"
-                                  placeholder="Infinite"
-                                  disabled={isCreating}
-                                  {...field}
-                                  value={field.value ?? ''}
-                                  onChange={(e) => {
-                                    const value = e.target.value;
-                                    field.onChange(value === '' ? undefined : parseInt(value, 10));
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
+                      <Field name="currency">
+                        <FieldLabel htmlFor="currency" className="pl-1">
+                          Currency
+                        </FieldLabel>
+                        <Select
+                          disabled={isCreating}
+                          onValueChange={(currency) => setValues((current) => ({ ...current, currency }))}
+                          value={values.currency || undefined}
+                        >
+                          <SelectTrigger className="relative w-full" id="currency">
+                            <SelectValue placeholder="Select a currency" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Currencies</SelectLabel>
+                              {currencies &&
+                                currencies.map((item: Currency) => (
+                                  <SelectItem key={item.uuid} value={item.uuid}>
+                                    {item.code}
+                                  </SelectItem>
+                                ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <FieldError>{errors.currency}</FieldError>
+                      </Field>
                     </div>
                   </div>
-                  <div className="grid gap-2">
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <Label htmlFor="description" className="pl-1">
-                            Descripion (optional)
-                          </Label>
-                          <FormControl>
-                            <Textarea
-                              id="description"
-                              disabled={isCreating}
-                              placeholder="Add description if you want"
-                              className="h-full resize-none"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <div className="flex flex-col gap-2">
+                    <Field name="category">
+                      <FieldLabel htmlFor="category" className="pl-1">
+                        Category
+                      </FieldLabel>
+                      <Select
+                        disabled={isCreating}
+                        onValueChange={(category) => setValues((current) => ({ ...current, category }))}
+                        value={values.category || undefined}
+                      >
+                        <SelectTrigger className="relative w-full" id="category">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Categories</SelectLabel>
+                            {parentList.map((item: Category) => (
+                              <SelectItem key={item.uuid} value={item.uuid} className="flex items-center">
+                                {item.icon && <span className="mr-2 text-lg">{item.icon}</span>}
+                                <span>{item.name}</span>
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      <FieldError>{errors.category}</FieldError>
+                    </Field>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Field name="user">
+                      <FieldLabel htmlFor="user" className="pl-1">
+                        User
+                      </FieldLabel>
+                      <Select
+                        disabled={isCreating}
+                        onValueChange={(user) => setValues((current) => ({ ...current, user }))}
+                        value={values.user || undefined}
+                      >
+                        <SelectTrigger className="relative w-full" id="user">
+                          <SelectValue placeholder="Select user" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Budget owner</SelectLabel>
+                            {users &&
+                              users.map((item: User) => (
+                                <SelectItem key={item.uuid} value={item.uuid}>
+                                  {item.username}
+                                </SelectItem>
+                              ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      <FieldError>{errors.user}</FieldError>
+                    </Field>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Field name="repeatType">
+                      <FieldLabel htmlFor="repeat" className="pl-1">
+                        Repeat
+                      </FieldLabel>
+                      <ToggleGroup
+                        id="repeat"
+                        className="w-full"
+                        value={values.repeatType ? [values.repeatType] : ['__none__']}
+                        onValueChange={(selectedValues) => {
+                          const repeatType = selectedValues[0] ?? '__none__';
+
+                          setValues((current) => ({
+                            ...current,
+                            repeatType: repeatType === '__none__' ? '' : (repeatType as FormValues['repeatType']),
+                          }));
+                        }}
+                        variant="outline"
+                      >
+                        <ToggleGroupItem className="w-1/3" value="__none__">
+                          <span className="px-2">One-time budget</span>
+                        </ToggleGroupItem>
+                        <ToggleGroupSeparator />
+                        <ToggleGroupItem className="w-1/3" value="weekly">
+                          <div className="mx-2 flex items-center gap-3">
+                            <Repeat className="h-4 w-4" />
+                            <span>Weekly</span>
+                          </div>
+                        </ToggleGroupItem>
+                        <ToggleGroupSeparator />
+                        <ToggleGroupItem className="w-1/3" value="monthly">
+                          <div className="mx-2 flex items-center gap-3">
+                            <Repeat className="h-4 w-4" />
+                            <span>Monthly</span>
+                          </div>
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+                      <FieldError>{errors.repeatType}</FieldError>
+                    </Field>
+                  </div>
+                  <div>
+                    {(values.repeatType === 'weekly' || values.repeatType === 'monthly') && (
+                      <Field name="numberOfRepetitions">
+                        <FieldLabel className="text-sm text-muted-foreground">
+                          Number of repetitions (leave empty for infinite)
+                        </FieldLabel>
+                        <Input
+                          type="number"
+                          min="1"
+                          placeholder="Infinite"
+                          disabled={isCreating}
+                          value={values.numberOfRepetitions ?? ''}
+                          onChange={(event) => {
+                            const repetitions = event.target.value;
+
+                            setValues((current) => ({
+                              ...current,
+                              numberOfRepetitions: repetitions === '' ? undefined : parseInt(repetitions, 10),
+                            }));
+                          }}
+                        />
+                        <FieldError>{errors.numberOfRepetitions}</FieldError>
+                      </Field>
+                    )}
                   </div>
                 </div>
-                <div className="col-span-5 h-full items-center justify-center">
-                  <div className="items-top flex h-full justify-center gap-2">
-                    <div className="h-full">
-                      <Separator orientation="vertical" className="h-full" />
-                    </div>
-                    <div>
-                      <FormField
-                        control={form.control}
-                        name="budgetDate"
-                        render={({ field }) => (
-                          <FormItem className="flex justify-center">
-                            <FormControl>
-                              <Calendar
-                                mode="single"
-                                className={(cn('justify-center'), isSomeDay && 'blur-xs')}
-                                selected={isSomeDay ? null : field.value}
-                                onSelect={field.onChange}
-                                disabled={(date) => isCreating || date < new Date('1900-01-01') || isSomeDay}
-                                weekStartsOn={1}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <div className="flex flex-col items-start gap-2">
-                        <FormField
-                          control={form.control}
-                          name="isSomeday"
-                          render={({ field }) => (
-                            <FormItem>
-                              <Label htmlFor="isSomeday">Save for later</Label>
-                              <FormControl>
-                                <div className="mt-1 flex items-center gap-2">
-                                  <Switch id="isSomeday" checked={isSomeDay} onClick={() => setIsSomeDay(!isSomeDay)} />
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </div>
+                <div className="grid gap-2">
+                  <Field name="description">
+                    <FieldLabel htmlFor="description" className="pl-1">
+                      Descripion (optional)
+                    </FieldLabel>
+                    <Textarea
+                      id="description"
+                      disabled={isCreating}
+                      placeholder="Add description if you want"
+                      className="h-full resize-none"
+                      value={values.description ?? ''}
+                      onChange={(event) => setValues((current) => ({ ...current, description: event.target.value }))}
+                    />
+                    <FieldError>{errors.description}</FieldError>
+                  </Field>
                 </div>
               </div>
-              <div className="flex items-center justify-end gap-2">
-                {/* FIXME: Cancel button */}
-                <Button type="submit">Submit</Button>
+              <div className="col-span-5 h-full items-center justify-center">
+                <div className="items-top flex h-full justify-center gap-2">
+                  <div className="h-full">
+                    <Separator orientation="vertical" className="h-full" />
+                  </div>
+                  <div>
+                    <Field name="budgetDate" className="flex justify-center">
+                      <Calendar
+                        mode="single"
+                        className={cn('justify-center', isSomeDay && 'blur-xs')}
+                        selected={isSomeDay ? undefined : values.budgetDate}
+                        onSelect={(budgetDate) => budgetDate && setValues((current) => ({ ...current, budgetDate }))}
+                        disabled={(calendarDate) => isCreating || calendarDate < new Date('1900-01-01') || isSomeDay}
+                        weekStartsOn={1}
+                      />
+                      <FieldError>{errors.budgetDate}</FieldError>
+                    </Field>
+                    <div className="flex flex-col items-start gap-2">
+                      <Field name="isSomeday">
+                        <FieldLabel htmlFor="isSomeday">Save for later</FieldLabel>
+                        <div className="mt-1 flex items-center gap-2">
+                          <Switch id="isSomeday" checked={isSomeDay} onCheckedChange={setIsSomeDay} />
+                        </div>
+                      </Field>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </form>
+            <div className="flex items-center justify-end gap-2">
+              {/* FIXME: Cancel button */}
+              <Button type="submit">Submit</Button>
+            </div>
+          </div>
         </Form>
       </DialogContent>
     </Dialog>

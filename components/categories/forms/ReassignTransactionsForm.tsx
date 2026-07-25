@@ -1,32 +1,30 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Repeat } from 'lucide-react';
 import React from 'react';
-import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import { ConfirmTransactionsTransferForm } from '@/components/categories/forms';
 import { Category, CategoryType } from '@/components/categories/types';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCategories } from '@/hooks/categories';
 
 const formSchema = z.object({
-  category: z.string(),
+  category: z.string().min(1, { error: 'Please choose category' }),
 });
+
+type FormValues = z.infer<typeof formSchema>;
 
 interface Types {
   uuid: string;
 }
 
 const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [isConfirmTransferOpen, setIsConfirmTransferOpen] = React.useState<boolean>(false);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-  });
+  const [values, setValues] = React.useState<FormValues>({ category: '' });
+  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
 
   const { data: categories = [] } = useCategories();
 
@@ -38,7 +36,18 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
   const getChildren = (parentUuid: string) =>
     categories.filter((item: Category) => item.parent === parentUuid && item.uuid !== uuid);
 
-  const watchCategory = form.watch('category');
+  const handleTransfer = () => {
+    const result = formSchema.safeParse(values);
+
+    if (!result.success) {
+      const { fieldErrors } = z.flattenError(result.error);
+      setErrors({ category: fieldErrors.category?.[0] });
+      return;
+    }
+
+    setErrors({});
+    setIsConfirmTransferOpen(true);
+  };
 
   return (
     <Dialog>
@@ -51,43 +60,33 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
         <DialogHeader>
           <DialogTitle>Manage category</DialogTitle>
         </DialogHeader>
-        <Form {...form}>
-          <form className="space-y-8">
-            <div className="flex flex-col space-y-3">
-              <div className="flex w-full">
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Re-assign transactions from this category to</FormLabel>
-                      <FormControl>
-                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoading}>
-                          <SelectTrigger className="relative w-full">
-                            <SelectValue placeholder="Choose category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              {parentCategories.map((parent: Category) =>
-                                getChildren(parent.uuid).map((category: Category) => (
-                                  <SelectItem key={category.uuid} value={category.uuid}>
-                                    {parent.name} / {category.name}
-                                  </SelectItem>
-                                )),
-                              )}
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+        <Form className="space-y-8">
+          <div className="flex flex-col space-y-3">
+            <div className="flex w-full">
+              <Field name="category">
+                <FieldLabel>Re-assign transactions from this category to</FieldLabel>
+                <Select onValueChange={(category) => setValues({ category })} value={values.category || undefined}>
+                  <SelectTrigger className="relative w-full">
+                    <SelectValue placeholder="Choose category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {parentCategories.map((parent: Category) =>
+                        getChildren(parent.uuid).map((category: Category) => (
+                          <SelectItem key={category.uuid} value={category.uuid}>
+                            {parent.name} / {category.name}
+                          </SelectItem>
+                        )),
+                      )}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <FieldError>{errors.category}</FieldError>
+              </Field>
             </div>
-          </form>
+          </div>
         </Form>
-        <Button disabled={isLoading || !watchCategory} onClick={() => setIsConfirmTransferOpen(true)}>
+        <Button disabled={!values.category} onClick={handleTransfer}>
           Transfer
         </Button>
         {isConfirmTransferOpen && (
@@ -95,7 +94,7 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
             open={isConfirmTransferOpen}
             setOpen={setIsConfirmTransferOpen}
             sourceCategory={sourceCategory}
-            destCategory={watchCategory}
+            destCategory={values.category}
           />
         )}
       </DialogContent>

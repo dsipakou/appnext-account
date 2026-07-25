@@ -2,7 +2,6 @@
 // UI
 import { Trash } from 'lucide-react';
 import React from 'react';
-import { useForm } from 'react-hook-form';
 import { useSWRConfig } from 'swr';
 
 import ConfirmClearRatesForm from '@/components/currencies/forms/ConfirmClearRatesForm';
@@ -10,7 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { MaskedInput } from '@/components/ui/currency-input';
 import * as Dlg from '@/components/ui/dialog';
+import * as Field from '@/components/ui/field';
 import * as Frm from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 // Hooks
 import { RateResponse, useCreateBatchedRates, useRatesOnDate } from '@/hooks/rates';
@@ -33,27 +34,28 @@ interface FormData {
 const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
   const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
   const [isClearRatesDialogOpen, setIsClearRatesDialogOpen] = React.useState<boolean>(false);
+  const [values, setValues] = React.useState<FormData>({ rateDate: new Date() });
 
   const { mutate } = useSWRConfig();
   const { toast } = useToast();
-  const form = useForm<FormData>();
 
   const { data: ratesOnDate = [], url } = useRatesOnDate(getFormattedDate(selectedDate));
   const { trigger: createBatchedRates, isMutating: isCreating } = useCreateBatchedRates();
 
   React.useEffect(() => {
-    form.setValue('rateDate', selectedDate);
+    const nextValues: FormData = { rateDate: selectedDate };
+
     if (currencies.length > 0) {
       currencies.forEach((item: Currency) => {
-        form.setValue(item.uuid, '');
+        nextValues[item.uuid] = '';
       });
     }
 
-    if (ratesOnDate.length === 0) return;
-
     ratesOnDate.forEach((item: RateResponse) => {
-      form.setValue(item.currency, item.rate);
+      nextValues[item.currency] = item.rate;
     });
+
+    setValues(nextValues);
   }, [selectedDate, ratesOnDate]);
 
   const changeDate = (day: Date | undefined) => {
@@ -123,79 +125,58 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Add or update rates for currencies</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <Frm.Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
-            <div className="flex space-y-3">
-              <div className="flex w-1/3 flex-col space-y-2">
-                {currencies.map(
-                  (item: Currency) =>
-                    !item.isBase && (
-                      <div className="flex" key={item.uuid}>
-                        <Frm.FormField
-                          control={form.control}
-                          name={item.uuid}
-                          render={({ field }) => (
-                            <Frm.FormItem className="flex items-center gap-2">
-                              <Frm.FormControl>
-                                <MaskedInput
-                                  {...field}
-                                  value={field.value}
-                                  onAccept={(value) => field.onChange(value)}
-                                  mask="0.0000"
-                                  unmask="typed"
-                                  definitions={{
-                                    0: /[0-9]/,
-                                  }}
-                                />
-                              </Frm.FormControl>
-                              <Frm.FormLabel>{item.sign}</Frm.FormLabel>
-                            </Frm.FormItem>
-                          )}
-                        />
-                      </div>
-                    ),
-                )}
-              </div>
-              <div>
-                <Frm.FormField
-                  control={form.control}
-                  name="rateDate"
-                  render={({ field }) => (
-                    <Frm.FormItem>
-                      <Frm.FormControl>
-                        <Calendar
-                          disabled={isCreating}
-                          mode="single"
-                          selected={field.value}
-                          onSelect={changeDate}
-                          weekStartsOn={1}
-                          initialFocus
-                        />
-                      </Frm.FormControl>
-                      <Frm.FormMessage />
-                    </Frm.FormItem>
-                  )}
-                />
-              </div>
-            </div>
-            <div className="flex justify-between gap-2">
-              <Button disabled={isCreating} type="submit">
-                Save
-              </Button>
-              {ratesOnDate.length > 0 && (
-                <>
-                  <Button type="button" variant="ghost" onClick={() => setIsClearRatesDialogOpen(true)}>
-                    <Trash className="h-5 w-5 text-red-500" />
-                  </Button>
-                  <ConfirmClearRatesForm
-                    date={selectedDate}
-                    open={isClearRatesDialogOpen}
-                    handleClose={() => setIsClearRatesDialogOpen(false)}
-                  />
-                </>
+        <Frm.Form
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleSave(values);
+          }}
+          className="space-y-8"
+        >
+          <div className="space-3 flex items-center justify-between gap-2">
+            <div className="flex w-1/3 flex-col space-y-2">
+              {currencies.map(
+                (item: Currency) =>
+                  !item.isBase && (
+                    <Field.Field name={item.uuid} className="flex flex-row items-center gap-2 pr-2">
+                      <Input
+                        value={values[item.uuid] ?? ''}
+                        onChange={(event) => setValues((current) => ({ ...current, [item.uuid]: event.target.value }))}
+                      />
+                      <Field.FieldLabel>{item.sign}</Field.FieldLabel>
+                    </Field.Field>
+                  ),
               )}
             </div>
-          </form>
+            <div>
+              <Field.Field name="rateDate">
+                <Calendar
+                  disabled={isCreating}
+                  mode="single"
+                  selected={values.rateDate}
+                  onSelect={changeDate}
+                  weekStartsOn={1}
+                  initialFocus
+                />
+              </Field.Field>
+            </div>
+          </div>
+          <div className="flex justify-between gap-2">
+            <Button disabled={isCreating} type="submit">
+              Save
+            </Button>
+            {ratesOnDate.length > 0 && (
+              <>
+                <Button type="button" variant="ghost" onClick={() => setIsClearRatesDialogOpen(true)}>
+                  <Trash className="h-5 w-5 text-red-500" />
+                </Button>
+                <ConfirmClearRatesForm
+                  date={selectedDate}
+                  open={isClearRatesDialogOpen}
+                  handleClose={() => setIsClearRatesDialogOpen(false)}
+                />
+              </>
+            )}
+          </div>
         </Frm.Form>
       </Dlg.DialogContent>
     </Dlg.Dialog>
