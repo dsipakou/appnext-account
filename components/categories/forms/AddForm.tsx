@@ -1,16 +1,13 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import EmojiPicker from 'emoji-picker-react';
 import { X } from 'lucide-react';
 import React from 'react';
-import { useForm } from 'react-hook-form';
-import { useSWRConfig } from 'swr';
 import * as z from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
@@ -40,6 +37,8 @@ const formSchema = z
     }
   });
 
+type FormValues = z.infer<typeof formSchema>;
+
 interface Types {
   parent?: Category | undefined;
 }
@@ -50,20 +49,16 @@ const AddForm: React.FC<Types> = ({ parent }) => {
 
   const [parentList, setParentList] = React.useState<Category[]>([]);
   const [selectedEmoji, setSelectedEmoji] = React.useState<string | null>(null);
+  const [values, setValues] = React.useState<FormValues>({
+    title: '',
+    type: CategoryType.Expense,
+    isParent: false,
+    parentCategory: undefined,
+    description: '',
+  });
+  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
 
   const { toast } = useToast();
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: '',
-      type: CategoryType.Expense,
-      isParent: false,
-    },
-  });
-
-  const watchIsParent = form.watch('isParent');
-  const watchType = form.watch('type');
 
   React.useEffect(() => {
     if (!categories) return;
@@ -75,19 +70,18 @@ const AddForm: React.FC<Types> = ({ parent }) => {
   }, [categories]);
 
   React.useEffect(() => {
-    if (!watchIsParent) {
-      form.setValue('parentCategory', undefined);
+    if (!values.isParent) {
+      setValues((current) => ({ ...current, parentCategory: undefined }));
     }
-  }, [watchIsParent]);
+  }, [values.isParent]);
 
   React.useEffect(() => {
     if (parent != null) {
-      form.setValue('isParent', true);
-      form.setValue('parentCategory', parent.uuid);
+      setValues((current) => ({ ...current, isParent: true, parentCategory: parent.uuid }));
     }
   }, [parent]);
 
-  const handleSave = async (payload: z.infer<typeof formSchema>) => {
+  const handleSave = async (payload: FormValues) => {
     try {
       await createCategory({
         icon: selectedEmoji,
@@ -99,7 +93,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
       toast({
         title: 'Saved!',
       });
-    } catch (error) {
+    } catch {
       toast({
         variant: 'destructive',
         title: 'Something went wrong',
@@ -110,10 +104,37 @@ const AddForm: React.FC<Types> = ({ parent }) => {
 
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
-      form.clearErrors();
-      form.reset();
+      setErrors({});
+      setValues({
+        title: '',
+        type: CategoryType.Expense,
+        isParent: false,
+        parentCategory: undefined,
+        description: '',
+      });
       setSelectedEmoji(null);
     }
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const result = formSchema.safeParse(values);
+
+    if (!result.success) {
+      const { fieldErrors } = z.flattenError(result.error);
+      setErrors({
+        title: fieldErrors.title?.[0],
+        type: fieldErrors.type?.[0],
+        isParent: fieldErrors.isParent?.[0],
+        parentCategory: fieldErrors.parentCategory?.[0],
+        description: fieldErrors.description?.[0],
+      });
+      return;
+    }
+
+    setErrors({});
+    await handleSave(result.data);
   };
 
   return (
@@ -151,135 +172,100 @@ const AddForm: React.FC<Types> = ({ parent }) => {
             </Button>
           )}
         </div>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
-            <div className="flex flex-col space-y-3">
-              <div className="flex w-full">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category title</FormLabel>
-                      <FormControl>
-                        <Input className="w-full" disabled={isCreating} id="title" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+        <Form onSubmit={handleSubmit} className="space-y-8">
+          <div className="flex flex-col space-y-3">
+            <div className="flex w-full">
+              <Field name="title">
+                <FieldLabel>Category title</FieldLabel>
+                <Input
+                  className="w-full"
+                  disabled={isCreating}
+                  id="title"
+                  value={values.title}
+                  onChange={(event) => setValues((current) => ({ ...current, title: event.target.value }))}
                 />
-              </div>
-              <div>
-                <FormField
-                  control={form.control}
-                  name="type"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category type</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          disabled={isCreating || parent}
-                        >
-                          <SelectTrigger className="relative w-full">
-                            <SelectValue placeholder="Category type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectItem value={CategoryType.Income}>Income</SelectItem>
-                              <SelectItem value={CategoryType.Expense}>Expense</SelectItem>
-                              <SelectItem value={CategoryType.CapitalExpense}>Capital Expense</SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="flex">
-                {watchType !== CategoryType.Income && (
-                  <div className="flex h-12 w-1/2 items-center">
-                    <FormField
-                      control={form.control}
-                      name="isParent"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <div className="flex items-center space-x-2">
-                              <Switch
-                                id="isParent"
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                                disabled={isCreating || parent}
-                              />
-                              <Label htmlFor="isParent">Has parent</Label>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                )}
-                {watchType !== CategoryType.Income && watchIsParent && (
-                  <div className="flex w-1/2">
-                    <FormField
-                      control={form.control}
-                      name="parentCategory"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                              disabled={isCreating || parent}
-                            >
-                              <SelectTrigger className="relative w-full">
-                                <SelectValue placeholder="Choose parent category" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectGroup>
-                                  {parentList.map((category: Category) => (
-                                    <SelectItem key={category.uuid} value={category.uuid}>
-                                      {category.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectGroup>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                )}
-              </div>
-              <div>
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Add description if you want"
-                          className="resize-none"
-                          disabled={isCreating}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                <FieldError>{errors.title}</FieldError>
+              </Field>
             </div>
-            <Button type="submit">Save</Button>
-          </form>
+            <div>
+              <Field name="type">
+                <FieldLabel>Category type</FieldLabel>
+                <Select
+                  onValueChange={(type) => setValues((current) => ({ ...current, type: type as CategoryType }))}
+                  value={values.type}
+                  disabled={isCreating || !!parent}
+                >
+                  <SelectTrigger className="relative w-full">
+                    <SelectValue placeholder="Category type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value={CategoryType.Income}>Income</SelectItem>
+                      <SelectItem value={CategoryType.Expense}>Expense</SelectItem>
+                      <SelectItem value={CategoryType.CapitalExpense}>Capital Expense</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <FieldError>{errors.type}</FieldError>
+              </Field>
+            </div>
+            <div className="flex">
+              {values.type !== CategoryType.Income && (
+                <div className="flex h-12 w-1/2 items-center">
+                  <Field name="isParent">
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="isParent"
+                        checked={values.isParent}
+                        onCheckedChange={(isParent) => setValues((current) => ({ ...current, isParent }))}
+                        disabled={isCreating || !!parent}
+                      />
+                      <FieldLabel htmlFor="isParent">Has parent</FieldLabel>
+                    </div>
+                    <FieldError>{errors.isParent}</FieldError>
+                  </Field>
+                </div>
+              )}
+              {values.type !== CategoryType.Income && values.isParent && (
+                <div className="flex w-1/2">
+                  <Field name="parentCategory">
+                    <Select
+                      onValueChange={(parentCategory) => setValues((current) => ({ ...current, parentCategory }))}
+                      value={values.parentCategory}
+                      disabled={isCreating || !!parent}
+                    >
+                      <SelectTrigger className="relative w-full">
+                        <SelectValue placeholder="Choose parent category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {parentList.map((category: Category) => (
+                            <SelectItem key={category.uuid} value={category.uuid}>
+                              {category.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    <FieldError>{errors.parentCategory}</FieldError>
+                  </Field>
+                </div>
+              )}
+            </div>
+            <div>
+              <Field name="description">
+                <Textarea
+                  placeholder="Add description if you want"
+                  className="resize-none"
+                  disabled={isCreating}
+                  value={values.description ?? ''}
+                  onChange={(event) => setValues((current) => ({ ...current, description: event.target.value }))}
+                />
+                <FieldError>{errors.description}</FieldError>
+              </Field>
+            </div>
+          </div>
+          <Button type="submit">Save</Button>
         </Form>
       </DialogContent>
     </Dialog>

@@ -1,19 +1,20 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
-import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import { ConfirmTransactionsTransferForm } from '@/components/accounts/forms';
 import { AccountResponse } from '@/components/accounts/types';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAccounts } from '@/hooks/accounts';
 
 const formSchema = z.object({
-  account: z.string(),
+  account: z.string().min(1, { error: 'Please choose account' }),
 });
+
+type FormValues = z.infer<typeof formSchema>;
 
 interface Types {
   uuid: string;
@@ -21,16 +22,29 @@ interface Types {
 
 const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
   const [isConfirmTransferOpen, setIsConfirmTransferOpen] = React.useState<boolean>(false);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-  });
+  const [values, setValues] = React.useState<FormValues>({ account: '' });
+  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
 
   const { data: accounts = [] } = useAccounts();
 
   const filteredAccounts = accounts.filter((item: AccountResponse) => item.uuid !== uuid);
 
-  const watchAccount = form.watch('account');
+  const handleTransfer = () => {
+    const result = formSchema.safeParse(values);
+
+    if (!result.success) {
+      const { fieldErrors } = z.flattenError(result.error);
+
+      setErrors({
+        account: fieldErrors.account?.[0],
+      });
+
+      return;
+    }
+
+    setErrors({});
+    setIsConfirmTransferOpen(true);
+  };
 
   return (
     <Dialog>
@@ -41,49 +55,39 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
         <DialogHeader>
           <DialogTitle>Manage account</DialogTitle>
         </DialogHeader>
-        <Form {...form}>
-          <form className="space-y-8">
-            <div className="flex flex-col space-y-3">
-              <div className="flex w-full">
-                <FormField
-                  control={form.control}
-                  name="account"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Re-assign transactions from this account to</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          disabled={filteredAccounts.length === 0}
-                        >
-                          <SelectTrigger className="relative w-full">
-                            <SelectValue
-                              placeholder={
-                                filteredAccounts.length > 0 ? 'Choose account' : 'You do not have applicable accounts'
-                              }
-                            />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              {filteredAccounts.map((account: AccountResponse) => (
-                                <SelectItem key={account.uuid} value={account.uuid}>
-                                  {account.title}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+        <Form className="space-y-8">
+          <div className="flex flex-col space-y-3">
+            <div className="flex w-full">
+              <Field name="account">
+                <FieldLabel>Re-assign transactions from this account to</FieldLabel>
+                <Select
+                  onValueChange={(account) => setValues({ account })}
+                  value={values.account || undefined}
+                  disabled={filteredAccounts.length === 0}
+                >
+                  <SelectTrigger className="relative w-full">
+                    <SelectValue
+                      placeholder={
+                        filteredAccounts.length > 0 ? 'Choose account' : 'You do not have applicable accounts'
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {filteredAccounts.map((account: AccountResponse) => (
+                        <SelectItem key={account.uuid} value={account.uuid}>
+                          {account.title}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <FieldError>{errors.account}</FieldError>
+              </Field>
             </div>
-          </form>
+          </div>
         </Form>
-        <Button disabled={!watchAccount} onClick={() => setIsConfirmTransferOpen(true)}>
+        <Button disabled={!values.account} onClick={handleTransfer}>
           Transfer
         </Button>
         {isConfirmTransferOpen && (
@@ -91,7 +95,7 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
             open={isConfirmTransferOpen}
             setOpen={setIsConfirmTransferOpen}
             sourceAccount={uuid}
-            destAccount={watchAccount}
+            destAccount={values.account}
           />
         )}
       </DialogContent>

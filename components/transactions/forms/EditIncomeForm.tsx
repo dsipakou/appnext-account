@@ -1,6 +1,4 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
-import { useForm } from 'react-hook-form';
 import { useSWRConfig } from 'swr';
 import * as z from 'zod';
 
@@ -11,6 +9,7 @@ import { AvailableRate } from '@/components/rates/types';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import * as Dlg from '@/components/ui/dialog';
+import * as Field from '@/components/ui/field';
 import * as Frm from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import * as Slc from '@/components/ui/select';
@@ -43,19 +42,28 @@ const formSchema = z.object({
   }),
 });
 
+type FormValues = {
+  account: string;
+  amount: string;
+  category: string;
+  currency: string;
+  description: string;
+  transactionDate: Date;
+};
+
 const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   const [selectedDate, setSelectedDate] = React.useState<string>(getFormattedDate(new Date()));
   const [month, setMonth] = React.useState<Date>(new Date());
-  const { mutate } = useSWRConfig();
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      amount: '',
-    },
+  const [values, setValues] = React.useState<FormValues>({
+    account: '',
+    amount: '',
+    category: '',
+    currency: '',
+    description: '',
+    transactionDate: new Date(),
   });
-
-  const watchCalendar = form.watch('transactionDate');
+  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
+  const { mutate } = useSWRConfig();
 
   const { toast } = useToast();
 
@@ -74,25 +82,23 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   React.useEffect(() => {
     if (!transaction || accounts.length === 0) return;
 
-    form.setValue('account', transaction.account);
-    form.setValue('amount', transaction.amount);
-    form.setValue('category', transaction.category);
-    form.setValue('currency', transaction.currency);
-    form.setValue('description', transaction.description);
-    form.setValue('transactionDate', parseDate(transaction.transactionDate));
+    setValues({
+      account: transaction.account,
+      amount: String(transaction.amount),
+      category: transaction.category,
+      currency: transaction.currency,
+      description: transaction.description || '',
+      transactionDate: parseDate(transaction.transactionDate),
+    });
 
     setSelectedDate(transaction.transactionDate);
 
     setMonth(parseDate(transaction.transactionDate));
-  }, [transaction]);
+  }, [accounts.length, transaction]);
 
   React.useEffect(() => {
-    const date = form.getValues().transactionDate;
-
-    if (date) {
-      setSelectedDate(getFormattedDate(form.getValues().transactionDate));
-    }
-  }, [watchCalendar]);
+    setSelectedDate(getFormattedDate(values.transactionDate));
+  }, [values.transactionDate]);
 
   const handleSave = async (payload: z.infer<typeof formSchema>): void => {
     try {
@@ -105,7 +111,7 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
       toast({
         title: 'Transaction updated',
       });
-    } catch (error) {
+    } catch {
       toast({
         variant: 'destructive',
         title: 'Cannot update transaction',
@@ -116,10 +122,42 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
 
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
-      form.clearErrors();
-      form.reset();
+      setErrors({});
+      const nextDate = new Date();
+      setValues({
+        account: '',
+        amount: '',
+        category: '',
+        currency: '',
+        description: '',
+        transactionDate: nextDate,
+      });
+      setSelectedDate(getFormattedDate(nextDate));
+      setMonth(nextDate);
     }
     handleClose();
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const result = formSchema.safeParse(values);
+
+    if (!result.success) {
+      const { fieldErrors } = z.flattenError(result.error);
+      setErrors({
+        account: fieldErrors.account?.[0],
+        amount: fieldErrors.amount?.[0],
+        category: fieldErrors.category?.[0],
+        currency: fieldErrors.currency?.[0],
+        description: fieldErrors.description?.[0],
+        transactionDate: fieldErrors.transactionDate?.[0],
+      });
+      return;
+    }
+
+    setErrors({});
+    await handleSave(result.data);
   };
 
   return (
@@ -128,202 +166,154 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Update income details</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <Frm.Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
-            <div className="flex flex-col gap-3">
-              <div className="flex w-full">
-                <div className="flex sm:w-2/3">
-                  <Frm.FormField
-                    control={form.control}
-                    name="amount"
-                    render={({ field }) => (
-                      <Frm.FormItem>
-                        <Frm.FormLabel>Amount</Frm.FormLabel>
-                        <Frm.FormControl>
-                          <Input
-                            disabled={isUpdating || isTransactionLoading || isRatesLoading}
-                            id="amount"
-                            autoFocus
-                            {...field}
-                          />
-                        </Frm.FormControl>
-                        <Frm.FormMessage />
-                      </Frm.FormItem>
-                    )}
+        <Frm.Form onSubmit={handleSubmit} className="space-y-8">
+          <div className="flex flex-col gap-3">
+            <div className="flex w-full">
+              <div className="flex sm:w-2/3">
+                <Field.Field name="amount">
+                  <Field.FieldLabel>Amount</Field.FieldLabel>
+                  <Input
+                    disabled={isUpdating || isTransactionLoading || isRatesLoading}
+                    id="amount"
+                    autoFocus
+                    value={values.amount}
+                    onChange={(event) => setValues((current) => ({ ...current, amount: event.target.value }))}
                   />
-                </div>
-                <div className="flex sm:w-1/3">
-                  <Frm.FormField
-                    control={form.control}
-                    name="currency"
-                    render={({ field }) => (
-                      <Frm.FormItem>
-                        <Frm.FormLabel>Currency</Frm.FormLabel>
-                        <Frm.FormControl>
-                          <Slc.Select
-                            disabled={isUpdating || isTransactionLoading || isRatesLoading}
-                            onValueChange={field.onChange}
-                            value={field.value}
-                          >
-                            <Slc.SelectTrigger className="relative w-full">
-                              <Slc.SelectValue placeholder="Select currency" />
-                            </Slc.SelectTrigger>
-                            <Slc.SelectContent>
-                              <Slc.SelectGroup>
-                                <Slc.SelectLabel>Currencies</Slc.SelectLabel>
-                                {currencies &&
-                                  currencies.map((item: Currency) => {
-                                    const rate = availableRates.find(
-                                      (rate: AvailableRate) => rate.currencyCode === item.code,
-                                    );
-                                    if (rate) {
-                                      if (rate.rateDate === selectedDate) {
-                                        return (
-                                          <Slc.SelectItem key={item.uuid} value={item.uuid}>
-                                            {item.code}
-                                          </Slc.SelectItem>
-                                        );
-                                      } else {
-                                        return (
-                                          <Slc.SelectItem key={item.uuid} value={item.uuid}>
-                                            {item.code} (old)
-                                          </Slc.SelectItem>
-                                        );
-                                      }
-                                    } else {
-                                      return (
-                                        <Slc.SelectItem key={item.uuid} value={item.uuid} disabled>
-                                          {item.code}
-                                        </Slc.SelectItem>
-                                      );
-                                    }
-                                  })}
-                              </Slc.SelectGroup>
-                            </Slc.SelectContent>
-                          </Slc.Select>
-                        </Frm.FormControl>
-                        <Frm.FormMessage />
-                      </Frm.FormItem>
-                    )}
-                  />
-                </div>
+                  <Field.FieldError>{errors.amount}</Field.FieldError>
+                </Field.Field>
               </div>
-              <div className="flex w-full">
-                <div className="flex w-2/5 flex-col gap-4">
-                  <Frm.FormField
-                    control={form.control}
-                    name="category"
-                    render={({ field }) => (
-                      <Frm.FormItem>
-                        <Frm.FormLabel>Category</Frm.FormLabel>
-                        <Frm.FormControl>
-                          <Slc.Select
-                            disabled={isUpdating || isTransactionLoading || isRatesLoading}
-                            onValueChange={field.onChange}
-                            value={field.value}
-                          >
-                            <Slc.SelectTrigger className="relative w-[180px]">
-                              <Slc.SelectValue placeholder="Select category" />
-                            </Slc.SelectTrigger>
-                            <Slc.SelectContent>
-                              <Slc.SelectGroup>
-                                <Slc.SelectLabel>Categories</Slc.SelectLabel>
-                                {incomeCategories.map((item: Category) => (
+              <div className="flex sm:w-1/3">
+                <Field.Field name="currency">
+                  <Field.FieldLabel>Currency</Field.FieldLabel>
+                  <Slc.Select
+                    disabled={isUpdating || isTransactionLoading || isRatesLoading}
+                    onValueChange={(currency) => setValues((current) => ({ ...current, currency }))}
+                    value={values.currency || undefined}
+                  >
+                    <Slc.SelectTrigger className="relative w-full">
+                      <Slc.SelectValue placeholder="Select currency" />
+                    </Slc.SelectTrigger>
+                    <Slc.SelectContent>
+                      <Slc.SelectGroup>
+                        <Slc.SelectLabel>Currencies</Slc.SelectLabel>
+                        {currencies &&
+                          currencies.map((item: Currency) => {
+                            const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code);
+                            if (rate) {
+                              if (rate.rateDate === selectedDate) {
+                                return (
                                   <Slc.SelectItem key={item.uuid} value={item.uuid}>
-                                    <div className="flex gap-1">
-                                      {item.icon && <span>{item.icon}</span>}
-                                      <span>{item.name}</span>
-                                    </div>
+                                    {item.code}
                                   </Slc.SelectItem>
-                                ))}
-                              </Slc.SelectGroup>
-                            </Slc.SelectContent>
-                          </Slc.Select>
-                        </Frm.FormControl>
-                        <Frm.FormMessage />
-                      </Frm.FormItem>
-                    )}
-                  />
-                  <Frm.FormField
-                    control={form.control}
-                    name="account"
-                    render={({ field }) => (
-                      <Frm.FormItem>
-                        <Frm.FormLabel>Account</Frm.FormLabel>
-                        <Frm.FormControl>
-                          <Slc.Select
-                            disabled={isUpdating || isTransactionLoading || isRatesLoading}
-                            onValueChange={field.onChange}
-                            value={field.value}
-                          >
-                            <Slc.SelectTrigger className="relative w-[180px]">
-                              <Slc.SelectValue placeholder="Select account" />
-                            </Slc.SelectTrigger>
-                            <Slc.SelectContent>
-                              <Slc.SelectGroup>
-                                <Slc.SelectLabel>Accounts</Slc.SelectLabel>
-                                {accounts.map((item: AccountResponse) => (
-                                  <Slc.SelectItem key={item.uuid} value={item.uuid}>
-                                    {item.title}
-                                  </Slc.SelectItem>
-                                ))}
-                              </Slc.SelectGroup>
-                            </Slc.SelectContent>
-                          </Slc.Select>
-                        </Frm.FormControl>
-                        <Frm.FormMessage />
-                      </Frm.FormItem>
-                    )}
-                  />
-                </div>
-                <div className="flex w-3/5 justify-end">
-                  <Frm.FormField
-                    control={form.control}
-                    name="transactionDate"
-                    render={({ field }) => (
-                      <Frm.FormItem>
-                        <Frm.FormControl>
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              isUpdating || isTransactionLoading || isRatesLoading || date < new Date('1900-01-01')
+                                );
+                              }
+
+                              return (
+                                <Slc.SelectItem key={item.uuid} value={item.uuid}>
+                                  {item.code} (old)
+                                </Slc.SelectItem>
+                              );
                             }
-                            month={month}
-                            onMonthChange={setMonth}
-                            weekStartsOn={1}
-                            initialFocus
-                          />
-                        </Frm.FormControl>
-                        <Frm.FormMessage />
-                      </Frm.FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="flex w-full">
-                <Frm.FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <Frm.FormItem>
-                      <Frm.FormControl>
-                        <Textarea
-                          disabled={isUpdating || isTransactionLoading || isRatesLoading}
-                          placeholder="Any notes for the transaction"
-                          className="resize-none"
-                          {...field}
-                        />
-                      </Frm.FormControl>
-                      <Frm.FormMessage />
-                    </Frm.FormItem>
-                  )}
-                />
+
+                            return (
+                              <Slc.SelectItem key={item.uuid} value={item.uuid} disabled>
+                                {item.code}
+                              </Slc.SelectItem>
+                            );
+                          })}
+                      </Slc.SelectGroup>
+                    </Slc.SelectContent>
+                  </Slc.Select>
+                  <Field.FieldError>{errors.currency}</Field.FieldError>
+                </Field.Field>
               </div>
             </div>
-            <Button type="submit">Save</Button>
-          </form>
+            <div className="flex w-full">
+              <div className="flex w-2/5 flex-col gap-4">
+                <Field.Field name="category">
+                  <Field.FieldLabel>Category</Field.FieldLabel>
+                  <Slc.Select
+                    disabled={isUpdating || isTransactionLoading || isRatesLoading}
+                    onValueChange={(category) => setValues((current) => ({ ...current, category }))}
+                    value={values.category || undefined}
+                  >
+                    <Slc.SelectTrigger className="relative w-[180px]">
+                      <Slc.SelectValue placeholder="Select category" />
+                    </Slc.SelectTrigger>
+                    <Slc.SelectContent>
+                      <Slc.SelectGroup>
+                        <Slc.SelectLabel>Categories</Slc.SelectLabel>
+                        {incomeCategories.map((item: Category) => (
+                          <Slc.SelectItem key={item.uuid} value={item.uuid}>
+                            <div className="flex gap-1">
+                              {item.icon && <span>{item.icon}</span>}
+                              <span>{item.name}</span>
+                            </div>
+                          </Slc.SelectItem>
+                        ))}
+                      </Slc.SelectGroup>
+                    </Slc.SelectContent>
+                  </Slc.Select>
+                  <Field.FieldError>{errors.category}</Field.FieldError>
+                </Field.Field>
+                <Field.Field name="account">
+                  <Field.FieldLabel>Account</Field.FieldLabel>
+                  <Slc.Select
+                    disabled={isUpdating || isTransactionLoading || isRatesLoading}
+                    onValueChange={(account) => setValues((current) => ({ ...current, account }))}
+                    value={values.account || undefined}
+                  >
+                    <Slc.SelectTrigger className="relative w-[180px]">
+                      <Slc.SelectValue placeholder="Select account" />
+                    </Slc.SelectTrigger>
+                    <Slc.SelectContent>
+                      <Slc.SelectGroup>
+                        <Slc.SelectLabel>Accounts</Slc.SelectLabel>
+                        {accounts.map((item: AccountResponse) => (
+                          <Slc.SelectItem key={item.uuid} value={item.uuid}>
+                            {item.title}
+                          </Slc.SelectItem>
+                        ))}
+                      </Slc.SelectGroup>
+                    </Slc.SelectContent>
+                  </Slc.Select>
+                  <Field.FieldError>{errors.account}</Field.FieldError>
+                </Field.Field>
+              </div>
+              <div className="flex w-3/5 justify-end">
+                <Field.Field name="transactionDate">
+                  <Calendar
+                    mode="single"
+                    selected={values.transactionDate}
+                    onSelect={(transactionDate) =>
+                      transactionDate && setValues((current) => ({ ...current, transactionDate }))
+                    }
+                    disabled={(date) =>
+                      isUpdating || isTransactionLoading || isRatesLoading || date < new Date('1900-01-01')
+                    }
+                    month={month}
+                    onMonthChange={setMonth}
+                    weekStartsOn={1}
+                    initialFocus
+                  />
+                  <Field.FieldError>{errors.transactionDate}</Field.FieldError>
+                </Field.Field>
+              </div>
+            </div>
+            <div className="flex w-full">
+              <Field.Field name="description">
+                <Textarea
+                  disabled={isUpdating || isTransactionLoading || isRatesLoading}
+                  placeholder="Any notes for the transaction"
+                  className="resize-none"
+                  value={values.description}
+                  onChange={(event) => setValues((current) => ({ ...current, description: event.target.value }))}
+                />
+                <Field.FieldError>{errors.description}</Field.FieldError>
+              </Field.Field>
+            </div>
+          </div>
+          <Button type="submit">Save</Button>
         </Frm.Form>
       </Dlg.DialogContent>
     </Dlg.Dialog>

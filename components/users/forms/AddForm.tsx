@@ -1,11 +1,10 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
-import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { useCreateInvite } from '@/hooks/users';
@@ -15,21 +14,23 @@ const formSchema = z.object({
   email: z.string().email(),
 });
 
+type FormValues = z.infer<typeof formSchema>;
+
 const AddForm: React.FC = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-  });
+  const [values, setValues] = React.useState<FormValues>({ email: '' });
+  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
 
   const { toast } = useToast();
   const { trigger: createInvite, isMutating: isCreating } = useCreateInvite();
 
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
-      form.clearErrors();
+      setErrors({});
+      setValues({ email: '' });
     }
   };
 
-  const handleSave = async (payload: z.infer<typeof formSchema>) => {
+  const handleSave = async (payload: FormValues) => {
     try {
       await createInvite(payload);
       toast({
@@ -52,6 +53,21 @@ const AddForm: React.FC = () => {
     }
   };
 
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const result = formSchema.safeParse(values);
+
+    if (!result.success) {
+      const { fieldErrors } = z.flattenError(result.error);
+      setErrors({ email: fieldErrors.email?.[0] });
+      return;
+    }
+
+    setErrors({});
+    await handleSave(result.data);
+  };
+
   return (
     <Dialog onOpenChange={cleanFormErrors}>
       <DialogTrigger asChild className="mx-2">
@@ -61,32 +77,24 @@ const AddForm: React.FC = () => {
         <DialogHeader>
           <DialogTitle>Add user to the workspace</DialogTitle>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
-            <div className="flex flex-col space-y-3">
-              <div className="flex w-full">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          className="w-full"
-                          disabled={isCreating}
-                          placeholder="user@example.com"
-                          id="verbalName"
-                          {...field}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
+        <Form onSubmit={handleSubmit} className="space-y-8">
+          <div className="flex flex-col space-y-3">
+            <div className="flex w-full">
+              <Field name="email">
+                <FieldLabel>Email</FieldLabel>
+                <Input
+                  className="w-full"
+                  disabled={isCreating}
+                  placeholder="user@example.com"
+                  id="verbalName"
+                  value={values.email}
+                  onChange={(event) => setValues({ email: event.target.value })}
                 />
-              </div>
+                <FieldError>{errors.email}</FieldError>
+              </Field>
             </div>
-            <Button type="submit">Send invite</Button>
-          </form>
+          </div>
+          <Button type="submit">Send invite</Button>
         </Form>
       </DialogContent>
     </Dialog>
