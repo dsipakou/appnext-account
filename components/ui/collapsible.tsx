@@ -2,6 +2,7 @@
 
 import { Collapsible as CollapsiblePrimitive } from '@base-ui/react/collapsible';
 import type React from 'react';
+
 import { cn } from '@/lib/utils';
 
 export function Collapsible({ ...props }: CollapsiblePrimitive.Root.Props): React.ReactElement {
@@ -25,4 +26,4 @@ export function CollapsiblePanel({ className, ...props }: CollapsiblePrimitive.P
   );
 }
 
-export { CollapsiblePrimitive, CollapsiblePanel as CollapsibleContent };
+export { CollapsiblePanel as CollapsibleContent, CollapsiblePrimitive };
