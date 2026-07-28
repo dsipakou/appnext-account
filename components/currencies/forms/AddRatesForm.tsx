@@ -7,7 +7,6 @@ import { useSWRConfig } from 'swr';
 import ConfirmClearRatesForm from '@/components/currencies/forms/ConfirmClearRatesForm';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { MaskedInput } from '@/components/ui/currency-input';
 import * as Dlg from '@/components/ui/dialog';
 import * as Field from '@/components/ui/field';
 import * as Frm from '@/components/ui/form';
@@ -140,7 +139,18 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
                     <Field.Field name={item.uuid} className="flex flex-row items-center gap-2 pr-2">
                       <Input
                         value={values[item.uuid] ?? ''}
-                        onChange={(event) => setValues((current) => ({ ...current, [item.uuid]: event.target.value }))}
+                        onChange={(event) => {
+                          let value = event.target.value;
+                          value = value.replace(/,/g, '.');
+                          const firstDot = value.indexOf('.');
+                          if (firstDot !== -1) {
+                            value = value.slice(0, firstDot + 1) + value.slice(firstDot + 1).replace(/\./g, '');
+                          }
+                          setValues((current) => ({
+                            ...current,
+                            [item.uuid]: value,
+                          }));
+                        }}
                       />
                       <Field.FieldLabel>{item.sign}</Field.FieldLabel>
                     </Field.Field>

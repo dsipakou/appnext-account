@@ -46,8 +46,6 @@ export default function CategoryComponent({
   }, [categories, open, value]);
 
   React.useEffect(() => {
-    console.log('here');
-    console.log(scrollReady);
     if (!scrollReady || !value) return;
 
     const scrollUuid = categories.find((item: Category) => item.uuid === value)?.parent || value;

@@ -138,11 +138,11 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
 
   return (
     <div className="flex flex-col overflow-y-auto">
-      <Acd.Accordion type="multiple">
+      <Acd.Accordion multiple>
         {parentCategories.map((item: Category) => (
           <Acd.AccordionItem key={item.uuid} value={item.uuid}>
             <div className="group flex h-12 w-full items-center justify-start bg-white shadow-lg">
-              <Acd.AccordionTrigger className="group flex gap-1 text-lg">
+              <Acd.AccordionTrigger className="flex items-center pl-2 text-lg">
                 <span>{item.icon}</span>
                 <span>{item.name}</span>
               </Acd.AccordionTrigger>
@@ -198,7 +198,7 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
                 </Ppv.PopoverContent>
               </Ppv.Popover>
             </div>
-            <Acd.AccordionContent className="mb-2 ml-2 bg-white pb-1">
+            <Acd.AccordionPanel className="mb-2 ml-2 bg-white pb-1">
               <SortableCategoryList
                 categories={categoriesByParent(item.uuid) as Category[]}
                 selectedEmoji={selectedEmoji}
@@ -213,7 +213,7 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
                 onSave={handleSave}
                 emojiPopover={emojiPopover}
               />
-            </Acd.AccordionContent>
+            </Acd.AccordionPanel>
           </Acd.AccordionItem>
         ))}
       </Acd.Accordion>
