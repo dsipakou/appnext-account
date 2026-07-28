@@ -1,14 +1,13 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
 import { Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import React from 'react';
-import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
 const formSchema = z
@@ -22,24 +21,23 @@ const formSchema = z
     path: ['repeatPassword'],
   });
 
+type FormValues = z.infer<typeof formSchema>;
+
 const Index: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-      repeatPassword: '',
-    },
+  const [values, setValues] = React.useState<FormValues>({
+    email: '',
+    password: '',
+    repeatPassword: '',
   });
+  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const onSubmit = (payload: z.infer<typeof formSchema>) => {
+  const onSubmit = (payload: FormValues) => {
     setIsLoading(true);
 
     if (payload.password !== payload.repeatPassword) {
@@ -59,19 +57,37 @@ const Index: React.FC = () => {
             password: payload.password,
             callbackUrl: `${window.location.origin}/`,
           });
-          console.log('after signin');
         }
       })
       .catch((err) => {
-        if (err.response.data.hasOwnProperty('password')) {
-          form.setError('password', { type: 'custom', message: err.response.data.password });
-        } else if (err.response.data.hasOwnProperty('email')) {
-          form.setError('email', { type: 'custom', message: 'Most probably this email is already registered' });
+        if (Object.prototype.hasOwnProperty.call(err.response.data, 'password')) {
+          setErrors((current) => ({ ...current, password: err.response.data.password }));
+        } else if (Object.prototype.hasOwnProperty.call(err.response.data, 'email')) {
+          setErrors((current) => ({ ...current, email: 'Most probably this email is already registered' }));
         }
       })
       .finally(() => {
         setIsLoading(false);
       });
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const result = formSchema.safeParse(values);
+
+    if (!result.success) {
+      const { fieldErrors } = z.flattenError(result.error);
+      setErrors({
+        email: fieldErrors.email?.[0],
+        password: fieldErrors.password?.[0],
+        repeatPassword: fieldErrors.repeatPassword?.[0],
+      });
+      return;
+    }
+
+    setErrors({});
+    onSubmit(result.data);
   };
 
   return (
@@ -87,72 +103,53 @@ const Index: React.FC = () => {
         <div className="text-center">
           <span className="mt-6 text-xl font-bold text-gray-900">Create your account</span>
         </div>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input className="w-full" disabled={isLoading} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+        <Form onSubmit={handleSubmit} className="space-y-6">
+          <Field name="email">
+            <FieldLabel>Email</FieldLabel>
+            <Input
+              className="w-full"
+              disabled={isLoading}
+              value={values.email}
+              onChange={(event) => setValues((current) => ({ ...current, email: event.target.value }))}
             />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Input
-                        type={showPassword ? 'text' : 'password'}
-                        className="w-full"
-                        disabled={isLoading}
-                        required
-                        {...field}
-                      />
-                      <button
-                        type="button"
-                        onClick={togglePasswordVisibility}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 transform"
-                        aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <FieldError>{errors.email}</FieldError>
+          </Field>
+          <Field name="password">
+            <FieldLabel>Password</FieldLabel>
+            <div className="relative w-full">
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                className="w-full"
+                disabled={isLoading}
+                required
+                value={values.password}
+                onChange={(event) => setValues((current) => ({ ...current, password: event.target.value }))}
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute right-3 top-1/2 -translate-y-1/2 transform"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            <FieldError>{errors.password}</FieldError>
+          </Field>
+          <Field name="repeatPassword">
+            <FieldLabel>Repeat Password</FieldLabel>
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              className="w-full"
+              disabled={isLoading}
+              value={values.repeatPassword}
+              onChange={(event) => setValues((current) => ({ ...current, repeatPassword: event.target.value }))}
             />
-            <FormField
-              control={form.control}
-              name="repeatPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Repeat Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type={showPassword ? 'text' : 'password'}
-                      className="w-full"
-                      disabled={isLoading}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button className="w-full" type="submit">
-              Join now
-            </Button>
-          </form>
+            <FieldError>{errors.repeatPassword}</FieldError>
+          </Field>
+          <Button className="w-full" type="submit">
+            Join now
+          </Button>
         </Form>
         <p className="mt-2 text-center text-sm text-gray-600">
           Already have an account?{' '}
