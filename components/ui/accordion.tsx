@@ -1,53 +1,60 @@
 'use client';
 
-import * as AccordionPrimitive from '@radix-ui/react-accordion';
+import { Accordion as AccordionPrimitive } from '@base-ui/react/accordion';
 import { ChevronDownIcon } from 'lucide-react';
-import * as React from 'react';
+import type React from 'react';
 
 import { cn } from '@/lib/utils';
 
-const Accordion = AccordionPrimitive.Root;
+export function Accordion(props: AccordionPrimitive.Root.Props): React.ReactElement {
+  return <AccordionPrimitive.Root data-slot="accordion" {...props} />;
+}
 
-const AccordionItem = React.forwardRef<
-  React.ElementRef<typeof AccordionPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
->(({ className, ...props }, ref) => (
-  <AccordionPrimitive.Item ref={ref} className={cn('border-b', className)} {...props} />
-));
-AccordionItem.displayName = 'AccordionItem';
+export function AccordionItem({ className, ...props }: AccordionPrimitive.Item.Props): React.ReactElement {
+  return (
+    <AccordionPrimitive.Item
+      className={cn('border-b last:border-b-0', className)}
+      data-slot="accordion-item"
+      {...props}
+    />
+  );
+}
 
-const AccordionTrigger = React.forwardRef<
-  React.ElementRef<typeof AccordionPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
-  <AccordionPrimitive.Header className="flex">
-    <AccordionPrimitive.Trigger
-      ref={ref}
-      className={cn(
-        'flex flex-1 items-center justify-start py-2 text-sm font-medium transition-all [&[data-state=open]>svg]:rotate-180',
-        className,
-      )}
+export function AccordionTrigger({
+  className,
+  children,
+  ...props
+}: AccordionPrimitive.Trigger.Props): React.ReactElement {
+  return (
+    <AccordionPrimitive.Header className="flex">
+      <AccordionPrimitive.Trigger
+        className={cn(
+          'disabled:opacity-64 data-panel-open:*:data-[slot=accordion-indicator]:rotate-180 flex flex-1 cursor-pointer items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium outline-none transition-all focus-visible:ring-[3px] focus-visible:ring-ring disabled:pointer-events-none',
+          className,
+        )}
+        data-slot="accordion-trigger"
+        {...props}
+      >
+        <ChevronDownIcon
+          className="pointer-events-none size-4 shrink-0 translate-y-0.5 opacity-80 transition-transform duration-200 ease-in-out"
+          data-slot="accordion-indicator"
+        />
+        {children}
+      </AccordionPrimitive.Trigger>
+    </AccordionPrimitive.Header>
+  );
+}
+
+export function AccordionPanel({ className, children, ...props }: AccordionPrimitive.Panel.Props): React.ReactElement {
+  return (
+    <AccordionPrimitive.Panel
+      className="h-(--accordion-panel-height) data-ending-style:h-0 data-starting-style:h-0 overflow-hidden text-sm text-muted-foreground transition-[height] duration-200 ease-in-out"
+      data-slot="accordion-panel"
       {...props}
     >
-      <ChevronDownIcon className="mx-4 h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200" />
-      {children}
-    </AccordionPrimitive.Trigger>
-  </AccordionPrimitive.Header>
-));
-AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName;
+      <div className={cn('pb-4 pt-0', className)}>{children}</div>
+    </AccordionPrimitive.Panel>
+  );
+}
 
-const AccordionContent = React.forwardRef<
-  React.ElementRef<typeof AccordionPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
->(({ className, children, ...props }, ref) => (
-  <AccordionPrimitive.Content
-    ref={ref}
-    className="overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
-    {...props}
-  >
-    <div className={cn('my-0 pt-0', className)}>{children}</div>
-  </AccordionPrimitive.Content>
-));
-AccordionContent.displayName = AccordionPrimitive.Content.displayName;
-
-export { Accordion, AccordionContent, AccordionItem, AccordionTrigger };
+export { AccordionPanel as AccordionContent, AccordionPrimitive };
