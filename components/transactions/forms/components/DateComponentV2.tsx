@@ -36,18 +36,20 @@ export default function DateComponent({ user, value, handleChange, row, isInvali
         <ArrowBigLeft className="h-4 w-4" />
       </Button>
       <Ppv.Popover open={openCalendar === row.id} onOpenChange={(open) => setOpenCalendar(open ? row.id : null)}>
-        <Ppv.PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn(
-              'mx-1 h-8 cursor-pointer border-0 text-sm font-normal',
-              isInvalid && 'outline outline-red-400',
-            )}
-          >
-            {format(value as Date, 'dd MMM')}
-          </Button>
+        <Ppv.PopoverTrigger
+          render={
+            <Button
+              variant="outline"
+              className={cn(
+                'mx-1 h-8 cursor-pointer border-0 text-sm font-normal',
+                isInvalid && 'outline outline-red-400',
+              )}
+            />
+          }
+        >
+          {format(value as Date, 'dd MMM')}
         </Ppv.PopoverTrigger>
-        <Ppv.PopoverContent className="p-0">
+        <Ppv.PopoverPopup>
           <Calendar
             mode="single"
             selected={value as Date}
@@ -57,9 +59,8 @@ export default function DateComponent({ user, value, handleChange, row, isInvali
               }
             }}
             weekStartsOn={1}
-            initialFocus
           />
-        </Ppv.PopoverContent>
+        </Ppv.PopoverPopup>
       </Ppv.Popover>
       <Button size="sm" variant="ghost" onClick={() => onChange(addDays(value as Date, 1))}>
         <ArrowBigRight className="h-4 w-4" />

@@ -1,15 +1,13 @@
 // System
 import { addMonths, endOfMonth, format, isSameMonth, startOfMonth, subMonths } from 'date-fns';
-import { CalendarDays } from 'lucide-react';
+import { CalendarDays, RotateCcw } from 'lucide-react';
 import React from 'react';
 import { DateRange } from 'react-day-picker';
 
 // UI
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-// Utils
-import { cn } from '@/lib/utils';
+import { Popover, PopoverPopup, PopoverTrigger } from '@/components/ui/popover';
 
 interface Types {
   date: Date;
@@ -39,26 +37,25 @@ const MonthCalendar: React.FC<Types> = ({ date: monthDate, setMonthDate }) => {
         <span className="text-lg">&#8592;</span>
       </Button>
       <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn(
-              'flex h-12 w-[280px] justify-between border-2 text-left font-normal hover:bg-white',
-              monthDate && 'text-muted-foreground',
-            )}
-          >
+        <div className="w-70 flex h-12 items-center justify-between rounded-xl border-2 text-left font-normal hover:bg-white">
+          <PopoverTrigger render={<Button variant="empty" className="w-3/4" />}>
             <div className="flex items-center">
               <CalendarDays className="mr-2 h-6 w-6" />
               {monthDate ? format(monthDate, 'MMM, yyyy') : <span>Pick a date</span>}
             </div>
-            {!isSameMonth(monthDate, new Date()) && (
-              <Button variant="link" size="xs" className="px-2 py-1" onClick={resetDate}>
-                Reset
-              </Button>
-            )}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="h-full w-full p-0">
+          </PopoverTrigger>
+          {!isSameMonth(monthDate, new Date()) && (
+            <RotateCcw
+              className="mr-2 h-4 w-4 cursor-pointer"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                resetDate(e);
+              }}
+            />
+          )}
+        </div>
+        <PopoverPopup className="h-full w-full p-0">
           <Calendar
             captionLayout="dropdown"
             startMonth={new Date(2020, 0)}
@@ -72,7 +69,7 @@ const MonthCalendar: React.FC<Types> = ({ date: monthDate, setMonthDate }) => {
             showOutsideDays={false}
             disabled
           />
-        </PopoverContent>
+        </PopoverPopup>
       </Popover>
 
       <Button variant="ghost" onClick={() => setMonthDate(addMonths(monthDate, 1))}>

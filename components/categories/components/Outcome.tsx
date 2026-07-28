@@ -28,16 +28,9 @@ interface Types {
   categoriesByParent: (uuid: string) => {};
 }
 
-interface PopupTypes {
-  uuid: string;
-  name: string;
-  parent: string | null;
-  description: string | null;
-}
-
 const popupSchema = z.object({
   name: z.string().min(2),
-  parent: z.string().uuid().nullable(),
+  parent: z.uuid().nullable(),
   description: z.string().optional(),
 });
 
@@ -74,7 +67,6 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
   };
 
   const handleSave = async (category: Category, originalName: string) => {
-    console.log('payload', category, 'originalName', originalName);
     const validatedPayload = popupSchema.safeParse(category);
 
     if (!validatedPayload.success) {
@@ -115,12 +107,8 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
   const emojiPopover = () => {
     return (
       <Ppv.Popover>
-        <Ppv.PopoverTrigger asChild>
-          <Button variant="outline" className="flex-1">
-            Choose icon
-          </Button>
-        </Ppv.PopoverTrigger>
-        <Ppv.PopoverContent className="flex w-[400px] justify-center" sideOffset={5}>
+        <Ppv.PopoverTrigger render={<Button variant="outline" className="flex-1" />}>Choose icon</Ppv.PopoverTrigger>
+        <Ppv.PopoverPopup className="w-100 flex justify-center" sideOffset={5}>
           <div>
             <EmojiPicker
               className="mt-5 flex h-20"
@@ -131,7 +119,7 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
           <Ppv.PopoverClose className="absolute right-5 top-5">
             <X className="h-4 w-4" />
           </Ppv.PopoverClose>
-        </Ppv.PopoverContent>
+        </Ppv.PopoverPopup>
       </Ppv.Popover>
     );
   };
@@ -147,16 +135,12 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
                 <span>{item.name}</span>
               </Acd.AccordionTrigger>
               <Ppv.Popover onOpenChange={(open) => onOpenPopup(open, item)}>
-                <Ppv.PopoverTrigger asChild>
+                <Ppv.PopoverTrigger>
                   <span>
                     <Pencil className="ml-3 hidden h-7 w-7 cursor-pointer p-1 hover:text-blue-400 group-hover:flex" />
                   </span>
                 </Ppv.PopoverTrigger>
-                <Ppv.PopoverAnchor />
-                <Ppv.PopoverContent
-                  className="flex w-80 flex-col gap-3 rounded-md border-none bg-white"
-                  sideOffset={10}
-                >
+                <Ppv.PopoverPopup className="flex w-80 flex-col gap-3 rounded-md border-none bg-white" sideOffset={10}>
                   <Ppv.PopoverClose className="absolute right-5 top-5">
                     <X className="h-4 w-4" />
                   </Ppv.PopoverClose>
@@ -194,8 +178,7 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
                     </div>
                     <ConfirmDeleteForm uuid={item.uuid} />
                   </div>
-                  <Ppv.PopoverArrow width={20} height={10} className="border-none fill-white shadow-lg" />
-                </Ppv.PopoverContent>
+                </Ppv.PopoverPopup>
               </Ppv.Popover>
             </div>
             <Acd.AccordionPanel className="mb-2 ml-2 bg-white pb-1">

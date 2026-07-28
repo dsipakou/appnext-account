@@ -1,13 +1,12 @@
 import { addDays, endOfWeek, format, getWeekOfMonth, isSameWeek, startOfWeek, subDays } from 'date-fns';
-import { CalendarDays } from 'lucide-react';
+import { CalendarDays, RotateCcw } from 'lucide-react';
 import * as React from 'react';
 import { rangeIncludesDate } from 'react-day-picker';
 import { DateRange } from 'react-day-picker';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
+import { Popover, PopoverPopup, PopoverTrigger } from '@/components/ui/popover';
 
 interface Types {
   date: Date;
@@ -37,14 +36,8 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
         <span className="text-lg">&#8592;</span>
       </Button>
       <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn(
-              'w-70 h-12 justify-between border-2 text-left font-normal hover:bg-white',
-              weekDate && 'text-muted-foreground',
-            )}
-          >
+        <div className="w-70 flex h-12 items-center justify-between rounded-xl border-2 text-left font-normal hover:bg-white">
+          <PopoverTrigger render={<Button variant="empty" className="w-3/4" />}>
             <div className="flex items-center">
               <CalendarDays className="mr-2 h-6 w-6" />
               {weekDate ? (
@@ -53,14 +46,19 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
                 <span>Pick a date</span>
               )}
             </div>
-            {!isSameWeek(weekDate, new Date()) && (
-              <Button variant="link" size="xs" className="px-2 py-1" onClick={resetDate}>
-                Reset
-              </Button>
-            )}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="h-full w-full p-0">
+          </PopoverTrigger>
+          {!isSameWeek(weekDate, new Date()) && (
+            <RotateCcw
+              className="mr-2 h-4 w-4 cursor-pointer"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                resetDate(e);
+              }}
+            />
+          )}
+        </div>
+        <PopoverPopup className="h-full w-full p-0">
           <Calendar
             month={month}
             onMonthChange={setMonth}
@@ -79,7 +77,7 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
             showWeekNumber
             ISOWeek
           />
-        </PopoverContent>
+        </PopoverPopup>
       </Popover>
       <Button variant="ghost" onClick={() => setWeekDate(addDays(weekDate, 7))}>
         <span className="text-lg">&#8594;</span>

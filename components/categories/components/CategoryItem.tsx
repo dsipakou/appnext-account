@@ -82,14 +82,13 @@ export const CategoryItem: React.FC<Props> = ({
           )}
         </span>
         <Ppv.Popover onOpenChange={(open) => onOpenPopup(open, category)}>
-          <Ppv.PopoverTrigger asChild>
+          <Ppv.PopoverTrigger>
             <span>
               {!isDragging && (
                 <Pencil className="ml-3 hidden h-6 w-6 cursor-pointer px-1 hover:text-blue-400 group-hover:flex" />
               )}
             </span>
           </Ppv.PopoverTrigger>
-          <Ppv.PopoverAnchor />
           <Ppv.PopoverContent className="flex w-80 flex-col gap-3 rounded-md border-none bg-white" sideOffset={10}>
             <Ppv.PopoverClose className="absolute right-5 top-5">
               <X className="h-4 w-4" />
@@ -170,7 +169,6 @@ export const CategoryItem: React.FC<Props> = ({
               </div>
               <ConfirmDeleteForm uuid={category.uuid} />
             </div>
-            <Ppv.PopoverArrow width={20} height={10} className="border-none fill-white shadow-lg" />
           </Ppv.PopoverContent>
         </Ppv.Popover>
       </div>

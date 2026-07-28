@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Popover, PopoverClose, PopoverPopup, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
@@ -23,7 +23,7 @@ interface Types {
 
 const formSchema = z.object({
   name: z.string().min(2),
-  parent: z.string().uuid().nullable(),
+  parent: z.uuid().nullable(),
   description: z.string().optional(),
 });
 
@@ -110,10 +110,8 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
         </DialogHeader>
         <div className="flex items-center gap-4">
           <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline">Choose icon</Button>
-            </PopoverTrigger>
-            <PopoverContent className="flex w-[400px] justify-center" sideOffset={5}>
+            <PopoverTrigger render={<Button variant="outline" />}>Choose icon</PopoverTrigger>
+            <PopoverPopup className="w-100 flex justify-center" sideOffset={5}>
               <div>
                 <EmojiPicker
                   className="mt-5 flex h-20"
@@ -124,7 +122,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
               <PopoverClose className="absolute right-5 top-5">
                 <X className="h-4 w-4" />
               </PopoverClose>
-            </PopoverContent>
+            </PopoverPopup>
           </Popover>
           <span>{selectedEmoji}</span>
           {selectedEmoji && (
