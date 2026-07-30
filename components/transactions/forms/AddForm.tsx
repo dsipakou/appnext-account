@@ -85,7 +85,7 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
   return (
     <>
       <Dlg.Dialog open={open} onOpenChange={onClose}>
-        <Dlg.DialogPopup className="mx-3 flex h-[90vh] max-h-[90vh] w-4/5 flex-col overflow-hidden sm:max-w-full">
+        <Dlg.DialogPopup className="mx-3 flex h-[95vh] w-4/5 flex-col overflow-hidden sm:max-w-full">
           <Dlg.DialogHeader className="flex-shrink-0">
             <Dlg.DialogTitle>Add transactions</Dlg.DialogTitle>
           </Dlg.DialogHeader>
