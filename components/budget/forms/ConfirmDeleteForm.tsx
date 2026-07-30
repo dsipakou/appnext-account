@@ -3,7 +3,7 @@ import { useSWRConfig } from 'swr';
 
 import { RecurrentTypes } from '@/components/budget/types';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
+import * as Dlg from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Spinner } from '@/components/ui/spinner';
@@ -59,63 +59,68 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, recurrent, bu
   const isLoading = isDeletingBudget || isStoppingSeries;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
-        <DialogTitle>{isRecurrent ? 'Delete recurring budget' : 'Please, confirm deletion'}</DialogTitle>
+    <Dlg.Dialog open={open} onOpenChange={setOpen}>
+      <Dlg.DialogPopup>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>{isRecurrent ? 'Delete recurring budget' : 'Please, confirm deletion'}</Dlg.DialogTitle>
+        </Dlg.DialogHeader>
+        <Dlg.DialogPanel>
+          {isRecurrent ? (
+            <div className="flex flex-col gap-4">
+              <p className="leading-7">This is a {recurrent} recurring budget. How would you like to delete it?</p>
 
-        {isRecurrent ? (
-          <div className="flex flex-col gap-4">
-            <p className="leading-7">This is a {recurrent} recurring budget. How would you like to delete it?</p>
+              <RadioGroup
+                value={deletionMode}
+                onValueChange={(value) => setDeletionMode(value as 'instance' | 'series')}
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="instance" id="instance" disabled={isLoading} />
+                  <Label htmlFor="instance" className="cursor-pointer font-normal">
+                    <div className="flex flex-col">
+                      <span className="font-semibold">Delete only this instance</span>
+                      <span className="text-sm text-muted-foreground">
+                        The series will continue and new budgets will be created
+                      </span>
+                    </div>
+                  </Label>
+                </div>
 
-            <RadioGroup value={deletionMode} onValueChange={(value) => setDeletionMode(value as 'instance' | 'series')}>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="instance" id="instance" disabled={isLoading} />
-                <Label htmlFor="instance" className="cursor-pointer font-normal">
-                  <div className="flex flex-col">
-                    <span className="font-semibold">Delete only this instance</span>
-                    <span className="text-sm text-muted-foreground">
-                      The series will continue and new budgets will be created
-                    </span>
-                  </div>
-                </Label>
-              </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="series" id="series" disabled={isLoading} />
+                  <Label htmlFor="series" className="cursor-pointer font-normal">
+                    <div className="flex flex-col">
+                      <span className="font-semibold">Stop the series from this date</span>
+                      <span className="text-sm text-muted-foreground">
+                        This and all future budgets in the series will be deleted
+                      </span>
+                    </div>
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+          ) : (
+            <p className="leading-7">You are about to delete a budget</p>
+          )}
 
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="series" id="series" disabled={isLoading} />
-                <Label htmlFor="series" className="cursor-pointer font-normal">
-                  <div className="flex flex-col">
-                    <span className="font-semibold">Stop the series from this date</span>
-                    <span className="text-sm text-muted-foreground">
-                      This and all future budgets in the series will be deleted
-                    </span>
-                  </div>
-                </Label>
-              </div>
-            </RadioGroup>
-          </div>
-        ) : (
-          <p className="leading-7">You are about to delete a budget</p>
-        )}
-
-        {isLoading && (
-          <div className="flex items-center justify-center gap-3 py-4 text-muted-foreground">
-            <Spinner className="size-5" />
-            <span className="text-sm font-medium">
-              {deletionMode === 'series' ? 'Stopping series...' : 'Deleting budget...'}
-            </span>
-          </div>
-        )}
-
-        <DialogFooter>
+          {isLoading && (
+            <div className="flex items-center justify-center gap-3 py-4 text-muted-foreground">
+              <Spinner className="size-5" />
+              <span className="text-sm font-medium">
+                {deletionMode === 'series' ? 'Stopping series...' : 'Deleting budget...'}
+              </span>
+            </div>
+          )}
+        </Dlg.DialogPanel>
+        <Dlg.DialogFooter>
           <Button disabled={isLoading} variant="secondary" onClick={() => setOpen(false)}>
             Cancel
           </Button>
           <Button disabled={isLoading} variant="destructive" onClick={handleDelete}>
             {deletionMode === 'series' ? 'Stop Series' : 'Delete'}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </Dlg.DialogFooter>
+      </Dlg.DialogPopup>
+    </Dlg.Dialog>
   );
 };
 

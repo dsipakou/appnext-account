@@ -5,7 +5,7 @@ import * as z from 'zod';
 import { AccountResponse } from '@/components/accounts/types';
 import { Category, CategoryType } from '@/components/categories/types';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -123,16 +123,16 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
   };
 
   return (
-    <Dialog onOpenChange={cleanFormErrors}>
-      <DialogTrigger asChild className="mx-2">
-        <Button variant="ghost">Edit</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Edit account</DialogTitle>
-        </DialogHeader>
-        <Form onSubmit={handleSubmit} className="space-y-8">
-          <div className="flex flex-col space-y-3">
+    <Dlg.Dialog onOpenChange={cleanFormErrors}>
+      <Dlg.DialogTrigger className="mx-2" render={<Button variant="ghost" />}>
+        Edit
+      </Dlg.DialogTrigger>
+      <Dlg.DialogPopup>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Edit account</Dlg.DialogTitle>
+        </Dlg.DialogHeader>
+        <Form onSubmit={handleSubmit} className="contents">
+          <Dlg.DialogPanel>
             <div className="flex w-full">
               <div className="flex w-2/3">
                 <Field name="title">
@@ -144,7 +144,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                     value={values.title}
                     onChange={(event) => setValues((current) => ({ ...current, title: event.target.value }))}
                   />
-                  <FieldError>{errors.title}</FieldError>
+                  <FieldError />
                 </Field>
               </div>
               <div className="flex w-1/3 items-center">
@@ -158,7 +158,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                     />
                     <FieldLabel htmlFor="isMain">Active</FieldLabel>
                   </div>
-                  <FieldError>{errors.isMain}</FieldError>
+                  <FieldError />
                 </Field>
               </div>
             </div>
@@ -185,7 +185,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                  <FieldError>{errors.user}</FieldError>
+                  <FieldError />
                 </Field>
               </div>
               <div className="flex w-1/2">
@@ -214,7 +214,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                  <FieldError>{errors.category}</FieldError>
+                  <FieldError />
                 </Field>
               </div>
             </div>
@@ -227,16 +227,18 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                   value={values.description ?? ''}
                   onChange={(event) => setValues((current) => ({ ...current, description: event.target.value }))}
                 />
-                <FieldError>{errors.description}</FieldError>
+                <FieldError />
               </Field>
             </div>
-          </div>
-          <Button disabled={isUpdating} type="submit">
-            Save
-          </Button>
+          </Dlg.DialogPanel>
+          <Dlg.DialogFooter>
+            <Button disabled={isUpdating} type="submit">
+              Save
+            </Button>
+          </Dlg.DialogFooter>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </Dlg.DialogPopup>
+    </Dlg.Dialog>
   );
 };
 

@@ -2,7 +2,7 @@ import React from 'react';
 import * as z from 'zod';
 
 import { Button } from '@/components/ui/button';
-import * as Dialog from '@/components/ui/dialog';
+import * as Dlg from '@/components/ui/dialog';
 import * as Field from '@/components/ui/field';
 import * as Form from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -86,61 +86,66 @@ const ChangePasswordForm: React.FC = () => {
   };
 
   return (
-    <Dialog.Dialog onOpenChange={cleanFormErrors}>
-      <Dialog.DialogTrigger asChild className="mx-2">
-        <Button>Change Password</Button>
-      </Dialog.DialogTrigger>
-      <Dialog.DialogContent>
-        <Dialog.DialogHeader>
-          <Dialog.DialogTitle>Add user to the workspace</Dialog.DialogTitle>
-        </Dialog.DialogHeader>
-        <Form.Form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex w-full">
-            <Field.Field name="currentPassword">
-              <Field.FieldLabel>Your current password</Field.FieldLabel>
-              <Input
-                className="w-full"
-                disabled={isReseting}
-                type="password"
-                id="verbalName"
-                value={values.currentPassword}
-                onChange={(event) => setValues((current) => ({ ...current, currentPassword: event.target.value }))}
-              />
-              <Field.FieldError>{errors.currentPassword}</Field.FieldError>
-            </Field.Field>
-          </div>
-          <div className="flex w-full pt-7">
-            <Field.Field name="newPassword">
-              <Field.FieldLabel>New password</Field.FieldLabel>
-              <Input
-                className="w-full"
-                disabled={isReseting}
-                type="password"
-                id="verbalName"
-                value={values.newPassword}
-                onChange={(event) => setValues((current) => ({ ...current, newPassword: event.target.value }))}
-              />
-              <Field.FieldError>{errors.newPassword}</Field.FieldError>
-            </Field.Field>
-          </div>
-          <div className="flex w-full">
-            <Field.Field name="confirmPassword">
-              <Field.FieldLabel>Repeat new password</Field.FieldLabel>
-              <Input
-                className="w-full"
-                disabled={isReseting}
-                type="password"
-                id="verbalName"
-                value={values.confirmPassword}
-                onChange={(event) => setValues((current) => ({ ...current, confirmPassword: event.target.value }))}
-              />
-              <Field.FieldError>{errors.confirmPassword}</Field.FieldError>
-            </Field.Field>
-          </div>
-          <Button type="submit">Reset password</Button>
+    <Dlg.Dialog onOpenChange={cleanFormErrors}>
+      <Dlg.DialogTrigger className="mx-2" render={<Button />}>
+        Change Password
+      </Dlg.DialogTrigger>
+      <Dlg.DialogPopup>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Change your current password</Dlg.DialogTitle>
+        </Dlg.DialogHeader>
+        <Form.Form onSubmit={handleSubmit} className="contents">
+          <Dlg.DialogPanel>
+            <div className="flex w-full">
+              <Field.Field name="currentPassword">
+                <Field.FieldLabel>Your current password</Field.FieldLabel>
+                <Input
+                  className="w-full"
+                  disabled={isReseting}
+                  type="password"
+                  id="verbalName"
+                  value={values.currentPassword}
+                  onChange={(event) => setValues((current) => ({ ...current, currentPassword: event.target.value }))}
+                />
+                <Field.FieldError>{errors.currentPassword}</Field.FieldError>
+              </Field.Field>
+            </div>
+            <div className="flex w-full pt-7">
+              <Field.Field name="newPassword">
+                <Field.FieldLabel>New password</Field.FieldLabel>
+                <Input
+                  className="w-full"
+                  disabled={isReseting}
+                  type="password"
+                  id="verbalName"
+                  value={values.newPassword}
+                  onChange={(event) => setValues((current) => ({ ...current, newPassword: event.target.value }))}
+                />
+                <Field.FieldError>{errors.newPassword}</Field.FieldError>
+              </Field.Field>
+            </div>
+            <div className="flex w-full">
+              <Field.Field name="confirmPassword">
+                <Field.FieldLabel>Repeat new password</Field.FieldLabel>
+                <Input
+                  className="w-full"
+                  disabled={isReseting}
+                  type="password"
+                  id="verbalName"
+                  value={values.confirmPassword}
+                  onChange={(event) => setValues((current) => ({ ...current, confirmPassword: event.target.value }))}
+                />
+                <Field.FieldError>{errors.confirmPassword}</Field.FieldError>
+              </Field.Field>
+            </div>
+          </Dlg.DialogPanel>
+          <Dlg.DialogFooter>
+            <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
+            <Button type="submit">Reset password</Button>
+          </Dlg.DialogFooter>
         </Form.Form>
-      </Dialog.DialogContent>
-    </Dialog.Dialog>
+      </Dlg.DialogPopup>
+    </Dlg.Dialog>
   );
 };
 

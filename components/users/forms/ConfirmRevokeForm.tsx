@@ -2,7 +2,7 @@ import React from 'react';
 import { useSWRConfig } from 'swr';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogFooter, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import * as Dlg from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
 import { useRevokeInvite } from '@/hooks/users';
 
@@ -32,23 +32,21 @@ const ConfirmRevokeForm: React.FC<Types> = ({ uuid }) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="link">Revoke</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogTitle>Please, confirm revoking</DialogTitle>
-        <p className="leading-7">Are you sure you want to revoke the invite?</p>
-        <DialogFooter>
-          <Button disabled={isDeleting} variant="secondary" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
+    <Dlg.Dialog open={open} onOpenChange={setOpen}>
+      <Dlg.DialogTrigger render={<Button variant="link" />}>Revoke</Dlg.DialogTrigger>
+      <Dlg.DialogPopup>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Please, confirm revoking</Dlg.DialogTitle>
+          <Dlg.DialogDescription>Are you sure you want to revoke the invite?</Dlg.DialogDescription>
+        </Dlg.DialogHeader>
+        <Dlg.DialogFooter>
+          <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
           <Button disabled={isDeleting} variant="destructive" onClick={handleRevoke}>
             Revoke
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </Dlg.DialogFooter>
+      </Dlg.DialogPopup>
+    </Dlg.Dialog>
   );
 };
 

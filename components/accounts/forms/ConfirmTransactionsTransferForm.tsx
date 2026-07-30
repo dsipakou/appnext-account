@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
+import * as Dlg from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
 import { useReassignTransactions } from '@/hooks/accounts';
 
@@ -32,19 +32,21 @@ const ConfirmTransactionsTransferForm: React.FC<Types> = ({ open, setOpen, sourc
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
-        <DialogTitle>Please, confirm transactions transfer</DialogTitle>
-        <DialogFooter>
+    <Dlg.Dialog open={open} onOpenChange={setOpen}>
+      <Dlg.DialogPopup>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Please, confirm transactions transfer</Dlg.DialogTitle>
+        </Dlg.DialogHeader>
+        <Dlg.DialogFooter>
           <Button disabled={isReassigning} variant="secondary" onClick={() => setOpen(false)}>
             Cancel
           </Button>
           <Button disabled={isReassigning} variant="default" onClick={handleTransfer}>
             Transfer
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </Dlg.DialogFooter>
+      </Dlg.DialogPopup>
+    </Dlg.Dialog>
   );
 };
 

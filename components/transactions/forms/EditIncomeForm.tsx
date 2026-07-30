@@ -162,12 +162,12 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
 
   return (
     <Dlg.Dialog open={open} onOpenChange={cleanFormErrors}>
-      <Dlg.DialogContent className="min-w-[600px]">
+      <Dlg.DialogPopup className="min-w-150">
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Update income details</Dlg.DialogTitle>
         </Dlg.DialogHeader>
         <Frm.Form onSubmit={handleSubmit} className="space-y-8">
-          <div className="flex flex-col gap-3">
+          <Dlg.DialogPanel>
             <div className="flex w-full">
               <div className="flex sm:w-2/3">
                 <Field.Field name="amount">
@@ -312,10 +312,13 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                 <Field.FieldError>{errors.description}</Field.FieldError>
               </Field.Field>
             </div>
-          </div>
-          <Button type="submit">Save</Button>
+          </Dlg.DialogPanel>
+          <Dlg.DialogFooter>
+            <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
+            <Button type="submit">Save</Button>
+          </Dlg.DialogFooter>
         </Frm.Form>
-      </Dlg.DialogContent>
+      </Dlg.DialogPopup>
     </Dlg.Dialog>
   );
 };

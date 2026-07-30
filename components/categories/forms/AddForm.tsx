@@ -4,7 +4,7 @@ import React from 'react';
 import * as z from 'zod';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -116,7 +116,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const result = formSchema.safeParse(values);
@@ -138,14 +138,12 @@ const AddForm: React.FC<Types> = ({ parent }) => {
   };
 
   return (
-    <Dialog onOpenChange={cleanFormErrors}>
-      <DialogTrigger asChild>
-        <Button>+ Add Category</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add category</DialogTitle>
-        </DialogHeader>
+    <Dlg.Dialog onOpenChange={cleanFormErrors}>
+      <Dlg.DialogTrigger render={<Button />}>+ Add Category</Dlg.DialogTrigger>
+      <Dlg.DialogPopup>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Add category</Dlg.DialogTitle>
+        </Dlg.DialogHeader>
         <div className="flex items-center gap-4">
           <Popover>
             <PopoverTrigger render={<Button variant="outline" />}>Choose icon</PopoverTrigger>
@@ -170,8 +168,8 @@ const AddForm: React.FC<Types> = ({ parent }) => {
             </Button>
           )}
         </div>
-        <Form onSubmit={handleSubmit} className="space-y-8">
-          <div className="flex flex-col space-y-3">
+        <Form onSubmit={handleSubmit} className="contents">
+          <Dlg.DialogPanel>
             <div className="flex w-full">
               <Field name="title">
                 <FieldLabel>Category title</FieldLabel>
@@ -262,11 +260,14 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                 <FieldError>{errors.description}</FieldError>
               </Field>
             </div>
-          </div>
-          <Button type="submit">Save</Button>
+          </Dlg.DialogPanel>
+          <Dlg.DialogFooter>
+            <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
+            <Button type="submit">Save</Button>
+          </Dlg.DialogFooter>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </Dlg.DialogPopup>
+    </Dlg.Dialog>
   );
 };
 

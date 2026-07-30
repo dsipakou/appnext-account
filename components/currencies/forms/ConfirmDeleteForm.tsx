@@ -2,7 +2,7 @@ import React from 'react';
 import { useSWRConfig } from 'swr';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogFooter, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import * as Dlg from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
 import { useCurrencies, useDeleteCurrency } from '@/hooks/currencies';
 
@@ -46,21 +46,21 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open = false, uuid, handleClose })
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogTrigger></DialogTrigger>
-      <DialogContent>
-        <DialogTitle>Please, confirm deletion</DialogTitle>
-        <p className="leading-7">You are about to delete {currency?.code} currency</p>
-        <DialogFooter>
-          <Button disabled={isDeleting} variant="secondary" onClick={handleClose}>
-            Cancel
-          </Button>
+    <Dlg.Dialog open={open} onOpenChange={handleClose}>
+      <Dlg.DialogTrigger></Dlg.DialogTrigger>
+      <Dlg.DialogPopup>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Please, confirm deletion</Dlg.DialogTitle>
+          <Dlg.DialogDescription>You are about to delete {currency?.code} currency</Dlg.DialogDescription>
+        </Dlg.DialogHeader>
+        <Dlg.DialogFooter>
+          <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
           <Button disabled={isDeleting} variant="destructive" onClick={handleDelete}>
             Delete
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </Dlg.DialogFooter>
+      </Dlg.DialogPopup>
+    </Dlg.Dialog>
   );
 };
 

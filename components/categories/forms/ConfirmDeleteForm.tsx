@@ -5,7 +5,7 @@ import { useSWRConfig } from 'swr';
 
 import { CategoryResponse } from '@/components/categories/types';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogFooter, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import * as Dlg from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
 import { useCategories, useDeleteCategory } from '@/hooks/categories';
 import { extractErrorMessage } from '@/utils/stringUtils';
@@ -75,25 +75,23 @@ const ConfirmDeleteForm: React.FC<Types> = ({ uuid }) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost">
-          <Trash className="h-5 w-5 text-red-500" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogTitle>Please, confirm deletion</DialogTitle>
-        <p className="leading-7">You are about to delete '{category?.name}' category</p>
-        <DialogFooter>
-          <Button disabled={isDeleting} variant="secondary" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
+    <Dlg.Dialog open={open} onOpenChange={setOpen}>
+      <Dlg.DialogTrigger render={<Button variant="ghost" />}>
+        <Trash className="h-5 w-5 text-red-500" />
+      </Dlg.DialogTrigger>
+      <Dlg.DialogPopup>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Please, confirm deletion</Dlg.DialogTitle>
+          <Dlg.DialogDescription>You are about to delete '{category?.name}' category</Dlg.DialogDescription>
+        </Dlg.DialogHeader>
+        <Dlg.DialogFooter>
+          <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
           <Button disabled={isDeleting} variant="destructive" onClick={handleDelete}>
             Delete
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </Dlg.DialogFooter>
+      </Dlg.DialogPopup>
+    </Dlg.Dialog>
   );
 };
 

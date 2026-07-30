@@ -85,15 +85,14 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
   return (
     <>
       <Dlg.Dialog open={open} onOpenChange={onClose}>
-        <Dlg.DialogTrigger asChild></Dlg.DialogTrigger>
-        <Dlg.DialogContent className="mx-3 flex h-5/6 w-4/5 flex-col items-start overflow-hidden sm:max-w-full">
+        <Dlg.DialogPopup className="mx-3 flex h-[90vh] max-h-[90vh] w-4/5 flex-col overflow-hidden sm:max-w-full">
           <Dlg.DialogHeader className="flex-shrink-0">
             <Dlg.DialogTitle>Add transactions</Dlg.DialogTitle>
           </Dlg.DialogHeader>
-          <div className="flex h-full min-h-0 w-full">
+          <Dlg.DialogPanel className="min-h-0 flex-1">
             <TransactionsTable budget={budget} handleCanClose={handleCanClose} mode="bulk" />
-          </div>
-        </Dlg.DialogContent>
+          </Dlg.DialogPanel>
+        </Dlg.DialogPopup>
       </Dlg.Dialog>
       <UnsavedTransactionsAlert open={alertOpen} setOpen={setAlertOpen} />
     </>

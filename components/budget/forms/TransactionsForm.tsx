@@ -49,13 +49,14 @@ const TransactionsForm: React.FC<Props> = ({ open, handleClose, uuid }) => {
 
   return (
     <Dlg.Dialog open={open} onOpenChange={handleClose}>
-      <Dlg.DialogTrigger></Dlg.DialogTrigger>
-      <Dlg.DialogContent className="my-20 flex h-auto min-w-[1000px] flex-col">
+      <Dlg.DialogPopup className="min-w-250 my-20 flex h-auto flex-col">
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Transactions for selected budget</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <div>{isLoading ? <LoadingScreen /> : <TransactionsTable transactions={budgetTransactions} />}</div>
-      </Dlg.DialogContent>
+        <Dlg.DialogPanel>
+          <div>{isLoading ? <LoadingScreen /> : <TransactionsTable transactions={budgetTransactions} />}</div>
+        </Dlg.DialogPanel>
+      </Dlg.DialogPopup>
     </Dlg.Dialog>
   );
 };

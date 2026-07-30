@@ -5,7 +5,7 @@ import * as z from 'zod';
 import { ConfirmTransactionsTransferForm } from '@/components/categories/forms';
 import { Category, CategoryType } from '@/components/categories/types';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -50,18 +50,16 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="ghost">
-          <Repeat className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Manage category</DialogTitle>
-        </DialogHeader>
-        <Form className="space-y-8">
-          <div className="flex flex-col space-y-3">
+    <Dlg.Dialog>
+      <Dlg.DialogTrigger render={<Button size="sm" variant="ghost" />}>
+        <Repeat className="h-4 w-4" />
+      </Dlg.DialogTrigger>
+      <Dlg.DialogPopup>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Manage category</Dlg.DialogTitle>
+        </Dlg.DialogHeader>
+        <Form className="contents">
+          <Dlg.DialogPanel>
             <div className="flex w-full">
               <Field name="category">
                 <FieldLabel>Re-assign transactions from this category to</FieldLabel>
@@ -84,11 +82,14 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
                 <FieldError>{errors.category}</FieldError>
               </Field>
             </div>
-          </div>
+          </Dlg.DialogPanel>
+          <Dlg.DialogFooter>
+            <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
+            <Button disabled={!values.category} onClick={handleTransfer}>
+              Transfer
+            </Button>
+          </Dlg.DialogFooter>
         </Form>
-        <Button disabled={!values.category} onClick={handleTransfer}>
-          Transfer
-        </Button>
         {isConfirmTransferOpen && (
           <ConfirmTransactionsTransferForm
             open={isConfirmTransferOpen}
@@ -97,8 +98,8 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
             destCategory={values.category}
           />
         )}
-      </DialogContent>
-    </Dialog>
+      </Dlg.DialogPopup>
+    </Dlg.Dialog>
   );
 };
 

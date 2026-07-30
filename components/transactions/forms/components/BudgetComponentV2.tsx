@@ -9,7 +9,7 @@ import { Category, CategoryType } from '@/components/categories/types';
 import { Currency } from '@/components/currencies/types';
 import { RowData } from '@/components/transactions/components/transactionTable';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import * as Dlg from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 // UI
@@ -201,12 +201,12 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
         </Slc.SelectContent>
       </Slc.Select>
 
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Create New Budget</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
+      <Dlg.Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <Dlg.DialogPopup className="sm:max-w-[500px]">
+          <Dlg.DialogHeader>
+            <Dlg.DialogTitle>Create New Budget</Dlg.DialogTitle>
+          </Dlg.DialogHeader>
+          <Dlg.DialogPanel>
             <div className="grid gap-2">
               <Label htmlFor="title">Title</Label>
               <Input
@@ -263,7 +263,7 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
                 </Slc.SelectContent>
               </Slc.Select>
             </div>
-          </div>
+          </Dlg.DialogPanel>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} disabled={isCreating}>
               Cancel
@@ -272,8 +272,8 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
               {isCreating ? 'Creating...' : 'Create Budget'}
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </Dlg.DialogPopup>
+      </Dlg.Dialog>
     </>
   );
 }

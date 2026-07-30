@@ -103,15 +103,13 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
 
   return (
     <Dlg.Dialog onOpenChange={cleanFormErrors}>
-      <Dlg.DialogTrigger asChild className="mx-2">
-        <Button>+ Add currency</Button>
-      </Dlg.DialogTrigger>
-      <Dlg.DialogContent>
+      <Dlg.DialogTrigger render={<Button />}>+ Add currency</Dlg.DialogTrigger>
+      <Dlg.DialogPopup>
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Add currency</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <Frm.Form onSubmit={handleSubmit} className="space-y-8">
-          <div className="flex flex-col space-y-3">
+        <Frm.Form onSubmit={handleSubmit} className="contents">
+          <Dlg.DialogPanel>
             <div className="flex w-full">
               <div className="flex w-2/3">
                 <Field.Field name="verbalName">
@@ -199,10 +197,13 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                 <Field.FieldError>{errors.comments}</Field.FieldError>
               </Field.Field>
             </div>
-          </div>
-          <Button type="submit">Save</Button>
+          </Dlg.DialogPanel>
+          <Dlg.DialogFooter>
+            <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
+            <Button type="submit">Save</Button>
+          </Dlg.DialogFooter>
         </Frm.Form>
-      </Dlg.DialogContent>
+      </Dlg.DialogPopup>
     </Dlg.Dialog>
   );
 };

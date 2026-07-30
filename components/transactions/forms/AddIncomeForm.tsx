@@ -157,12 +157,12 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
 
   return (
     <Dlg.Dialog open={open} onOpenChange={cleanFormErrors}>
-      <Dlg.DialogContent className="min-w-[600px]">
+      <Dlg.DialogPopup className="min-w-150">
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Save your income</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <Frm.Form onSubmit={handleSubmit} className="space-y-8">
-          <div className="flex">
+        <Frm.Form onSubmit={handleSubmit} className="contents">
+          <Dlg.DialogPanel>
             <div className="flex w-1/2 flex-col gap-3">
               <div className="flex sm:w-full">
                 <Field.Field name="amount">
@@ -302,10 +302,13 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                 <Field.FieldError>{errors.transactionDate}</Field.FieldError>
               </Field.Field>
             </div>
-          </div>
-          <Button type="submit">Save</Button>
+          </Dlg.DialogPanel>
+          <Dlg.DialogFooter>
+            <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
+            <Button type="submit">Save</Button>
+          </Dlg.DialogFooter>
         </Frm.Form>
-      </Dlg.DialogContent>
+      </Dlg.DialogPopup>
     </Dlg.Dialog>
   );
 };

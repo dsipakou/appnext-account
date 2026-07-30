@@ -52,10 +52,8 @@ const LastAdded: React.FC = () => {
 
   return (
     <Dlg.Dialog>
-      <Dlg.DialogTrigger asChild>
-        <Button variant="link">See last added</Button>
-      </Dlg.DialogTrigger>
-      <Dlg.DialogContent className="my-20 flex h-screen min-w-[1000px] flex-col">
+      <Dlg.DialogTrigger render={<Button variant="link" />}>See last added</Dlg.DialogTrigger>
+      <Dlg.DialogPopup className="min-w-250 my-20 flex h-screen flex-col">
         <Dlg.DialogHeader>
           <div className="flex justify-between pr-7">
             <Dlg.DialogTitle>Transactions added since your last visit</Dlg.DialogTitle>
@@ -64,10 +62,10 @@ const LastAdded: React.FC = () => {
             </Button>
           </div>
         </Dlg.DialogHeader>
-        <div className="h-full">
+        <Dlg.DialogPanel>
           <TransactionsTable transactions={transactions} />
-        </div>
-      </Dlg.DialogContent>
+        </Dlg.DialogPanel>
+      </Dlg.DialogPopup>
     </Dlg.Dialog>
   );
 };

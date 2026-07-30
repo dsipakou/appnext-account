@@ -6,7 +6,7 @@ import { CategoryType } from '@/components/categories/types';
 // Components
 import { Button } from '@/components/ui/button';
 // UI
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -117,16 +117,14 @@ const AddForm: React.FC = () => {
   };
 
   return (
-    <Dialog onOpenChange={cleanFormErrors}>
-      <DialogTrigger asChild className="mx-2">
-        <Button>+ Add account</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add account</DialogTitle>
-        </DialogHeader>
-        <Form onSubmit={handleSubmit} className="space-y-8">
-          <div className="flex flex-col space-y-3">
+    <Dlg.Dialog onOpenChange={cleanFormErrors}>
+      <Dlg.DialogTrigger render={<Button />}>+ Add account</Dlg.DialogTrigger>
+      <Dlg.DialogPopup>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Add account</Dlg.DialogTitle>
+        </Dlg.DialogHeader>
+        <Form onSubmit={handleSubmit} className="contents">
+          <Dlg.DialogPanel>
             <div className="flex w-full">
               <div className="flex w-2/3">
                 <Field name="title">
@@ -138,7 +136,7 @@ const AddForm: React.FC = () => {
                     value={values.title}
                     onChange={(event) => setValues((current) => ({ ...current, title: event.target.value }))}
                   />
-                  <FieldError>{errors.title}</FieldError>
+                  <FieldError />
                 </Field>
               </div>
               <div className="flex w-1/3 items-center">
@@ -150,9 +148,9 @@ const AddForm: React.FC = () => {
                       onCheckedChange={(checked) => setValues((current) => ({ ...current, isMain: checked }))}
                       disabled={isCreating}
                     />
-                    <FieldLabel htmlFor="isMain">Active</FieldLabel>
+                    <FieldLabel>Active</FieldLabel>
                   </div>
-                  <FieldError>{errors.isMain}</FieldError>
+                  <FieldError />
                 </Field>
               </div>
             </div>
@@ -179,7 +177,7 @@ const AddForm: React.FC = () => {
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                  <FieldError>{errors.user}</FieldError>
+                  <FieldError />
                 </Field>
               </div>
               <div className="flex w-1/2">
@@ -208,7 +206,7 @@ const AddForm: React.FC = () => {
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                  <FieldError>{errors.category}</FieldError>
+                  <FieldError />
                 </Field>
               </div>
             </div>
@@ -221,14 +219,17 @@ const AddForm: React.FC = () => {
                   value={values.description ?? ''}
                   onChange={(event) => setValues((current) => ({ ...current, description: event.target.value }))}
                 />
-                <FieldError>{errors.description}</FieldError>
+                <FieldError />
               </Field>
             </div>
-          </div>
-          <Button type="submit">Save</Button>
+          </Dlg.DialogPanel>
+          <Dlg.DialogFooter>
+            <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
+            <Button type="submit">Save</Button>
+          </Dlg.DialogFooter>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </Dlg.DialogPopup>
+    </Dlg.Dialog>
   );
 };
 

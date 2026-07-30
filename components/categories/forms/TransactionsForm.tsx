@@ -19,15 +19,14 @@ const TransactionsForm: React.FC<Props> = ({ open, handleClose, uuid }) => {
 
   return (
     <Dlg.Dialog open={open} onOpenChange={handleClose}>
-      <Dlg.DialogTrigger></Dlg.DialogTrigger>
-      <Dlg.DialogContent className="my-20 flex h-[90%] min-w-[1000px] flex-col">
+      <Dlg.DialogPopup className="min-w-250 my-20 flex h-[90%] flex-col">
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Last 20 transactions</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <div className="h-full">
+        <Dlg.DialogPanel>
           <TransactionsTable transactions={categoryTransactions} />
-        </div>
-      </Dlg.DialogContent>
+        </Dlg.DialogPanel>
+      </Dlg.DialogPopup>
     </Dlg.Dialog>
   );
 };

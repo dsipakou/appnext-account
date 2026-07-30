@@ -115,12 +115,8 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
 
   return (
     <Dlg.Dialog>
-      <Dlg.DialogTrigger asChild className="mx-2">
-        <Button variant="outline" className="border-blue-500 text-blue-500 hover:text-blue-600">
-          + Add rates
-        </Button>
-      </Dlg.DialogTrigger>
-      <Dlg.DialogContent>
+      <Dlg.DialogTrigger render={<Button variant="ghost" />}>+ Add rates</Dlg.DialogTrigger>
+      <Dlg.DialogPopup>
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Add or update rates for currencies</Dlg.DialogTitle>
         </Dlg.DialogHeader>
@@ -129,9 +125,9 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
             event.preventDefault();
             handleSave(values);
           }}
-          className="space-y-8"
+          className="contents"
         >
-          <div className="space-3 flex items-center justify-between gap-2">
+          <Dlg.DialogPanel className="flex flex-row gap-4">
             <div className="flex w-1/3 flex-col space-y-2">
               {currencies.map(
                 (item: Currency) =>
@@ -169,26 +165,31 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
                 />
               </Field.Field>
             </div>
-          </div>
-          <div className="flex justify-between gap-2">
-            <Button disabled={isCreating} type="submit">
-              Save
-            </Button>
-            {ratesOnDate.length > 0 && (
-              <>
-                <Button type="button" variant="ghost" onClick={() => setIsClearRatesDialogOpen(true)}>
-                  <Trash className="h-5 w-5 text-red-500" />
+          </Dlg.DialogPanel>
+          <Dlg.DialogFooter>
+            <div className="flex w-full justify-between gap-2">
+              {ratesOnDate.length > 0 && (
+                <>
+                  <Button type="button" variant="destructive" onClick={() => setIsClearRatesDialogOpen(true)}>
+                    <Trash className="h-5 w-5 text-red-500" /> Clear
+                  </Button>
+                  <ConfirmClearRatesForm
+                    date={selectedDate}
+                    open={isClearRatesDialogOpen}
+                    handleClose={() => setIsClearRatesDialogOpen(false)}
+                  />
+                </>
+              )}
+              <div>
+                <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
+                <Button disabled={isCreating} type="submit">
+                  Save
                 </Button>
-                <ConfirmClearRatesForm
-                  date={selectedDate}
-                  open={isClearRatesDialogOpen}
-                  handleClose={() => setIsClearRatesDialogOpen(false)}
-                />
-              </>
-            )}
-          </div>
+              </div>
+            </div>
+          </Dlg.DialogFooter>
         </Frm.Form>
-      </Dlg.DialogContent>
+      </Dlg.DialogPopup>
     </Dlg.Dialog>
   );
 };

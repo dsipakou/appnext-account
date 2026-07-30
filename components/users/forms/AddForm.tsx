@@ -2,7 +2,7 @@ import React from 'react';
 import * as z from 'zod';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -69,16 +69,16 @@ const AddForm: React.FC = () => {
   };
 
   return (
-    <Dialog onOpenChange={cleanFormErrors}>
-      <DialogTrigger asChild className="mx-2">
-        <Button>+ Add member</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add user to the workspace</DialogTitle>
-        </DialogHeader>
-        <Form onSubmit={handleSubmit} className="space-y-8">
-          <div className="flex flex-col space-y-3">
+    <Dlg.Dialog onOpenChange={cleanFormErrors}>
+      <Dlg.DialogTrigger className="mx-2" render={<Button />}>
+        + Add member
+      </Dlg.DialogTrigger>
+      <Dlg.DialogPopup>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Add user to the workspace</Dlg.DialogTitle>
+        </Dlg.DialogHeader>
+        <Form onSubmit={handleSubmit} className="contents">
+          <Dlg.DialogPanel>
             <div className="flex w-full">
               <Field name="email">
                 <FieldLabel>Email</FieldLabel>
@@ -93,11 +93,14 @@ const AddForm: React.FC = () => {
                 <FieldError>{errors.email}</FieldError>
               </Field>
             </div>
-          </div>
-          <Button type="submit">Send invite</Button>
+          </Dlg.DialogPanel>
+          <Dlg.DialogFooter>
+            <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
+            <Button type="submit">Send invite</Button>
+          </Dlg.DialogFooter>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </Dlg.DialogPopup>
+    </Dlg.Dialog>
   );
 };
 

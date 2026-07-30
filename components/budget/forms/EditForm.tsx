@@ -8,7 +8,7 @@ import { Currency } from '@/components/currencies/types';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { MaskedInput } from '@/components/ui/currency-input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -204,21 +204,19 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={cleanFormErrors}>
-      <DialogContent className="min-w-200">
-        <DialogHeader>
-          <DialogTitle>Edit budget</DialogTitle>
-        </DialogHeader>
-        <Form onSubmit={handleSubmit} className="space-y-2">
-          <div className="flex flex-col gap-2">
+    <Dlg.Dialog open={open} onOpenChange={cleanFormErrors}>
+      <Dlg.DialogPopup className="min-w-4xl">
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Edit budget</Dlg.DialogTitle>
+        </Dlg.DialogHeader>
+        <Form onSubmit={handleSubmit} className="contents">
+          <Dlg.DialogPanel>
             <div className="grid grid-cols-12 gap-2">
               <div className="col-span-7 flex flex-col gap-2">
                 <div className="grid gap-2">
                   <div className="flex flex-col gap-2">
                     <Field name="title">
-                      <FieldLabel htmlFor="title" className="pl-1">
-                        Budget title
-                      </FieldLabel>
+                      <FieldLabel className="pl-1">Budget title</FieldLabel>
                       <Input
                         ref={titleInputRef}
                         placeholder="Title"
@@ -227,15 +225,13 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
                         value={values.title}
                         onChange={(event) => setValues((current) => ({ ...current, title: event.target.value }))}
                       />
-                      <FieldError>{errors.title}</FieldError>
+                      <FieldError />
                     </Field>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="flex flex-col gap-2">
                       <Field name="amount">
-                        <FieldLabel htmlFor="amount" className="pl-1">
-                          Amount
-                        </FieldLabel>
+                        <FieldLabel className="pl-1">Amount</FieldLabel>
                         <div className="flex gap-2">
                           <div>
                             <MaskedInput
@@ -256,14 +252,12 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
                           </div>
                           <span className="flex items-center text-sm">{values.currency && getCurrencySign()}</span>
                         </div>
-                        <FieldError>{errors.amount}</FieldError>
+                        <FieldError />
                       </Field>
                     </div>
                     <div className="flex flex-col gap-2">
                       <Field name="currency">
-                        <FieldLabel htmlFor="currency" className="pl-1">
-                          Currency
-                        </FieldLabel>
+                        <FieldLabel className="pl-1">Currency</FieldLabel>
                         <Select
                           disabled={isEditing}
                           onValueChange={(currency) => setValues((current) => ({ ...current, currency }))}
@@ -283,15 +277,13 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
                             </SelectGroup>
                           </SelectContent>
                         </Select>
-                        <FieldError>{errors.currency}</FieldError>
+                        <FieldError />
                       </Field>
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
                     <Field name="category">
-                      <FieldLabel htmlFor="category" className="pl-1">
-                        Category
-                      </FieldLabel>
+                      <FieldLabel className="pl-1">Category</FieldLabel>
                       <Select
                         disabled={isEditing}
                         onValueChange={(category) => setValues((current) => ({ ...current, category }))}
@@ -312,14 +304,12 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
                           </SelectGroup>
                         </SelectContent>
                       </Select>
-                      <FieldError>{errors.category}</FieldError>
+                      <FieldError />
                     </Field>
                   </div>
                   <div className="flex flex-col gap-2">
                     <Field name="user">
-                      <FieldLabel htmlFor="user" className="pl-1">
-                        User
-                      </FieldLabel>
+                      <FieldLabel className="pl-1">User</FieldLabel>
                       <Select
                         disabled={isEditing}
                         onValueChange={(user) => setValues((current) => ({ ...current, user }))}
@@ -339,14 +329,12 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
                           </SelectGroup>
                         </SelectContent>
                       </Select>
-                      <FieldError>{errors.user}</FieldError>
+                      <FieldError />
                     </Field>
                   </div>
                   <div className="flex flex-col gap-2">
                     <Field name="repeatType">
-                      <FieldLabel htmlFor="repeat" className="pl-1">
-                        Repeat
-                      </FieldLabel>
+                      <FieldLabel className="pl-1">Repeat</FieldLabel>
                       <ToggleGroup
                         id="repeat"
                         className="w-full"
@@ -379,7 +367,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
                           </div>
                         </ToggleGroupItem>
                       </ToggleGroup>
-                      <FieldError>{errors.repeatType}</FieldError>
+                      <FieldError />
                     </Field>
                   </div>
                   <div>
@@ -403,16 +391,14 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
                             }));
                           }}
                         />
-                        <FieldError>{errors.numberOfRepetitions}</FieldError>
+                        <FieldError />
                       </Field>
                     )}
                   </div>
                 </div>
                 <div className="grid gap-2">
                   <Field name="description">
-                    <FieldLabel htmlFor="description" className="pl-1">
-                      Descripion (optional)
-                    </FieldLabel>
+                    <FieldLabel className="pl-1">Descripion (optional)</FieldLabel>
                     <Textarea
                       id="description"
                       disabled={isEditing}
@@ -421,7 +407,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
                       value={values.description ?? ''}
                       onChange={(event) => setValues((current) => ({ ...current, description: event.target.value }))}
                     />
-                    <FieldError>{errors.description}</FieldError>
+                    <FieldError />
                   </Field>
                 </div>
               </div>
@@ -440,11 +426,11 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
                         disabled={(calendarDate) => isEditing || calendarDate < new Date('1900-01-01') || isSomeDay}
                         weekStartsOn={1}
                       />
-                      <FieldError>{errors.budgetDate}</FieldError>
+                      <FieldError />
                     </Field>
                     <div className="flex flex-col items-start gap-2">
                       <Field name="isSomeday">
-                        <FieldLabel htmlFor="isSomeday">Save for later</FieldLabel>
+                        <FieldLabel>Save for later</FieldLabel>
                         <div className="mt-1 flex items-center gap-2">
                           <Switch
                             id="isSomeday"
@@ -459,13 +445,14 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-end gap-2">
-              <Button type="submit">Submit</Button>
-            </div>
-          </div>
+          </Dlg.DialogPanel>
+          <Dlg.DialogFooter>
+            <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
+            <Button type="submit">Submit</Button>
+          </Dlg.DialogFooter>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </Dlg.DialogPopup>
+    </Dlg.Dialog>
   );
 };
 

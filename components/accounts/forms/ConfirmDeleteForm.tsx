@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from 'react';
 import { useSWRConfig } from 'swr';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogFooter, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import * as Dlg from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
 import { useAccounts, useDeleteAccount } from '@/hooks/accounts';
 import { extractErrorMessage } from '@/utils/stringUtils';
@@ -60,23 +60,23 @@ const ConfirmDeleteForm: FC<Types> = ({ uuid }) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="destructive">Delete</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogTitle>Please, confirm deletion</DialogTitle>
-        <p className="leading-7">You are about to delete {account?.title} account</p>
-        <DialogFooter>
+    <Dlg.Dialog open={open} onOpenChange={setOpen}>
+      <Dlg.DialogTrigger render={<Button variant="destructive" />}>Delete</Dlg.DialogTrigger>
+      <Dlg.DialogPopup>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Please, confirm deletion</Dlg.DialogTitle>
+          <Dlg.DialogDescription>You are about to delete {account?.title} account</Dlg.DialogDescription>
+        </Dlg.DialogHeader>
+        <Dlg.DialogFooter>
           <Button disabled={isDeleting} variant="secondary" onClick={() => setOpen(false)}>
             Cancel
           </Button>
           <Button disabled={isDeleting} variant="destructive" onClick={handleDelete}>
             Delete
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </Dlg.DialogFooter>
+      </Dlg.DialogPopup>
+    </Dlg.Dialog>
   );
 };
 

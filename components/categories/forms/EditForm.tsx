@@ -6,7 +6,7 @@ import * as z from 'zod';
 
 import { Category, CategoryResponse } from '@/components/categories/types';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -100,14 +100,12 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="link">Edit</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Edit category</DialogTitle>
-        </DialogHeader>
+    <Dlg.Dialog>
+      <Dlg.DialogTrigger render={<Button variant="link" />}>Edit</Dlg.DialogTrigger>
+      <Dlg.DialogPopup>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Edit category</Dlg.DialogTitle>
+        </Dlg.DialogHeader>
         <div className="flex items-center gap-4">
           <Popover>
             <PopoverTrigger render={<Button variant="outline" />}>Choose icon</PopoverTrigger>
@@ -132,8 +130,8 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
             </Button>
           )}
         </div>
-        <Form onSubmit={handleSubmit} className="space-y-8">
-          <div className="flex flex-col space-y-3">
+        <Form onSubmit={handleSubmit} className="contents">
+          <Dlg.DialogPanel>
             <div className="flex w-full">
               <Field name="name">
                 <FieldLabel>Category name</FieldLabel>
@@ -184,13 +182,17 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
                 <FieldError>{errors.description}</FieldError>
               </Field>
             </div>
-          </div>
-          <Button disabled={isUpdating} type="submit">
-            Save
-          </Button>
+          </Dlg.DialogPanel>
+          <Dlg.DialogFooter>
+            <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
+
+            <Button disabled={isUpdating} type="submit">
+              Save
+            </Button>
+          </Dlg.DialogFooter>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </Dlg.DialogPopup>
+    </Dlg.Dialog>
   );
 };
 

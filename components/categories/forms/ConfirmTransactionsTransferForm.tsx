@@ -2,7 +2,7 @@ import React from 'react';
 
 import { CategoryResponse } from '@/components/categories/types';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
+import * as Dlg from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
 import { useReassignTransactions } from '@/hooks/categories';
 
@@ -33,21 +33,23 @@ const ConfirmTransactionsTransferForm: React.FC<Types> = ({ open, setOpen, sourc
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
-        <DialogTitle>Please, confirm transactions transfer</DialogTitle>
-        <p className="leading-7">Transfer all transactions from category</p>
-        <p>{sourceCategory.name}</p>
-        <DialogFooter>
-          <Button disabled={isReassigning} variant="secondary" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
+    <Dlg.Dialog open={open} onOpenChange={setOpen}>
+      <Dlg.DialogPopup>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Please, confirm transactions transfer</Dlg.DialogTitle>
+          <Dlg.DialogDescription>Transfer all transactions from category</Dlg.DialogDescription>
+        </Dlg.DialogHeader>
+        <Dlg.DialogPanel>
+          <p>{sourceCategory.name}</p>
+        </Dlg.DialogPanel>
+        <Dlg.DialogFooter>
+          <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
           <Button disabled={isReassigning} variant="default" onClick={handleTransfer}>
             Transfer
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </Dlg.DialogFooter>
+      </Dlg.DialogPopup>
+    </Dlg.Dialog>
   );
 };
 

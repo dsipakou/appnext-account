@@ -53,19 +53,18 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open = false, row, handleRemoveCom
 
   return (
     <Dlg.Dialog open={open} onOpenChange={handleClose}>
-      <Dlg.DialogTrigger></Dlg.DialogTrigger>
-      <Dlg.DialogContent>
-        <Dlg.DialogTitle>Please, confirm deletion</Dlg.DialogTitle>
-        <p className="leading-7">You are about to delete a transaction</p>
+      <Dlg.DialogPopup>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Please, confirm deletion</Dlg.DialogTitle>
+          <Dlg.DialogDescription>You are about to delete a transaction</Dlg.DialogDescription>
+        </Dlg.DialogHeader>
         <Dlg.DialogFooter>
-          <Button disabled={isDeleting} variant="secondary" onClick={handleClose}>
-            Cancel
-          </Button>
+          <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
           <Button disabled={isDeleting} variant="destructive" onClick={handleDelete}>
             Delete
           </Button>
         </Dlg.DialogFooter>
-      </Dlg.DialogContent>
+      </Dlg.DialogPopup>
     </Dlg.Dialog>
   );
 };

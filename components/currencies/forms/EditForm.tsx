@@ -4,7 +4,7 @@ import { useSWRConfig } from 'swr';
 import * as z from 'zod';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -115,13 +115,13 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={cleanFormErrors}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Update currency details</DialogTitle>
-        </DialogHeader>
-        <Form onSubmit={handleSubmit} className="space-y-8">
-          <div className="flex flex-col space-y-3">
+    <Dlg.Dialog open={open} onOpenChange={cleanFormErrors}>
+      <Dlg.DialogContent>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Update currency details</Dlg.DialogTitle>
+        </Dlg.DialogHeader>
+        <Form onSubmit={handleSubmit} className="contents">
+          <Dlg.DialogPanel>
             <div className="flex w-full">
               <div className="flex w-2/3">
                 <Field name="verbalName">
@@ -207,11 +207,14 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                 <FieldError>{errors.comments}</FieldError>
               </Field>
             </div>
-          </div>
-          <Button type="submit">Save</Button>
+          </Dlg.DialogPanel>
+          <Dlg.DialogFooter>
+            <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
+            <Button type="submit">Save</Button>
+          </Dlg.DialogFooter>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </Dlg.DialogContent>
+    </Dlg.Dialog>
   );
 };
 

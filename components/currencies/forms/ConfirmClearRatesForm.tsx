@@ -2,7 +2,7 @@ import React from 'react';
 import { useSWRConfig } from 'swr';
 
 import { Button } from '@/components/ui/button';
-import * as Dialog from '@/components/ui/dialog';
+import * as Dlg from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
 import { useClearCurrenciesOnDate } from '@/hooks/currencies';
 import { getFormattedDate } from '@/utils/dateUtils';
@@ -44,20 +44,20 @@ const ConfirmClearRatesForm: React.FC<Types> = ({ open = false, date, handleClos
   };
 
   return (
-    <Dialog.Dialog open={open} onOpenChange={handleClose}>
-      <Dialog.DialogContent>
-        <Dialog.DialogTitle>Please, confirm clearing</Dialog.DialogTitle>
-        <p className="leading-7">You are about to clear rates for {getFormattedDate(date)}</p>
-        <Dialog.DialogFooter>
-          <Button disabled={isClearing} variant="secondary" onClick={handleClose}>
-            Cancel
-          </Button>
+    <Dlg.Dialog open={open} onOpenChange={handleClose}>
+      <Dlg.DialogPopup>
+        <Dlg.DialogHeader>
+          <Dlg.DialogTitle>Please, confirm clearing</Dlg.DialogTitle>
+          <Dlg.DialogDescription>You are about to clear rates for {getFormattedDate(date)}</Dlg.DialogDescription>
+        </Dlg.DialogHeader>
+        <Dlg.DialogFooter>
+          <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
           <Button disabled={isClearing} variant="destructive" onClick={handleClear}>
             Delete
           </Button>
-        </Dialog.DialogFooter>
-      </Dialog.DialogContent>
-    </Dialog.Dialog>
+        </Dlg.DialogFooter>
+      </Dlg.DialogPopup>
+    </Dlg.Dialog>
   );
 };
 
