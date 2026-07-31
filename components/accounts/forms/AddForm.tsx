@@ -10,7 +10,7 @@ import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import * as Slc from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
@@ -158,54 +158,56 @@ const AddForm: React.FC = () => {
               <div className="flex w-1/2">
                 <Field name="user">
                   <FieldLabel>User</FieldLabel>
-                  <Select
+                  <Slc.Select
                     onValueChange={(user) => setValues((current) => ({ ...current, user }))}
-                    value={values.user || undefined}
+                    value={values.user || ''}
                     disabled={isCreating}
+                    items={users.map((item) => ({ label: item.username, value: item.uuid }))}
                   >
-                    <SelectTrigger className="relative w-full">
-                      <SelectValue placeholder="Select user" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
+                    <Slc.SelectTrigger className="relative w-full">
+                      <Slc.SelectValue placeholder="Select user" />
+                    </Slc.SelectTrigger>
+                    <Slc.SelectPopup>
+                      <Slc.SelectGroup>
                         {users &&
                           users.map((item: User) => (
-                            <SelectItem key={item.uuid} value={item.uuid}>
+                            <Slc.SelectItem key={item.uuid} value={item.uuid}>
                               {item.username}
-                            </SelectItem>
+                            </Slc.SelectItem>
                           ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                      </Slc.SelectGroup>
+                    </Slc.SelectPopup>
+                  </Slc.Select>
                   <FieldError />
                 </Field>
               </div>
               <div className="flex w-1/2">
                 <Field name="category">
                   <FieldLabel>Income category</FieldLabel>
-                  <Select
+                  <Slc.Select
                     onValueChange={(category) =>
                       setValues((current) => ({ ...current, category: category === 'none' ? '' : category }))
                     }
                     value={values.category || 'none'}
                     disabled={isCreating}
+                    items={incomeCategories.map((item) => ({ label: item.name, value: item.uuid }))}
                   >
-                    <SelectTrigger className="relative w-full">
-                      <SelectValue placeholder="Without category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="none">
+                    <Slc.SelectTrigger className="relative w-full">
+                      <Slc.SelectValue placeholder="Without category" />
+                    </Slc.SelectTrigger>
+                    <Slc.SelectPopup>
+                      <Slc.SelectGroup>
+                        <Slc.SelectItem value="none">
                           <em className="text-gray-400">Without category</em>
-                        </SelectItem>
+                        </Slc.SelectItem>
                         {incomeCategories.map((item) => (
-                          <SelectItem key={item.uuid} value={item.uuid}>
+                          <Slc.SelectItem key={item.uuid} value={item.uuid}>
                             {item.name}
-                          </SelectItem>
+                          </Slc.SelectItem>
                         ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                      </Slc.SelectGroup>
+                    </Slc.SelectPopup>
+                  </Slc.Select>
                   <FieldError />
                 </Field>
               </div>

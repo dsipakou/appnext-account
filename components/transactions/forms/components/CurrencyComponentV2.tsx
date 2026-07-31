@@ -118,6 +118,7 @@ export default function CurrencyComponent({ user, value, row, isSaved, handleCha
         }
       }}
       disabled={isRatesLoading || isCurrenciesLoading || isBudgetsLoading}
+      items={currencies.map((item: Currency) => ({ value: item.uuid, label: item.code }))}
     >
       <Slc.SelectTrigger
         className={cn(
@@ -128,10 +129,11 @@ export default function CurrencyComponent({ user, value, row, isSaved, handleCha
       >
         <Slc.SelectValue />
       </Slc.SelectTrigger>
-      <Slc.SelectContent>
+      <Slc.SelectPopup>
         {!!activeCurrencies.length && (
           <>
             <Slc.SelectGroup>
+              <Slc.SelectGroupLabel>Active</Slc.SelectGroupLabel>
               {activeCurrencies.map((item: Currency) => (
                 <Slc.SelectItem key={item.uuid} value={item.uuid}>
                   {item.code}
@@ -143,7 +145,7 @@ export default function CurrencyComponent({ user, value, row, isSaved, handleCha
         )}
         {!!outdatedCurrencies.length && (
           <Slc.SelectGroup>
-            <Slc.SelectLabel className="flex justify-start">Outdated</Slc.SelectLabel>
+            <Slc.SelectGroupLabel>Outdated</Slc.SelectGroupLabel>
             {outdatedCurrencies.map((item: Currency) => (
               <Slc.SelectItem className="pr-0 italic" key={item.uuid} value={item.uuid}>
                 <div className="flex items-center gap-2">
@@ -167,7 +169,7 @@ export default function CurrencyComponent({ user, value, row, isSaved, handleCha
             </Slc.SelectGroup>
           </>
         )}
-      </Slc.SelectContent>
+      </Slc.SelectPopup>
     </Slc.Select>
   );
 }

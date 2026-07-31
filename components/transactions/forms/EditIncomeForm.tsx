@@ -189,38 +189,36 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                     disabled={isUpdating || isTransactionLoading || isRatesLoading}
                     onValueChange={(currency) => setValues((current) => ({ ...current, currency }))}
                     value={values.currency || undefined}
+                    items={currencies.map((item: Currency) => ({ label: item.code, value: item.uuid }))}
                   >
                     <Slc.SelectTrigger className="relative w-full">
                       <Slc.SelectValue placeholder="Select currency" />
                     </Slc.SelectTrigger>
                     <Slc.SelectContent>
                       <Slc.SelectGroup>
-                        <Slc.SelectLabel>Currencies</Slc.SelectLabel>
-                        {currencies &&
-                          currencies.map((item: Currency) => {
-                            const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code);
-                            if (rate) {
-                              if (rate.rateDate === selectedDate) {
-                                return (
-                                  <Slc.SelectItem key={item.uuid} value={item.uuid}>
-                                    {item.code}
-                                  </Slc.SelectItem>
-                                );
-                              }
-
+                        <Slc.SelectGroupLabel>Currencies</Slc.SelectGroupLabel>
+                        {currencies.map((item: Currency) => {
+                          const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code);
+                          if (rate) {
+                            if (rate.rateDate === selectedDate) {
                               return (
                                 <Slc.SelectItem key={item.uuid} value={item.uuid}>
-                                  {item.code} (old)
+                                  {item.code}
                                 </Slc.SelectItem>
                               );
                             }
-
                             return (
-                              <Slc.SelectItem key={item.uuid} value={item.uuid} disabled>
-                                {item.code}
+                              <Slc.SelectItem key={item.uuid} value={item.uuid}>
+                                {item.code} (old)
                               </Slc.SelectItem>
                             );
-                          })}
+                          }
+                          return (
+                            <Slc.SelectItem key={item.uuid} value={item.uuid} disabled>
+                              {item.code}
+                            </Slc.SelectItem>
+                          );
+                        })}
                       </Slc.SelectGroup>
                     </Slc.SelectContent>
                   </Slc.Select>
@@ -236,13 +234,14 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                     disabled={isUpdating || isTransactionLoading || isRatesLoading}
                     onValueChange={(category) => setValues((current) => ({ ...current, category }))}
                     value={values.category || undefined}
+                    items={incomeCategories.map((item: Category) => ({ label: item.name, value: item.uuid }))}
                   >
                     <Slc.SelectTrigger className="relative w-[180px]">
                       <Slc.SelectValue placeholder="Select category" />
                     </Slc.SelectTrigger>
-                    <Slc.SelectContent>
+                    <Slc.SelectPopup>
                       <Slc.SelectGroup>
-                        <Slc.SelectLabel>Categories</Slc.SelectLabel>
+                        <Slc.SelectGroupLabel>Categories</Slc.SelectGroupLabel>
                         {incomeCategories.map((item: Category) => (
                           <Slc.SelectItem key={item.uuid} value={item.uuid}>
                             <div className="flex gap-1">
@@ -252,7 +251,7 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                           </Slc.SelectItem>
                         ))}
                       </Slc.SelectGroup>
-                    </Slc.SelectContent>
+                    </Slc.SelectPopup>
                   </Slc.Select>
                   <Field.FieldError>{errors.category}</Field.FieldError>
                 </Field.Field>
@@ -262,20 +261,21 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                     disabled={isUpdating || isTransactionLoading || isRatesLoading}
                     onValueChange={(account) => setValues((current) => ({ ...current, account }))}
                     value={values.account || undefined}
+                    items={accounts.map((item: AccountResponse) => ({ label: item.title, value: item.uuid }))}
                   >
                     <Slc.SelectTrigger className="relative w-[180px]">
                       <Slc.SelectValue placeholder="Select account" />
                     </Slc.SelectTrigger>
-                    <Slc.SelectContent>
+                    <Slc.SelectPopup>
                       <Slc.SelectGroup>
-                        <Slc.SelectLabel>Accounts</Slc.SelectLabel>
+                        <Slc.SelectGroupLabel>Accounts</Slc.SelectGroupLabel>
                         {accounts.map((item: AccountResponse) => (
                           <Slc.SelectItem key={item.uuid} value={item.uuid}>
                             {item.title}
                           </Slc.SelectItem>
                         ))}
                       </Slc.SelectGroup>
-                    </Slc.SelectContent>
+                    </Slc.SelectPopup>
                   </Slc.Select>
                   <Field.FieldError>{errors.account}</Field.FieldError>
                 </Field.Field>

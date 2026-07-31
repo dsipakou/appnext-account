@@ -184,20 +184,21 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                     disabled={isCreating}
                     onValueChange={(category) => setValues((current) => ({ ...current, category }))}
                     value={values.category || undefined}
+                    items={incomeCategories.map((item: Category) => ({ label: item.name, value: item.uuid }))}
                   >
                     <Slc.SelectTrigger className="relative w-full">
                       <Slc.SelectValue placeholder="Select source of income" />
                     </Slc.SelectTrigger>
-                    <Slc.SelectContent>
+                    <Slc.SelectPopup>
                       <Slc.SelectGroup>
-                        <Slc.SelectLabel>Source</Slc.SelectLabel>
+                        <Slc.SelectGroupLabel>Source</Slc.SelectGroupLabel>
                         {incomeCategories.map((item: Category) => (
                           <Slc.SelectItem key={item.uuid} value={item.uuid}>
                             {item.name}
                           </Slc.SelectItem>
                         ))}
                       </Slc.SelectGroup>
-                    </Slc.SelectContent>
+                    </Slc.SelectPopup>
                   </Slc.Select>
                   <Field.FieldError>{errors.category}</Field.FieldError>
                 </Field.Field>
@@ -209,20 +210,21 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                     disabled={isCreating}
                     onValueChange={(account) => setValues((current) => ({ ...current, account }))}
                     value={values.account || undefined}
+                    items={accounts.map((item: AccountResponse) => ({ label: item.title, value: item.uuid }))}
                   >
                     <Slc.SelectTrigger className="relative">
                       <Slc.SelectValue placeholder="Select income account" />
                     </Slc.SelectTrigger>
-                    <Slc.SelectContent>
+                    <Slc.SelectPopup>
                       <Slc.SelectGroup>
-                        <Slc.SelectLabel>Accounts</Slc.SelectLabel>
+                        <Slc.SelectGroupLabel>Accounts</Slc.SelectGroupLabel>
                         {accounts.map((item: AccountResponse) => (
                           <Slc.SelectItem key={item.uuid} value={item.uuid}>
                             {item.title}
                           </Slc.SelectItem>
                         ))}
                       </Slc.SelectGroup>
-                    </Slc.SelectContent>
+                    </Slc.SelectPopup>
                   </Slc.Select>
                   <Field.FieldError>{errors.account}</Field.FieldError>
                 </Field.Field>
@@ -234,13 +236,14 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                     disabled={isCreating}
                     onValueChange={(currency) => setValues((current) => ({ ...current, currency }))}
                     value={values.currency || undefined}
+                    items={currencies.map((item: Currency) => ({ label: item.code, value: item.uuid }))}
                   >
                     <Slc.SelectTrigger className="relative w-full">
                       <Slc.SelectValue placeholder="Select currency" />
                     </Slc.SelectTrigger>
-                    <Slc.SelectContent>
+                    <Slc.SelectPopup>
                       <Slc.SelectGroup>
-                        <Slc.SelectLabel>Currencies</Slc.SelectLabel>
+                        <Slc.SelectGroupLabel>Currencies</Slc.SelectGroupLabel>
                         {currencies &&
                           currencies.map((item: Currency) => {
                             const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code);
@@ -267,7 +270,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                             );
                           })}
                       </Slc.SelectGroup>
-                    </Slc.SelectContent>
+                    </Slc.SelectPopup>
                   </Slc.Select>
                   <Field.FieldError>{errors.currency}</Field.FieldError>
                 </Field.Field>

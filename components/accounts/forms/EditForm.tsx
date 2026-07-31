@@ -3,13 +3,13 @@ import { useSWRConfig } from 'swr';
 import * as z from 'zod';
 
 import { AccountResponse } from '@/components/accounts/types';
-import { Category, CategoryType } from '@/components/categories/types';
+import { CategoryType } from '@/components/categories/types';
 import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import * as Slc from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
@@ -166,54 +166,56 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
               <div className="flex w-1/2">
                 <Field name="user">
                   <FieldLabel>User</FieldLabel>
-                  <Select
+                  <Slc.Select
                     onValueChange={(user) => setValues((current) => ({ ...current, user }))}
-                    value={values.user || undefined}
+                    value={values.user || ''}
                     disabled={isUpdating}
+                    items={users.map((u) => ({ value: u.uuid, label: u.username }))}
                   >
-                    <SelectTrigger className="relative w-full">
-                      <SelectValue placeholder="Select user" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
+                    <Slc.SelectTrigger className="relative w-full">
+                      <Slc.SelectValue placeholder="Select user" />
+                    </Slc.SelectTrigger>
+                    <Slc.SelectPopup>
+                      <Slc.SelectGroup>
                         {users.length > 0 &&
                           users.map((item) => (
-                            <SelectItem key={item.uuid} value={item.uuid}>
+                            <Slc.SelectItem key={item.uuid} value={item.uuid}>
                               {item.username}
-                            </SelectItem>
+                            </Slc.SelectItem>
                           ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                      </Slc.SelectGroup>
+                    </Slc.SelectPopup>
+                  </Slc.Select>
                   <FieldError />
                 </Field>
               </div>
               <div className="flex w-1/2">
                 <Field name="category">
                   <FieldLabel>Income category</FieldLabel>
-                  <Select
+                  <Slc.Select
                     onValueChange={(category) =>
                       setValues((current) => ({ ...current, category: category === 'none' ? '' : category }))
                     }
                     value={values.category || 'none'}
                     disabled={isUpdating}
+                    items={incomeCategories.map((item) => ({ label: item.name, value: item.uuid }))}
                   >
-                    <SelectTrigger className="relative w-full">
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="none">
+                    <Slc.SelectTrigger className="relative w-full">
+                      <Slc.SelectValue placeholder="Select category" />
+                    </Slc.SelectTrigger>
+                    <Slc.SelectPopup>
+                      <Slc.SelectGroup>
+                        <Slc.SelectItem value="none">
                           <em>No income for this category</em>
-                        </SelectItem>
-                        {incomeCategories.map((item: Category) => (
-                          <SelectItem key={item.uuid} value={item.uuid}>
+                        </Slc.SelectItem>
+                        {incomeCategories.map((item) => (
+                          <Slc.SelectItem key={item.uuid} value={item.uuid}>
                             {item.name}
-                          </SelectItem>
+                          </Slc.SelectItem>
                         ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                      </Slc.SelectGroup>
+                    </Slc.SelectPopup>
+                  </Slc.Select>
                   <FieldError />
                 </Field>
               </div>

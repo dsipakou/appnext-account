@@ -5,15 +5,7 @@ import React from 'react';
 
 import { useStore } from '@/app/store';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import * as Slc from '@/components/ui/select';
 import { useTransactionsMonthlyReport } from '@/hooks/transactions';
 import { getFormattedDate } from '@/utils/dateUtils';
 
@@ -344,21 +336,25 @@ const EChartReport: React.FC = () => {
         <div className="m-3 flex items-center gap-2">
           <Checkbox checked={showUpToDay} onClick={() => setShowUpToDay(!showUpToDay)} />
           <span className="flex items-center text-sm">Show till this</span>
-          <Select defaultValue={upToDay} onValueChange={setUpToDay}>
-            <SelectTrigger className="relative h-8 w-14 bg-white">
-              <SelectValue placeholder="Show up to this day" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Day</SelectLabel>
+          <Slc.Select
+            defaultValue={upToDay}
+            onValueChange={setUpToDay}
+            items={monthDayArray.map((day: number) => ({ label: day, value: day }))}
+          >
+            <Slc.SelectTrigger className="relative h-8 w-14 bg-white">
+              <Slc.SelectValue placeholder="Show up to this day" />
+            </Slc.SelectTrigger>
+            <Slc.SelectPopup>
+              <Slc.SelectGroup>
+                <Slc.SelectGroupLabel>Day</Slc.SelectGroupLabel>
                 {monthDayArray.map((day: number, index: number) => (
-                  <SelectItem value={day} key={index}>
+                  <Slc.SelectItem value={day} key={index}>
                     {day}
-                  </SelectItem>
+                  </Slc.SelectItem>
                 ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+              </Slc.SelectGroup>
+            </Slc.SelectPopup>
+          </Slc.Select>
           <span className="flex items-center text-sm">day of each month</span>
           <Checkbox checked={showIncome} onClick={() => setShowIncome(!showIncome)} />
           <span className="flex items-center text-sm">Show income</span>

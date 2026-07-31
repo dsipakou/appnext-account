@@ -1,15 +1,7 @@
 import React from 'react';
 
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import * as Slc from '@/components/ui/select';
 import { useCurrencies } from '@/hooks/currencies';
 import { useRates, useRatesChart } from '@/hooks/rates';
 
@@ -120,20 +112,29 @@ const Index: React.FC = () => {
               <div className="flex justify-between">
                 <div className="flex items-center gap-2 pl-10">
                   <span className="text-sm font-semibold">Show data for</span>
-                  <Select defaultValue={period || 'month'} onValueChange={changeChartPeriod}>
-                    <SelectTrigger className="relative w-40 bg-white">
-                      <SelectValue placeholder="Select period" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Period</SelectLabel>
-                        <SelectItem value="month">Month</SelectItem>
-                        <SelectItem value="quarter">3 months</SelectItem>
-                        <SelectItem value="biannual">6 months</SelectItem>
-                        <SelectItem value="annual">Year</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                  <Slc.Select
+                    defaultValue={period || 'month'}
+                    onValueChange={changeChartPeriod}
+                    items={[
+                      { label: 'Month', value: 'month' },
+                      { label: '3 months', value: 'quarter' },
+                      { label: '6 months', value: 'biannual' },
+                      { label: 'Year', value: 'annual' },
+                    ]}
+                  >
+                    <Slc.SelectTrigger className="relative w-40 bg-white">
+                      <Slc.SelectValue placeholder="Select period" />
+                    </Slc.SelectTrigger>
+                    <Slc.SelectPopup>
+                      <Slc.SelectGroup>
+                        <Slc.SelectLabel>Period</Slc.SelectLabel>
+                        <Slc.SelectItem value="month">Month</Slc.SelectItem>
+                        <Slc.SelectItem value="quarter">3 months</Slc.SelectItem>
+                        <Slc.SelectItem value="biannual">6 months</Slc.SelectItem>
+                        <Slc.SelectItem value="annual">Year</Slc.SelectItem>
+                      </Slc.SelectGroup>
+                    </Slc.SelectPopup>
+                  </Slc.Select>
                 </div>
               </div>
               <div>

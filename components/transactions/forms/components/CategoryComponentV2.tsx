@@ -33,71 +33,73 @@ export default function CategoryComponent({
   defaultOpen = false,
 }: Props) {
   const [open, setOpen] = React.useState<boolean>(defaultOpen);
-  const [scrollReady, setScrollReady] = React.useState<boolean>(false);
   const parents = categories.filter((item: Category) => item.parent === null && item.type === categoryType);
-  const scrollAreaRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    if (!open || categories.length === 0 || !value) return;
+    if (!open || !value) return;
 
-    setTimeout(() => {
-      setScrollReady(true);
-    }, 100);
-  }, [categories, open, value]);
+    requestAnimationFrame(() => {
+      const scrollUuid = categories.find((item) => item.uuid === value)?.parent ?? value;
 
-  React.useEffect(() => {
-    if (!scrollReady || !value) return;
-
-    const scrollUuid = categories.find((item: Category) => item.uuid === value)?.parent || value;
-
-    const parentElement = scrollAreaRef.current?.querySelector(`[data-parent-id="${scrollUuid}"]`);
-    if (parentElement) {
-      parentElement.scrollIntoView({ behavior: 'instant', block: 'start' });
-      setScrollReady(false);
-    }
-  }, [scrollReady, value]);
-
-  const groupedCategories = categories.reduce(
-    (grouped: Record<string, Category[]>, category: Category): Record<string, Category[]> => {
-      const key = category.parent || 'null'; // use 'null' for categories without a parent
-      if (!(key in grouped)) {
-        grouped[key] = [];
-      }
-      grouped[key].push(category);
-      return grouped;
-    },
-    {},
-  );
+      document.querySelector<HTMLElement>(`[data-parent-id="${scrollUuid}"]`)?.scrollIntoView({
+        block: 'start',
+        behavior: 'instant',
+      });
+    });
+  }, [open, value, categories]);
 
   const onChange = (value: string) => {
     const category = categories.find((item: Category) => item.uuid === value);
     const parent = category ? categories.find((item: Category) => item.uuid === category.parent) : '';
 
     handleChange(row.id, 'category', value);
-    handleChange(row.id, 'categoryName', category ? category.name : '');
-    handleChange(row.id, 'categoryParentName', parent ? parent.name : '');
+    handleChange(row.id, 'categoryName', category?.name || '');
+    handleChange(row.id, 'categoryParentName', parent?.name || '');
   };
 
   const handleOpen = () => {
     setOpen(!open);
   };
 
+  React.useEffect(() => {
+    if (!open || !value) return;
+
+    requestAnimationFrame(() => {
+      const scrollUuid = categories.find((item) => item.uuid === value)?.parent ?? value;
+
+      document.querySelector<HTMLElement>(`[data-parent-id="${scrollUuid}"]`)?.scrollIntoView({
+        block: 'start',
+        behavior: 'instant',
+      });
+    });
+  }, [open, value, categories]);
+
   const expenseList = (parent: Category) => (
-    <>
-      <Slc.SelectGroup>
-        <Slc.SelectLabel data-parent-id={parent.uuid}>{parent.name}</Slc.SelectLabel>
-        {groupedCategories[parent.uuid]?.map((item: Category) => (
-          <Slc.SelectItem key={item.uuid} value={item.uuid}>
-            {parent.icon} {item.name}
+    <React.Fragment key={parent.uuid}>
+      <Slc.SelectGroupLabel>
+        {parent.icon} {parent.name}
+      </Slc.SelectGroupLabel>
+
+      {categories
+        .filter((item) => item.parent === parent.uuid)
+        .map((child, index) => (
+          <Slc.SelectItem key={child.uuid} value={child.uuid} data-parent-id={index === 0 ? parent.uuid : undefined}>
+            {child.name}
           </Slc.SelectItem>
         ))}
-      </Slc.SelectGroup>
-      <Slc.SelectSeparator />
-    </>
+    </React.Fragment>
   );
 
   return (
-    <Slc.Select value={value} open={open} onValueChange={(value) => onChange(value)} onOpenChange={handleOpen}>
+    <Slc.Select
+      value={value}
+      open={open}
+      onValueChange={(value) => onChange(value)}
+      onOpenChange={handleOpen}
+      items={categories
+        .filter((item) => item.parent !== null)
+        .map((item: Category) => ({ label: item.name, value: item.uuid }))}
+    >
       <Slc.SelectTrigger
         className={cn(
           'h-8 w-full border-0 bg-white px-2 text-left text-sm focus:border-primary focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700',
@@ -105,24 +107,34 @@ export default function CategoryComponent({
         )}
         onKeyDown={(e) => handleKeyDown(e, row.id)}
       >
-        <Slc.SelectValue />
+        <Slc.SelectValue>
+          {(item) => {
+            const selectedCategory = categories.find((category) => category.uuid === item);
+            if (!selectedCategory) return;
+
+            if (selectedCategory.parent === null) {
+              return <span className="text-gray-400">{selectedCategory.name} (select category)</span>;
+            } else {
+              const parentCategory = categories.find((category) => category.uuid === selectedCategory.parent);
+              return (
+                <span>
+                  {parentCategory?.icon} {selectedCategory.name}
+                </span>
+              );
+            }
+          }}
+        </Slc.SelectValue>
       </Slc.SelectTrigger>
-      <Slc.SelectContent position="popper" sideOffset={-40} className="max-h-[480px]">
-        <Scr.ScrollArea className="relative h-[470px]" ref={scrollAreaRef}>
-          {parents.map((parent: Category, index: number) => (
-            <div key={parent.uuid}>
-              {categoryType === 'EXP' ? (
-                expenseList(parent)
-              ) : (
-                <Slc.SelectItem key={parent.uuid} value={parent.uuid}>
-                  {parent.icon} {parent.name}
-                </Slc.SelectItem>
-              )}
+      <Slc.SelectPopup className="max-h-120">
+        <Slc.SelectGroup>
+          {parents.map((parent) => (
+            <React.Fragment key={parent.uuid}>
+              {expenseList(parent)}
               <Slc.SelectSeparator />
-            </div>
+            </React.Fragment>
           ))}
-        </Scr.ScrollArea>
-      </Slc.SelectContent>
+        </Slc.SelectGroup>
+      </Slc.SelectPopup>
     </Slc.Select>
   );
 }

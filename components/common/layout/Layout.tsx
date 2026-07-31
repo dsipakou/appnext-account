@@ -20,15 +20,7 @@ import { useSWRConfig } from 'swr';
 import { useStore } from '@/app/store';
 import { Currency } from '@/components/currencies/types';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import * as Slc from '@/components/ui/select';
 import { useCurrencies } from '@/hooks/currencies';
 import { cn } from '@/lib/utils';
 
@@ -184,22 +176,26 @@ const Layout: FC<Props> = ({ children }) => {
           <div className="flex items-center justify-between">
             {!!currencies?.length && (
               <div className="flex w-80">
-                <Select defaultValue={user.currency} onValueChange={handleCurrencyChange}>
-                  <SelectTrigger className="relative w-full text-black">
-                    <SelectValue placeholder="Select currency" />
-                  </SelectTrigger>
-                  <SelectContent className="color-black flex w-full bg-white pt-1" position="popper">
-                    <SelectGroup>
-                      <SelectLabel>Displayed currency</SelectLabel>
+                <Slc.Select
+                  defaultValue={user.currency}
+                  onValueChange={handleCurrencyChange}
+                  items={currencies.map((item) => ({ label: item.verbalName, value: item.code }))}
+                >
+                  <Slc.SelectTrigger>
+                    <Slc.SelectValue placeholder="Select currency" />
+                  </Slc.SelectTrigger>
+                  <Slc.SelectPopup>
+                    <Slc.SelectGroup>
+                      <Slc.SelectGroupLabel>Displayed currency</Slc.SelectGroupLabel>
                       {currencies &&
                         currencies.map((item: Currency) => (
-                          <SelectItem key={item.code} value={item.code}>
+                          <Slc.SelectItem key={item.code} value={item.code}>
                             {item.verbalName}
-                          </SelectItem>
+                          </Slc.SelectItem>
                         ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                    </Slc.SelectGroup>
+                  </Slc.SelectPopup>
+                </Slc.Select>
               </div>
             )}
             <span className="mx-4">Hello, {user.username}</span>

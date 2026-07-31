@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import * as Slc from '@/components/ui/select';
 import { useAccounts } from '@/hooks/accounts';
 
 const formSchema = z.object({
@@ -59,28 +59,29 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
               <div className="flex w-full">
                 <Field name="account">
                   <FieldLabel>Re-assign transactions from this account to</FieldLabel>
-                  <Select
+                  <Slc.Select
                     onValueChange={(account) => setValues({ account })}
-                    value={values.account || undefined}
+                    value={values.account || ''}
                     disabled={filteredAccounts.length === 0}
+                    items={filteredAccounts.map((item) => ({ label: item.title, value: item.uuid }))}
                   >
-                    <SelectTrigger className="relative w-full">
-                      <SelectValue
+                    <Slc.SelectTrigger className="relative w-full">
+                      <Slc.SelectValue
                         placeholder={
                           filteredAccounts.length > 0 ? 'Choose account' : 'You do not have applicable accounts'
                         }
                       />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {filteredAccounts.map((account: AccountResponse) => (
-                          <SelectItem key={account.uuid} value={account.uuid}>
+                    </Slc.SelectTrigger>
+                    <Slc.SelectPopup>
+                      <Slc.SelectGroup>
+                        {filteredAccounts.map((account) => (
+                          <Slc.SelectItem key={account.uuid} value={account.uuid}>
                             {account.title}
-                          </SelectItem>
+                          </Slc.SelectItem>
                         ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                      </Slc.SelectGroup>
+                    </Slc.SelectPopup>
+                  </Slc.Select>
                   <FieldError>{errors.account}</FieldError>
                 </Field>
               </div>

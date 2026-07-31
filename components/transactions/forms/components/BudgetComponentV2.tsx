@@ -84,6 +84,8 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
     handleChange(row.id, 'budgetName', budget?.title || '');
     handleChange(row.id, 'isCompleted', budget?.isCompleted || false);
     handleChange(row.id, 'category', budget?.category || '');
+    handleChange(row.id, 'categoryName', '');
+    handleChange(row.id, 'categoryParentName', '');
   };
 
   const handleCreateBudget = async () => {
@@ -149,6 +151,7 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
           }
         }}
         disabled={!accountUser}
+        items={filteredBudgets.map((item) => ({ label: item.title, value: item.uuid }))}
       >
         <Slc.SelectTrigger
           className={cn(
@@ -190,9 +193,9 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
           )}
           {!!filteredBudgets.length && !!completedBudgets.length && (
             <Slc.SelectGroup>
-              <Slc.SelectLabel className="flex justify-start">Completed budgets</Slc.SelectLabel>
+              <Slc.SelectGroupLabel>Completed budgets</Slc.SelectGroupLabel>
               {completedBudgets.map((item: WeekBudgetItem) => (
-                <Slc.SelectItem className="italic" key={item.uuid} value={item.uuid}>
+                <Slc.SelectItem className="font-light" key={item.uuid} value={item.uuid}>
                   {item.title}
                 </Slc.SelectItem>
               ))}
@@ -202,7 +205,7 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
       </Slc.Select>
 
       <Dlg.Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <Dlg.DialogPopup className="sm:max-w-[500px]">
+        <Dlg.DialogPopup className="sm:max-w-125">
           <Dlg.DialogHeader>
             <Dlg.DialogTitle>Create New Budget</Dlg.DialogTitle>
           </Dlg.DialogHeader>
@@ -230,11 +233,19 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
             </div>
             <div className="grid gap-2">
               <Label htmlFor="category">Category</Label>
-              <Slc.Select value={newBudgetCategory} onValueChange={setNewBudgetCategory} disabled={isCreating}>
+              <Slc.Select
+                value={newBudgetCategory}
+                onValueChange={setNewBudgetCategory}
+                disabled={isCreating}
+                items={parentCategories.map((item: Category) => ({
+                  label: `${item.icon} ${item.name}`,
+                  value: item.uuid,
+                }))}
+              >
                 <Slc.SelectTrigger>
                   <Slc.SelectValue placeholder="Select category" />
                 </Slc.SelectTrigger>
-                <Slc.SelectContent>
+                <Slc.SelectPopup>
                   <Slc.SelectGroup>
                     {parentCategories.map((item: Category) => (
                       <Slc.SelectItem key={item.uuid} value={item.uuid}>
@@ -243,16 +254,21 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
                       </Slc.SelectItem>
                     ))}
                   </Slc.SelectGroup>
-                </Slc.SelectContent>
+                </Slc.SelectPopup>
               </Slc.Select>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="currency">Currency</Label>
-              <Slc.Select value={newBudgetCurrency} onValueChange={setNewBudgetCurrency} disabled={isCreating}>
+              <Slc.Select
+                value={newBudgetCurrency}
+                onValueChange={setNewBudgetCurrency}
+                disabled={isCreating}
+                items={currencies.map((item: Currency) => ({ label: `${item.code} (${item.sign})`, value: item.uuid }))}
+              >
                 <Slc.SelectTrigger>
                   <Slc.SelectValue placeholder="Select currency" />
                 </Slc.SelectTrigger>
-                <Slc.SelectContent>
+                <Slc.SelectPopup>
                   <Slc.SelectGroup>
                     {currencies.map((item: Currency) => (
                       <Slc.SelectItem key={item.uuid} value={item.uuid}>
@@ -260,18 +276,16 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
                       </Slc.SelectItem>
                     ))}
                   </Slc.SelectGroup>
-                </Slc.SelectContent>
+                </Slc.SelectPopup>
               </Slc.Select>
             </div>
           </Dlg.DialogPanel>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} disabled={isCreating}>
-              Cancel
-            </Button>
+          <Dlg.DialogFooter>
+            <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
             <Button onClick={handleCreateBudget} disabled={isCreating}>
               {isCreating ? 'Creating...' : 'Create Budget'}
             </Button>
-          </div>
+          </Dlg.DialogFooter>
         </Dlg.DialogPopup>
       </Dlg.Dialog>
     </>

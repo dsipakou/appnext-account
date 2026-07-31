@@ -78,6 +78,7 @@ export default function AccountComponent({
           (document.activeElement as HTMLElement)?.blur();
         }
       }}
+      items={accounts.map((item: Account) => ({ label: item.title, value: item.uuid }))}
     >
       <Slc.SelectTrigger
         className={cn(
@@ -88,7 +89,7 @@ export default function AccountComponent({
       >
         <Slc.SelectValue />
       </Slc.SelectTrigger>
-      <Slc.SelectContent>
+      <Slc.SelectPopup>
         {!yourAccounts.length && (
           <Slc.SelectItem value="empty" disabled>
             No accounts
@@ -97,7 +98,7 @@ export default function AccountComponent({
         {!!yourAccounts.length && (
           <>
             <Slc.SelectGroup>
-              <Slc.SelectLabel>Your Accounts</Slc.SelectLabel>
+              <Slc.SelectGroupLabel>Your Accounts</Slc.SelectGroupLabel>
               {yourAccounts.map((item: Account) => (
                 <Slc.SelectItem key={item.uuid} value={item.uuid}>
                   {item.title}
@@ -109,7 +110,7 @@ export default function AccountComponent({
         )}
         {!!yourAccounts.length && !!otherAccounts.length && (
           <Slc.SelectGroup>
-            <Slc.SelectLabel>Other Accounts</Slc.SelectLabel>
+            <Slc.SelectGroupLabel>Other Accounts</Slc.SelectGroupLabel>
             {otherAccounts.map((item: Account) => (
               <Slc.SelectItem key={item.uuid} value={item.uuid}>
                 {item.title}
@@ -117,7 +118,7 @@ export default function AccountComponent({
             ))}
           </Slc.SelectGroup>
         )}
-      </Slc.SelectContent>
+      </Slc.SelectPopup>
     </Slc.Select>
   );
 }

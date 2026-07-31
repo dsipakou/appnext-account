@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import * as Slc from '@/components/ui/select';
 import { useCategories } from '@/hooks/categories';
 
 const formSchema = z.object({
@@ -63,22 +63,29 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
             <div className="flex w-full">
               <Field name="category">
                 <FieldLabel>Re-assign transactions from this category to</FieldLabel>
-                <Select onValueChange={(category) => setValues({ category })} value={values.category || undefined}>
-                  <SelectTrigger className="relative w-full">
-                    <SelectValue placeholder="Choose category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
+                <Slc.Select
+                  onValueChange={(category) => setValues({ category })}
+                  value={values.category || undefined}
+                  items={categories.map((item: Category) => ({
+                    label: item.name,
+                    value: item.uuid,
+                  }))}
+                >
+                  <Slc.SelectTrigger className="relative w-full">
+                    <Slc.SelectValue placeholder="Choose category" />
+                  </Slc.SelectTrigger>
+                  <Slc.SelectPopup>
+                    <Slc.SelectGroup>
                       {parentCategories.map((parent: Category) =>
-                        getChildren(parent.uuid).map((category: Category) => (
-                          <SelectItem key={category.uuid} value={category.uuid}>
-                            {parent.name} / {category.name}
-                          </SelectItem>
+                        getChildren(parent.uuid).map((item: Category) => (
+                          <Slc.SelectItem key={item.uuid} value={item.uuid}>
+                            {parent.icon} {parent.name} / {item.name}
+                          </Slc.SelectItem>
                         )),
                       )}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                    </Slc.SelectGroup>
+                  </Slc.SelectPopup>
+                </Slc.Select>
                 <FieldError>{errors.category}</FieldError>
               </Field>
             </div>

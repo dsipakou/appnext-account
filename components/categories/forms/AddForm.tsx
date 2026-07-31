@@ -9,7 +9,7 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverClose, PopoverPopup, PopoverTrigger } from '@/components/ui/popover';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import * as Slc from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
@@ -144,32 +144,32 @@ const AddForm: React.FC<Types> = ({ parent }) => {
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Add category</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <div className="flex items-center gap-4">
-          <Popover>
-            <PopoverTrigger render={<Button variant="outline" />}>Choose icon</PopoverTrigger>
-            <PopoverPopup className="w-100 flex justify-center" sideOffset={5}>
-              <div>
-                <EmojiPicker
-                  className="mt-5 flex h-20"
-                  skinTonesDisabled={true}
-                  onEmojiClick={(event) => setSelectedEmoji(event.emoji)}
-                />
-              </div>
-              <PopoverClose className="absolute right-5 top-5">
-                <X className="h-4 w-4" />
-              </PopoverClose>
-            </PopoverPopup>
-          </Popover>
-          <span>{selectedEmoji}</span>
-          {selectedEmoji && (
-            <Button variant="link" onClick={() => setSelectedEmoji(null)}>
-              <X className="mr-2 h-4 w-4" />
-              <span>clear icon</span>
-            </Button>
-          )}
-        </div>
         <Form onSubmit={handleSubmit} className="contents">
           <Dlg.DialogPanel>
+            <div className="flex items-center gap-4">
+              <Popover>
+                <PopoverTrigger render={<Button variant="outline" />}>Choose icon</PopoverTrigger>
+                <PopoverPopup className="w-100 flex justify-center" sideOffset={5}>
+                  <div>
+                    <EmojiPicker
+                      className="mt-5 flex h-20"
+                      skinTonesDisabled={true}
+                      onEmojiClick={(event) => setSelectedEmoji(event.emoji)}
+                    />
+                  </div>
+                  <PopoverClose className="absolute right-5 top-5">
+                    <X className="h-4 w-4" />
+                  </PopoverClose>
+                </PopoverPopup>
+              </Popover>
+              <span>{selectedEmoji}</span>
+              {selectedEmoji && (
+                <Button variant="link" onClick={() => setSelectedEmoji(null)}>
+                  <X className="mr-2 h-4 w-4" />
+                  <span>clear icon</span>
+                </Button>
+              )}
+            </div>
             <div className="flex w-full">
               <Field name="title">
                 <FieldLabel>Category title</FieldLabel>
@@ -186,22 +186,27 @@ const AddForm: React.FC<Types> = ({ parent }) => {
             <div>
               <Field name="type">
                 <FieldLabel>Category type</FieldLabel>
-                <Select
+                <Slc.Select
                   onValueChange={(type) => setValues((current) => ({ ...current, type: type as CategoryType }))}
                   value={values.type}
                   disabled={isCreating || !!parent}
+                  items={[
+                    { label: 'Income', value: CategoryType.Income },
+                    { label: 'Expense', value: CategoryType.Expense },
+                    { label: 'Capital Expense', value: CategoryType.CapitalExpense },
+                  ]}
                 >
-                  <SelectTrigger className="relative w-full">
-                    <SelectValue placeholder="Category type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value={CategoryType.Income}>Income</SelectItem>
-                      <SelectItem value={CategoryType.Expense}>Expense</SelectItem>
-                      <SelectItem value={CategoryType.CapitalExpense}>Capital Expense</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                  <Slc.SelectTrigger className="relative w-full">
+                    <Slc.SelectValue placeholder="Category type" />
+                  </Slc.SelectTrigger>
+                  <Slc.SelectContent>
+                    <Slc.SelectGroup>
+                      <Slc.SelectItem value={CategoryType.Income}>Income</Slc.SelectItem>
+                      <Slc.SelectItem value={CategoryType.Expense}>Expense</Slc.SelectItem>
+                      <Slc.SelectItem value={CategoryType.CapitalExpense}>Capital Expense</Slc.SelectItem>
+                    </Slc.SelectGroup>
+                  </Slc.SelectContent>
+                </Slc.Select>
                 <FieldError>{errors.type}</FieldError>
               </Field>
             </div>
@@ -225,24 +230,29 @@ const AddForm: React.FC<Types> = ({ parent }) => {
               {values.type !== CategoryType.Income && values.isParent && (
                 <div className="flex w-1/2">
                   <Field name="parentCategory">
-                    <Select
+                    <Slc.Select
                       onValueChange={(parentCategory) => setValues((current) => ({ ...current, parentCategory }))}
                       value={values.parentCategory}
                       disabled={isCreating || !!parent}
+                      items={parentList.map((item: Category) => ({
+                        label: item.icon + '  ' + item.name,
+                        value: item.uuid,
+                      }))}
                     >
-                      <SelectTrigger className="relative w-full">
-                        <SelectValue placeholder="Choose parent category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {parentList.map((category: Category) => (
-                            <SelectItem key={category.uuid} value={category.uuid}>
-                              {category.name}
-                            </SelectItem>
+                      <Slc.SelectTrigger className="relative w-full">
+                        <Slc.SelectValue placeholder="Choose parent category" />
+                      </Slc.SelectTrigger>
+                      <Slc.SelectContent>
+                        <Slc.SelectGroup>
+                          {parentList.map((item: Category) => (
+                            <Slc.SelectItem key={item.uuid} value={item.uuid}>
+                              <span className="mr-2">{item.icon}</span>
+                              <span>{item.name}</span>
+                            </Slc.SelectItem>
                           ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                        </Slc.SelectGroup>
+                      </Slc.SelectContent>
+                    </Slc.Select>
                     <FieldError>{errors.parentCategory}</FieldError>
                   </Field>
                 </div>

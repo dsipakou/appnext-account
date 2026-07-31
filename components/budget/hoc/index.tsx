@@ -13,15 +13,7 @@ import { CompactWeekItem, PlannedMap, SpentMap } from '@/components/budget/types
 import { Button } from '@/components/ui/button';
 import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import * as Slc from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { User } from '@/components/users/types';
 import { useBudgetMonth, useBudgetWeek } from '@/hooks/budget';
@@ -54,7 +46,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const setWeekDate = useStore((state) => state.setWeekDate);
     const setMonthDate = useStore((state) => state.setMonthDate);
 
-    const { data: users } = useUsers();
+    const { data: users = [], isLoading: isUserLoading } = useUsers();
 
     const {
       data: budgetMonth = [],
@@ -192,24 +184,28 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           <GeneralSummaryCard planned={plannedSum} spent={spentSum} title={activeType} />
         </div>
         <div className="w-1/3 px-7">
-          <Select onValueChange={changeUser} defaultValue="all" disabled={!users}>
-            <SelectTrigger className="relative w-full border-2 font-normal text-muted-foreground hover:text-black">
-              <SelectValue placeholder="User" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Users</SelectLabel>
-                <SelectItem value="all">All users</SelectItem>
-                <DropdownMenuSeparator />
-                {users &&
-                  users.map((item: User) => (
-                    <SelectItem value={item.uuid} key={item.uuid}>
-                      {item.username}
-                    </SelectItem>
-                  ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+          <Slc.Select
+            onValueChange={changeUser}
+            defaultValue="all"
+            disabled={isUserLoading}
+            items={users.map((item: User) => ({ label: item.username, value: item.uuid }))}
+          >
+            <Slc.SelectTrigger className="relative w-full border-2 font-normal text-muted-foreground hover:text-black">
+              <Slc.SelectValue placeholder="User" />
+            </Slc.SelectTrigger>
+            <Slc.SelectPopup>
+              <Slc.SelectGroup>
+                <Slc.SelectGroupLabel>Users</Slc.SelectGroupLabel>
+                <Slc.SelectItem value="all">All users</Slc.SelectItem>
+                <Slc.SelectSeparator />
+                {users.map((item: User) => (
+                  <Slc.SelectItem value={item.uuid} key={item.uuid}>
+                    {item.username}
+                  </Slc.SelectItem>
+                ))}
+              </Slc.SelectGroup>
+            </Slc.SelectPopup>
+          </Slc.Select>
         </div>
         <div className="h-auto w-1/3">
           {activeType === 'month' ? (

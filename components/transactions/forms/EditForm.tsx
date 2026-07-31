@@ -222,13 +222,14 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                     disabled={isUpdating}
                     onValueChange={(currency) => setValues((current) => ({ ...current, currency }))}
                     value={values.currency || undefined}
+                    items={curencies.map((item: Currency) => ({ label: item.code, value: item.uuid }))}
                   >
                     <Slc.SelectTrigger className="relative w-full">
                       <Slc.SelectValue placeholder="Select currency" />
                     </Slc.SelectTrigger>
-                    <Slc.SelectContent>
+                    <Slc.SelectPopup>
                       <Slc.SelectGroup>
-                        <Slc.SelectLabel>Currencies</Slc.SelectLabel>
+                        <Slc.SelectGroupLabel>Currencies</Slc.SelectGroupLabel>
                         {currencies &&
                           currencies.map((item: Currency) => {
                             const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code);
@@ -255,7 +256,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                             );
                           })}
                       </Slc.SelectGroup>
-                    </Slc.SelectContent>
+                    </Slc.SelectPopup>
                   </Slc.Select>
                   <Field.FieldError>{errors.currency}</Field.FieldError>
                 </Field.Field>
@@ -269,13 +270,14 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                     disabled={isUpdating}
                     onValueChange={(category) => setValues((current) => ({ ...current, category }))}
                     value={values.category || undefined}
+                    items={parents.map((item: Category) => ({ label: item.name, value: item.uuid }))}
                   >
                     <Slc.SelectTrigger className="relative w-[180px]">
                       <Slc.SelectValue placeholder="Select category" />
                     </Slc.SelectTrigger>
-                    <Slc.SelectContent>
+                    <Slc.SelectPopup>
                       <Slc.SelectGroup>
-                        <Slc.SelectLabel>Categories</Slc.SelectLabel>
+                        <Slc.SelectGroupLabel>Categories</Slc.SelectGroupLabel>
                         {parents.map((item: Category) =>
                           getChildren(item.uuid).map((subitem: Category) => (
                             <Slc.SelectItem key={subitem.uuid} value={subitem.uuid}>
@@ -289,7 +291,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                           )),
                         )}
                       </Slc.SelectGroup>
-                    </Slc.SelectContent>
+                    </Slc.SelectPopup>
                   </Slc.Select>
                   <Field.FieldError>{errors.category}</Field.FieldError>
                 </Field.Field>
@@ -299,20 +301,21 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                     disabled={isUpdating || isBudgetLoading}
                     onValueChange={(budget) => setValues((current) => ({ ...current, budget }))}
                     value={values.budget || undefined}
+                    items={filteredBudgets.map((item: WeekBudgetItem) => ({ label: item.title, value: item.uuid }))}
                   >
                     <Slc.SelectTrigger className="relative w-[180px]">
                       <Slc.SelectValue placeholder="Select budget" />
                     </Slc.SelectTrigger>
-                    <Slc.SelectContent>
+                    <Slc.SelectPopup>
                       <Slc.SelectGroup>
-                        <Slc.SelectLabel>Budget list</Slc.SelectLabel>
+                        <Slc.SelectGroupLabel>Budget list</Slc.SelectGroupLabel>
                         {filteredBudgets.map((item: WeekBudgetItem) => (
                           <Slc.SelectItem key={item.uuid} value={item.uuid}>
                             {item.title}
                           </Slc.SelectItem>
                         ))}
                       </Slc.SelectGroup>
-                    </Slc.SelectContent>
+                    </Slc.SelectPopup>
                   </Slc.Select>
                   <Field.FieldError>{errors.budget}</Field.FieldError>
                 </Field.Field>
@@ -322,20 +325,21 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                     disabled={isUpdating}
                     onValueChange={(account) => setValues((current) => ({ ...current, account }))}
                     value={values.account || undefined}
+                    items={accounts.map((item: AccountResponse) => ({ label: item.title, value: item.uuid }))}
                   >
                     <Slc.SelectTrigger className="relative w-[180px]">
                       <Slc.SelectValue placeholder="Select account" />
                     </Slc.SelectTrigger>
-                    <Slc.SelectContent>
+                    <Slc.SelectPopup>
                       <Slc.SelectGroup>
-                        <Slc.SelectLabel>Accounts</Slc.SelectLabel>
+                        <Slc.SelectGroupLabel>Accounts</Slc.SelectGroupLabel>
                         {accounts.map((item: AccountResponse) => (
                           <Slc.SelectItem key={item.uuid} value={item.uuid}>
                             {item.title}
                           </Slc.SelectItem>
                         ))}
                       </Slc.SelectGroup>
-                    </Slc.SelectContent>
+                    </Slc.SelectPopup>
                   </Slc.Select>
                   <Field.FieldError>{errors.account}</Field.FieldError>
                 </Field.Field>

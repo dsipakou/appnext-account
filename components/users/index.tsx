@@ -3,15 +3,7 @@ import React from 'react';
 import { useSWRConfig } from 'swr';
 
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import * as Slc from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
 import { Invite, User } from '@/components/users/types';
 import { Roles, useRoles, useUpdateRole } from '@/hooks/roles';
@@ -111,21 +103,25 @@ const Index: React.FC = () => {
                   <span className="text-md">(this is you)</span>
                 ) : (
                   <div className="flex items-center gap-3">
-                    <Select defaultValue={item.role} onValueChange={(value) => selectRole(item.uuid, value)}>
-                      <SelectTrigger className="relative w-40 bg-white">
-                        <SelectValue placeholder="Select role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Roles</SelectLabel>
+                    <Slc.Select
+                      defaultValue={item.role}
+                      onValueChange={(value) => selectRole(item.uuid, value)}
+                      items={roles.map((item) => ({ label: item.name, value: item.name }))}
+                    >
+                      <Slc.SelectTrigger className="relative w-40 bg-white">
+                        <Slc.SelectValue placeholder="Select role" />
+                      </Slc.SelectTrigger>
+                      <Slc.SelectPopup>
+                        <Slc.SelectGroup>
+                          <Slc.SelectGroupLabel>Roles</Slc.SelectGroupLabel>
                           {roles.map((item: Roles, index: number) => (
-                            <SelectItem key={index} value={item.name}>
+                            <Slc.SelectItem key={index} value={item.name}>
                               {item.name}
-                            </SelectItem>
+                            </Slc.SelectItem>
                           ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                        </Slc.SelectGroup>
+                      </Slc.SelectPopup>
+                    </Slc.Select>
                     <Button
                       disabled={selectedRoles[item.uuid] === item.role || isLoading}
                       onClick={() => {

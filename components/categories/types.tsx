@@ -21,6 +21,7 @@ export interface CategoryRequest {
 export interface CategoryResponse {
   uuid: string;
   name: string;
+  icon: string | null;
   parent: string;
   type: CategoryType;
   description: string;

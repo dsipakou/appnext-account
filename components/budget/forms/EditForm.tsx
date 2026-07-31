@@ -12,15 +12,7 @@ import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import * as Slc from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
@@ -79,7 +71,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
   const titleInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const { data: users = [] } = useUsers();
+  const { data: users = [], isLoading: isUsersLoading } = useUsers();
   const { data: categories = [] } = useCategories();
   const { data: currencies = [] } = useCurrencies();
   const { trigger: editBudget, isMutating: isEditing } = useEditBudget(uuid);
@@ -109,9 +101,9 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
     setIsSomeDay(!budgetDetails.budgetDate);
 
     setValues({
-      category: budgetDetails.category,
-      user: budgetDetails.user,
-      currency: budgetDetails.currency,
+      category: budgetDetails.category || '',
+      user: budgetDetails.user || '',
+      currency: budgetDetails.currency || '',
       amount: budgetDetails.amount ?? 0,
       title: budgetDetails.title || '',
       repeatType: budgetDetails.recurrent || '',
@@ -242,7 +234,6 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
                               id="amount"
                               disabled={isEditing}
                               scale={2}
-                              signed={false}
                               thousandsSeparator=","
                               radix="."
                               normalizeZeros
@@ -258,25 +249,26 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
                     <div className="flex flex-col gap-2">
                       <Field name="currency">
                         <FieldLabel className="pl-1">Currency</FieldLabel>
-                        <Select
+                        <Slc.Select
                           disabled={isEditing}
                           onValueChange={(currency) => setValues((current) => ({ ...current, currency }))}
-                          value={values.currency || undefined}
+                          value={values.currency || ''}
+                          items={currencies.map((item: Currency) => ({ label: item.code, value: item.uuid }))}
                         >
-                          <SelectTrigger className="relative w-full" id="currency">
-                            <SelectValue placeholder="Select a currency" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectLabel>Currencies</SelectLabel>
+                          <Slc.SelectTrigger className="relative w-full" id="currency">
+                            <Slc.SelectValue placeholder="Select a currency" />
+                          </Slc.SelectTrigger>
+                          <Slc.SelectPopup>
+                            <Slc.SelectGroup>
+                              <Slc.SelectGroupLabel>Currencies</Slc.SelectGroupLabel>
                               {currencies.map((item: Currency) => (
-                                <SelectItem key={item.uuid} value={item.uuid}>
+                                <Slc.SelectItem key={item.uuid} value={item.uuid}>
                                   {item.code}
-                                </SelectItem>
+                                </Slc.SelectItem>
                               ))}
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
+                            </Slc.SelectGroup>
+                          </Slc.SelectPopup>
+                        </Slc.Select>
                         <FieldError />
                       </Field>
                     </div>
@@ -284,51 +276,56 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
                   <div className="flex flex-col gap-2">
                     <Field name="category">
                       <FieldLabel className="pl-1">Category</FieldLabel>
-                      <Select
+                      <Slc.Select
                         disabled={isEditing}
                         onValueChange={(category) => setValues((current) => ({ ...current, category }))}
-                        value={values.category || undefined}
+                        value={values.category || ''}
+                        items={parentList.map((item: Category) => ({
+                          label: item.icon + '  ' + item.name,
+                          value: item.uuid,
+                        }))}
                       >
-                        <SelectTrigger className="relative w-full" id="category">
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Categories</SelectLabel>
+                        <Slc.SelectTrigger className="relative w-full" id="category">
+                          <Slc.SelectValue placeholder="Select a category" />
+                        </Slc.SelectTrigger>
+                        <Slc.SelectPopup>
+                          <Slc.SelectGroup>
+                            <Slc.SelectGroupLabel>Categories</Slc.SelectGroupLabel>
                             {parentList.map((item: Category) => (
-                              <SelectItem key={item.uuid} value={item.uuid} className="flex items-center">
-                                {item.icon && <span className="mr-2 text-lg">{item.icon}</span>}
+                              <Slc.SelectItem key={item.uuid} value={item.uuid} className="flex items-center">
+                                <span className="mr-2">{item.icon}</span>
                                 <span>{item.name}</span>
-                              </SelectItem>
+                              </Slc.SelectItem>
                             ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
+                          </Slc.SelectGroup>
+                        </Slc.SelectPopup>
+                      </Slc.Select>
                       <FieldError />
                     </Field>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Field name="user">
+                    <Field disabled={isUsersLoading} name="user">
                       <FieldLabel className="pl-1">User</FieldLabel>
-                      <Select
+                      <Slc.Select
                         disabled={isEditing}
                         onValueChange={(user) => setValues((current) => ({ ...current, user }))}
-                        value={values.user || undefined}
+                        value={values.user || ''}
+                        items={users.map((item: User) => ({ label: item.username, value: item.uuid }))}
                       >
-                        <SelectTrigger className="relative w-full" id="user">
-                          <SelectValue placeholder="Select user" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Budget owner</SelectLabel>
+                        <Slc.SelectTrigger className="relative w-full" id="user">
+                          <Slc.SelectValue placeholder="Select user" />
+                        </Slc.SelectTrigger>
+                        <Slc.SelectPopup>
+                          <Slc.SelectGroup>
+                            <Slc.SelectGroupLabel>Budget owner</Slc.SelectGroupLabel>
                             {users.map((item: User) => (
-                              <SelectItem key={item.uuid} value={item.uuid}>
+                              <Slc.SelectItem key={item.uuid} value={item.uuid}>
                                 {item.username}
-                              </SelectItem>
+                              </Slc.SelectItem>
                             ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
+                          </Slc.SelectGroup>
+                        </Slc.SelectPopup>
+                      </Slc.Select>
                       <FieldError />
                     </Field>
                   </div>

@@ -112,19 +112,20 @@ export const CategoryItem: React.FC<Props> = ({
                 onValueChange={onParentChange}
                 defaultValue={category.parent || undefined}
                 disabled={isUpdating}
+                items={parentCategories.map((item) => ({ label: item.icon + '  ' + item.name, value: item.uuid }))}
               >
                 <Slc.SelectTrigger className="relative w-full">
                   <Slc.SelectValue placeholder="Choose parent category" />
                 </Slc.SelectTrigger>
-                <Slc.SelectContent>
+                <Slc.SelectPopup>
                   <Slc.SelectGroup>
-                    {parentCategories.map((category: Category) => (
+                    {parentCategories.map((category) => (
                       <Slc.SelectItem key={category.uuid} value={category.uuid}>
-                        {category.name}
+                        {category.icon} {category.name}
                       </Slc.SelectItem>
                     ))}
                   </Slc.SelectGroup>
-                </Slc.SelectContent>
+                </Slc.SelectPopup>
               </Slc.Select>
             </div>
             <div>
