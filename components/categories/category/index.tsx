@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
 
-import { AddForm, ConfirmDeleteForm, EditForm, ReassignTransactionsForm } from '@/components/categories/forms';
+import { AddForm, ConfirmDeleteForm, ReassignTransactionsForm } from '@/components/categories/forms';
 import Toolbar from '@/components/common/layout/Toolbar';
 import { Button } from '@/components/ui/button';
 import { useCategories } from '@/hooks/categories';
@@ -39,7 +39,6 @@ const Category = () => {
           </div>
           <div className="col-span-2">
             <div className="flex flex-col items-end text-white">
-              <EditForm uuid={category.uuid} />
               <ConfirmDeleteForm uuid={category.uuid} />
             </div>
           </div>
