@@ -6,7 +6,7 @@ import { AccountResponse } from '@/components/accounts/types';
 import BudgetComponent from '@/components/transactions/forms/components/BudgetComponentV2';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { useEditBudget } from '@/hooks/budget';
 import { extractErrorMessage } from '@/utils/stringUtils';
 
@@ -44,7 +44,6 @@ export const BudgetCell: React.FC<BudgetCellProps> = ({
 }) => {
   const { trigger: completeBudget, isMutating: isCompleting } = useEditBudget(value);
   const { mutate } = useSWRConfig();
-  const { toast } = useToast();
 
   const handleClickComplete = async (): Promise<void> => {
     try {
@@ -58,10 +57,11 @@ export const BudgetCell: React.FC<BudgetCellProps> = ({
       mutate('budget/upcomming/', undefined, { revalidate: true });
     } catch (error) {
       const message = extractErrorMessage(error);
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'transaction-budget-complete-error',
         title: 'Cannot be completed',
         description: message,
+        type: 'error',
       });
     }
   };

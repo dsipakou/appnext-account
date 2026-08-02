@@ -8,7 +8,7 @@ import { AddForm } from '@/components/budget/forms';
 import { CompactWeekItem, WeekBudgetItem, WeekBudgetResponse } from '@/components/budget/types';
 import { Button } from '@/components/ui/button';
 import { Droppable } from '@/components/ui/dnd';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { useBudgetWeek, useEditBudget } from '@/hooks/budget';
 import { cn } from '@/lib/utils';
 import {
@@ -61,7 +61,6 @@ const Container: React.FC<Types> = ({
     FULL_DAY_ONLY_FORMAT,
   );
   const currencySign = useStore((state) => state.currency.sign);
-  const { toast } = useToast();
 
   React.useMemo(() => {
     setBudgetState(budget);
@@ -132,7 +131,12 @@ const Container: React.FC<Types> = ({
     try {
       const updatedBudget = await dragBudget({ budgetDate: getFormattedDate(newDate) });
       mutateBudget(updatedBudget);
-      toast({ title: 'Saved!' });
+      toastManager.add({
+        id: 'budget-drag-update',
+        title: 'Saved!',
+        description: 'Your budget has been updated successfully.',
+        type: 'success',
+      });
     } catch (error) {
       // Revert optimistic update on error
       setBudgetState((prev) => {
@@ -142,7 +146,12 @@ const Container: React.FC<Types> = ({
         return newState;
       });
       const message = extractErrorMessage(error);
-      toast({ variant: 'destructive', title: 'Cannot update', description: message });
+      toastManager.add({
+        id: 'budget-drag-update-error',
+        title: 'Cannot update',
+        description: message,
+        type: 'error',
+      });
     } finally {
       setIsDragging(false);
     }

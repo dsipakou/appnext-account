@@ -4,7 +4,7 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import React from 'react';
 import { useSWRConfig } from 'swr';
 
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { useReorderCategories } from '@/hooks/categories';
 
 import { Category } from '../types';
@@ -43,8 +43,6 @@ export const SortableCategoryList: React.FC<Props> = ({
   const [loading, setLoading] = React.useState<boolean>(false);
   const { mutate } = useSWRConfig();
   const { trigger: reorderCategories, isMutating: isReordering } = useReorderCategories();
-  const { toast } = useToast();
-
   const memorizedCategories = React.useMemo(() => categories, [categories]);
 
   const getCategoryName = (uuid: string) => {
@@ -75,15 +73,18 @@ export const SortableCategoryList: React.FC<Props> = ({
           index: over.data.current.sortable.index,
         });
         mutate('categories/');
-        toast({
+        toastManager.add({
+          id: 'category-reorder',
           title: 'Category reordered',
+          type: 'success',
         });
       } catch (error) {
         // Revert optimistic update on error
         setCategoriesState(memorizedCategories);
-        toast({
-          variant: 'destructive',
+        toastManager.add({
+          id: 'category-reorder-error',
           title: 'Error reordering category',
+          type: 'error',
         });
       } finally {
         setLoading(false);

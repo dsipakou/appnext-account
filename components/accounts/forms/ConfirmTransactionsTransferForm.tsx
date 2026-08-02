@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { useReassignTransactions } from '@/hooks/accounts';
 
 interface Types {
@@ -13,20 +13,22 @@ interface Types {
 }
 
 const ConfirmTransactionsTransferForm: React.FC<Types> = ({ open, setOpen, sourceAccount, destAccount }) => {
-  const { toast } = useToast();
   const { trigger: reassignTransactions, isMutating: isReassigning } = useReassignTransactions(sourceAccount);
 
   const handleTransfer = async () => {
     try {
       await reassignTransactions({ account: destAccount });
-      toast({
+      toastManager.add({
+        id: 'account-transfer-transactions',
         title: 'Transactions transfered!',
+        type: 'success',
       });
     } catch {
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'account-transfer-transactions-error',
         title: 'Something went wrong',
         description: 'Please, check your fields',
+        type: 'error',
       });
     }
   };

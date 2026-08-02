@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import * as Slc from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { useAccounts, useUpdateAccount } from '@/hooks/accounts';
 import { useCategories } from '@/hooks/categories';
 import { useUsers } from '@/hooks/users';
@@ -39,8 +39,6 @@ type FormValues = z.infer<typeof formSchema>;
 
 const EditForm: React.FC<Types> = ({ uuid }) => {
   const { mutate } = useSWRConfig();
-  const { toast } = useToast();
-
   const [values, setValues] = React.useState<FormValues>({
     title: '',
     user: '',
@@ -86,15 +84,18 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
     try {
       await updateAccount(payload);
       mutate('accounts/');
-      toast({
+      toastManager.add({
+        id: 'account-update',
         title: 'Saved!',
+        type: 'success',
       });
     } catch (error) {
       const message = extractErrorMessage(error);
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'account-update-error',
         title: 'Something went wrong',
         description: message,
+        type: 'error',
       });
     }
   };

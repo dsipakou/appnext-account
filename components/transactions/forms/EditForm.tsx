@@ -17,7 +17,7 @@ import * as Frm from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import * as Slc from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { useAccounts } from '@/hooks/accounts';
 import { useBudgetWeek } from '@/hooks/budget';
 import { useCategories } from '@/hooks/categories';
@@ -77,8 +77,6 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   });
   const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
 
-  const { toast } = useToast();
-
   const { data: transaction } = useTransaction(uuid);
   const { data: accounts = [] } = useAccounts();
   const { data: budgets = [], isLoading: isBudgetLoading } = useBudgetWeek(weekStart, weekEnd);
@@ -137,13 +135,16 @@ const EditForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
         transactionDate: getFormattedDate(payload.transactionDate),
       });
       mutate(url);
-      toast({
+      toastManager.add({
+        id: 'transaction-update',
         title: 'Transaction updated',
+        type: 'success',
       });
     } catch {
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'transaction-update-error',
         title: 'Cannot update transaction',
+        type: 'error',
       });
     }
   };

@@ -3,7 +3,7 @@ import { useSWRConfig } from 'swr';
 
 import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { useCurrencies, useDeleteCurrency } from '@/hooks/currencies';
 
 import { Currency } from '../types';
@@ -18,7 +18,6 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open = false, uuid, handleClose })
   const [currency, setCurrency] = React.useState<Currency>();
   const { data: currencies = [] } = useCurrencies();
   const { mutate } = useSWRConfig();
-  const { toast } = useToast();
   const { trigger: deleteCurrency, isMutating: isDeleting } = useDeleteCurrency(uuid);
 
   React.useEffect(() => {
@@ -35,12 +34,16 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open = false, uuid, handleClose })
       await deleteCurrency();
       mutate('currencies/');
       handleClose();
-      toast({
+      toastManager.add({
+        id: 'currency-delete',
         title: 'Deleted successfully',
+        type: 'success',
       });
     } catch (error) {
-      toast({
+      toastManager.add({
+        id: 'currency-delete-error',
         title: 'Please, try again',
+        type: 'error',
       });
     }
   };

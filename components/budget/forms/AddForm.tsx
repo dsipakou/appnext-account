@@ -4,7 +4,7 @@ import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { useSWRConfig } from 'swr';
 import * as z from 'zod';
 
-import { Category, CategoryType } from '@/components/categories/types';
+import { CategoryType } from '@/components/categories/types';
 import { Currency } from '@/components/currencies/types';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -17,8 +17,8 @@ import * as Slc from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { toastManager } from '@/components/ui/toast';
 import { ToggleGroup, ToggleGroupItem, ToggleGroupSeparator } from '@/components/ui/toggle-group';
-import { useToast } from '@/components/ui/use-toast';
 import { User } from '@/components/users/types';
 import { useCreateBudget } from '@/hooks/budget';
 import { useCategories } from '@/hooks/categories';
@@ -70,8 +70,6 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
 
   const { data: session } = useSession();
   const authUser = session!.user;
-
-  const { toast } = useToast();
 
   const { data: users = [] } = useUsers();
 
@@ -168,14 +166,18 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
       mutate((key) => typeof key === 'string' && key.includes('budget/weekly-usage'), undefined);
       mutate('budget/pending/');
       clean(false);
-      toast({
+      toastManager.add({
+        id: 'budget-create',
         title: 'Saved!',
+        description: 'Your budget has been created successfully.',
+        type: 'success',
       });
     } catch {
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'budget-create-error',
         title: 'Something went wrong',
-        description: 'Please, check your fields',
+        description: 'Please, check your fields for errors and try again.',
+        type: 'error',
       });
     }
   };

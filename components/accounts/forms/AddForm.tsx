@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import * as Slc from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { User } from '@/components/users/types';
 import { useCreateAccount } from '@/hooks/accounts';
 import { useCategories } from '@/hooks/categories';
@@ -40,8 +40,6 @@ const AddForm: React.FC = () => {
     description: '',
   });
   const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
-
-  const { toast } = useToast();
 
   const { data: session } = useSession();
   const authUser = session?.user;
@@ -75,14 +73,17 @@ const AddForm: React.FC = () => {
   const handleSave = async (payload: FormValues) => {
     try {
       await createAccount(payload);
-      toast({
+      toastManager.add({
+        id: 'account-create',
         title: 'Saved!',
+        type: 'success',
       });
     } catch {
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'account-create-error',
         title: 'Something went wrong',
         description: 'Please, check your fields',
+        type: 'error',
       });
     }
   };

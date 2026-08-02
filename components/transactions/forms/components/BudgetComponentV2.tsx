@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 // UI
 import * as Slc from '@/components/ui/select';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 // Hooks
 import { useBudgetWeek, useCreateBudget } from '@/hooks/budget';
 import { useCategories } from '@/hooks/categories';
@@ -47,7 +47,6 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
   const { data: categories = [] } = useCategories();
   const { data: currencies = [] } = useCurrencies();
   const { trigger: createBudget, isMutating: isCreating } = useCreateBudget();
-  const { toast } = useToast();
   const { mutate } = useSWRConfig();
 
   const accountUser = accounts.find((item: Account) => item.uuid === row.account)?.user;
@@ -90,10 +89,11 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
 
   const handleCreateBudget = async () => {
     if (!newBudgetTitle || !newBudgetAmount || !newBudgetCategory || !newBudgetCurrency) {
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'transaction-budget-create-missing-fields',
         title: 'Missing fields',
         description: 'Please fill all required fields',
+        type: 'error',
       });
       return;
     }
@@ -128,14 +128,17 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
       setNewBudgetCurrency(defaultCurrency);
       setIsCreateDialogOpen(false);
 
-      toast({
+      toastManager.add({
+        id: 'transaction-budget-create',
         title: 'Budget created successfully!',
+        type: 'success',
       });
     } catch (error) {
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'transaction-budget-create-error',
         title: 'Failed to create budget',
         description: 'Please try again',
+        type: 'error',
       });
     }
   };

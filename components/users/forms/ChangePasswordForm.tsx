@@ -7,7 +7,7 @@ import * as Field from '@/components/ui/field';
 import * as Form from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 // UI
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 // Hooks
 import { useResetPassword } from '@/hooks/users';
 // Utils
@@ -39,7 +39,6 @@ const ChangePasswordForm: React.FC = () => {
   });
   const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
 
-  const { toast } = useToast();
   const { trigger: resetPassword, isMutating: isReseting } = useResetPassword();
 
   const handleCommit = async (payload: FormValues) => {
@@ -48,15 +47,18 @@ const ChangePasswordForm: React.FC = () => {
         oldPassword: payload.currentPassword,
         newPassword: payload.newPassword,
       });
-      toast({
+      toastManager.add({
+        id: 'user-password-update',
         title: 'Password updated!',
+        type: 'success',
       });
     } catch (error) {
       const message = extractErrorMessage(error);
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'user-password-update-error',
         title: 'Something went wrong',
         description: JSON.stringify(message),
+        type: 'error',
       });
     }
   };

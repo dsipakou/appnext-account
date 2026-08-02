@@ -6,7 +6,7 @@ import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { useCreateInvite } from '@/hooks/users';
 import { extractErrorMessage } from '@/utils/stringUtils';
 
@@ -20,7 +20,6 @@ const AddForm: React.FC = () => {
   const [values, setValues] = React.useState<FormValues>({ email: '' });
   const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
 
-  const { toast } = useToast();
   const { trigger: createInvite, isMutating: isCreating } = useCreateInvite();
 
   const cleanFormErrors = (open: boolean) => {
@@ -33,21 +32,25 @@ const AddForm: React.FC = () => {
   const handleSave = async (payload: FormValues) => {
     try {
       await createInvite(payload);
-      toast({
+      toastManager.add({
+        id: 'user-invite-create',
         title: 'Saved!',
+        type: 'success',
       });
     } catch (error) {
       const message = extractErrorMessage(error);
       if (JSON.stringify(message).includes('unique set')) {
-        toast({
-          variant: 'destructive',
+        toastManager.add({
+          id: 'user-invite-duplicate',
           title: 'You have already sent invite for this user',
+          type: 'error',
         });
       } else {
-        toast({
-          variant: 'destructive',
+        toastManager.add({
+          id: 'user-invite-create-error',
           title: 'Something went wrong',
           description: JSON.stringify(message),
+          type: 'error',
         });
       }
     }

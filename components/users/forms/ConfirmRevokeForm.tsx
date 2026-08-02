@@ -3,7 +3,7 @@ import { useSWRConfig } from 'swr';
 
 import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { useRevokeInvite } from '@/hooks/users';
 
 interface Types {
@@ -13,20 +13,22 @@ interface Types {
 const ConfirmRevokeForm: React.FC<Types> = ({ uuid }) => {
   const [open, setOpen] = React.useState<boolean>(false);
   const { mutate } = useSWRConfig();
-  const { toast } = useToast();
   const { trigger: revokeInvite, isMutating: isDeleting } = useRevokeInvite(uuid);
 
   const handleRevoke = async (): void => {
     try {
       await revokeInvite();
       mutate('users/invite/');
-      toast({
+      toastManager.add({
+        id: 'user-invite-revoke',
         title: 'Invite revoked!',
+        type: 'success',
       });
     } catch (error) {
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'user-invite-revoke-error',
         title: 'Something went wrong',
+        type: 'error',
       });
     }
   };

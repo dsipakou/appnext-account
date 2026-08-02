@@ -10,8 +10,8 @@ import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { toastManager } from '@/components/ui/toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useToast } from '@/components/ui/use-toast';
 import { useCurrencies, useUpdateCurrency } from '@/hooks/currencies';
 import { extractErrorMessage } from '@/utils/stringUtils';
 
@@ -49,8 +49,6 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
     comments: '',
   });
   const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
-  const { toast } = useToast();
-
   useEffect(() => {
     if (!currencies.length) return;
 
@@ -72,15 +70,18 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
       await updateCurrency(payload);
       mutate('currencies/');
       cleanFormErrors(false);
-      toast({
+      toastManager.add({
+        id: 'currency-update',
         title: 'Saved!',
+        type: 'success',
       });
     } catch (error) {
       const message = extractErrorMessage(error);
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'currency-update-error',
         title: 'Something went wrong',
         description: message,
+        type: 'error',
       });
     }
   };

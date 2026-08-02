@@ -11,7 +11,7 @@ import * as Dlg from '@/components/ui/dialog';
 import * as Field from '@/components/ui/field';
 import * as Frm from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 // Hooks
 import { RateResponse, useCreateBatchedRates, useRatesOnDate } from '@/hooks/rates';
 // Utils
@@ -36,8 +36,6 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
   const [values, setValues] = React.useState<FormData>({ rateDate: new Date() });
 
   const { mutate } = useSWRConfig();
-  const { toast } = useToast();
-
   const { data: ratesOnDate = [], url } = useRatesOnDate(getFormattedDate(selectedDate));
   const { trigger: createBatchedRates, isMutating: isCreating } = useCreateBatchedRates();
 
@@ -100,15 +98,18 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
 
       mutate(url);
       mutate((key) => typeof key === 'string' && key.includes('rates?limit='), undefined);
-      toast({
+      toastManager.add({
+        id: 'currency-rates-save',
         title: 'Saved!',
+        type: 'success',
       });
     } catch (error) {
       const message = extractErrorMessage(error);
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'currency-rates-save-error',
         title: 'Something went wrong',
         description: message,
+        type: 'error',
       });
     }
   };

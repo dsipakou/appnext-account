@@ -3,7 +3,7 @@ import { useSWRConfig } from 'swr';
 
 import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { useClearCurrenciesOnDate } from '@/hooks/currencies';
 import { getFormattedDate } from '@/utils/dateUtils';
 import { extractErrorMessage } from '@/utils/stringUtils';
@@ -17,27 +17,30 @@ interface Types {
 const ConfirmClearRatesForm: React.FC<Types> = ({ open = false, date, handleClose }) => {
   const { trigger: deleteCurrency, isMutating: isClearing } = useClearCurrenciesOnDate(getFormattedDate(date));
   const { mutate } = useSWRConfig();
-  const { toast } = useToast();
-
   const handleClear = async () => {
     try {
       await deleteCurrency();
       mutate(`rates/day/${getFormattedDate(date)}`);
       handleClose();
-      toast({
+      toastManager.add({
+        id: 'currency-rates-clear',
         title: 'Rates cleared successfully',
+        type: 'success',
       });
     } catch (error) {
       const message = extractErrorMessage(error);
       if (message.error?.includes('There are transactions')) {
-        toast({
-          variant: 'destructive',
+        toastManager.add({
+          id: 'currency-rates-clear-has-transactions',
           title: 'This date contains transactions',
           description: 'You need to delete transactions first',
+          type: 'error',
         });
       } else {
-        toast({
+        toastManager.add({
+          id: 'currency-rates-clear-error',
           title: 'Cannot clear rates.',
+          type: 'error',
         });
       }
     }

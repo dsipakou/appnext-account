@@ -6,7 +6,7 @@ import { useSWRConfig } from 'swr';
 import { CategoryResponse } from '@/components/categories/types';
 import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { useCategories, useDeleteCategory } from '@/hooks/categories';
 import { extractErrorMessage } from '@/utils/stringUtils';
 
@@ -19,8 +19,6 @@ const ConfirmDeleteForm: React.FC<Types> = ({ uuid }) => {
   const [open, setOpen] = React.useState<boolean>(false);
   const { mutate } = useSWRConfig();
   const router = useRouter();
-  const { toast } = useToast();
-
   const { data: categories = [] } = useCategories();
   const { trigger: deleteCategory, isMutating: isDeleting } = useDeleteCategory(uuid);
   const { uuid: queryUuid } = router.query;
@@ -42,33 +40,39 @@ const ConfirmDeleteForm: React.FC<Types> = ({ uuid }) => {
       }
       mutate('categories/');
       setOpen(false);
-      toast({
+      toastManager.add({
+        id: 'category-delete',
         title: `Category '${category?.name}' deleted!`,
+        type: 'success',
       });
     } catch (error) {
       const message = extractErrorMessage(error);
       if (message[0].includes('There are transactions assigned')) {
-        toast({
-          variant: 'destructive',
+        toastManager.add({
+          id: 'category-delete-has-transactions',
           title: 'This category contains transactions',
           description: 'You need to choose different category to re-assign transactions',
+          type: 'error',
         });
       } else if (message[0].includes('Cannot delete non empty parent category')) {
-        toast({
-          variant: 'destructive',
+        toastManager.add({
+          id: 'category-delete-has-children',
           title: 'This parent category contains categories',
           description: 'Parent category should be empty to delete it',
+          type: 'error',
         });
       } else if (message[0].includes('There are budgets assigned')) {
-        toast({
-          variant: 'destructive',
+        toastManager.add({
+          id: 'category-delete-has-budgets',
           title: 'This category contains budgets',
           description: 'You need to delete or re-assign budgets assigned to the category',
+          type: 'error',
         });
       } else {
-        toast({
-          variant: 'destructive',
+        toastManager.add({
+          id: 'category-delete-error',
           title: 'Something went wrong',
+          type: 'error',
         });
       }
     }

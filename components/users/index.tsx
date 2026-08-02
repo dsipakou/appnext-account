@@ -4,7 +4,7 @@ import { useSWRConfig } from 'swr';
 
 import { Button } from '@/components/ui/button';
 import * as Slc from '@/components/ui/select';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { Invite, User } from '@/components/users/types';
 import { Roles, useRoles, useUpdateRole } from '@/hooks/roles';
 import { useInvites, UserResponse, useUsers } from '@/hooks/users';
@@ -28,7 +28,6 @@ const Index: React.FC = () => {
   const { data: roles = [] } = useRoles();
   const { data: invites = [] } = useInvites();
 
-  const { toast } = useToast();
   const { mutate } = useSWRConfig();
   const { trigger: update } = useUpdateRole(uuid);
 
@@ -57,14 +56,17 @@ const Index: React.FC = () => {
       setIsLoading(true);
       await update({ role: selectedRoles[userUuid] });
       mutate('users/');
-      toast({
+      toastManager.add({
+        id: 'user-role-update',
         title: 'User role updated',
+        type: 'success',
       });
     } catch (error) {
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'user-role-update-error',
         title: 'Failed',
         description: 'Something went wrong, please try again later.',
+        type: 'error',
       });
     } finally {
       setIsLoading(false);

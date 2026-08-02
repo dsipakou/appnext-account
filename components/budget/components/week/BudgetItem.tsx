@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Draggable } from '@/components/ui/dnd';
 import { Progress } from '@/components/ui/progress';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { useEditBudget } from '@/hooks/budget';
 import { UserResponse, useUsers } from '@/hooks/users';
 import { cn } from '@/lib/utils';
@@ -42,11 +42,10 @@ const BudgetItem: React.FC<Types> = ({
   mutateBudget,
   clickShowTransactions,
 }) => {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [isLoading] = React.useState<boolean>(false);
   const [isEditDialogOpened, setIsEditDialogOpened] = React.useState<boolean>(false);
   const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] = React.useState<boolean>(false);
   const [isAddTransactionDialogOpened, setIsAddTransactionDialogOpened] = React.useState<boolean>(false);
-  const { toast } = useToast();
   const { mutate } = useSWRConfig();
 
   const { data: users = [] } = useUsers();
@@ -70,10 +69,11 @@ const BudgetItem: React.FC<Types> = ({
       mutate('budget/upcomming/', undefined);
     } catch (error) {
       const message = extractErrorMessage(error);
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'budget-complete-error',
         title: 'Cannot be completed',
         description: message,
+        type: 'error',
       });
     }
   };

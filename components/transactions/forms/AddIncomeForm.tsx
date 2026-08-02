@@ -15,7 +15,7 @@ import * as Frm from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import * as Slc from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { User } from '@/components/users/types';
 import { useAccounts } from '@/hooks/accounts';
 import { useCategories } from '@/hooks/categories';
@@ -68,8 +68,6 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
   const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
 
   const { mutate } = useSWRConfig();
-  const { toast } = useToast();
-
   const { data: accounts = [] } = useAccounts();
   const { data: categories = [] } = useCategories();
   const { data: currencies = [] } = useCurrencies();
@@ -102,15 +100,18 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
         user,
       });
       mutate(url);
-      toast({
+      toastManager.add({
+        id: 'transaction-income-create',
         title: 'Saved!',
+        type: 'success',
       });
       handleClose();
     } catch (error) {
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'transaction-income-create-error',
         title: 'Something went wrong',
         description: error,
+        type: 'error',
       });
     }
   };

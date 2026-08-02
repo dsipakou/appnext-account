@@ -12,8 +12,8 @@ import * as Frm from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { toastManager } from '@/components/ui/toast';
 import * as Tlp from '@/components/ui/tooltip';
-import { useToast } from '@/components/ui/use-toast';
 // Hooks
 import { useCreateCurrency } from '@/hooks/currencies';
 // Utils
@@ -49,7 +49,6 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
   });
   const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
 
-  const { toast } = useToast();
   const { trigger: createCurrency, isMutating: isCreating } = useCreateCurrency();
 
   const handleSave = async (payload: FormValues) => {
@@ -58,17 +57,20 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
       if (currency.isBase) {
         updateSession({ currency: payload.code });
       }
-      toast({
+      toastManager.add({
+        id: 'currency-create',
         title: 'Saved!',
+        type: 'success',
       });
       mutate((key) => typeof key === 'string' && key.includes('rates/'), undefined);
       handleClose();
     } catch (error) {
       const message = extractErrorMessage(error);
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'currency-create-error',
         title: 'Something went wrong',
         description: message,
+        type: 'error',
       });
     }
   };

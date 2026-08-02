@@ -14,7 +14,7 @@ import * as Frm from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import * as Slc from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { useAccounts } from '@/hooks/accounts';
 import { useCategories } from '@/hooks/categories';
 import { useCurrencies } from '@/hooks/currencies';
@@ -65,8 +65,6 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
   const { mutate } = useSWRConfig();
 
-  const { toast } = useToast();
-
   const { data: transaction, isLoading: isTransactionLoading } = useTransaction(uuid);
   const { data: accounts = [] } = useAccounts();
   const { data: categories = [] } = useCategories();
@@ -108,14 +106,17 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
       });
       // TODO: wrong url - outcome instead of outcome
       mutate(url);
-      toast({
+      toastManager.add({
+        id: 'transaction-income-update',
         title: 'Transaction updated',
+        type: 'success',
       });
     } catch {
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'transaction-income-update-error',
         title: 'Cannot update transaction',
         description: 'Something went wrong, please try again later.',
+        type: 'error',
       });
     }
   };

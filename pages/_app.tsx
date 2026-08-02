@@ -10,7 +10,7 @@ import type { Session } from 'next-auth';
 import { SessionProvider, useSession } from 'next-auth/react';
 import React, { lazy } from 'react';
 
-import { Toaster } from '@/components/ui/toaster';
+import { AnchoredToastProvider, ToastProvider } from '@/components/ui/toast';
 
 const Layout = lazy(async () => await import('../components/common/layout/Layout'));
 
@@ -34,11 +34,14 @@ const App = ({ Component, pageProps: { session, ...pageProps } }: AppProps<{ ses
         <title>I spent a Dollar</title>
       </Head>
       <SessionProvider session={session}>
-        <Toaster />
         {Component.auth ? (
           <Auth>
             <Layout>
-              <Component {...pageProps} />
+              <ToastProvider>
+                <AnchoredToastProvider>
+                  <Component {...pageProps} />
+                </AnchoredToastProvider>
+              </ToastProvider>
             </Layout>
           </Auth>
         ) : (

@@ -3,7 +3,7 @@ import { useSWRConfig } from 'swr';
 
 import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { useAccounts, useDeleteAccount } from '@/hooks/accounts';
 import { extractErrorMessage } from '@/utils/stringUtils';
 
@@ -21,8 +21,6 @@ const ConfirmDeleteForm: FC<Types> = ({ uuid }) => {
   const { trigger: deleteAccount, isMutating: isDeleting } = useDeleteAccount(uuid);
 
   const { mutate } = useSWRConfig();
-  const { toast } = useToast();
-
   useEffect(() => {
     if (!accounts) return;
 
@@ -39,21 +37,25 @@ const ConfirmDeleteForm: FC<Types> = ({ uuid }) => {
       await deleteAccount();
       mutate('accounts/');
       setOpen(false);
-      toast({
+      toastManager.add({
+        id: 'account-delete',
         title: 'Deleted successfully',
+        type: 'success',
       });
     } catch (error) {
       const message = extractErrorMessage(error);
       if (message.error?.includes('transaction')) {
-        toast({
-          variant: 'destructive',
+        toastManager.add({
+          id: 'account-delete-has-transactions',
           title: 'This account contains transactions',
           description: 'You need to choose different account to re-assign transactions',
+          type: 'error',
         });
       } else {
-        toast({
-          variant: 'destructive',
+        toastManager.add({
+          id: 'account-delete-error',
           title: 'Something went wrong',
+          type: 'error',
         });
       }
     }

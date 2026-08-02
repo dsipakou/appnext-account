@@ -7,7 +7,7 @@ import * as Dlg from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Spinner } from '@/components/ui/spinner';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { useDeleteBudget, useStopBudgetSeries } from '@/hooks/budget';
 
 interface Types {
@@ -22,7 +22,6 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, recurrent, bu
   const [deletionMode, setDeletionMode] = React.useState<'instance' | 'series'>('instance');
 
   const { mutate } = useSWRConfig();
-  const { toast } = useToast();
   const { trigger: deleteBudget, isMutating: isDeletingBudget } = useDeleteBudget(uuid);
   const { trigger: stopSeries, isMutating: isStoppingSeries } = useStopBudgetSeries(uuid);
 
@@ -36,8 +35,11 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, recurrent, bu
         await deleteBudget();
       }
       setOpen(false);
-      toast({
-        title: deletionMode === 'series' ? 'Series stopped successfully' : 'Deleted successfully',
+      toastManager.add({
+        id: 'budget-delete',
+        title: 'Deleted!',
+        description: deletionMode === 'series' ? 'Series stopped successfully' : 'Budget deleted successfully',
+        type: 'success',
       });
       // Clear all budget-related cache entries
       await mutate(
@@ -48,9 +50,11 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, recurrent, bu
         { revalidate: true },
       );
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Please, try again',
+      toastManager.add({
+        id: 'budget-delete-error',
+        title: 'Something went wrong',
+        description: 'Please, try again later',
+        type: 'error',
       });
     }
   };

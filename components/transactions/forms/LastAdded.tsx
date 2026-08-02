@@ -5,7 +5,7 @@ import { useSWRConfig } from 'swr';
 import { TransactionsTable } from '@/components/transactions/components/transactionTable';
 import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { useLastAddedTransactions, useReadLastAddedTransactions } from '@/hooks/transactions';
 import { useUsers } from '@/hooks/users';
 
@@ -19,8 +19,6 @@ const LastAdded: React.FC = () => {
   const {
     data: { user: authUser },
   } = useSession();
-
-  const { toast } = useToast();
 
   React.useEffect(() => {
     if (!authUser || users.length === 0) return;
@@ -39,13 +37,16 @@ const LastAdded: React.FC = () => {
     try {
       await readTransactions(payload);
       mutate(url);
-      toast({
+      toastManager.add({
+        id: 'transaction-last-added-read',
         title: 'Transactions marked as viewed',
+        type: 'success',
       });
     } catch (error) {
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'transaction-last-added-read-error',
         title: 'Something went wrong',
+        type: 'error',
       });
     }
   };

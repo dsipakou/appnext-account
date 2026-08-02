@@ -16,8 +16,8 @@ import * as Slc from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { toastManager } from '@/components/ui/toast';
 import { ToggleGroup, ToggleGroupItem, ToggleGroupSeparator } from '@/components/ui/toggle-group';
-import { useToast } from '@/components/ui/use-toast';
 import { User } from '@/components/users/types';
 import { useBudgetDetails, useEditBudget } from '@/hooks/budget';
 import { useCategories } from '@/hooks/categories';
@@ -69,7 +69,6 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
   });
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({});
   const titleInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
 
   const { data: users = [], isLoading: isUsersLoading } = useUsers();
   const { data: categories = [] } = useCategories();
@@ -135,16 +134,20 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
       mutate((key) => typeof key === 'string' && key.includes('budget/usage'), undefined);
       mutate((key) => typeof key === 'string' && key.includes('budget/weekly-usage'), undefined);
       mutate('budget/pending/');
-      toast({
+      toastManager.add({
+        id: 'budget-update',
         title: 'Successfully updated!',
+        description: 'Your budget has been updated successfully.',
+        type: 'success',
       });
       setOpen(false);
     } catch (error) {
       const message = extractErrorMessage(error);
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'budget-update-error',
         title: 'Cannot be updated',
         description: message,
+        type: 'error',
       });
     }
   };

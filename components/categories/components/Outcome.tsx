@@ -13,7 +13,7 @@ import * as Acd from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import * as Ppv from '@/components/ui/popover';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 // Hooks
 import { useUpdateCategory } from '@/hooks/categories';
 // Utils
@@ -43,7 +43,6 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
   const [isOpenTransactionsForm, setIsOpenTransactionsForm] = React.useState<boolean>(false);
   const [selectedEmoji, setSelectedEmoji] = React.useState<string | null>(null);
 
-  const { toast } = useToast();
   const { mutate } = useSWRConfig();
   const { trigger: updateCategory, isMutating: isUpdating } = useUpdateCategory(uuid);
 
@@ -74,10 +73,11 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
         setErrors(err);
       }
 
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'category-update-validation-error',
         title: 'Please, check your input',
         description: errors.toString(),
+        type: 'error',
       });
     }
 
@@ -91,15 +91,18 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
         icon: selectedEmoji,
       });
       mutate('categories/');
-      toast({
+      toastManager.add({
+        id: 'category-update',
         title: 'Category updated',
+        type: 'success',
       });
     } catch (error) {
       const message = extractErrorMessage(error);
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'category-update-error',
         title: 'Something went wrong',
         description: message,
+        type: 'error',
       });
     }
   };

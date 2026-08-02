@@ -12,7 +12,7 @@ import { Popover, PopoverClose, PopoverPopup, PopoverTrigger } from '@/component
 import * as Slc from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/components/ui/use-toast';
+import { toastManager } from '@/components/ui/toast';
 import { useCategories, useCreateCategory } from '@/hooks/categories';
 
 import { Category, CategoryType } from '../types';
@@ -58,8 +58,6 @@ const AddForm: React.FC<Types> = ({ parent }) => {
   });
   const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
 
-  const { toast } = useToast();
-
   React.useEffect(() => {
     if (!categories) return;
 
@@ -90,14 +88,17 @@ const AddForm: React.FC<Types> = ({ parent }) => {
         type: payload.type,
         description: payload.description,
       });
-      toast({
+      toastManager.add({
+        id: 'category-create',
         title: 'Saved!',
+        type: 'success',
       });
     } catch {
-      toast({
-        variant: 'destructive',
+      toastManager.add({
+        id: 'category-create-error',
         title: 'Something went wrong',
         description: 'Please, check your fields',
+        type: 'error',
       });
     }
   };
