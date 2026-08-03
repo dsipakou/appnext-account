@@ -11,7 +11,6 @@ import WeekCalendar from '@/components/budget/components/week/WeekCalendar';
 import { AddForm, SavedForLaterForm, TransactionsForm } from '@/components/budget/forms';
 import { CompactWeekItem, PlannedMap, SpentMap } from '@/components/budget/types';
 import { Button } from '@/components/ui/button';
-import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import * as Slc from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';

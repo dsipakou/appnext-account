@@ -5,14 +5,7 @@ import React from 'react';
 import { useStore } from '@/app/store';
 import { ConfirmDeleteForm, EditForm } from '@/components/budget/forms';
 import { MonthBudgetItem } from '@/components/budget/types';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import * as Mnu from '@/components/ui/menu';
 import * as Prg from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { formatMoney } from '@/utils/numberUtils';
@@ -58,25 +51,28 @@ const CalendarBudgetItem: React.FC<Types> = ({ item, date, currency, clickShowTr
         <span className={isSameDay(date, new Date()) && 'rounded-full bg-blue-500 px-1 font-bold text-white'}>
           {format(date, 'd')}
         </span>
-        <DropdownMenu>
-          <DropdownMenuTrigger>
+        <Mnu.Menu>
+          <Mnu.MenuTrigger>
             <MoreVertical className="h-4 w-4 rounded-full border bg-white" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleClickTransactions}>Transactions</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => setIsEditDialogOpened(true)}>
-              <Pencil className="mr-4 h-4 w-4" />
-              <span>Edit</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setIsConfirmDeleteDialogOpened(true)}>
-              <Trash2 className="mr-4 h-4 w-4" />
-              <span>Delete</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          </Mnu.MenuTrigger>
+          <Mnu.MenuPopup>
+            <Mnu.MenuGroup>
+              <Mnu.MenuGroupLabel>Transactions</Mnu.MenuGroupLabel>
+              <Mnu.MenuItem onClick={handleClickTransactions}>List</Mnu.MenuItem>
+            </Mnu.MenuGroup>
+            <Mnu.MenuGroup>
+              <Mnu.MenuGroupLabel>Actions</Mnu.MenuGroupLabel>
+              <Mnu.MenuItem onClick={() => setIsEditDialogOpened(true)}>
+                <Pencil className="mr-4 h-4 w-4" />
+                <span>Edit</span>
+              </Mnu.MenuItem>
+              <Mnu.MenuItem onClick={() => setIsConfirmDeleteDialogOpened(true)}>
+                <Trash2 className="mr-4 h-4 w-4" />
+                <span>Delete</span>
+              </Mnu.MenuItem>
+            </Mnu.MenuGroup>
+          </Mnu.MenuPopup>
+        </Mnu.Menu>
       </div>
       <div className="flex w-full flex-col items-center justify-center">
         <span className="text-xs">
