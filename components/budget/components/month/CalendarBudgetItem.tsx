@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Progress } from '@/components/ui/progress';
+import * as Prg from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { formatMoney } from '@/utils/numberUtils';
 
@@ -83,11 +83,14 @@ const CalendarBudgetItem: React.FC<Types> = ({ item, date, currency, clickShowTr
           {formatMoney(spent)} {currencySign}
         </span>
         <div className="relative w-full">
-          <Progress
-            className={`h-5 rounded-sm ${percentage > 100 ? 'bg-red-200' : 'bg-gray-200'}`}
-            indicatorclassname={`${percentage > 100 ? 'bg-red-500' : 'bg-green-500'}`}
+          <Prg.Progress
+            className={cn('h-5 rounded-sm', percentage > 100 && 'bg-red-200', percentage <= 100 && 'bg-gray-200')}
             value={percentage > 100 ? percentage % 100 : percentage}
-          />
+          >
+            <Prg.ProgressIndicator
+              className={cn('rounded-sm', percentage > 100 && 'bg-red-500', percentage <= 100 && 'bg-green-500')}
+            />
+          </Prg.Progress>
           <div className="absolute top-0 h-full w-full">
             <span className="flex h-full items-center justify-center text-xs font-semibold text-white">
               {planned === 0 ? 'Not planned' : percentage}

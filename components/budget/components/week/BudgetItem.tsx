@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Draggable } from '@/components/ui/dnd';
-import { Progress } from '@/components/ui/progress';
+import * as Prg from '@/components/ui/progress';
 import { toastManager } from '@/components/ui/toast';
 import { useEditBudget } from '@/hooks/budget';
 import { UserResponse, useUsers } from '@/hooks/users';
@@ -79,7 +79,7 @@ const BudgetItem: React.FC<Types> = ({
   };
 
   return (
-    <div className="relative flex h-[80px] w-full">
+    <div className="relative flex h-20 w-full">
       <Draggable
         id={budget.uuid}
         isLoading={isDragLoading}
@@ -190,11 +190,11 @@ const BudgetItem: React.FC<Types> = ({
         <div className="flex items-center justify-center">
           {budget.planned !== 0 ? (
             <>
-              <Progress
-                className={cn('h-1.5 bg-gray-200', percentage > 100 && 'bg-red-200')}
-                indicatorclassname={cn('bg-green-500', percentage > 100 && 'bg-red-500')}
-                value={percentage > 100 ? percentage % 100 : percentage}
-              />
+              <Prg.Progress className="w-full" value={percentage > 100 ? percentage % 100 : percentage}>
+                <Prg.ProgressTrack className={cn('h-1.5 bg-gray-200', percentage > 100 && 'bg-red-200')}>
+                  <Prg.ProgressIndicator className={cn('bg-green-500', percentage > 100 && 'bg-red-500')} />
+                </Prg.ProgressTrack>
+              </Prg.Progress>
               <div className="ml-2 text-xs font-bold">{`${percentage}%`}</div>
             </>
           ) : (

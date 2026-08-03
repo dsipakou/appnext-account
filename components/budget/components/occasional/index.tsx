@@ -6,11 +6,9 @@ import { useStore } from '@/app/store';
 import { BudgetItem } from '@/components/budget/types';
 import { Category } from '@/components/categories/types';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { useOccasionalBudgets } from '@/hooks/budget';
 import { useCategories } from '@/hooks/categories';
-import { cn } from '@/lib/utils';
-import { getFormattedDate, parseDate } from '@/utils/dateUtils';
+import { getFormattedDate } from '@/utils/dateUtils';
 import { formatMoney } from '@/utils/numberUtils';
 
 interface OccasionalBudgetItemProps {

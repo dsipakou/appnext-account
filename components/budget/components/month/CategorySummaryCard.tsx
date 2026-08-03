@@ -3,7 +3,7 @@ import { FC } from 'react';
 
 import { useStore } from '@/app/store';
 import { GroupedByCategoryBudget } from '@/components/budget/types';
-import { Progress } from '@/components/ui/progress';
+import * as Prg from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { formatMoney } from '@/utils/numberUtils';
 
@@ -43,11 +43,12 @@ const CategorySummaryCard: FC<Types> = ({ item }) => {
         </div>
         <div>
           <div className="relative mb-1">
-            <Progress
+            <Prg.Progress
               className={cn('h-10 rounded-lg', percentage > 100 ? 'bg-red-200' : 'bg-gray-300')}
-              indicatorclassname={cn(percentage > 100 ? 'bg-red-500' : 'bg-green-500')}
               value={percentage > 100 ? percentage % 100 : percentage}
-            />
+            >
+              <Prg.ProgressIndicator className={cn('rounded-lg', percentage > 100 ? 'bg-red-500' : 'bg-green-500')} />
+            </Prg.Progress>
             <div className="absolute top-0 h-full w-full">
               <div className="flex h-full items-center justify-center text-xl font-bold text-white">
                 {planned === 0 ? 'Not planned' : `${percentage}%`}

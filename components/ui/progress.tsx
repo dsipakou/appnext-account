@@ -1,27 +1,54 @@
 'use client';
 
-import * as ProgressPrimitive from '@radix-ui/react-progress';
-import * as React from 'react';
+import { Progress as ProgressPrimitive } from '@base-ui/react/progress';
+import type React from 'react';
 
 import { cn } from '@/lib/utils';
 
-const Progress = React.forwardRef<
-  React.ElementRef<typeof ProgressPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> & {
-    indicatorclassname?: string;
-  }
->(({ className, value, indicatorclassname, ...props }, ref) => (
-  <ProgressPrimitive.Root
-    ref={ref}
-    className={cn('relative h-4 w-full overflow-hidden rounded-full bg-secondary', className)}
-    {...props}
-  >
-    <ProgressPrimitive.Indicator
-      className={cn('h-full w-full flex-1 bg-primary transition-all', indicatorclassname)}
-      style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
-    />
-  </ProgressPrimitive.Root>
-));
-Progress.displayName = ProgressPrimitive.Root.displayName;
+export function Progress({ className, children, ...props }: ProgressPrimitive.Root.Props): React.ReactElement {
+  return (
+    <ProgressPrimitive.Root className={cn('flex w-full flex-col gap-2', className)} data-slot="progress" {...props}>
+      {children ? (
+        children
+      ) : (
+        <ProgressTrack>
+          <ProgressIndicator />
+        </ProgressTrack>
+      )}
+    </ProgressPrimitive.Root>
+  );
+}
 
-export { Progress };
+export function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props): React.ReactElement {
+  return (
+    <ProgressPrimitive.Label className={cn('text-sm font-medium', className)} data-slot="progress-label" {...props} />
+  );
+}
+
+export function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props): React.ReactElement {
+  return (
+    <ProgressPrimitive.Track
+      className={cn('block h-1.5 w-full overflow-hidden rounded-full bg-input', className)}
+      data-slot="progress-track"
+      {...props}
+    />
+  );
+}
+
+export function ProgressIndicator({ className, ...props }: ProgressPrimitive.Indicator.Props): React.ReactElement {
+  return (
+    <ProgressPrimitive.Indicator
+      className={cn('bg-primary transition-all duration-500', className)}
+      data-slot="progress-indicator"
+      {...props}
+    />
+  );
+}
+
+export function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props): React.ReactElement {
+  return (
+    <ProgressPrimitive.Value className={cn('text-sm tabular-nums', className)} data-slot="progress-value" {...props} />
+  );
+}
+
+export { ProgressPrimitive };

@@ -10,7 +10,7 @@ import { AccountResponse } from '@/components/accounts/types';
 import { AccountUsage } from '@/components/transactions/types';
 // UI
 import * as Card from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import * as Prg from '@/components/ui/progress';
 // Types
 import { User } from '@/components/users/types';
 import { useAccountUsage } from '@/hooks/transactions';
@@ -32,7 +32,9 @@ const IncomeDisplay: React.FC<{ income: number; currencySign: string; incomePerc
         {income.toFixed(2)} {currencySign}
       </span>
     </div>
-    <Progress value={incomePercentage} className="h-2 w-full bg-gray-200" indicatorclassname="bg-green-600" />
+    <Prg.Progress value={incomePercentage} className="h-2 w-full bg-gray-200">
+      <Prg.ProgressIndicator className="bg-green-600" />
+    </Prg.Progress>
   </>
 );
 
@@ -49,11 +51,9 @@ const ExpensesDisplay: React.FC<{
         {expenses.toFixed(2)} {currencySign}
       </span>
     </div>
-    <Progress
-      value={expensesPercentage}
-      className="h-2 w-full bg-gray-200"
-      indicatorclassname={hasIncome ? 'bg-red-600' : 'bg-gray-600'}
-    />
+    <Prg.Progress value={expensesPercentage} className="h-2 w-full bg-gray-200">
+      <Prg.ProgressIndicator className={hasIncome ? 'bg-red-600' : 'bg-gray-600'} />
+    </Prg.Progress>
   </>
 );
 

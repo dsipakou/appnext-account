@@ -7,7 +7,7 @@ import { useStore } from '@/app/store';
 import { MonthBudgetItem, MonthGroupedBudgetItem } from '@/components/budget/types';
 import { Category } from '@/components/categories/types';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import * as Prg from '@/components/ui/progress';
 import * as Tlt from '@/components/ui/tooltip';
 import { useCategories } from '@/hooks/categories';
 import { cn } from '@/lib/utils';
@@ -40,7 +40,7 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
 
   const getRepeatDay = (item: MonthBudgetItem) => {
     if (item.recurrent === 'monthly') {
-      return `Montly on day ${format(parseDate(item.budgetDate), 'dd')}`;
+      return `Monthly on day ${format(parseDate(item.budgetDate), 'dd')}`;
     } else if (item.recurrent === 'weekly') {
       return `Weekly on ${format(parseDate(item.budgetDate), 'EEEE')}`;
     }
@@ -52,11 +52,12 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
   const regularProgress = () => {
     return (
       <>
-        <Progress
-          className={cn('h-8 rounded-sm', percentage > 100 ? 'bg-red-200' : 'bg-gray-300')}
-          indicatorclassname={cn(percentage > 100 ? 'bg-red-500' : 'bg-blue-500')}
+        <Prg.Progress
+          className={cn('h-8 rounded-lg', percentage > 100 ? 'bg-red-200' : 'bg-gray-300')}
           value={percentage > 100 ? percentage % 100 : percentage}
-        />
+        >
+          <Prg.ProgressIndicator className={cn('rounded-lg', percentage > 100 ? 'bg-red-500' : 'bg-blue-500')} />
+        </Prg.Progress>
         <div className="absolute top-0 h-full w-full">
           <span className="flex h-full items-center justify-center text-lg font-semibold text-white">
             <div className="flex items-center gap-2">{planned === 0 ? 'Not planned' : `${percentage}%`}</div>
