@@ -5,7 +5,7 @@ import { RecurrentTypes } from '@/components/budget/types';
 import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import * as Rdg from '@/components/ui/radio-group';
 import { Spinner } from '@/components/ui/spinner';
 import { toastManager } from '@/components/ui/toast';
 import { useDeleteBudget, useStopBudgetSeries } from '@/hooks/budget';
@@ -73,12 +73,12 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, recurrent, bu
             <div className="flex flex-col gap-4">
               <p className="leading-7">This is a {recurrent} recurring budget. How would you like to delete it?</p>
 
-              <RadioGroup
+              <Rdg.RadioGroup
                 value={deletionMode}
                 onValueChange={(value) => setDeletionMode(value as 'instance' | 'series')}
               >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="instance" id="instance" disabled={isLoading} />
+                  <Rdg.Radio value="instance" id="instance" disabled={isLoading} />
                   <Label htmlFor="instance" className="cursor-pointer font-normal">
                     <div className="flex flex-col">
                       <span className="font-semibold">Delete only this instance</span>
@@ -90,7 +90,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, recurrent, bu
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="series" id="series" disabled={isLoading} />
+                  <Rdg.Radio value="series" id="series" disabled={isLoading} />
                   <Label htmlFor="series" className="cursor-pointer font-normal">
                     <div className="flex flex-col">
                       <span className="font-semibold">Stop the series from this date</span>
@@ -100,7 +100,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, recurrent, bu
                     </div>
                   </Label>
                 </div>
-              </RadioGroup>
+              </Rdg.RadioGroup>
             </div>
           ) : (
             <p className="leading-7">You are about to delete a budget</p>
