@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { toastManager } from '@/components/ui/toast';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import * as Tlt from '@/components/ui/tooltip';
 import { useCurrencies, useUpdateCurrency } from '@/hooks/currencies';
 import { extractErrorMessage } from '@/utils/stringUtils';
 
@@ -178,19 +178,19 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                       disabled={isUpdating}
                     />
                     <FieldLabel htmlFor="isDefault">set as default</FieldLabel>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
+                    <Tlt.TooltipProvider>
+                      <Tlt.Tooltip>
+                        <Tlt.TooltipTrigger>
                           <Info className="h-4 w-4 text-black" />
-                        </TooltipTrigger>
-                        <TooltipContent>
+                        </Tlt.TooltipTrigger>
+                        <Tlt.TooltipPopup>
                           <p>
                             Making this currency as default <br />
                             will make current default currency as non-default
                           </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                        </Tlt.TooltipPopup>
+                      </Tlt.Tooltip>
+                    </Tlt.TooltipProvider>
                   </div>
                   <FieldError>{errors.isDefault}</FieldError>
                 </Field>

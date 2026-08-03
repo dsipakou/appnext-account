@@ -162,9 +162,9 @@ export const CategoryItem: React.FC<Props> = ({
                     <Tlt.TooltipTrigger>
                       <ReassignTransactionsForm uuid={category.uuid} />
                     </Tlt.TooltipTrigger>
-                    <Tlt.TooltipContent>
+                    <Tlt.TooltipPopup>
                       Re-assign transactions and budgets from this category to another one
-                    </Tlt.TooltipContent>
+                    </Tlt.TooltipPopup>
                   </Tlt.Tooltip>
                 </Tlt.TooltipProvider>
               </div>

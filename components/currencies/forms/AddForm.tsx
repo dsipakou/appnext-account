@@ -171,15 +171,15 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                     <Field.FieldLabel htmlFor="isDefault">make it default</Field.FieldLabel>
                     <Tlp.TooltipProvider>
                       <Tlp.Tooltip>
-                        <Tlp.TooltipTrigger asChild>
+                        <Tlp.TooltipTrigger>
                           <Info className="h-4 w-4 text-black" />
                         </Tlp.TooltipTrigger>
-                        <Tlp.TooltipContent>
+                        <Tlp.TooltipPopup>
                           <p>
                             Making this currency as default <br />
                             will make current default currency as non-default
                           </p>
-                        </Tlp.TooltipContent>
+                        </Tlp.TooltipPopup>
                       </Tlp.Tooltip>
                     </Tlp.TooltipProvider>
                   </div>

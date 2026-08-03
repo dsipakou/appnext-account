@@ -8,7 +8,7 @@ import { MonthBudgetItem, MonthGroupedBudgetItem } from '@/components/budget/typ
 import { Category } from '@/components/categories/types';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import * as Tlt from '@/components/ui/tooltip';
 import { useCategories } from '@/hooks/categories';
 import { cn } from '@/lib/utils';
 import { getFormattedDate, LONG_YEAR_SHORT_MONTH_FORMAT, parseDate } from '@/utils/dateUtils';
@@ -139,16 +139,16 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
           </div>
           {isCompleted && !item.isAnotherCategory && !item.isAnotherMonth && (
             <>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
+              <Tlt.TooltipProvider>
+                <Tlt.Tooltip>
+                  <Tlt.TooltipTrigger>
                     <BadgeCheck className="h-5 w-5 text-green-600" />
-                  </TooltipTrigger>
-                  <TooltipContent>
+                  </Tlt.TooltipTrigger>
+                  <Tlt.TooltipPopup>
                     <p>Completed</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                  </Tlt.TooltipPopup>
+                </Tlt.Tooltip>
+              </Tlt.TooltipProvider>
             </>
           )}
         </div>

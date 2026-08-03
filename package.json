@@ -32,7 +32,6 @@
     "@radix-ui/react-progress": "^1.1.13",
     "@radix-ui/react-radio-group": "^1.4.4",
     "@radix-ui/react-slot": "^1.0.2",
-    "@radix-ui/react-tooltip": "^1.2.13",
     "@reduxjs/toolkit": "^1.8.6",
     "apexcharts": "^3.36.3",
     "axios": "1.13.6",
