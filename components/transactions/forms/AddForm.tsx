@@ -7,6 +7,7 @@ import { useSWRConfig } from 'swr';
 import { CompactWeekItem } from '@/components/budget/types';
 // UI
 import * as Alr from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
 import { User } from '@/components/users/types';
 // Hooks
@@ -28,14 +29,16 @@ const UnsavedTransactionsAlert: React.FC<{ open: boolean; setOpen: (open: boolea
 }) => {
   return (
     <Alr.AlertDialog open={open} onOpenChange={setOpen}>
-      <Alr.AlertDialogTrigger asChild></Alr.AlertDialogTrigger>
+      <Alr.AlertDialogTrigger />
       <Alr.AlertDialogContent>
         <Alr.AlertDialogHeader>
           <Alr.AlertDialogTitle>You have unsubmitted transactions</Alr.AlertDialogTitle>
           <Alr.AlertDialogDescription>Either remove or submit them</Alr.AlertDialogDescription>
         </Alr.AlertDialogHeader>
         <Alr.AlertDialogFooter>
-          <Alr.AlertDialogAction className="w-20">OK</Alr.AlertDialogAction>
+          <Alr.AlertDialogClose className="w-20" render={<Button variant="ghost" />}>
+            Go back
+          </Alr.AlertDialogClose>
         </Alr.AlertDialogFooter>
       </Alr.AlertDialogContent>
     </Alr.AlertDialog>
