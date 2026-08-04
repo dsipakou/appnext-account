@@ -245,14 +245,20 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                               unmask="typed"
                               value={values.amount}
                               onAccept={(value) => setValues((current) => ({ ...current, amount: Number(value) || 0 }))}
+                              onFocus={(e) =>
+                                requestAnimationFrame(() => {
+                                  e.target.select();
+                                })
+                              }
                               id="amount"
                               disabled={isCreating}
                               scale={2}
-                              thousandsSeparator=","
+                              thousandsSeparator=" "
                               radix="."
                               normalizeZeros
+                              autofix
                               padFractionalZeros={false}
-                              mapToRadix={[',']}
+                              mapToRadix={[',', 'ю', 'б']}
                             />
                           </div>
                           <span className="flex items-center text-sm">{values.currency && getCurrencySign()}</span>
