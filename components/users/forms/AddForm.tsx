@@ -4,7 +4,7 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form } from '@/components/ui/form';
+import { Form, type FormErrors } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { toastManager } from '@/components/ui/toast';
 import { useCreateInvite } from '@/hooks/users';
@@ -18,7 +18,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 const AddForm: React.FC = () => {
   const [values, setValues] = React.useState<FormValues>({ email: '' });
-  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
+  const [errors, setErrors] = React.useState<FormErrors>({});
 
   const { trigger: createInvite, isMutating: isCreating } = useCreateInvite();
 
@@ -62,8 +62,7 @@ const AddForm: React.FC = () => {
     const result = formSchema.safeParse(values);
 
     if (!result.success) {
-      const { fieldErrors } = z.flattenError(result.error);
-      setErrors({ email: fieldErrors.email?.[0] });
+      setErrors(z.flattenError(result.error).fieldErrors);
       return;
     }
 
@@ -80,7 +79,7 @@ const AddForm: React.FC = () => {
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Add user to the workspace</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <Form onSubmit={handleSubmit} className="contents">
+        <Form errors={errors} onSubmit={handleSubmit} className="contents">
           <Dlg.DialogPanel>
             <div className="flex w-full">
               <Field name="email">
@@ -93,7 +92,7 @@ const AddForm: React.FC = () => {
                   value={values.email}
                   onChange={(event) => setValues({ email: event.target.value })}
                 />
-                <FieldError>{errors.email}</FieldError>
+                <FieldError />
               </Field>
             </div>
           </Dlg.DialogPanel>

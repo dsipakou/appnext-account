@@ -10,7 +10,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { MaskedInput } from '@/components/ui/currency-input';
 import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form } from '@/components/ui/form';
+import { Form, type FormErrors } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import * as Slc from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
@@ -67,7 +67,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
     budgetDate: new Date(),
     description: '',
   });
-  const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({});
+  const [errors, setErrors] = useState<FormErrors>({});
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   const { data: users = [], isLoading: isUsersLoading } = useUsers();
@@ -177,19 +177,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
     const result = formSchema.safeParse(values);
 
     if (!result.success) {
-      const { fieldErrors } = z.flattenError(result.error);
-
-      setErrors({
-        title: fieldErrors.title?.[0],
-        amount: fieldErrors.amount?.[0],
-        currency: fieldErrors.currency?.[0],
-        user: fieldErrors.user?.[0],
-        category: fieldErrors.category?.[0],
-        repeatType: fieldErrors.repeatType?.[0],
-        numberOfRepetitions: fieldErrors.numberOfRepetitions?.[0],
-        budgetDate: fieldErrors.budgetDate?.[0],
-        description: fieldErrors.description?.[0],
-      });
+      setErrors(z.flattenError(result.error).fieldErrors);
 
       return;
     }
@@ -204,7 +192,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Edit budget</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <Form onSubmit={handleSubmit} className="contents">
+        <Form errors={errors} onSubmit={handleSubmit} className="contents">
           <Dlg.DialogPanel>
             <div className="grid grid-cols-12 gap-2">
               <div className="col-span-7 flex flex-col gap-2">

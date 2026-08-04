@@ -65,7 +65,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
     description: '',
     transactionDate: new Date(),
   });
-  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
+  const [errors, setErrors] = React.useState<Frm.FormErrors>({});
 
   const { mutate } = useSWRConfig();
   const { data: accounts = [] } = useAccounts();
@@ -140,15 +140,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
     const result = formSchema.safeParse(values);
 
     if (!result.success) {
-      const { fieldErrors } = z.flattenError(result.error);
-      setErrors({
-        account: fieldErrors.account?.[0],
-        amount: fieldErrors.amount?.[0],
-        category: fieldErrors.category?.[0],
-        currency: fieldErrors.currency?.[0],
-        description: fieldErrors.description?.[0],
-        transactionDate: fieldErrors.transactionDate?.[0],
-      });
+      setErrors(z.flattenError(result.error).fieldErrors);
       return;
     }
 
@@ -162,7 +154,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Save your income</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <Frm.Form onSubmit={handleSubmit} className="contents">
+        <Frm.Form errors={errors} onSubmit={handleSubmit} className="contents">
           <Dlg.DialogPanel>
             <div className="flex w-1/2 flex-col gap-3">
               <div className="flex sm:w-full">
@@ -175,7 +167,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                     value={values.amount}
                     onChange={(event) => setValues((current) => ({ ...current, amount: event.target.value }))}
                   />
-                  <Field.FieldError>{errors.amount}</Field.FieldError>
+                  <Field.FieldError />
                 </Field.Field>
               </div>
               <div className="flex w-full">
@@ -201,7 +193,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                       </Slc.SelectGroup>
                     </Slc.SelectPopup>
                   </Slc.Select>
-                  <Field.FieldError>{errors.category}</Field.FieldError>
+                  <Field.FieldError />
                 </Field.Field>
               </div>
               <div>
@@ -227,7 +219,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                       </Slc.SelectGroup>
                     </Slc.SelectPopup>
                   </Slc.Select>
-                  <Field.FieldError>{errors.account}</Field.FieldError>
+                  <Field.FieldError />
                 </Field.Field>
               </div>
               <div className="flex">
@@ -273,7 +265,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                       </Slc.SelectGroup>
                     </Slc.SelectPopup>
                   </Slc.Select>
-                  <Field.FieldError>{errors.currency}</Field.FieldError>
+                  <Field.FieldError />
                 </Field.Field>
               </div>
               <div className="flex w-full">
@@ -285,7 +277,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                     value={values.description}
                     onChange={(event) => setValues((current) => ({ ...current, description: event.target.value }))}
                   />
-                  <Field.FieldError>{errors.description}</Field.FieldError>
+                  <Field.FieldError />
                 </Field.Field>
               </div>
             </div>
@@ -303,7 +295,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                   weekStartsOn={1}
                   initialFocus
                 />
-                <Field.FieldError>{errors.transactionDate}</Field.FieldError>
+                <Field.FieldError />
               </Field.Field>
             </div>
           </Dlg.DialogPanel>

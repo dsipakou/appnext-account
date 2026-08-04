@@ -6,7 +6,7 @@ import * as z from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form } from '@/components/ui/form';
+import { Form, type FormErrors } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
 const formSchema = z.object({
@@ -22,7 +22,7 @@ const Index: React.FC = () => {
     email: '',
     password: '',
   });
-  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
+  const [errors, setErrors] = React.useState<FormErrors>({});
 
   const { status } = useSession();
   const router = useRouter();
@@ -48,11 +48,7 @@ const Index: React.FC = () => {
     const result = formSchema.safeParse(values);
 
     if (!result.success) {
-      const { fieldErrors } = z.flattenError(result.error);
-      setErrors({
-        email: fieldErrors.email?.[0],
-        password: fieldErrors.password?.[0],
-      });
+      setErrors(z.flattenError(result.error).fieldErrors);
       return;
     }
 
@@ -68,7 +64,7 @@ const Index: React.FC = () => {
             <h1 className="text-3xl font-extrabold text-gray-900">Welcome back</h1>
             <p className="text-gray-600">Log in to continue managing your finances and achieving your goals.</p>
           </div>
-          <Form onSubmit={handleSubmit} className="space-y-8">
+          <Form errors={errors} onSubmit={handleSubmit} className="space-y-8">
             <Field name="email">
               <FieldLabel>Email</FieldLabel>
               <Input
@@ -77,7 +73,7 @@ const Index: React.FC = () => {
                 value={values.email}
                 onChange={(event) => setValues((current) => ({ ...current, email: event.target.value }))}
               />
-              <FieldError>{errors.email}</FieldError>
+              <FieldError />
             </Field>
             <Field name="password">
               <FieldLabel>Password</FieldLabel>
@@ -88,7 +84,7 @@ const Index: React.FC = () => {
                 value={values.password}
                 onChange={(event) => setValues((current) => ({ ...current, password: event.target.value }))}
               />
-              <FieldError>{errors.password}</FieldError>
+              <FieldError />
             </Field>
             <p className="mt-2 flex justify-between text-sm">
               <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500">

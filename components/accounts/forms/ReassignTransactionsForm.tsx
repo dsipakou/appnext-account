@@ -6,7 +6,7 @@ import { AccountResponse } from '@/components/accounts/types';
 import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form } from '@/components/ui/form';
+import { Form, type FormErrors } from '@/components/ui/form';
 import * as Slc from '@/components/ui/select';
 import { useAccounts } from '@/hooks/accounts';
 
@@ -23,7 +23,7 @@ interface Types {
 const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
   const [isConfirmTransferOpen, setIsConfirmTransferOpen] = React.useState<boolean>(false);
   const [values, setValues] = React.useState<FormValues>({ account: '' });
-  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
+  const [errors, setErrors] = React.useState<FormErrors>({});
 
   const { data: accounts = [] } = useAccounts();
 
@@ -33,11 +33,7 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
     const result = formSchema.safeParse(values);
 
     if (!result.success) {
-      const { fieldErrors } = z.flattenError(result.error);
-
-      setErrors({
-        account: fieldErrors.account?.[0],
-      });
+      setErrors(z.flattenError(result.error).fieldErrors);
 
       return;
     }
@@ -53,7 +49,7 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Manage account</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <Form className="contents">
+        <Form errors={errors} className="contents">
           <Dlg.DialogPanel>
             <div className="flex flex-col space-y-3">
               <div className="flex w-full">
@@ -82,7 +78,7 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
                       </Slc.SelectGroup>
                     </Slc.SelectPopup>
                   </Slc.Select>
-                  <FieldError>{errors.account}</FieldError>
+                  <FieldError />
                 </Field>
               </div>
             </div>

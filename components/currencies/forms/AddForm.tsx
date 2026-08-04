@@ -47,7 +47,7 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
     isDefault: false,
     comments: '',
   });
-  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
+  const [errors, setErrors] = React.useState<Frm.FormErrors>({});
 
   const { trigger: createCurrency, isMutating: isCreating } = useCreateCurrency();
 
@@ -88,14 +88,7 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
     const result = formSchema.safeParse(values);
 
     if (!result.success) {
-      const { fieldErrors } = z.flattenError(result.error);
-      setErrors({
-        verbalName: fieldErrors.verbalName?.[0],
-        code: fieldErrors.code?.[0],
-        sign: fieldErrors.sign?.[0],
-        isDefault: fieldErrors.isDefault?.[0],
-        comments: fieldErrors.comments?.[0],
-      });
+      setErrors(z.flattenError(result.error).fieldErrors);
       return;
     }
 
@@ -110,7 +103,7 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Add currency</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <Frm.Form onSubmit={handleSubmit} className="contents">
+        <Frm.Form errors={errors} onSubmit={handleSubmit} className="contents">
           <Dlg.DialogPanel>
             <div className="flex w-full">
               <div className="flex w-2/3">
@@ -124,7 +117,7 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                     value={values.verbalName}
                     onChange={(event) => setValues((current) => ({ ...current, verbalName: event.target.value }))}
                   />
-                  <Field.FieldError>{errors.verbalName}</Field.FieldError>
+                  <Field.FieldError />
                 </Field.Field>
               </div>
               <div className="flex w-1/3">
@@ -139,7 +132,7 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                     value={values.sign}
                     onChange={(event) => setValues((current) => ({ ...current, sign: event.target.value }))}
                   />
-                  <Field.FieldError>{errors.sign}</Field.FieldError>
+                  <Field.FieldError />
                 </Field.Field>
               </div>
             </div>
@@ -156,7 +149,7 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                     value={values.code}
                     onChange={(event) => setValues((current) => ({ ...current, code: event.target.value }))}
                   />
-                  <Field.FieldError>{errors.code}</Field.FieldError>
+                  <Field.FieldError />
                 </Field.Field>
               </div>
               <div className="flex w-1/2 pb-2">
@@ -183,7 +176,7 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                       </Tlp.Tooltip>
                     </Tlp.TooltipProvider>
                   </div>
-                  <Field.FieldError>{errors.isDefault}</Field.FieldError>
+                  <Field.FieldError />
                 </Field.Field>
               </div>
             </div>
@@ -196,7 +189,7 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                   value={values.comments ?? ''}
                   onChange={(event) => setValues((current) => ({ ...current, comments: event.target.value }))}
                 />
-                <Field.FieldError>{errors.comments}</Field.FieldError>
+                <Field.FieldError />
               </Field.Field>
             </div>
           </Dlg.DialogPanel>

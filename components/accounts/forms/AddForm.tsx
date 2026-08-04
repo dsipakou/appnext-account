@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 // UI
 import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form } from '@/components/ui/form';
+import { Form, type FormErrors } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import * as Slc from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
@@ -39,7 +39,7 @@ const AddForm: React.FC = () => {
     isMain: false,
     description: '',
   });
-  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
+  const [errors, setErrors] = React.useState<FormErrors>({});
 
   const { data: session } = useSession();
   const authUser = session?.user;
@@ -100,15 +100,7 @@ const AddForm: React.FC = () => {
     const result = formSchema.safeParse(values);
 
     if (!result.success) {
-      const { fieldErrors } = z.flattenError(result.error);
-
-      setErrors({
-        title: fieldErrors.title?.[0],
-        user: fieldErrors.user?.[0],
-        category: fieldErrors.category?.[0],
-        isMain: fieldErrors.isMain?.[0],
-        description: fieldErrors.description?.[0],
-      });
+      setErrors(z.flattenError(result.error).fieldErrors);
 
       return;
     }
@@ -124,7 +116,7 @@ const AddForm: React.FC = () => {
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Add account</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <Form onSubmit={handleSubmit} className="contents">
+        <Form errors={errors} onSubmit={handleSubmit} className="contents">
           <Dlg.DialogPanel>
             <div className="flex w-full">
               <div className="flex w-2/3">

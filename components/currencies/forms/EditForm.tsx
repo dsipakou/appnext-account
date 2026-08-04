@@ -6,7 +6,7 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form } from '@/components/ui/form';
+import { Form, type FormErrors } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
@@ -48,7 +48,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
     isDefault: false,
     comments: '',
   });
-  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
+  const [errors, setErrors] = React.useState<FormErrors>({});
   useEffect(() => {
     if (!currencies.length) return;
 
@@ -100,14 +100,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
     const result = formSchema.safeParse(values);
 
     if (!result.success) {
-      const { fieldErrors } = z.flattenError(result.error);
-      setErrors({
-        verbalName: fieldErrors.verbalName?.[0],
-        code: fieldErrors.code?.[0],
-        sign: fieldErrors.sign?.[0],
-        isDefault: fieldErrors.isDefault?.[0],
-        comments: fieldErrors.comments?.[0],
-      });
+      setErrors(z.flattenError(result.error).fieldErrors);
       return;
     }
 
@@ -121,7 +114,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Update currency details</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <Form onSubmit={handleSubmit} className="contents">
+        <Form errors={errors} onSubmit={handleSubmit} className="contents">
           <Dlg.DialogPanel>
             <div className="flex w-full">
               <div className="flex w-2/3">
@@ -135,7 +128,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                     value={values.verbalName}
                     onChange={(event) => setValues((current) => ({ ...current, verbalName: event.target.value }))}
                   />
-                  <FieldError>{errors.verbalName}</FieldError>
+                  <FieldError />
                 </Field>
               </div>
               <div className="flex w-1/3">
@@ -149,7 +142,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                     value={values.sign}
                     onChange={(event) => setValues((current) => ({ ...current, sign: event.target.value }))}
                   />
-                  <FieldError>{errors.sign}</FieldError>
+                  <FieldError />
                 </Field>
               </div>
             </div>
@@ -165,7 +158,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                     value={values.code}
                     onChange={(event) => setValues((current) => ({ ...current, code: event.target.value }))}
                   />
-                  <FieldError>{errors.code}</FieldError>
+                  <FieldError />
                 </Field>
               </div>
               <div className="flex w-1/2 pb-2">
@@ -192,7 +185,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                       </Tlt.Tooltip>
                     </Tlt.TooltipProvider>
                   </div>
-                  <FieldError>{errors.isDefault}</FieldError>
+                  <FieldError />
                 </Field>
               </div>
             </div>
@@ -205,7 +198,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                   value={values.comments ?? ''}
                   onChange={(event) => setValues((current) => ({ ...current, comments: event.target.value }))}
                 />
-                <FieldError>{errors.comments}</FieldError>
+                <FieldError />
               </Field>
             </div>
           </Dlg.DialogPanel>

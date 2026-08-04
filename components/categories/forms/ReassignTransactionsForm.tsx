@@ -7,7 +7,7 @@ import { Category, CategoryType } from '@/components/categories/types';
 import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form } from '@/components/ui/form';
+import { Form, type FormErrors } from '@/components/ui/form';
 import * as Slc from '@/components/ui/select';
 import { useCategories } from '@/hooks/categories';
 
@@ -24,7 +24,7 @@ interface Types {
 const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
   const [isConfirmTransferOpen, setIsConfirmTransferOpen] = React.useState<boolean>(false);
   const [values, setValues] = React.useState<FormValues>({ category: '' });
-  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
+  const [errors, setErrors] = React.useState<FormErrors>({});
 
   const { data: categories = [] } = useCategories();
 
@@ -40,8 +40,7 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
     const result = formSchema.safeParse(values);
 
     if (!result.success) {
-      const { fieldErrors } = z.flattenError(result.error);
-      setErrors({ category: fieldErrors.category?.[0] });
+      setErrors(z.flattenError(result.error).fieldErrors);
       return;
     }
 
@@ -58,7 +57,7 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Manage category</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <Form className="contents">
+        <Form errors={errors} className="contents">
           <Dlg.DialogPanel>
             <div className="flex w-full">
               <Field name="category">
@@ -86,7 +85,7 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
                     </Slc.SelectGroup>
                   </Slc.SelectPopup>
                 </Slc.Select>
-                <FieldError>{errors.category}</FieldError>
+                <FieldError />
               </Field>
             </div>
           </Dlg.DialogPanel>

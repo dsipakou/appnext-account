@@ -7,7 +7,7 @@ import * as z from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form } from '@/components/ui/form';
+import { Form, type FormErrors } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
 const formSchema = z
@@ -31,7 +31,7 @@ const Index: React.FC = () => {
     password: '',
     repeatPassword: '',
   });
-  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
+  const [errors, setErrors] = React.useState<FormErrors>({});
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -77,12 +77,7 @@ const Index: React.FC = () => {
     const result = formSchema.safeParse(values);
 
     if (!result.success) {
-      const { fieldErrors } = z.flattenError(result.error);
-      setErrors({
-        email: fieldErrors.email?.[0],
-        password: fieldErrors.password?.[0],
-        repeatPassword: fieldErrors.repeatPassword?.[0],
-      });
+      setErrors(z.flattenError(result.error).fieldErrors);
       return;
     }
 
@@ -103,7 +98,7 @@ const Index: React.FC = () => {
         <div className="text-center">
           <span className="mt-6 text-xl font-bold text-gray-900">Create your account</span>
         </div>
-        <Form onSubmit={handleSubmit} className="space-y-6">
+        <Form errors={errors} onSubmit={handleSubmit} className="space-y-6">
           <Field name="email">
             <FieldLabel>Email</FieldLabel>
             <Input
@@ -112,7 +107,7 @@ const Index: React.FC = () => {
               value={values.email}
               onChange={(event) => setValues((current) => ({ ...current, email: event.target.value }))}
             />
-            <FieldError>{errors.email}</FieldError>
+            <FieldError />
           </Field>
           <Field name="password">
             <FieldLabel>Password</FieldLabel>
@@ -134,7 +129,7 @@ const Index: React.FC = () => {
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            <FieldError>{errors.password}</FieldError>
+            <FieldError />
           </Field>
           <Field name="repeatPassword">
             <FieldLabel>Repeat Password</FieldLabel>
@@ -145,7 +140,7 @@ const Index: React.FC = () => {
               value={values.repeatPassword}
               onChange={(event) => setValues((current) => ({ ...current, repeatPassword: event.target.value }))}
             />
-            <FieldError>{errors.repeatPassword}</FieldError>
+            <FieldError />
           </Field>
           <Button className="w-full" type="submit">
             Join now

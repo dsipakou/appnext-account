@@ -62,7 +62,7 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
     description: '',
     transactionDate: new Date(),
   });
-  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
+  const [errors, setErrors] = React.useState<Frm.FormErrors>({});
   const { mutate } = useSWRConfig();
 
   const { data: transaction, isLoading: isTransactionLoading } = useTransaction(uuid);
@@ -145,15 +145,7 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
     const result = formSchema.safeParse(values);
 
     if (!result.success) {
-      const { fieldErrors } = z.flattenError(result.error);
-      setErrors({
-        account: fieldErrors.account?.[0],
-        amount: fieldErrors.amount?.[0],
-        category: fieldErrors.category?.[0],
-        currency: fieldErrors.currency?.[0],
-        description: fieldErrors.description?.[0],
-        transactionDate: fieldErrors.transactionDate?.[0],
-      });
+      setErrors(z.flattenError(result.error).fieldErrors);
       return;
     }
 
@@ -167,7 +159,7 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Update income details</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <Frm.Form onSubmit={handleSubmit} className="space-y-8">
+        <Frm.Form errors={errors} onSubmit={handleSubmit} className="space-y-8">
           <Dlg.DialogPanel>
             <div className="flex w-full">
               <div className="flex sm:w-2/3">
@@ -180,7 +172,7 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                     value={values.amount}
                     onChange={(event) => setValues((current) => ({ ...current, amount: event.target.value }))}
                   />
-                  <Field.FieldError>{errors.amount}</Field.FieldError>
+                  <Field.FieldError />
                 </Field.Field>
               </div>
               <div className="flex sm:w-1/3">
@@ -223,7 +215,7 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                       </Slc.SelectGroup>
                     </Slc.SelectContent>
                   </Slc.Select>
-                  <Field.FieldError>{errors.currency}</Field.FieldError>
+                  <Field.FieldError />
                 </Field.Field>
               </div>
             </div>
@@ -254,7 +246,7 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                       </Slc.SelectGroup>
                     </Slc.SelectPopup>
                   </Slc.Select>
-                  <Field.FieldError>{errors.category}</Field.FieldError>
+                  <Field.FieldError />
                 </Field.Field>
                 <Field.Field name="account">
                   <Field.FieldLabel>Account</Field.FieldLabel>
@@ -278,7 +270,7 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                       </Slc.SelectGroup>
                     </Slc.SelectPopup>
                   </Slc.Select>
-                  <Field.FieldError>{errors.account}</Field.FieldError>
+                  <Field.FieldError />
                 </Field.Field>
               </div>
               <div className="flex w-3/5 justify-end">
@@ -297,7 +289,7 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                     weekStartsOn={1}
                     initialFocus
                   />
-                  <Field.FieldError>{errors.transactionDate}</Field.FieldError>
+                  <Field.FieldError />
                 </Field.Field>
               </div>
             </div>
@@ -310,7 +302,7 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                   value={values.description}
                   onChange={(event) => setValues((current) => ({ ...current, description: event.target.value }))}
                 />
-                <Field.FieldError>{errors.description}</Field.FieldError>
+                <Field.FieldError />
               </Field.Field>
             </div>
           </Dlg.DialogPanel>

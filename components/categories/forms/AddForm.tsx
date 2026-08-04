@@ -6,7 +6,7 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form } from '@/components/ui/form';
+import { Form, type FormErrors } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverClose, PopoverPopup, PopoverTrigger } from '@/components/ui/popover';
 import * as Slc from '@/components/ui/select';
@@ -56,7 +56,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
     parentCategory: undefined,
     description: '',
   });
-  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
+  const [errors, setErrors] = React.useState<FormErrors>({});
 
   React.useEffect(() => {
     if (!categories) return;
@@ -123,14 +123,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
     const result = formSchema.safeParse(values);
 
     if (!result.success) {
-      const { fieldErrors } = z.flattenError(result.error);
-      setErrors({
-        title: fieldErrors.title?.[0],
-        type: fieldErrors.type?.[0],
-        isParent: fieldErrors.isParent?.[0],
-        parentCategory: fieldErrors.parentCategory?.[0],
-        description: fieldErrors.description?.[0],
-      });
+      setErrors(z.flattenError(result.error).fieldErrors);
       return;
     }
 
@@ -145,7 +138,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Add category</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <Form onSubmit={handleSubmit} className="contents">
+        <Form errors={errors} onSubmit={handleSubmit} className="contents">
           <Dlg.DialogPanel>
             <div className="flex items-center gap-4">
               <Popover>
@@ -181,7 +174,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                   value={values.title}
                   onChange={(event) => setValues((current) => ({ ...current, title: event.target.value }))}
                 />
-                <FieldError>{errors.title}</FieldError>
+                <FieldError />
               </Field>
             </div>
             <div>
@@ -208,7 +201,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                     </Slc.SelectGroup>
                   </Slc.SelectContent>
                 </Slc.Select>
-                <FieldError>{errors.type}</FieldError>
+                <FieldError />
               </Field>
             </div>
             <div className="flex">
@@ -224,7 +217,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                       />
                       <FieldLabel htmlFor="isParent">Has parent</FieldLabel>
                     </div>
-                    <FieldError>{errors.isParent}</FieldError>
+                    <FieldError />
                   </Field>
                 </div>
               )}
@@ -254,7 +247,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                         </Slc.SelectGroup>
                       </Slc.SelectContent>
                     </Slc.Select>
-                    <FieldError>{errors.parentCategory}</FieldError>
+                    <FieldError />
                   </Field>
                 </div>
               )}
@@ -268,7 +261,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                   value={values.description ?? ''}
                   onChange={(event) => setValues((current) => ({ ...current, description: event.target.value }))}
                 />
-                <FieldError>{errors.description}</FieldError>
+                <FieldError />
               </Field>
             </div>
           </Dlg.DialogPanel>

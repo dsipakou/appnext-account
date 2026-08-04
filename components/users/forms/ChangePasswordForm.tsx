@@ -37,7 +37,7 @@ const ChangePasswordForm: React.FC = () => {
     newPassword: '',
     confirmPassword: '',
   });
-  const [errors, setErrors] = React.useState<Partial<Record<keyof FormValues, string>>>({});
+  const [errors, setErrors] = React.useState<Form.FormErrors>({});
 
   const { trigger: resetPassword, isMutating: isReseting } = useResetPassword();
 
@@ -74,12 +74,7 @@ const ChangePasswordForm: React.FC = () => {
     const result = formSchema.safeParse(values);
 
     if (!result.success) {
-      const { fieldErrors } = z.flattenError(result.error);
-      setErrors({
-        currentPassword: fieldErrors.currentPassword?.[0],
-        newPassword: fieldErrors.newPassword?.[0],
-        confirmPassword: fieldErrors.confirmPassword?.[0],
-      });
+      setErrors(z.flattenError(result.error).fieldErrors);
       return;
     }
 
@@ -96,7 +91,7 @@ const ChangePasswordForm: React.FC = () => {
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Change your current password</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <Form.Form onSubmit={handleSubmit} className="contents">
+        <Form.Form errors={errors} onSubmit={handleSubmit} className="contents">
           <Dlg.DialogPanel>
             <div className="flex w-full">
               <Field.Field name="currentPassword">
@@ -109,7 +104,7 @@ const ChangePasswordForm: React.FC = () => {
                   value={values.currentPassword}
                   onChange={(event) => setValues((current) => ({ ...current, currentPassword: event.target.value }))}
                 />
-                <Field.FieldError>{errors.currentPassword}</Field.FieldError>
+                <Field.FieldError />
               </Field.Field>
             </div>
             <div className="flex w-full pt-7">
@@ -123,7 +118,7 @@ const ChangePasswordForm: React.FC = () => {
                   value={values.newPassword}
                   onChange={(event) => setValues((current) => ({ ...current, newPassword: event.target.value }))}
                 />
-                <Field.FieldError>{errors.newPassword}</Field.FieldError>
+                <Field.FieldError />
               </Field.Field>
             </div>
             <div className="flex w-full">
@@ -137,7 +132,7 @@ const ChangePasswordForm: React.FC = () => {
                   value={values.confirmPassword}
                   onChange={(event) => setValues((current) => ({ ...current, confirmPassword: event.target.value }))}
                 />
-                <Field.FieldError>{errors.confirmPassword}</Field.FieldError>
+                <Field.FieldError />
               </Field.Field>
             </div>
           </Dlg.DialogPanel>
