@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Currency } from '@/components/currencies/types';
 import CurrencyComponent from '@/components/transactions/forms/components/CurrencyComponentV2';
-import { Input } from '@/components/ui/input';
+import { MaskedInput } from '@/components/ui/currency-input';
 import { cn } from '@/lib/utils';
 
 import { RowData } from '..';
@@ -73,18 +73,27 @@ export const OutcomeCell: React.FC<OutcomeCellProps> = ({
     return (
       <div className="flex gap-2">
         <div className="flex h-8 min-w-0 flex-1 items-center">
-          <Input
-            type="text"
-            placeholder="0.00"
-            step="0.01"
-            min="0"
-            value={value}
-            pattern="[0-9]+([\,][0-9]+)?"
-            onChange={(e) => handleAmountChange(row.id, 'outcome', e.target.value)}
-            onKeyDown={(e) => handleKeyDown(e, row.id)}
-            onClick={(e) => e.currentTarget.select()}
+          <MaskedInput
             className={`${commonInputClass} min-w-0 flex-1 text-right`}
-            ref={row.id === nextId - 1 ? currencyInputRef : null}
+            inputRef={row.id === nextId - 1 ? currencyInputRef : null}
+            mask={Number}
+            unmask="typed"
+            value={value}
+            onFocus={(e) =>
+              requestAnimationFrame(() => {
+                e.target.select();
+              })
+            }
+            id="amount"
+            onAccept={(val) => handleAmountChange(row.id, 'outcome', val)}
+            onKeyDown={(e) => handleKeyDown(e, row.id)}
+            scale={2}
+            thousandsSeparator=" "
+            radix="."
+            normalizeZeros
+            autofix
+            padFractionalZeros={false}
+            mapToRadix={[',', 'ю', 'б', '.']}
             required
           />
           <span className="ml-1 flex-shrink-0">{transactionCurrency?.sign}</span>

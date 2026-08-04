@@ -507,30 +507,10 @@ export const TransactionsTable = ({
     }
   };
 
-  const formatValue = (input: string) => {
-    // Remove any non-digit and non-dot characters
-    let formatted = input.replace(',', '.').replace(/[^\d.]/g, '');
-
-    // Ensure only one dot
-    const parts = formatted.split('.');
-    if (parts.length > 2) {
-      formatted = parts[0] + '.' + parts.slice(1).join('');
-    }
-
-    // Limit to two decimal places
-    const [integerPart, decimalPart] = formatted.split('.');
-    if (decimalPart && decimalPart.length > 2) {
-      formatted = integerPart + '.' + decimalPart.slice(0, 2);
-    }
-
-    return formatted;
-  };
-
   const handleAmountChange = (id: number, field: keyof RowData, value: any) => {
-    const formattedValue = formatValue(value);
     setEditedRows((prev) => ({
       ...prev,
-      [id]: { ...prev[id], [field]: formattedValue },
+      [id]: { ...prev[id], [field]: value },
     }));
     setInvalidFields((prev) => {
       const newInvalidFields = { ...prev };
@@ -673,7 +653,7 @@ export const TransactionsTable = ({
         currencyInputRef.current.focus();
         currencyInputRef.current.select();
       }
-    }, 0);
+    }, 10);
   };
 
   const handleRemoveCompleted = (id: number) => {
