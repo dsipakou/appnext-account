@@ -44,7 +44,7 @@ const AddForm: React.FC = () => {
   const { data: session } = useSession();
   const authUser = session?.user;
 
-  const { data: users } = useUsers();
+  const { data: users = [] } = useUsers();
   const { data: categories = [] } = useCategories();
   const incomeCategories = React.useMemo(
     () => categories.filter((item) => item.type === CategoryType.Income),
