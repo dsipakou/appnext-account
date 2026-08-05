@@ -37,8 +37,8 @@ const MonthCalendar: React.FC<Types> = ({ date: monthDate, setMonthDate }) => {
         <span className="text-lg">&#8592;</span>
       </Button>
       <Popover>
-        <div className="w-70 flex h-12 items-center justify-between rounded-xl border-2 text-left font-normal hover:bg-white">
-          <PopoverTrigger render={<Button variant="empty" className="w-3/4" />}>
+        <div className="not-dark:bg-clip-padding shadow-xs/5 ring-ring/24 not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] has-focus-visible:has-aria-invalid:border-destructive/64 has-focus-visible:has-aria-invalid:ring-destructive/16 has-aria-invalid:border-destructive/36 has-focus-visible:border-ring has-autofill:bg-foreground/4 has-disabled:opacity-64 has-focus-visible:ring-[3px] dark:bg-input/32 dark:has-autofill:bg-foreground/8 dark:has-aria-invalid:ring-destructive/24 dark:not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/6%)] relative inline-flex flex-1 items-center justify-between rounded-lg border border-input bg-background text-base transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] has-[:disabled,:focus-visible,[aria-invalid]]:shadow-none sm:text-sm">
+          <PopoverTrigger render={<Button variant="empty" />}>
             <div className="flex items-center">
               <CalendarDays className="mr-2 h-6 w-6" />
               {monthDate ? format(monthDate, 'MMM, yyyy') : <span>Pick a date</span>}
