@@ -18,7 +18,7 @@ import { User } from '@/components/users/types';
 import { useBudgetMonth, useBudgetWeek } from '@/hooks/budget';
 import { useUsers } from '@/hooks/users';
 import { cn } from '@/lib/utils';
-import { getEndOfMonth, getEndOfWeek, getFormattedDate, getStartOfMonth, getStartOfWeek } from '@/utils/dateUtils';
+import { getEndOfMonth, getEndOfWeek, getStartOfMonth, getStartOfWeek } from '@/utils/dateUtils';
 
 type BudgetType = 'month' | 'week' | 'recurrent';
 
@@ -149,9 +149,8 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           >
             <span
               className={cn(
-                'flex h-full w-full items-center justify-center text-xl',
+                'flex h-full w-full items-center justify-center text-xl text-white',
                 activeType === 'month' && 'rounded-sm bg-white text-blue-500',
-                activeType === 'week' && 'text-white',
               )}
             >
               Monthly
@@ -165,9 +164,8 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           >
             <span
               className={cn(
-                'flex h-full w-full items-center justify-center text-xl',
+                'flex h-full w-full items-center justify-center text-xl text-white',
                 activeType === 'week' && 'rounded-md bg-white text-blue-500',
-                activeType === 'month' && 'text-white',
               )}
             >
               Weekly
