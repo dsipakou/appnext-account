@@ -73,9 +73,9 @@ const ReportOverall: React.FC = () => {
         <Tbl.Table className="min-w-max">
           <Tbl.TableHeader className="sticky top-0 z-10 bg-slate-100">
             <Tbl.TableRow>
-              <Tbl.TableHead className="w-14 bg-slate-100" />
+              <Tbl.TableHead className="w-6 bg-slate-100" />
               {dates.map((month) => (
-                <Tbl.TableHead key={month} className="min-w-32 bg-slate-100 text-center">
+                <Tbl.TableHead key={month} className="w-20 bg-slate-100 text-center">
                   {parseAndFormatDate(month, SHORT_YEAR_MONTH_FORMAT, REPORT_FORMAT)}
                 </Tbl.TableHead>
               ))}
