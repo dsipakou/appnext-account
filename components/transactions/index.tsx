@@ -82,36 +82,32 @@ const Index: React.FC = () => {
     <div className="flex h-full flex-col pt-2">
       <div className="flex w-full flex-shrink-0 items-center justify-between px-6 pb-3">
         <span className="text-xl font-semibold">Transactions</span>
-        <div className="flex rounded-md border bg-blue-500">
+        <div className="flex rounded-md bg-blue-500">
           <Button
-            className="w-[180px] p-1 disabled:opacity-100"
+            className="w-45 p-px disabled:opacity-100"
             disabled={activeType === 'income'}
-            variant="none"
+            variant="empty"
             onClick={() => setActiveType('income')}
           >
             <span
               className={cn(
-                'text-xl',
-                activeType === 'income'
-                  ? 'flex h-full w-full items-center justify-center rounded-md bg-white text-xl text-blue-500'
-                  : 'text-white',
+                'flex h-full w-full items-center justify-center text-xl text-white',
+                activeType === 'income' && 'rounded-sm bg-white text-blue-500',
               )}
             >
               Income
             </span>
           </Button>
           <Button
-            className="w-[180px] p-1 disabled:opacity-100"
+            className="w-45 p-px disabled:opacity-100"
             disabled={activeType === 'outcome'}
-            variant="none"
+            variant="empty"
             onClick={() => setActiveType('outcome')}
           >
             <span
               className={cn(
-                'text-xl',
-                activeType === 'outcome'
-                  ? 'flex h-full w-full items-center justify-center rounded-md bg-white text-xl text-blue-500'
-                  : 'text-white',
+                'flex h-full w-full items-center justify-center text-xl text-white',
+                activeType === 'outcome' && 'rounded-md bg-white text-blue-500',
               )}
             >
               Outcome
