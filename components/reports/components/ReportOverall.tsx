@@ -1,10 +1,10 @@
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { addMonths, endOfMonth, format, startOfMonth, subMonths } from 'date-fns';
+import { addMonths, endOfMonth, startOfMonth, subMonths } from 'date-fns';
 import { useSession } from 'next-auth/react';
 import React from 'react';
 
 import { useStore } from '@/app/store';
 import { TransactionsReportResponse } from '@/components/transactions/types';
+import * as Tbl from '@/components/ui/table';
 import { useTransactionsReport } from '@/hooks/transactions';
 import { getFormattedDate, parseAndFormatDate, REPORT_FORMAT, SHORT_YEAR_MONTH_FORMAT } from '@/utils/dateUtils';
 
@@ -25,37 +25,14 @@ const ReportOverall: React.FC = () => {
 
   const currencySign = useStore((state) => state.currency.sign);
 
-  const columns: GridColDef[] = [
-    {
-      field: 'day',
-      headerName: '',
-      flex: 0.3,
-      renderCell: (params) => <span className="font-semibold">{params.value}</span>,
-    },
-  ];
-
   const dates = [...new Set(reportResponse.map((item: TransactionsReportResponse) => item.month))].sort();
-
-  dates.forEach((date: string, index: number) => {
-    const formatedDate = parseAndFormatDate(date, SHORT_YEAR_MONTH_FORMAT, REPORT_FORMAT);
-    columns.push({
-      field: `month${index + 1}`,
-      headerName: formatedDate,
-      flex: 1,
-      renderCell: (params) => (
-        <span className="text-normal rounded-md border border-slate-200 bg-white px-1">
-          {Number(params.value).toFixed(2)} {currencySign}
-        </span>
-      ),
-    });
-  });
 
   const days: number[] = Array(31)
     .fill(0)
     .map((_, index: number) => index + 1);
   const rows = [];
   days.forEach((day: number, index: number) => {
-    const eachMonthValues = {};
+    const eachMonthValues: Record<string, number> = {};
     dates.forEach((date: string, innerIndex: number) => {
       eachMonthValues[`month${innerIndex + 1}`] =
         reportResponse.find((item: TransactionsReportResponse) => item.month === date && item.day === day)
@@ -74,8 +51,8 @@ const ReportOverall: React.FC = () => {
     if (index === 0) {
       return;
     }
-    const aggRow = { id: row.id, day: row.day };
-    for (let i = 1; i <= 12; i += 1) {
+    const aggRow: Record<string, number> = { id: row.id, day: row.day };
+    for (let i = 1; i <= dates.length; i += 1) {
       aggRow[`month${i}`] = aggregatedRows[index - 1][`month${i}`] + rows[index][`month${i}`];
     }
     aggregatedRows.push(aggRow);
@@ -92,20 +69,36 @@ const ReportOverall: React.FC = () => {
   return (
     <div className="flex flex-col items-center gap-2">
       <RangeSwitcher dateFrom={dateFrom} dateTo={dateTo} clickBack={clickBack} clickForward={clickForward} />
-      <div className="flex h-full w-full rounded-md bg-white drop-shadow-sm">
-        <DataGrid
-          columns={columns}
-          rows={aggregatedRows}
-          rowHeight={30}
-          sx={{ height: '80vh' }}
-          getCellClassName={(params) => {
-            const day: number = format(new Date(), 'd');
-            if (params.id === Number(day)) {
-              return 'bg-slate-300 text-slate-800';
-            }
-            return '';
-          }}
-        />
+      <div className="h-[80vh] w-full overflow-auto rounded-md bg-white drop-shadow-sm">
+        <Tbl.Table className="min-w-max">
+          <Tbl.TableHeader className="sticky top-0 z-10 bg-slate-100">
+            <Tbl.TableRow>
+              <Tbl.TableHead className="w-14 bg-slate-100" />
+              {dates.map((month) => (
+                <Tbl.TableHead key={month} className="min-w-32 bg-slate-100 text-center">
+                  {parseAndFormatDate(month, SHORT_YEAR_MONTH_FORMAT, REPORT_FORMAT)}
+                </Tbl.TableHead>
+              ))}
+            </Tbl.TableRow>
+          </Tbl.TableHeader>
+          <Tbl.TableBody>
+            {aggregatedRows.map((row) => (
+              <Tbl.TableRow
+                key={row.id}
+                className={row.id === new Date().getDate() ? 'bg-slate-300 text-slate-800' : undefined}
+              >
+                <Tbl.TableCell className="font-semibold">{row.day}</Tbl.TableCell>
+                {dates.map((month, index) => (
+                  <Tbl.TableCell key={month} className="text-center">
+                    <span className="text-normal rounded-md border border-slate-200 bg-white px-1">
+                      {row[`month${index + 1}`].toFixed(2)} {currencySign}
+                    </span>
+                  </Tbl.TableCell>
+                ))}
+              </Tbl.TableRow>
+            ))}
+          </Tbl.TableBody>
+        </Tbl.Table>
       </div>
     </div>
   );
