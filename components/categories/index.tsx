@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '@/lib/utils';
 
 import Toolbar from '@/components/common/layout/Toolbar';
 import { Button } from '@/components/ui/button';
@@ -29,25 +30,31 @@ const Index = () => {
   return (
     <>
       <Toolbar title={'Categories'}>
-        <div className="flex rounded-md border bg-blue-500">
+        <div className="flex rounded-md bg-blue-500">
           <Button
-            className="w-45 p-1 disabled:opacity-100"
+            className="w-45 p-px disabled:opacity-100"
             disabled={activeType === 'outcome'}
             onClick={() => setActiveType('outcome')}
           >
             <span
-              className={`text-xl ${activeType === 'outcome' ? 'flex h-full w-full items-center justify-center rounded-md bg-white text-xl text-blue-500' : 'text-white'}`}
+              className={cn(
+                'flex h-full w-full items-center justify-center text-xl text-white',
+                activeType === 'outcome' && 'rounded-md bg-white text-blue-500',
+              )}
             >
               Outcome
             </span>
           </Button>
           <Button
-            className="w-45 p-1 disabled:opacity-100"
+            className="w-45 p-px disabled:opacity-100"
             disabled={activeType === 'income'}
             onClick={() => setActiveType('income')}
           >
             <span
-              className={`text-xl ${activeType === 'income' ? 'flex h-full w-full items-center justify-center rounded-md bg-white text-xl text-blue-500' : 'text-white'}`}
+              className={cn(
+                'flex h-full w-full items-center justify-center text-xl text-white',
+                activeType === 'income' && 'rounded-md bg-white text-blue-500',
+              )}
             >
               Income
             </span>
