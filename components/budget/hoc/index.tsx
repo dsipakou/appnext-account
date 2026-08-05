@@ -17,6 +17,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { User } from '@/components/users/types';
 import { useBudgetMonth, useBudgetWeek } from '@/hooks/budget';
 import { useUsers } from '@/hooks/users';
+import { cn } from '@/lib/utils';
 import { getEndOfMonth, getEndOfWeek, getFormattedDate, getStartOfMonth, getStartOfWeek } from '@/utils/dateUtils';
 
 type BudgetType = 'month' | 'week' | 'recurrent';
@@ -139,27 +140,35 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const toolbar = (
       <div className="flex h-20 items-center justify-between py-3">
         <span className="text-xl font-bold">Budget</span>
-        <div className="flex rounded-md border bg-blue-500">
+        <div className="flex rounded-md bg-blue-500">
           <Button
-            className="w-[180px] p-1 disabled:opacity-100"
+            className="w-45 p-px disabled:opacity-100"
             disabled={activeType === 'month'}
-            variant="none"
+            variant="empty"
             onClick={() => handleTypeButtonClick('month')}
           >
             <span
-              className={`text-xl ${activeType === 'month' ? 'flex h-full w-full items-center justify-center rounded-md bg-white text-xl text-blue-500' : 'text-white'}`}
+              className={cn(
+                'flex h-full w-full items-center justify-center text-xl',
+                activeType === 'month' && 'rounded-sm bg-white text-blue-500',
+                activeType === 'week' && 'text-white',
+              )}
             >
               Monthly
             </span>
           </Button>
           <Button
-            className="w-[180px] p-1 disabled:opacity-100"
+            className="w-45 p-px disabled:opacity-100"
             disabled={activeType === 'week'}
-            variant="none"
+            variant="empty"
             onClick={() => handleTypeButtonClick('week')}
           >
             <span
-              className={`text-xl ${activeType === 'week' ? 'flex h-full w-full items-center justify-center rounded-md bg-white text-xl text-blue-500' : 'text-white'}`}
+              className={cn(
+                'flex h-full w-full items-center justify-center text-xl',
+                activeType === 'week' && 'rounded-md bg-white text-blue-500',
+                activeType === 'month' && 'text-white',
+              )}
             >
               Weekly
             </span>
