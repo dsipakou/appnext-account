@@ -111,7 +111,7 @@ const Index: React.FC = () => {
         </div>
       </div>
       {activeType === 'outcome' ? (
-        <div className="grid min-h-0 flex-1 grid-cols-7 gap-2 px-6">
+        <div className="grid h-full min-h-0 flex-1 grid-cols-7 gap-2 px-6">
           <div className="col-span-5 flex min-h-0 flex-col rounded-md bg-white">
             {isTransactionsLoading ? (
               <div className="flex h-full items-center justify-center">
