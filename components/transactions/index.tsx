@@ -5,8 +5,7 @@ import { useSession } from 'next-auth/react';
 import * as React from 'react';
 
 import EDailyChart from '@/components/transactions/components/EDailyChart';
-import { AddForm, AddIncomeForm, ConfirmDeleteForm, EditForm, ExportForm } from '@/components/transactions/forms';
-import { TransactionResponse } from '@/components/transactions/types';
+import { AddForm, AddIncomeForm, ExportForm } from '@/components/transactions/forms';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
@@ -22,22 +21,22 @@ import LastAdded from './forms/LastAdded';
 export type TransactionType = 'outcome' | 'income';
 
 const Index: React.FC = () => {
-  const {
-    data: { user },
-  } = useSession();
+  const { data: session } = useSession();
+  const user = session?.user;
+  if (!user) {
+    return;
+  }
+
   const [transactionDate, setTransactionDate] = React.useState<Date>(new Date());
   const [incomeYear, setIncomeYear] = React.useState<number>(new Date().getFullYear());
   const [isOpenTransactionsDialog, setIsOpenTransactionsDialog] = React.useState<boolean>(false);
   const [isOpenAddIncomeTransactions, setIsOpenAddIncomeTransactions] = React.useState<boolean>(false);
-  const [isOpenEditTransactions, setIsOpenEditTransactions] = React.useState<boolean>(false);
-  const [isOpenDeleteTransactions, setIsOpenDeleteTransactions] = React.useState<boolean>(false);
-  const [activeTransactionUuid, setActiveTransactionUuid] = React.useState<string>('');
   const [activeType, setActiveType] = React.useState<TransactionType>('outcome');
 
   const {
     data: transactions = [],
     isLoading: isTransactionsLoading,
-    url: transactionsUrl,
+    url: transactionsUrl = '',
   } = useTransactions({
     sorting: 'added',
     limit: 500,
@@ -48,7 +47,7 @@ const Index: React.FC = () => {
   const {
     data: incomeTransactions = [],
     isLoading: isIncomeTransactionsLoading,
-    url: incomeTransactionsUrl,
+    url: incomeTransactionsUrl = '',
   } = useTransactions({
     sorting: 'added',
     limit: 100,
@@ -57,30 +56,14 @@ const Index: React.FC = () => {
     dateTo: getFormattedDate(new Date(incomeYear, 11, 31)),
   });
 
-  const overallSum = transactions?.reduce((acc: number, item: TransactionResponse) => {
-    return acc + item.spentInCurrencies[user.currency] || 0;
-  }, 0);
-
   const handleCloseModal = (): void => {
     setIsOpenTransactionsDialog(false);
-    setIsOpenDeleteTransactions(false);
-    setIsOpenEditTransactions(false);
     setIsOpenAddIncomeTransactions(false);
-  };
-
-  const handleDeleteClick = (uuid: string): void => {
-    setActiveTransactionUuid(uuid);
-    setIsOpenDeleteTransactions(true);
-  };
-
-  const handleEditClick = (uuid: string): void => {
-    setActiveTransactionUuid(uuid);
-    setIsOpenEditTransactions(true);
   };
 
   return (
     <div className="flex h-full flex-col pt-2">
-      <div className="flex w-full flex-shrink-0 items-center justify-between px-6 pb-3">
+      <div className="flex w-full shrink-0 items-center justify-between px-6 pb-3">
         <span className="text-xl font-semibold">Transactions</span>
         <div className="flex rounded-md bg-blue-500">
           <Button
@@ -129,7 +112,7 @@ const Index: React.FC = () => {
       </div>
       {activeType === 'outcome' ? (
         <div className="grid min-h-0 flex-1 grid-cols-7 gap-2 px-6">
-          <div className="col-span-5 flex min-h-0 flex-col bg-white">
+          <div className="col-span-5 flex min-h-0 flex-col rounded-md bg-white">
             {isTransactionsLoading ? (
               <div className="flex h-full items-center justify-center">
                 <div className="text-center">
@@ -156,7 +139,7 @@ const Index: React.FC = () => {
             )}
           </div>
           <div className="col-span-2 flex flex-col gap-2 overflow-y-auto">
-            <div className="flex flex-col items-center justify-center rounded-md border bg-white p-3">
+            <div className="flex flex-1 flex-col items-center justify-center rounded-md bg-white p-3">
               <span className="mt-2 text-xl font-semibold">Transaction day</span>
               <Calendar
                 mode="single"
@@ -165,7 +148,7 @@ const Index: React.FC = () => {
                 weekStartsOn={1}
               />
             </div>
-            <div className="flex flex-col flex-nowrap items-center justify-center rounded-md bg-white p-3">
+            <div className="flex flex-1 flex-col flex-nowrap items-center justify-center rounded-md bg-white p-3">
               <span className="my-2 text-xl font-semibold">Day summary</span>
               <div className="flex w-full">
                 <EDailyChart transactions={transactions} />
@@ -186,20 +169,6 @@ const Index: React.FC = () => {
       )}
       <AddForm open={isOpenTransactionsDialog} onOpenChange={setIsOpenTransactionsDialog} url={transactionsUrl} />
       <AddIncomeForm open={isOpenAddIncomeTransactions} url={incomeTransactionsUrl} handleClose={handleCloseModal} />
-      {isOpenEditTransactions && (
-        <EditForm
-          uuid={activeTransactionUuid}
-          open={isOpenEditTransactions}
-          url={transactionsUrl}
-          handleClose={handleCloseModal}
-        />
-      )}
-      <ConfirmDeleteForm
-        uuid={activeTransactionUuid}
-        open={isOpenDeleteTransactions}
-        url={transactionsUrl}
-        handleClose={handleCloseModal}
-      />
     </div>
   );
 };

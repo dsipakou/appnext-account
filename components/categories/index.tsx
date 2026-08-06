@@ -1,9 +1,9 @@
 import React from 'react';
-import { cn } from '@/lib/utils';
 
 import Toolbar from '@/components/common/layout/Toolbar';
 import { Button } from '@/components/ui/button';
 import { useCategories } from '@/hooks/categories';
+import { cn } from '@/lib/utils';
 
 import Income from './components/Income';
 import Outcome from './components/Outcome';
