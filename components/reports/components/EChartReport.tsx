@@ -1,4 +1,4 @@
-import { addMonths, endOfMonth, getDate, startOfMonth, subMonths } from 'date-fns';
+import { endOfMonth, getDate, startOfMonth, subMonths } from 'date-fns';
 import ReactECharts from 'echarts-for-react';
 import { useSession } from 'next-auth/react';
 import React from 'react';
@@ -10,7 +10,7 @@ import { useTransactionsMonthlyReport } from '@/hooks/transactions';
 import { getFormattedDate } from '@/utils/dateUtils';
 
 import { ChartCategory, ChartData } from '../types';
-import RangeSwitcher from './RangeSwitcher';
+import MonthRangeCalendar from './MonthRangeCalendar';
 
 interface GroupByCategory {
   [key: string]: number[];
@@ -345,12 +345,7 @@ const EChartReport: React.FC = () => {
   return (
     <div className="relative flex h-full flex-col gap-2">
       <div className="flex flex-row justify-center">
-        <RangeSwitcher
-          dateFrom={dateFrom}
-          dateTo={dateTo}
-          clickBack={() => setDate(subMonths(date, 1))}
-          clickForward={() => setDate(addMonths(date, 1))}
-        />
+        <MonthRangeCalendar date={date} setMonthDate={setDate} />
       </div>
       <div className="flex justify-start">
         <div className="m-3 flex items-center gap-2">

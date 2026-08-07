@@ -14,7 +14,7 @@ const Index: React.FC = () => {
   return (
     <div className="flex h-full flex-col">
       <Toolbar title={'Reports'}>
-        <ReportTypeSwitcher activePage={reportType} changeReportType={setReportType} />
+        <ReportTypeSwitcher wip={false} activePage={reportType} changeReportType={setReportType} />
       </Toolbar>
       {reportType === ReportPages.Overall && <ReportOverall />}
       {reportType === ReportPages.Chart && <EChartReport />}

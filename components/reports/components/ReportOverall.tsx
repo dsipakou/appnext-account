@@ -8,7 +8,7 @@ import * as Tbl from '@/components/ui/table';
 import { useTransactionsReport } from '@/hooks/transactions';
 import { getFormattedDate, parseAndFormatDate, REPORT_FORMAT, SHORT_YEAR_MONTH_FORMAT } from '@/utils/dateUtils';
 
-import RangeSwitcher from './RangeSwitcher';
+import MonthRangeCalendar from './MonthRangeCalendar';
 
 const ReportOverall: React.FC = () => {
   const [date, setDate] = React.useState<Date>(new Date());
@@ -68,8 +68,10 @@ const ReportOverall: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <RangeSwitcher dateFrom={dateFrom} dateTo={dateTo} clickBack={clickBack} clickForward={clickForward} />
-      <div className="h-[80vh] w-full overflow-auto rounded-md bg-white drop-shadow-sm">
+      <div className="">
+        <MonthRangeCalendar date={date} setMonthDate={setDate} />
+      </div>
+      <div className="h-full w-full overflow-auto rounded-md bg-white drop-shadow-sm">
         <Tbl.Table className="min-w-max">
           <Tbl.TableHeader className="sticky top-0 z-10 bg-slate-100">
             <Tbl.TableRow>
