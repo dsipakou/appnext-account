@@ -99,7 +99,7 @@ const Index: React.FC = () => {
               <div key={item.uuid} className="my-1 flex w-full items-center justify-between gap-4 bg-slate-100 p-4">
                 <div className="flex items-center gap-4">
                   <span className="text-lg font-semibold">{item.username}</span>
-                  <span className="italic text-sky-500">{item.role}</span>
+                  <span className="text-sky-500 italic">{item.role}</span>
                 </div>
                 {isYou(item) ? (
                   <span className="text-md">(this is you)</span>

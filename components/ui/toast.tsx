@@ -60,7 +60,7 @@ function Toasts({
     <Toast.Portal data-slot="toast-portal" {...portalProps}>
       <Toast.Viewport
         className={cn(
-          'z-60 max-w-90 fixed mx-auto flex w-[calc(100%-var(--toast-inset)*2)] [--toast-inset:--spacing(4)] sm:[--toast-inset:--spacing(8)]',
+          'fixed z-60 mx-auto flex w-[calc(100%-var(--toast-inset)*2)] max-w-90 [--toast-inset:--spacing(4)] sm:[--toast-inset:--spacing(8)]',
           // Vertical positioning
           'data-[position*=top]:top-(--toast-inset)',
           'data-[position*=bottom]:bottom-(--toast-inset)',
@@ -80,13 +80,13 @@ function Toasts({
             <Toast.Root
               key={toast.id}
               className={cn(
-                'h-(--toast-calc-height) not-dark:bg-clip-padding shadow-lg/5 data-expanded:bg-popover dark:data-expanded:bg-popover absolute z-[calc(9999-var(--toast-index))] w-full select-none rounded-lg border bg-[color-mix(in_srgb,var(--popover),var(--color-black)_calc(1%*max(0,var(--toast-index,0))))] text-popover-foreground [transition:transform_.5s_cubic-bezier(.22,1,.36,1),opacity_.5s,height_.15s,background-color_.5s] before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] dark:bg-[color-mix(in_srgb,var(--popover),var(--color-black)_calc(6%*max(0,var(--toast-index,0))))] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]',
+                'data-expanded:bg-popover dark:data-expanded:bg-popover text-popover-foreground absolute z-[calc(9999-var(--toast-index))] h-(--toast-calc-height) w-full rounded-lg border bg-[color-mix(in_srgb,var(--popover),var(--color-black)_calc(1%*max(0,var(--toast-index,0))))] shadow-lg/5 select-none [transition:transform_.5s_cubic-bezier(.22,1,.36,1),opacity_.5s,height_.15s,background-color_.5s] not-dark:bg-clip-padding before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] dark:bg-[color-mix(in_srgb,var(--popover),var(--color-black)_calc(6%*max(0,var(--toast-index,0))))] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]',
                 // Base positioning using data-position
-                'data-[position*=right]:left-auto data-[position*=right]:right-0',
-                'data-[position*=left]:left-0 data-[position*=left]:right-auto',
-                'data-[position*=center]:left-0 data-[position*=center]:right-0',
-                'data-[position*=top]:bottom-auto data-[position*=top]:top-0 data-[position*=top]:origin-[50%_calc(50%-50%*min(var(--toast-index,0),1))]',
-                'data-[position*=bottom]:bottom-0 data-[position*=bottom]:top-auto data-[position*=bottom]:origin-[50%_calc(50%+50%*min(var(--toast-index,0),1))]',
+                'data-[position*=right]:right-0 data-[position*=right]:left-auto',
+                'data-[position*=left]:right-auto data-[position*=left]:left-0',
+                'data-[position*=center]:right-0 data-[position*=center]:left-0',
+                'data-[position*=top]:top-0 data-[position*=top]:bottom-auto data-[position*=top]:origin-[50%_calc(50%-50%*min(var(--toast-index,0),1))]',
+                'data-[position*=bottom]:top-auto data-[position*=bottom]:bottom-0 data-[position*=bottom]:origin-[50%_calc(50%+50%*min(var(--toast-index,0),1))]',
                 // Gap fill for hover
                 'after:absolute after:left-0 after:h-[calc(var(--toast-gap)+1px)] after:w-full',
                 'data-[position*=top]:after:top-full',
@@ -127,14 +127,14 @@ function Toasts({
               swipeDirection={swipeDirection}
               toast={toast}
             >
-              <Toast.Content className="duration-250 data-behind:not-data-expanded:pointer-events-none data-behind:opacity-0 data-expanded:opacity-100 pointer-events-auto flex items-center justify-between gap-1.5 overflow-hidden px-3.5 py-3 text-sm transition-opacity">
+              <Toast.Content className="pointer-events-auto flex items-center justify-between gap-1.5 overflow-hidden px-3.5 py-3 text-sm transition-opacity duration-250 data-behind:opacity-0 data-behind:not-data-expanded:pointer-events-none data-expanded:opacity-100">
                 <div className="flex gap-2">
                   {Icon && (
                     <div
-                      className="[&>svg]:h-lh [&>svg]:w-4 [&_svg]:pointer-events-none [&_svg]:shrink-0"
+                      className="[&_svg]:pointer-events-none [&_svg]:shrink-0 [&>svg]:h-lh [&>svg]:w-4"
                       data-slot="toast-icon"
                     >
-                      <Icon className="in-data-[type=loading]:animate-spin in-data-[type=error]:text-destructive in-data-[type=info]:text-info in-data-[type=success]:text-success in-data-[type=warning]:text-warning in-data-[type=loading]:opacity-80" />
+                      <Icon className="in-data-[type=error]:text-destructive in-data-[type=info]:text-info in-data-[type=success]:text-success in-data-[type=warning]:text-warning in-data-[type=loading]:animate-spin in-data-[type=loading]:opacity-80" />
                     </div>
                   )}
 
@@ -187,10 +187,10 @@ function AnchoredToasts({
             >
               <Toast.Root
                 className={cn(
-                  'not-dark:bg-clip-padding data-ending-style:scale-98 data-starting-style:scale-98 data-ending-style:opacity-0 data-starting-style:opacity-0 relative text-balance border bg-popover text-xs text-popover-foreground transition-[scale,opacity] before:pointer-events-none before:absolute before:inset-0 before:shadow-[0_1px_--theme(--color-black/4%)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]',
+                  'bg-popover text-popover-foreground relative border text-xs text-balance transition-[scale,opacity] not-dark:bg-clip-padding before:pointer-events-none before:absolute before:inset-0 before:shadow-[0_1px_--theme(--color-black/4%)] data-ending-style:scale-98 data-ending-style:opacity-0 data-starting-style:scale-98 data-starting-style:opacity-0 dark:before:shadow-[0_-1px_--theme(--color-white/6%)]',
                   tooltipStyle
-                    ? 'shadow-md/5 rounded-md before:rounded-[calc(var(--radius-md)-1px)]'
-                    : 'shadow-lg/5 rounded-lg before:rounded-[calc(var(--radius-lg)-1px)]',
+                    ? 'rounded-md shadow-md/5 before:rounded-[calc(var(--radius-md)-1px)]'
+                    : 'rounded-lg shadow-lg/5 before:rounded-[calc(var(--radius-lg)-1px)]',
                   upsertReplayClassName(toast),
                 )}
                 {...toastData?.rootProps}
@@ -206,10 +206,10 @@ function AnchoredToasts({
                     <div className="flex gap-2">
                       {Icon && (
                         <div
-                          className="[&>svg]:h-lh [&>svg]:w-4 [&_svg]:pointer-events-none [&_svg]:shrink-0"
+                          className="[&_svg]:pointer-events-none [&_svg]:shrink-0 [&>svg]:h-lh [&>svg]:w-4"
                           data-slot="toast-icon"
                         >
-                          <Icon className="in-data-[type=loading]:animate-spin in-data-[type=error]:text-destructive in-data-[type=info]:text-info in-data-[type=success]:text-success in-data-[type=warning]:text-warning in-data-[type=loading]:opacity-80" />
+                          <Icon className="in-data-[type=error]:text-destructive in-data-[type=info]:text-info in-data-[type=success]:text-success in-data-[type=warning]:text-warning in-data-[type=loading]:animate-spin in-data-[type=loading]:opacity-80" />
                         </div>
                       )}
 

@@ -28,7 +28,7 @@ export function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.P
 export function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props): React.ReactElement {
   return (
     <ProgressPrimitive.Track
-      className={cn('block h-1.5 w-full overflow-hidden rounded-full bg-input', className)}
+      className={cn('bg-input block h-1.5 w-full overflow-hidden rounded-full', className)}
       data-slot="progress-track"
       {...props}
     />

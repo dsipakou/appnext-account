@@ -196,7 +196,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             disabled={isUserLoading}
             items={users.map((item: User) => ({ label: item.username, value: item.uuid }))}
           >
-            <Slc.SelectTrigger className="relative w-full border-2 font-normal text-muted-foreground hover:text-black">
+            <Slc.SelectTrigger className="text-muted-foreground relative w-full border-2 font-normal hover:text-black">
               <Slc.SelectValue placeholder="User" />
             </Slc.SelectTrigger>
             <Slc.SelectPopup>

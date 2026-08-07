@@ -210,7 +210,7 @@ const Container: React.FC<Types> = ({
                 )}
                 <div
                   className={cn(
-                    'h-15 invisible flex w-4/5 self-center text-2xl',
+                    'invisible flex h-15 w-4/5 self-center text-2xl',
                     !isDragging && 'group-hover/col:visible',
                   )}
                 >

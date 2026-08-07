@@ -27,7 +27,7 @@ const IncomeDisplay: React.FC<{ income: number; currencySign: string; incomePerc
 }) => (
   <>
     <div className="mb-1.5 flex items-center justify-between text-sm">
-      <span className="font-medium text-muted-foreground">Income</span>
+      <span className="text-muted-foreground font-medium">Income</span>
       <span className="font-semibold text-green-600">
         {income.toFixed(2)} {currencySign}
       </span>
@@ -46,7 +46,7 @@ const ExpensesDisplay: React.FC<{
 }> = ({ expenses, currencySign, expensesPercentage, hasIncome }) => (
   <>
     <div className="mb-1.5 flex items-center justify-between text-sm">
-      <span className="font-medium text-muted-foreground">Expenses</span>
+      <span className="text-muted-foreground font-medium">Expenses</span>
       <span className={`font-semibold ${hasIncome ? 'text-red-600' : 'text-gray-600'}`}>
         {expenses.toFixed(2)} {currencySign}
       </span>
@@ -95,11 +95,11 @@ const AccountCard: React.FC<Types> = ({ account }) => {
         </div>
       </Card.CardHeader>
       <Card.CardContent>
-        <div className="h-30 flex flex-col">
+        <div className="flex h-30 flex-col">
           {isZeroState ? (
             <div className="flex h-full flex-col items-center justify-center gap-1">
               <div className="text-muted-foreground">No expenses for this month yet</div>
-              <div className="text-sm text-muted-foreground/80">Add your first transaction to see the progress 😊</div>
+              <div className="text-muted-foreground/80 text-sm">Add your first transaction to see the progress 😊</div>
             </div>
           ) : (
             <div className="flex h-full flex-col">

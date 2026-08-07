@@ -138,7 +138,7 @@ const CurrencyChart: React.FC<Props> = ({ data: chartData, isLoading, currencies
   }, [chartData, currencies, isLoading, period]);
 
   return (
-    <div className="h-83 relative w-full">
+    <div className="relative h-83 w-full">
       <ReactECharts option={options} style={{ height: '100%', width: '100%' }} notMerge />
     </div>
   );

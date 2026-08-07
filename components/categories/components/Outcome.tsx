@@ -111,7 +111,7 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
     return (
       <Ppv.Popover>
         <Ppv.PopoverTrigger render={<Button variant="outline" className="flex-1" />}>Choose icon</Ppv.PopoverTrigger>
-        <Ppv.PopoverPopup className="w-100 flex justify-center" sideOffset={5}>
+        <Ppv.PopoverPopup className="flex w-100 justify-center" sideOffset={5}>
           <div>
             <EmojiPicker
               className="mt-5 flex h-20"
@@ -119,7 +119,7 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
               onEmojiClick={(event) => setSelectedEmoji(event.emoji)}
             />
           </div>
-          <Ppv.PopoverClose className="absolute right-5 top-5">
+          <Ppv.PopoverClose className="absolute top-5 right-5">
             <X className="h-4 w-4" />
           </Ppv.PopoverClose>
         </Ppv.PopoverPopup>
@@ -140,11 +140,11 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
               <Ppv.Popover onOpenChange={(open) => onOpenPopup(open, item)}>
                 <Ppv.PopoverTrigger>
                   <span>
-                    <Pencil className="ml-3 hidden h-7 w-7 cursor-pointer p-1 hover:text-blue-400 group-hover:flex" />
+                    <Pencil className="ml-3 hidden h-7 w-7 cursor-pointer p-1 group-hover:flex hover:text-blue-400" />
                   </span>
                 </Ppv.PopoverTrigger>
                 <Ppv.PopoverPopup className="flex w-80 flex-col gap-3 rounded-md border-none bg-white" sideOffset={10}>
-                  <Ppv.PopoverClose className="absolute right-5 top-5">
+                  <Ppv.PopoverClose className="absolute top-5 right-5">
                     <X className="h-4 w-4" />
                   </Ppv.PopoverClose>
                   <span className="text-lg">Editing</span>

@@ -6,21 +6,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <header className="sticky top-0 z-50 flex h-14 items-center border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:px-6">
+    <div className="bg-background text-foreground flex min-h-screen flex-col">
+      <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 flex h-14 items-center border-b px-4 backdrop-blur lg:px-6">
         <Link className="flex items-center justify-center" href="#">
-          <Wallet className="h-6 w-6 text-primary" />
-          <span className="ml-2 text-2xl font-thin uppercase text-primary">I spent a</span>
-          <span className="ml-2 text-2xl font-bold uppercase text-primary">Dollar</span>
+          <Wallet className="text-primary h-6 w-6" />
+          <span className="text-primary ml-2 text-2xl font-thin uppercase">I spent a</span>
+          <span className="text-primary ml-2 text-2xl font-bold uppercase">Dollar</span>
         </Link>
         <nav className="ml-auto flex items-center gap-4 sm:gap-6">
-          <Link className="text-sm font-medium hover:text-primary" href="#features">
+          <Link className="hover:text-primary text-sm font-medium" href="#features">
             Features
           </Link>
-          <Link className="text-sm font-medium hover:text-primary" href="#how-it-works">
+          <Link className="hover:text-primary text-sm font-medium" href="#how-it-works">
             How It Works
           </Link>
-          <Link className="text-sm font-medium hover:text-primary" href="#pricing">
+          <Link className="hover:text-primary text-sm font-medium" href="#pricing">
             Pricing
           </Link>
           <Button size="lg" variant="outline" className="border-blue-500 text-blue-500">
@@ -37,14 +37,14 @@ const Index = () => {
                   Master Your Finances with
                 </span>
                 <div>
-                  <span className="text-2xl font-thin uppercase tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
+                  <span className="text-2xl font-thin tracking-tighter uppercase sm:text-4xl md:text-5xl lg:text-6xl/none">
                     I spent a
                   </span>
-                  <span className="ml-4 text-2xl font-bold uppercase tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
+                  <span className="ml-4 text-2xl font-bold tracking-tighter uppercase sm:text-4xl md:text-5xl lg:text-6xl/none">
                     Dollar
                   </span>
                 </div>
-                <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
+                <p className="text-muted-foreground mx-auto max-w-[700px] md:text-xl">
                   Empower your financial journey with our comprehensive budgeting tool. Track spending, manage accounts,
                   and achieve your financial goals with ease.
                 </p>
@@ -61,7 +61,7 @@ const Index = () => {
             </div>
           </div>
         </section>
-        <section id="features" className="w-full bg-muted py-12 md:py-24 lg:py-32">
+        <section id="features" className="bg-muted w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6">
             <h2 className="mb-12 text-center text-3xl font-bold tracking-tighter sm:text-5xl">
               Powerful Features for complete financial control
@@ -69,7 +69,7 @@ const Index = () => {
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               <Card>
                 <CardHeader>
-                  <BarChart className="mb-4 h-8 w-8 text-primary" />
+                  <BarChart className="text-primary mb-4 h-8 w-8" />
                   <CardTitle>Comprehensive Expense Tracking</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -80,7 +80,7 @@ const Index = () => {
               </Card>
               <Card>
                 <CardHeader>
-                  <PieChart className="mb-4 h-8 w-8 text-primary" />
+                  <PieChart className="text-primary mb-4 h-8 w-8" />
                   <CardTitle>Category Management</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -92,7 +92,7 @@ const Index = () => {
               </Card>
               <Card>
                 <CardHeader>
-                  <Users className="mb-4 h-8 w-8 text-primary" />
+                  <Users className="text-primary mb-4 h-8 w-8" />
                   <CardTitle>Collaborative Budgeting</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -103,7 +103,7 @@ const Index = () => {
               </Card>
               <Card>
                 <CardHeader>
-                  <Calendar className="mb-4 h-8 w-8 text-primary" />
+                  <Calendar className="text-primary mb-4 h-8 w-8" />
                   <CardTitle>Goal-Oriented Budget Planning</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -115,7 +115,7 @@ const Index = () => {
               </Card>
               <Card>
                 <CardHeader>
-                  <LineChart className="mb-4 h-8 w-8 text-primary" />
+                  <LineChart className="text-primary mb-4 h-8 w-8" />
                   <CardTitle>Analytics and Reporting</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -134,7 +134,7 @@ const Index = () => {
             </h2>
             <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
               <div className="flex flex-col items-center text-center">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground">
+                <div className="bg-primary text-primary-foreground mb-4 flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold">
                   1
                 </div>
                 <h3 className="mb-2 text-xl font-bold">Sign Up in Seconds</h3>
@@ -143,14 +143,14 @@ const Index = () => {
                 </p>
               </div>
               <div className="flex flex-col items-center text-center">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground">
+                <div className="bg-primary text-primary-foreground mb-4 flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold">
                   2
                 </div>
                 <h3 className="mb-2 text-xl font-bold">Add Your Accounts</h3>
                 <p className="text-muted-foreground">Create your accounts, categories and granular sub-categories.</p>
               </div>
               <div className="flex flex-col items-center text-center">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground">
+                <div className="bg-primary text-primary-foreground mb-4 flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold">
                   3
                 </div>
                 <h3 className="mb-2 text-xl font-bold">Customize Your Budget</h3>
@@ -174,19 +174,19 @@ const Index = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="mb-4 text-4xl font-bold">$0</p>
-                  <p className="mb-4 text-muted-foreground">Perfect for individuals and household</p>
+                  <p className="text-muted-foreground mb-4">Perfect for individuals and household</p>
                   <ul className="space-y-2">
                     <li className="flex items-center">
-                      <Check className="mr-2 h-5 w-5 text-primary" /> Be the first to explore new features
+                      <Check className="text-primary mr-2 h-5 w-5" /> Be the first to explore new features
                     </li>
                     <li className="flex items-center">
-                      <Check className="mr-2 h-5 w-5 text-primary" /> Experience improvements as they happen
+                      <Check className="text-primary mr-2 h-5 w-5" /> Experience improvements as they happen
                     </li>
                     <li className="flex items-center">
-                      <Check className="mr-2 h-5 w-5 text-primary" /> Try out all features during development
+                      <Check className="text-primary mr-2 h-5 w-5" /> Try out all features during development
                     </li>
                     <li className="flex items-center">
-                      <Check className="mr-2 h-5 w-5 text-primary" /> No credit card
+                      <Check className="text-primary mr-2 h-5 w-5" /> No credit card
                     </li>
                   </ul>
                   <Button className="mt-6 w-full">
@@ -197,7 +197,7 @@ const Index = () => {
             </div>
           </div>
         </section>
-        <section id="cta" className="w-full bg-primary py-12 text-primary-foreground md:py-24 lg:py-32">
+        <section id="cta" className="bg-primary text-primary-foreground w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
@@ -208,18 +208,18 @@ const Index = () => {
         </section>
       </main>
       <footer className="flex w-full shrink-0 flex-col items-center gap-2 border-t px-4 py-6 sm:flex-row md:px-6">
-        <p className="text-xs text-muted-foreground">© 2024 I spent a Dollar.</p>
+        <p className="text-muted-foreground text-xs">© 2024 I spent a Dollar.</p>
         <nav className="flex gap-4 sm:ml-auto sm:gap-6">
-          <Link className="text-xs hover:text-primary" href="#">
+          <Link className="hover:text-primary text-xs" href="#">
             Terms of Service
           </Link>
-          <Link className="text-xs hover:text-primary" href="#">
+          <Link className="hover:text-primary text-xs" href="#">
             Privacy Policy
           </Link>
-          <Link className="text-xs hover:text-primary" href="#">
+          <Link className="hover:text-primary text-xs" href="#">
             Cookie Policy
           </Link>
-          <Link className="text-xs hover:text-primary" href="#">
+          <Link className="hover:text-primary text-xs" href="#">
             Contact Us
           </Link>
         </nav>

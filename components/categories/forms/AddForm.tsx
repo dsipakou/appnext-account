@@ -143,7 +143,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
             <div className="flex items-center gap-4">
               <Popover>
                 <PopoverTrigger render={<Button variant="outline" />}>Choose icon</PopoverTrigger>
-                <PopoverPopup className="w-100 flex justify-center" sideOffset={5}>
+                <PopoverPopup className="flex w-100 justify-center" sideOffset={5}>
                   <div>
                     <EmojiPicker
                       className="mt-5 flex h-20"
@@ -151,7 +151,7 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                       onEmojiClick={(event) => setSelectedEmoji(event.emoji)}
                     />
                   </div>
-                  <PopoverClose className="absolute right-5 top-5">
+                  <PopoverClose className="absolute top-5 right-5">
                     <X className="h-4 w-4" />
                   </PopoverClose>
                 </PopoverPopup>

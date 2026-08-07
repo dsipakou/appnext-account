@@ -367,7 +367,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
                   <div>
                     {(values.repeatType === 'weekly' || values.repeatType === 'monthly') && (
                       <Field name="numberOfRepetitions">
-                        <FieldLabel className="text-sm text-muted-foreground">
+                        <FieldLabel className="text-muted-foreground text-sm">
                           Number of repetitions (leave empty for infinite)
                         </FieldLabel>
                         <Input

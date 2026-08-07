@@ -19,7 +19,7 @@ const TransactionsForm: React.FC<Props> = ({ open, handleClose, uuid }) => {
 
   return (
     <Dlg.Dialog open={open} onOpenChange={handleClose}>
-      <Dlg.DialogPopup className="min-w-250 my-20 flex h-[90%] flex-col">
+      <Dlg.DialogPopup className="my-20 flex h-[90%] min-w-250 flex-col">
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Last 20 transactions</Dlg.DialogTitle>
         </Dlg.DialogHeader>

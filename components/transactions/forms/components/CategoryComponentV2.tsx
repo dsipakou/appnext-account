@@ -102,7 +102,7 @@ export default function CategoryComponent({
     >
       <Slc.SelectTrigger
         className={cn(
-          'h-8 w-full border-0 bg-white px-2 text-left text-sm focus:border-primary focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700',
+          'focus:border-primary h-8 w-full border-0 bg-white px-2 text-left text-sm focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-blue-700 focus-visible:outline-none',
           isInvalid && 'border-2 border-red-400',
         )}
         onKeyDown={(e) => handleKeyDown(e, row.id)}

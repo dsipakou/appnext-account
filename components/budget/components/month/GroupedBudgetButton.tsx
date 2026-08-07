@@ -75,7 +75,7 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
             <span className="font-semibold">From</span>
             <Badge
               variant="outline"
-              className="flex h-5 w-full justify-center overflow-hidden whitespace-nowrap bg-sky-500 text-white"
+              className="flex h-5 w-full justify-center overflow-hidden bg-sky-500 whitespace-nowrap text-white"
             >
               <span className="font-bold">
                 {getCategoryIcon(item.items[0].category)} {getCategoryName(item.items[0].category)}
@@ -95,7 +95,7 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
             <span className="font-semibold">From</span>
             <Badge
               variant="outline"
-              className="flex h-5 w-full justify-center overflow-hidden whitespace-nowrap bg-sky-500 text-white"
+              className="flex h-5 w-full justify-center overflow-hidden bg-sky-500 whitespace-nowrap text-white"
             >
               <span className="font-bold">
                 {getFormattedDate(parseDate(item.items[0].budgetDate), LONG_YEAR_SHORT_MONTH_FORMAT)}
@@ -120,12 +120,12 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
         <>
           <div
             className={cn(
-              'z-60 absolute left-0 top-0 h-0 w-0 rounded-tl-lg border-r-transparent',
-              recurrent === 'monthly' && ' border-r-[28px] border-t-[28px] border-t-cyan-400',
-              recurrent === 'weekly' && 'border-r-[28px] border-t-[28px] border-t-orange-400',
+              'absolute top-0 left-0 z-60 h-0 w-0 rounded-tl-lg border-r-transparent',
+              recurrent === 'monthly' && 'border-t-[28px] border-r-[28px] border-t-cyan-400',
+              recurrent === 'weekly' && 'border-t-[28px] border-r-[28px] border-t-orange-400',
             )}
           ></div>
-          <div className="absolute left-[2px] top-[2px] text-white">
+          <div className="absolute top-[2px] left-[2px] text-white">
             <Repeat2 className="h-4 w-4"></Repeat2>
           </div>
         </>

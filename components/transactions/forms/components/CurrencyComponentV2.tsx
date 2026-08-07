@@ -122,8 +122,8 @@ export default function CurrencyComponent({ user, value, row, isSaved, handleCha
     >
       <Slc.SelectTrigger
         className={cn(
-          'h-8 w-24 min-w-20 border-0 bg-background px-2 text-left text-sm',
-          'focus:border-primary focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-blue-700',
+          'bg-background h-8 w-24 min-w-20 border-0 px-2 text-left text-sm',
+          'focus:border-primary focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-blue-700 focus-visible:outline-none',
         )}
         onKeyDown={(e) => handleKeyDown(e, row.id)}
       >

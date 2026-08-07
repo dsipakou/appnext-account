@@ -82,7 +82,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, recurrent, bu
                   <Label htmlFor="instance" className="cursor-pointer font-normal">
                     <div className="flex flex-col">
                       <span className="font-semibold">Delete only this instance</span>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-muted-foreground text-sm">
                         The series will continue and new budgets will be created
                       </span>
                     </div>
@@ -94,7 +94,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, recurrent, bu
                   <Label htmlFor="series" className="cursor-pointer font-normal">
                     <div className="flex flex-col">
                       <span className="font-semibold">Stop the series from this date</span>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-muted-foreground text-sm">
                         This and all future budgets in the series will be deleted
                       </span>
                     </div>
@@ -107,7 +107,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, recurrent, bu
           )}
 
           {isLoading && (
-            <div className="flex items-center justify-center gap-3 py-4 text-muted-foreground">
+            <div className="text-muted-foreground flex items-center justify-center gap-3 py-4">
               <Spinner className="size-5" />
               <span className="text-sm font-medium">
                 {deletionMode === 'series' ? 'Stopping series...' : 'Deleting budget...'}

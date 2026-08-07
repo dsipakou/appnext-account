@@ -46,12 +46,12 @@ const Index: React.FC = () => {
             <CardContent className="flex-grow">
               <p className="mb-4 text-4xl font-bold">
                 {tier.price}
-                <span className="text-lg font-normal text-muted-foreground">{tier.price !== '$0' && '/month'}</span>
+                <span className="text-muted-foreground text-lg font-normal">{tier.price !== '$0' && '/month'}</span>
               </p>
               <ul className="space-y-2">
                 {tier.features.map((feature, featureIndex) => (
                   <li key={featureIndex} className="flex items-center">
-                    <Check className="mr-2 h-4 w-4 text-primary" />
+                    <Check className="text-primary mr-2 h-4 w-4" />
                     {feature}
                   </li>
                 ))}

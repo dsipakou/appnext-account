@@ -110,7 +110,7 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
   return (
     <div className="relative h-[330px] w-full">
       <ReactECharts style={{ height: '100%', width: '100%' }} option={options} notMerge={true} />
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform text-center">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform text-center">
         <p className="text-2xl font-bold">
           {totalAmount.toFixed(2)} {currencySign}
         </p>

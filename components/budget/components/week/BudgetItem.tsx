@@ -88,27 +88,27 @@ const BudgetItem: React.FC<Types> = ({
           day === 1 && 'hover:left-4',
           day === 0 && 'hover:right-4',
 
-          !isDragging && 'hover:h-25 hover:w-72.5 hover:z-20 hover:scale-110 hover:shadow-xl',
+          !isDragging && 'hover:z-20 hover:h-25 hover:w-72.5 hover:scale-110 hover:shadow-xl',
           !budget.isCompleted && ['bg-white', isSameUser ? 'shadow-md' : 'text-blue-500'],
-          budget.isCompleted && 'grayscale-40 bg-slate-300 opacity-90',
+          budget.isCompleted && 'bg-slate-300 opacity-90 grayscale-40',
         )}
       >
         <div
           className={cn(
-            'absolute left-0 top-0 h-0 w-0 rounded-tl-sm border-r-transparent',
-            budget.recurrent === 'monthly' && 'border-r-25 border-t-25 border-t-cyan-400',
-            budget.recurrent === 'weekly' && 'border-r-25 border-t-25 border-t-orange-400',
+            'absolute top-0 left-0 h-0 w-0 rounded-tl-sm border-r-transparent',
+            budget.recurrent === 'monthly' && 'border-t-25 border-r-25 border-t-cyan-400',
+            budget.recurrent === 'weekly' && 'border-t-25 border-r-25 border-t-orange-400',
           )}
         ></div>
         {budget.isCompleted && (
-          <div className={cn('absolute right-1 top-1 flex items-center align-middle group-hover:right-3')}>
+          <div className={cn('absolute top-1 right-1 flex items-center align-middle group-hover:right-3')}>
             <BadgeCheck className="h-4 w-4 text-green-600" />
           </div>
         )}
         <div className="flex flex-row items-center gap-1">
           {!isSameUser && (
             <>
-              <div className={cn('absolute left-6 top-1 flex items-center align-middle group-hover:hidden')}>
+              <div className={cn('absolute top-1 left-6 flex items-center align-middle group-hover:hidden')}>
                 <Avatar className="h-4 w-4">
                   <AvatarFallback className="bg-violet-500 text-xs font-bold text-white">
                     {budgetUser?.username.charAt(0)}
@@ -118,7 +118,7 @@ const BudgetItem: React.FC<Types> = ({
               <div className="justify-center text-sm font-bold">
                 <div
                   className={cn(
-                    'absolute left-6 top-1 hidden items-center align-middle',
+                    'absolute top-1 left-6 hidden items-center align-middle',
                     !isDragging && 'group-hover:flex',
                   )}
                 >
@@ -129,7 +129,7 @@ const BudgetItem: React.FC<Types> = ({
           )}
           <div
             className={cn(
-              'flex grow overflow-hidden text-ellipsis whitespace-nowrap text-sm font-semibold',
+              'flex grow overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap',
               !isDragging && 'group-hover:ml-1 group-hover:text-base',
             )}
           >
@@ -139,7 +139,7 @@ const BudgetItem: React.FC<Types> = ({
             <>
               <div
                 className={cn(
-                  'absolute left-[2px] top-[2px] flex items-center align-middle',
+                  'absolute top-[2px] left-[2px] flex items-center align-middle',
                   budget.recurrent === 'weekly' && 'text-orange-500',
                   budget.recurrent === 'monthly' && 'text-cyan-500',
                 )}
@@ -148,7 +148,7 @@ const BudgetItem: React.FC<Types> = ({
               </div>
               <div
                 className={cn(
-                  'absolute right-9 top-1 hidden items-center align-middle',
+                  'absolute top-1 right-9 hidden items-center align-middle',
                   !isDragging && 'group-hover:flex',
                   budget.recurrent === 'weekly' && 'text-orange-500',
                   budget.recurrent === 'monthly' && 'text-cyan-500',
@@ -220,7 +220,7 @@ const BudgetItem: React.FC<Types> = ({
             className={cn('bg-background', budget.isCompleted && 'bg-muted-background')}
             onClick={handleClickComplete}
           >
-            {!isCompleting && <Check className={cn('h-4 text-muted-foreground', budget.isCompleted && 'text-white')} />}
+            {!isCompleting && <Check className={cn('text-muted-foreground h-4', budget.isCompleted && 'text-white')} />}
             {isCompleting && <Loader className={cn('h-4 text-gray-400', budget.isCompleted && 'text-white')} />}
           </Button>
           <Button

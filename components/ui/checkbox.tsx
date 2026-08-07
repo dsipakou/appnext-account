@@ -9,14 +9,14 @@ export function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props):
   return (
     <CheckboxPrimitive.Root
       className={cn(
-        'size-4.5 not-dark:bg-clip-padding shadow-xs/5 not-data-disabled:not-data-checked:not-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] aria-invalid:border-destructive/36 focus-visible:aria-invalid:border-destructive/64 focus-visible:aria-invalid:ring-destructive/48 data-disabled:cursor-not-allowed data-disabled:opacity-64 dark:not-data-checked:bg-input/32 dark:aria-invalid:ring-destructive/24 dark:not-data-disabled:not-data-checked:not-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/6%)] [[data-disabled],[data-checked],[aria-invalid]]:shadow-none relative inline-flex shrink-0 items-center justify-center rounded-[.25rem] border border-input bg-background outline-none ring-ring transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[3px] focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-background sm:size-4',
+        'aria-invalid:border-destructive/36 focus-visible:aria-invalid:border-destructive/64 focus-visible:aria-invalid:ring-destructive/48 dark:not-data-checked:bg-input/32 dark:aria-invalid:ring-destructive/24 border-input bg-background ring-ring focus-visible:ring-offset-background relative inline-flex size-4.5 shrink-0 items-center justify-center rounded-[.25rem] border shadow-xs/5 transition-shadow outline-none not-dark:bg-clip-padding before:pointer-events-none before:absolute before:inset-0 before:rounded-[3px] not-data-disabled:not-data-checked:not-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] focus-visible:ring-2 focus-visible:ring-offset-1 data-disabled:cursor-not-allowed data-disabled:opacity-64 sm:size-4 dark:not-data-disabled:not-data-checked:not-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/6%)] [[data-disabled],[data-checked],[aria-invalid]]:shadow-none',
         className,
       )}
       data-slot="checkbox"
       {...props}
     >
       <CheckboxPrimitive.Indicator
-        className="data-unchecked:hidden data-checked:bg-primary data-indeterminate:text-foreground absolute -inset-px flex items-center justify-center rounded-[.25rem] text-primary-foreground"
+        className="data-checked:bg-primary data-indeterminate:text-foreground text-primary-foreground absolute -inset-px flex items-center justify-center rounded-[.25rem] data-unchecked:hidden"
         data-slot="checkbox-indicator"
         render={(props: React.ComponentProps<'span'>, state: CheckboxPrimitive.Indicator.State) => (
           <span {...props}>

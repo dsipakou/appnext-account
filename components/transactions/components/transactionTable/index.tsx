@@ -817,7 +817,7 @@ export const TransactionsTable = ({
       <div className="flex min-h-0 flex-1 flex-col rounded-lg">
         <div className="relative min-h-0 flex-1 overflow-auto">
           <Tbl.Table>
-            <Tbl.TableHeader className="sticky top-0 z-10 bg-white after:absolute after:bottom-0 after:h-px after:w-full after:bg-border">
+            <Tbl.TableHeader className="after:bg-border sticky top-0 z-10 bg-white after:absolute after:bottom-0 after:h-px after:w-full">
               <Tbl.TableRow className="bg-muted/50">
                 {visibleColumns.has('date') && (
                   <Tbl.TableHead className="flex cursor-pointer" onClick={() => requestSort('date')}>
@@ -974,7 +974,7 @@ export const TransactionsTable = ({
                                           <td
                                             key={key}
                                             className={cn(
-                                              'overflow-hidden whitespace-nowrap py-0 pl-1 pr-0',
+                                              'overflow-hidden py-0 pr-0 pl-1 whitespace-nowrap',
                                               cellWidthMap[key],
                                             )}
                                           >

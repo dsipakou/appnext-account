@@ -54,7 +54,7 @@ const LastAdded: React.FC = () => {
   return (
     <Dlg.Dialog>
       <Dlg.DialogTrigger render={<Button variant="link" />}>See last added</Dlg.DialogTrigger>
-      <Dlg.DialogPopup className="min-w-250 my-20 flex h-screen flex-col">
+      <Dlg.DialogPopup className="my-20 flex h-screen min-w-250 flex-col">
         <Dlg.DialogHeader>
           <div className="flex justify-between pr-7">
             <Dlg.DialogTitle>Transactions added since your last visit</Dlg.DialogTitle>

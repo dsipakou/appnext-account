@@ -142,10 +142,10 @@ const Layout: FC<Props> = ({ children }) => {
   );
 
   return (
-    <div className="flex h-screen flex-col bg-secondary">
+    <div className="bg-secondary flex h-screen flex-col">
       <div
         className={cn(
-          'delay-50 fixed z-40 flex h-screen flex-col justify-between overflow-hidden bg-white drop-shadow-sm transition-all ease-in-out',
+          'fixed z-40 flex h-screen flex-col justify-between overflow-hidden bg-white drop-shadow-sm transition-all delay-50 ease-in-out',
           open ? 'w-60 shadow-xl' : 'w-16',
         )}
       >
@@ -170,8 +170,8 @@ const Layout: FC<Props> = ({ children }) => {
               onClick={open ? handleDrawerClose : handleDrawerOpen}
             />
 
-            <span className="select-none font-sans text-2xl font-light uppercase">I spent a</span>
-            <span className="select-none font-sans text-2xl font-bold uppercase">dollar</span>
+            <span className="font-sans text-2xl font-light uppercase select-none">I spent a</span>
+            <span className="font-sans text-2xl font-bold uppercase select-none">dollar</span>
           </div>
           <div className="flex items-center justify-between">
             {!!currencies?.length && (
