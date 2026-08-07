@@ -211,7 +211,7 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
   return (
     <Dlg.Dialog onOpenChange={clean} open={open} modal={false}>
       <Dlg.DialogTrigger render={customTrigger || defaultTrigger} />
-      <Dlg.DialogPopup className="min-w-4xl">
+      <Dlg.DialogPopup className="min-w-3xl">
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Add budget</Dlg.DialogTitle>
         </Dlg.DialogHeader>
@@ -244,7 +244,9 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                               mask={Number}
                               unmask="typed"
                               value={values.amount}
-                              onAccept={(value) => setValues((current) => ({ ...current, amount: Number(value) || 0 }))}
+                              onAccept={(value: number) =>
+                                setValues((current) => ({ ...current, amount: Number(value) || 0 }))
+                              }
                               onFocus={(e) =>
                                 requestAnimationFrame(() => {
                                   e.target.select();

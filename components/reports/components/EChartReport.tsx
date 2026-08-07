@@ -187,10 +187,8 @@ const EChartReport: React.FC = () => {
           },
         })),
       );
-    }
 
-    // Add difference
-    if (showIncome) {
+      // Add difference
       formattedSeries.push({
         name: 'Difference',
         data: diffArray || [],
@@ -218,6 +216,28 @@ const EChartReport: React.FC = () => {
     }
 
     const optionsLocal = {
+      color: [
+        '#4E79A7',
+        '#F28E2B',
+        '#E15759',
+        '#76B7B2',
+        '#59A14F',
+        '#EDC948',
+        '#B07AA1',
+        '#FF9DA7',
+        '#9C755F',
+        '#BAB0AC',
+        '#86BCB6',
+        '#D37295',
+        '#FABFD2',
+        '#8CD17D',
+        '#B6992D',
+        '#499894',
+        '#D4A6C8',
+        '#A0CBE8',
+        '#FFBE7D',
+        '#79706E',
+      ],
       xAxis: {
         type: 'category',
         data: chartData.map((item: ChartData) => item.date),
