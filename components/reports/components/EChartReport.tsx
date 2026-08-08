@@ -346,6 +346,7 @@ const EChartReport: React.FC = () => {
     <div className="relative flex h-full flex-col gap-2">
       <div className="flex flex-row justify-center">
         <MonthRangeCalendar date={date} setMonthDate={setDate} />
+        :width: ,
       </div>
       <div className="flex justify-start">
         <div className="m-3 flex items-center gap-2">

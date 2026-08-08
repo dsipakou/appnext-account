@@ -218,7 +218,7 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
         <Form errors={errors} onSubmit={handleSubmit} className="contents">
           <Dlg.DialogPanel>
             <div className="grid grid-cols-12 gap-2">
-              <div className="col-span-8 flex flex-col gap-2">
+              <div className="col-span-7 flex flex-col gap-2">
                 <div className="grid gap-2">
                   <div className="flex flex-col gap-2">
                     <Field name="title">
@@ -428,7 +428,7 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                   </Field>
                 </div>
               </div>
-              <div className="col-span-4 h-full items-center justify-center">
+              <div className="col-span-5 h-full items-center justify-center">
                 <div className="items-top flex h-full justify-center gap-2">
                   <div className="h-full">
                     <Separator orientation="vertical" className="h-full" />

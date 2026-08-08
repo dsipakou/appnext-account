@@ -188,7 +188,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
 
   return (
     <Dlg.Dialog open={open} onOpenChange={cleanFormErrors}>
-      <Dlg.DialogPopup className="min-w-4xl">
+      <Dlg.DialogPopup className="min-w-3xl">
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Edit budget</Dlg.DialogTitle>
         </Dlg.DialogHeader>
