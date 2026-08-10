@@ -7,7 +7,7 @@ import { Category, CategoryType } from '@/components/categories/types';
 import { Currency } from '@/components/currencies/types';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { MaskedInput } from '@/components/ui/currency-input';
+import { AmountInput } from '@/components/ui/currency-input';
 import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form, type FormErrors } from '@/components/ui/form';
@@ -218,9 +218,7 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
                         <FieldLabel className="pl-1">Amount</FieldLabel>
                         <div className="flex gap-2">
                           <div>
-                            <MaskedInput
-                              mask={Number}
-                              unmask="typed"
+                            <AmountInput
                               value={values.amount}
                               onAccept={(value) => setValues((current) => ({ ...current, amount: Number(value) || 0 }))}
                               onFocus={(e) =>
@@ -230,13 +228,6 @@ const EditForm: React.FC<Types> = ({ open, setOpen, uuid }) => {
                               }
                               id="amount"
                               disabled={isEditing}
-                              scale={2}
-                              thousandsSeparator=" "
-                              radix="."
-                              normalizeZeros
-                              autofix
-                              padFractionalZeros={false}
-                              mapToRadix={[',', 'ю', 'б']}
                             />
                           </div>
                           <span className="flex items-center text-sm">{values.currency && getCurrencySign()}</span>
