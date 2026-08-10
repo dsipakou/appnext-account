@@ -250,7 +250,7 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                                 })
                               }
                               id="amount"
-                              disabled={isEditing}
+                              disabled={isCreating}
                             />
                           </div>
                           <span className="flex items-center text-sm">{values.currency && getCurrencySign()}</span>
