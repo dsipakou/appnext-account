@@ -13,6 +13,7 @@ import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form, type FormErrors } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import * as Slc from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
@@ -445,11 +446,11 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                       />
                       <FieldError />
                     </Field>
-                    <div className="flex flex-col items-start gap-2">
+                    <div className="mt-5 flex items-start gap-2">
                       <Field name="isSomeday">
-                        <FieldLabel>Save for later</FieldLabel>
-                        <div className="mt-1 flex items-center gap-2">
+                        <div className="flex items-center gap-2">
                           <Switch id="isSomeday" checked={isSomeDay} onCheckedChange={setIsSomeDay} />
+                          <Label>Save without date</Label>
                         </div>
                       </Field>
                     </div>
