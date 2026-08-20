@@ -3,7 +3,7 @@ export interface Account {
   title: string;
   category: string | null;
   user: string;
-  isMain: boolean;
+  isDefault: boolean;
   description: string;
 }
 

@@ -1,4 +1,5 @@
 import { useSession } from 'next-auth/react';
+import { cn } from '@/lib/utils';
 import * as React from 'react';
 import * as z from 'zod';
 
@@ -10,33 +11,36 @@ import * as Dlg from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form, type FormErrors } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import * as Slc from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
+import * as Tgl from '@/components/ui/toggle-group';
 import { Textarea } from '@/components/ui/textarea';
 import { toastManager } from '@/components/ui/toast';
 import { User } from '@/components/users/types';
 import { useCreateAccount } from '@/hooks/accounts';
 import { useCategories } from '@/hooks/categories';
 import { useUsers } from '@/hooks/users';
+import { Switch } from '@/components/ui/switch';
 
 const formSchema = z.object({
   title: z.string().min(2, {
     error: 'Title must be at least 2 characters',
   }),
   user: z.uuid({ error: 'Please, select user' }),
-  category: z.union([z.uuid(), z.string().length(0)]).optional(),
-  isMain: z.boolean(),
+  category: z.union([z.uuid(), z.string().length(0)]),
+  kind: z.union([z.literal('spending'), z.literal('savings')]),
   description: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 const AddForm: React.FC = () => {
+  const [hasIncomeCategory, setHasIncomeCategory] = React.useState<boolean>(false);
   const [values, setValues] = React.useState<FormValues>({
     title: '',
     user: '',
     category: '',
-    isMain: false,
+    kind: 'spending',
     description: '',
   });
   const [errors, setErrors] = React.useState<FormErrors>({});
@@ -72,7 +76,7 @@ const AddForm: React.FC = () => {
 
   const handleSave = async (payload: FormValues) => {
     try {
-      await createAccount(payload);
+      await createAccount({ ...payload, category: hasIncomeCategory ? payload.category : '' });
       toastManager.add({
         id: 'account-create',
         title: 'Saved!',
@@ -117,13 +121,40 @@ const AddForm: React.FC = () => {
           <Dlg.DialogTitle>Add account</Dlg.DialogTitle>
         </Dlg.DialogHeader>
         <Form errors={errors} onSubmit={handleSubmit} className="contents">
-          <Dlg.DialogPanel>
-            <div className="flex w-full">
-              <div className="flex w-2/3">
-                <Field name="title">
+          <Dlg.DialogPanel className="flex w-full flex-col gap-4">
+            <Field name="kind">
+              <div className="flex w-full items-center justify-center space-x-2">
+                <Tgl.ToggleGroup
+                  id="kind"
+                  value={values.kind}
+                  onValueChange={(selectedValues) => {
+                    return setValues((current) => ({
+                      ...current,
+                      kind: selectedValues[0],
+                    }));
+                  }}
+                  type="single"
+                  disabled={isCreating}
+                  variant="outline"
+                >
+                  <Tgl.ToggleGroupItem className="w-1/2" value="savings">
+                    <span className="px-2">Savings account</span>
+                  </Tgl.ToggleGroupItem>
+                  <Tgl.ToggleGroupSeparator />
+                  <Tgl.ToggleGroupItem className="w-1/2" value="spending">
+                    <div className="mx-2 flex items-center gap-3">
+                      <span>Spending account</span>
+                    </div>
+                  </Tgl.ToggleGroupItem>
+                </Tgl.ToggleGroup>
+              </div>
+              <FieldError />
+            </Field>
+            <div className="flex w-full flex-row gap-2">
+              <div className="flex flex-2/3 items-center gap-2">
+                <Field name="title" className="w-full">
                   <FieldLabel>Account title</FieldLabel>
                   <Input
-                    className="w-full"
                     disabled={isCreating}
                     id="title"
                     value={values.title}
@@ -132,24 +163,8 @@ const AddForm: React.FC = () => {
                   <FieldError />
                 </Field>
               </div>
-              <div className="flex w-1/3 items-center">
-                <Field name="isMain">
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="isMain"
-                      checked={values.isMain}
-                      onCheckedChange={(checked) => setValues((current) => ({ ...current, isMain: checked }))}
-                      disabled={isCreating}
-                    />
-                    <FieldLabel>Active</FieldLabel>
-                  </div>
-                  <FieldError />
-                </Field>
-              </div>
-            </div>
-            <div className="flex w-full">
-              <div className="flex w-1/2">
-                <Field name="user">
+              <div className="flex flex-1/3 items-center gap-2">
+                <Field name="user" className="w-full">
                   <FieldLabel>User</FieldLabel>
                   <Slc.Select
                     onValueChange={(user) => setValues((current) => ({ ...current, user }))}
@@ -174,49 +189,52 @@ const AddForm: React.FC = () => {
                   <FieldError />
                 </Field>
               </div>
-              <div className="flex w-1/2">
-                <Field name="category">
-                  <FieldLabel>Income category</FieldLabel>
+            </div>
+            <Field name="category">
+              <div className="flex w-full flex-row">
+                <div className="flex flex-1 items-center gap-2">
+                  <Label>With regular income</Label>
+                  <Switch checked={hasIncomeCategory} onCheckedChange={setHasIncomeCategory} disabled={isCreating} />
+                </div>
+                <div className={cn('flex w-full flex-1', !hasIncomeCategory && 'hidden')}>
                   <Slc.Select
                     onValueChange={(category) =>
                       setValues((current) => ({ ...current, category: category === 'none' ? '' : category }))
                     }
-                    value={values.category || 'none'}
+                    value={values.category || incomeCategories[0]?.uuid}
                     disabled={isCreating}
-                    items={incomeCategories.map((item) => ({ label: item.name, value: item.uuid }))}
+                    items={incomeCategories.map((item) => ({
+                      label: item.name,
+                      value: item.uuid,
+                    }))}
                   >
                     <Slc.SelectTrigger className="relative w-full">
-                      <Slc.SelectValue placeholder="Without category" />
+                      <Slc.SelectValue />
                     </Slc.SelectTrigger>
                     <Slc.SelectPopup>
                       <Slc.SelectGroup>
-                        <Slc.SelectItem value="none">
-                          <em className="text-gray-400">Without category</em>
-                        </Slc.SelectItem>
                         {incomeCategories.map((item) => (
                           <Slc.SelectItem key={item.uuid} value={item.uuid}>
-                            {item.name}
+                            <span>{item.name}</span>
                           </Slc.SelectItem>
                         ))}
                       </Slc.SelectGroup>
                     </Slc.SelectPopup>
                   </Slc.Select>
-                  <FieldError />
-                </Field>
+                </div>
               </div>
-            </div>
-            <div className="flex pt-6">
-              <Field name="description">
-                <Textarea
-                  placeholder="Add description if you want"
-                  className="resize-none"
-                  disabled={isCreating}
-                  value={values.description ?? ''}
-                  onChange={(event) => setValues((current) => ({ ...current, description: event.target.value }))}
-                />
-                <FieldError />
-              </Field>
-            </div>
+              <FieldError />
+            </Field>
+            <Field name="description">
+              <Textarea
+                placeholder="Add description if you want"
+                className="resize-none"
+                disabled={isCreating}
+                value={values.description ?? ''}
+                onChange={(event) => setValues((current) => ({ ...current, description: event.target.value }))}
+              />
+              <FieldError />
+            </Field>
           </Dlg.DialogPanel>
           <Dlg.DialogFooter>
             <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>

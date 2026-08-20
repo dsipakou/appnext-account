@@ -39,7 +39,7 @@ export default function AccountComponent({
 
   const yourAccounts = accounts.filter((item: Account) => item.user === user);
   const otherAccounts = accounts.filter((item: Account) => item.user !== user);
-  const defaultAccount = yourAccounts.find((item: Account) => item.isMain);
+  const defaultAccount = yourAccounts.find((item: Account) => item.isDefault);
 
   React.useEffect(() => {
     setWeekStart(getStartOfWeek(row.date));

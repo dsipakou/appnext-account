@@ -86,7 +86,16 @@ export const BudgetCell: React.FC<BudgetCellProps> = ({
         {budgetName}
       </Badge>
       {!isCompleted && (
-        <Button size="xs" disabled={isCompleting} onClick={handleClickComplete} className="ml-2">
+        <Button
+          size="xs"
+          disabled={isCompleting}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleClickComplete();
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="ml-2"
+        >
           <Check className="mr h-4 w-3 rounded" />
         </Button>
       )}

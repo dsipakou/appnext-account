@@ -2,6 +2,7 @@
 import { User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import * as React from 'react';
+import { cn } from '@/lib/utils';
 
 // Components
 import { useStore } from '@/app/store';
@@ -20,24 +21,6 @@ interface Types {
   account: AccountResponse;
 }
 
-const IncomeDisplay: React.FC<{ income: number; currencySign: string; incomePercentage: number }> = ({
-  income,
-  currencySign,
-  incomePercentage,
-}) => (
-  <>
-    <div className="mb-1.5 flex items-center justify-between text-sm">
-      <span className="text-muted-foreground font-medium">Income</span>
-      <span className="font-semibold text-green-600">
-        {income.toFixed(2)} {currencySign}
-      </span>
-    </div>
-    <Prg.Progress value={incomePercentage} className="h-2 w-full bg-gray-200">
-      <Prg.ProgressIndicator className="bg-green-600" />
-    </Prg.Progress>
-  </>
-);
-
 const ExpensesDisplay: React.FC<{
   expenses: number;
   currencySign: string;
@@ -47,12 +30,12 @@ const ExpensesDisplay: React.FC<{
   <>
     <div className="mb-1.5 flex items-center justify-between text-sm">
       <span className="text-muted-foreground font-medium">Expenses</span>
-      <span className={`font-semibold ${hasIncome ? 'text-red-600' : 'text-gray-600'}`}>
+      <span className={`font-semibold ${hasIncome ? 'text-black' : 'text-gray-600'}`}>
         {expenses.toFixed(2)} {currencySign}
       </span>
     </div>
     <Prg.Progress value={expensesPercentage} className="h-2 w-full bg-gray-200">
-      <Prg.ProgressIndicator className={hasIncome ? 'bg-red-600' : 'bg-gray-600'} />
+      <Prg.ProgressIndicator className={hasIncome ? 'bg-blue-600' : 'bg-gray-600'} />
     </Prg.Progress>
   </>
 );
@@ -80,19 +63,15 @@ const AccountCard: React.FC<Types> = ({ account }) => {
   return (
     <Card.Card className="transition-all duration-200 hover:shadow-lg hover:shadow-gray-200/50">
       <Card.CardHeader className="pb-4">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1.5">
-            <Card.CardTitle className="flex items-center gap-2">
-              <span className="truncate text-lg">{account.title}</span>
-              <div className="flex items-center gap-1.5 rounded-full bg-blue-50 px-2 py-0.5">
-                <UserIcon className="h-3 w-3 text-blue-500" />
-                <span className="max-w-30 truncate text-xs font-medium text-blue-600">
-                  {getUser(account.user)?.username}
-                </span>
-              </div>
-            </Card.CardTitle>
+        <Card.CardTitle>
+          <div className="flex w-full items-center justify-between gap-2">
+            <span className="truncate text-lg">{account.title}</span>
+            <div className="flex flex-row items-center gap-2">
+              <UserIcon className="h-4 w-4" />
+              <span className="max-w-30 truncate text-sm font-medium">{getUser(account.user)?.username}</span>
+            </div>
           </div>
-        </div>
+        </Card.CardTitle>
       </Card.CardHeader>
       <Card.CardContent>
         <div className="flex h-30 flex-col">
@@ -106,7 +85,12 @@ const AccountCard: React.FC<Types> = ({ account }) => {
               <div>
                 <div className="h-11">
                   {income > 0 ? (
-                    <IncomeDisplay income={income} currencySign={currencySign} incomePercentage={incomePercentage} />
+                    <div className="flex flex-row items-end gap-1">
+                      <span className={cn('text-2xl', income - expenses >= 0 ? 'text-green-600' : 'text-red-600')}>
+                        {income - expenses} {currencySign}
+                      </span>
+                      <span className="text-muted-foreground texlt-md ml-2"> Income {income.toFixed(2)}</span>
+                    </div>
                   ) : (
                     <div className="text-muted-foreground">No income for this month yet</div>
                   )}
@@ -124,32 +108,6 @@ const AccountCard: React.FC<Types> = ({ account }) => {
                   ) : (
                     <div className="text-muted-foreground">No expenses for this month yet</div>
                   )}
-                </div>
-              </div>
-              <div className="mt-auto">
-                <div className="flex justify-between text-base">
-                  {income > 0 ? (
-                    <>
-                      <div className="text-muted-foreground">
-                        Balance: {(income - expenses).toFixed(2)} {currencySign}
-                      </div>
-                      <div className="flex items-center gap-4">
-                        {isOverBudget ? (
-                          <div className="font-medium text-red-600">
-                            Overspent: {(expenses - income).toFixed(2)} {currencySign}
-                          </div>
-                        ) : (
-                          <div className="font-medium text-gray-600">
-                            Spent: {expenses.toFixed(2)} {currencySign}
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  ) : expenses > 0 ? (
-                    <div className="ml-auto font-medium text-gray-600">
-                      Spent: {expenses.toFixed(2)} {currencySign}
-                    </div>
-                  ) : null}
                 </div>
               </div>
             </div>
