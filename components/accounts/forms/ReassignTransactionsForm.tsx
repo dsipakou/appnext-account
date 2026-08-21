@@ -18,9 +18,11 @@ type FormValues = z.infer<typeof formSchema>;
 
 interface Types {
   uuid: string;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }
 
-const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
+const ReassignTransactionsForm: React.FC<Types> = ({ uuid, open = false, setOpen }) => {
   const [isConfirmTransferOpen, setIsConfirmTransferOpen] = React.useState<boolean>(false);
   const [values, setValues] = React.useState<FormValues>({ account: '' });
   const [errors, setErrors] = React.useState<FormErrors>({});
@@ -43,8 +45,7 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
   };
 
   return (
-    <Dlg.Dialog>
-      <Dlg.DialogTrigger render={<Button variant="link" />}>Manage</Dlg.DialogTrigger>
+    <Dlg.Dialog onOpenChange={setOpen} open={open}>
       <Dlg.DialogPopup>
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Manage account</Dlg.DialogTitle>

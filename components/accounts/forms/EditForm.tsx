@@ -20,6 +20,8 @@ import { extractErrorMessage } from '@/utils/stringUtils';
 
 interface Types {
   uuid: string;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }
 
 const formSchema = z.object({
@@ -37,7 +39,8 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const EditForm: React.FC<Types> = ({ uuid }) => {
+const EditForm: React.FC<Types> = ({ uuid, open = false, setOpen }) => {
+  console.log('EditForm rendered', open);
   const { mutate } = useSWRConfig();
   const [values, setValues] = React.useState<FormValues>({
     title: '',
@@ -74,6 +77,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
   }, [accounts, uuid]);
 
   const cleanFormErrors = (open: boolean) => {
+    setOpen(open);
     if (!open) {
       setErrors({});
     }
@@ -116,10 +120,7 @@ const EditForm: React.FC<Types> = ({ uuid }) => {
   };
 
   return (
-    <Dlg.Dialog onOpenChange={cleanFormErrors}>
-      <Dlg.DialogTrigger className="mx-2" render={<Button variant="ghost" />}>
-        Edit
-      </Dlg.DialogTrigger>
+    <Dlg.Dialog onOpenChange={cleanFormErrors} open={open}>
       <Dlg.DialogPopup>
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Edit account</Dlg.DialogTitle>

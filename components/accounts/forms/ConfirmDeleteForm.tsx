@@ -11,11 +11,12 @@ import { AccountResponse } from '../types';
 
 interface Types {
   uuid: string;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }
 
-const ConfirmDeleteForm: FC<Types> = ({ uuid }) => {
+const ConfirmDeleteForm: FC<Types> = ({ uuid, open = false, setOpen }) => {
   const [account, setAccount] = useState<AccountResponse>();
-  const [open, setOpen] = useState<boolean>(false);
 
   const { data: accounts } = useAccounts();
   const { trigger: deleteAccount, isMutating: isDeleting } = useDeleteAccount(uuid);
@@ -63,7 +64,6 @@ const ConfirmDeleteForm: FC<Types> = ({ uuid }) => {
 
   return (
     <Dlg.Dialog open={open} onOpenChange={setOpen}>
-      <Dlg.DialogTrigger render={<Button variant="destructive" />}>Delete</Dlg.DialogTrigger>
       <Dlg.DialogPopup>
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Please, confirm deletion</Dlg.DialogTitle>
