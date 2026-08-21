@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/empty";
 import * as Slc from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import { User } from "@/components/users/types";
 import { useBudgetMonth, useBudgetWeek } from "@/hooks/budget";
 import { UserResponse, useUsers } from "@/hooks/users";
 import { cn } from "@/lib/utils";
