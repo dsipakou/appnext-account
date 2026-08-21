@@ -51,7 +51,7 @@ const AccountCard: React.FC<Types> = ({ account }) => {
       <div className="pointer-events-none absolute -top-24 -right-20 size-48 rounded-full bg-cyan-200/45 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 left-6 size-44 rounded-full bg-violet-200/35 blur-3xl" />
 
-      <div className="flex flex-1/3 justify-start gap-4">
+      <div className="flex flex-1 justify-start gap-4">
         <div className="flex flex-1 p-4 pb-1.5">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
@@ -103,7 +103,7 @@ const AccountCard: React.FC<Types> = ({ account }) => {
         </div>
       </div>
 
-      <div className="flex flex-2/3 justify-end gap-2 px-2">
+      <div className="flex flex-1 justify-end gap-2 px-2">
         <Mnu.Menu>
           <Mnu.MenuTrigger
             render={
