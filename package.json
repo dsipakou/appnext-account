@@ -73,8 +73,5 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.65.0",
     "vitest": "4.1.10"
-  },
-  "overrides": {
-    "@radix-ui/react-focus-scope": "1.1.1"
   }
 }
