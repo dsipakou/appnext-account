@@ -19,14 +19,14 @@ export const useAccounts = (): Response<AccountResponse[]> => {
   } as Response<AccountResponse[]>;
 };
 
-export const useAccount = (uuid: string): Response<unknown> => {
+export const useAccount = (uuid: string): Response<AccountResponse> => {
   const { data, error, isLoading } = useSWRImmutable(uuid ? `accounts/${uuid}/` : null, fetchReq);
 
   return {
     data,
     isLoading,
     isError: error,
-  } as Response<unknown>;
+  } as Response<AccountResponse>;
 };
 
 export const useCreateAccount = () => {

@@ -1,17 +1,19 @@
 import * as React from "react";
 
-import { Category } from "@/components/categories/types";
+import type { Category } from "@/components/categories/types";
+import type { FormErrors } from "@/components/ui/form";
+import type { User } from "@/components/users/types";
+
 import { Button } from "@/components/ui/button";
 import * as Dlg from "@/components/ui/dialog";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Form, type FormErrors } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import * as Slc from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import * as Tgl from "@/components/ui/toggle-group";
-import { User } from "@/components/users/types";
 import { cn } from "@/lib/utils";
 
 export type GenericFormValues = {
@@ -22,7 +24,7 @@ export type GenericFormValues = {
   description: string;
 };
 
-interface Props {
+type Props = {
   values: GenericFormValues;
   errors: FormErrors;
   users: User[];
@@ -30,7 +32,7 @@ interface Props {
   isSubmitting: boolean;
   onChange: React.Dispatch<React.SetStateAction<GenericFormValues>>;
   onSubmit: (event: React.SubmitEvent<HTMLFormElement>) => void;
-}
+};
 
 const GenericForm: React.FC<Props> = ({
   values,

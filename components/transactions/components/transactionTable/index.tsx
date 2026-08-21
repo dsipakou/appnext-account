@@ -19,16 +19,17 @@ import {
 import { useSession } from "next-auth/react";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 
-import { useStore } from "@/app/store";
-import { CompactWeekItem } from "@/components/budget/types";
+import type { CompactWeekItem } from "@/components/budget/types";
 // Types
-import { Currency } from "@/components/currencies/types";
+import type { Currency } from "@/components/currencies/types";
+import type { TransactionBulkResponse, TransactionResponse } from "@/components/transactions/types";
+import type { User } from "@/components/users/types";
+
+import { useStore } from "@/app/store";
 import { ConfirmDeleteForm } from "@/components/transactions/forms";
-import { TransactionBulkResponse, TransactionResponse } from "@/components/transactions/types";
 // UI
 import { Button } from "@/components/ui/button";
 import * as Tbl from "@/components/ui/table";
-import { User } from "@/components/users/types";
 // Hooks
 import { useAccounts } from "@/hooks/accounts";
 import { useCategories } from "@/hooks/categories";
@@ -49,7 +50,7 @@ import { getInputStyle } from "./utils/styles";
 // Utils
 import { validateRow } from "./utils/validation";
 
-interface Types {
+type Types = {
   transactions?: TransactionResponse[];
   url?: string;
   mode?: "view" | "bulk";
@@ -57,7 +58,7 @@ interface Types {
   categoryType?: "INC" | "EXP";
   disabledColumns?: string[];
   handleCanClose?: (flag: boolean) => void;
-}
+};
 
 export type RowData = {
   id: number;
@@ -86,8 +87,8 @@ const cellWidthMap = {
 };
 
 export const TransactionsTable = ({
-  transactions = undefined,
-  budget = undefined,
+  transactions,
+  budget,
   categoryType = "EXP",
   mode = "view",
   disabledColumns = [],
@@ -97,16 +98,16 @@ export const TransactionsTable = ({
   const [user, setUser] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [editingRows, setEditingRows] = useState<Set<number>>(new Set());
-  const [editedRows, setEditedRows] = useState<{ [key: number]: RowData }>({});
+  const [editedRows, setEditedRows] = useState<Record<number, RowData>>({});
   const [snapshots, setSnapshots] = useState<RowData[][]>([]);
   const [isOpenDeleteTransactions, setIsOpenDeleteTransactions] = React.useState<boolean>(false);
   const [rowToDelete, setRowToDelete] = React.useState<RowData | null>(null);
   const [currentSnapshotIndex, setCurrentSnapshotIndex] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSavedRemote, setIsSavedRemote] = useState(false);
-  const [changedFields, setChangedFields] = useState<{ [key: number]: Set<keyof RowData> }>({});
+  const [changedFields, setChangedFields] = useState<Record<number, Set<keyof RowData>>>({});
   const [nextId, setNextId] = useState<number>(0);
-  const [invalidFields, setInvalidFields] = useState<{ [key: number]: Set<keyof RowData> }>({});
+  const [invalidFields, setInvalidFields] = useState<Record<number, Set<keyof RowData>>>({});
   const [sortConfig, setSortConfig] = useState<{
     key: keyof RowData;
     direction: "ascending" | "descending";
@@ -140,7 +141,9 @@ export const TransactionsTable = ({
   }, [disabledColumns]);
 
   React.useEffect(() => {
-    if (!authUser || users.length === 0) return;
+    if (!authUser || users.length === 0) {
+      return;
+    }
 
     const _user = users.find((item: User) => item.username === authUser.username)!;
     setUser(_user.uuid);
@@ -449,7 +452,7 @@ export const TransactionsTable = ({
         try {
           // TODO: disable row
           await handleUpdateTransaction(rowToSave);
-        } catch (error) {
+        } catch {
           // TODO: ERROR
         }
       } else {
@@ -465,7 +468,7 @@ export const TransactionsTable = ({
             type: "outcome",
             user,
           });
-        } catch (error) {
+        } catch {
           // TODO: ERROR
           return;
         } finally {
@@ -613,7 +616,7 @@ export const TransactionsTable = ({
         }
       }
     });
-    if (transactions.length) {
+    if (transactions.length > 0) {
       try {
         await handleBulkCreate(transactions);
       } catch (error) {
@@ -624,7 +627,7 @@ export const TransactionsTable = ({
     }
   };
 
-  const handleAddNewTransaction = (budget: CompactWeekItem | undefined = undefined) => {
+  const handleAddNewTransaction = (budget?: CompactWeekItem | undefined) => {
     const newRow: RowData = {
       id: nextId,
       uuid: undefined,
@@ -706,9 +709,8 @@ export const TransactionsTable = ({
       setRowToDelete(row);
       setIsOpenDeleteTransactions(true);
       return;
-    } else {
-      handleRemoveCompleted(id);
     }
+    handleRemoveCompleted(id);
   };
 
   const handleKeyDown = (
@@ -740,16 +742,22 @@ export const TransactionsTable = ({
   };
 
   const getCellTextColor = (isEditing: boolean, isChanged: boolean, isNew: boolean) => {
-    if (isEditing) return "text-blue-700";
-    if (isNew) return "text-green-700";
-    if (isChanged) return "text-amber-700";
+    if (isEditing) {
+      return "text-blue-700";
+    }
+    if (isNew) {
+      return "text-green-700";
+    }
+    if (isChanged) {
+      return "text-amber-700";
+    }
     return "text-slate-900";
   };
 
   const renderCell = (row: RowData, key: keyof RowData) => {
     const isEditing = editingRows.has(row.id);
     const value = isEditing ? editedRows[row.id][key] : row[key];
-    const currencyValue = isEditing ? editedRows[row.id]["currency"] : row["currency"];
+    const currencyValue = isEditing ? editedRows[row.id].currency : row.currency;
     const isChanged = changedFields[row.id]?.has(key);
     const isCurrencyChanged = changedFields[row.id]?.has("currency");
     const isInvalid = invalidFields[row.id]?.has(key);
@@ -929,7 +937,7 @@ export const TransactionsTable = ({
               </Tbl.TableRow>
             </Tbl.TableHeader>
             <Tbl.TableBody>
-              {Array.from(groupedData.entries()).map(([parentCategory, rows]) => {
+              {[...groupedData.entries()].map(([parentCategory, rows]) => {
                 const isCollapsed = collapsedGroups.has(parentCategory);
                 const groupTotal = getGroupTotal(rows);
 
@@ -938,7 +946,7 @@ export const TransactionsTable = ({
                     {/* Group Header Row */}
                     <Tbl.TableRow className="h-8 border-slate-200 bg-slate-50/70 transition-colors duration-150 hover:bg-slate-100/70">
                       <Tbl.TableCell
-                        colSpan={Array.from(visibleColumns).length + 1}
+                        colSpan={[...visibleColumns].length + 1}
                         className="h-8 border-b border-slate-200 px-4 py-1"
                       >
                         <div className="flex items-center justify-between">
@@ -975,10 +983,7 @@ export const TransactionsTable = ({
                     </Tbl.TableRow>
                     {/* Transaction Rows */}
                     <Tbl.TableRow className="p-0">
-                      <Tbl.TableCell
-                        colSpan={Array.from(visibleColumns).length + 1}
-                        className="p-0"
-                      >
+                      <Tbl.TableCell colSpan={[...visibleColumns].length + 1} className="p-0">
                         <div
                           className={`overflow-hidden transition-all duration-300 ease-in-out ${
                             isCollapsed ? "max-h-0" : "max-h-[2000px]"
@@ -991,7 +996,7 @@ export const TransactionsTable = ({
                             <tbody>
                               {rows.map((row: RowData) => {
                                 const isEditing = editingRows.has(row.id);
-                                const isSaved = !!row.uuid;
+                                const isSaved = Boolean(row.uuid);
                                 const isEdited = changedFields[row.id]?.size > 0;
                                 const isNew = newRows.has(row.id);
                                 return (
@@ -1022,7 +1027,7 @@ export const TransactionsTable = ({
                                                 size="sm"
                                                 variant="ghost"
                                                 className="h-7 w-7 p-0 transition-colors hover:bg-green-100 hover:text-green-700"
-                                                onClick={() => handleSave(row.id)}
+                                                onClick={async () => handleSave(row.id)}
                                               >
                                                 <CheckIcon className="h-4 w-4" />
                                               </Button>

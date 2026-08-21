@@ -1,6 +1,7 @@
 import { defineConfig } from "oxfmt";
 
 export default defineConfig({
+  embeddedLanguageFormatting: "auto",
   sortImports: {
     groups: [
       "type-import",
@@ -12,4 +13,5 @@ export default defineConfig({
       "unknown",
     ],
   },
+  sortTailwindcss: {},
 });

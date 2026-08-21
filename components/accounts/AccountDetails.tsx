@@ -1,22 +1,22 @@
-// System
 import { ArrowLeft, Wallet } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React from "react";
 
-// Components
 import AccountDetailsCard from "@/components/accounts/components/AccountDetailsCard";
-// Hooks
 import { useAccount } from "@/hooks/accounts";
 
 const AccountDetails = () => {
   const router = useRouter();
   const { uuid } = router.query;
 
-  if (typeof uuid !== "string") return;
+  if (typeof uuid !== "string") {
+    return;
+  }
 
   const { data: account } = useAccount(uuid);
-  if (!account) return;
+  if (!account) {
+    return;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">

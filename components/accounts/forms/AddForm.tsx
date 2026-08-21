@@ -1,21 +1,26 @@
-import { FC, useMemo, useState } from "react";
+import type { FC } from "react";
+
+import { useMemo, useState } from "react";
 import { useSWRConfig } from "swr";
 import * as z from "zod";
+
+import type { FormErrors } from "@/components/ui/form";
 
 import { CategoryType } from "@/components/categories/types";
 import { Button } from "@/components/ui/button";
 import * as Dlg from "@/components/ui/dialog";
-import { type FormErrors } from "@/components/ui/form";
 import { toastManager } from "@/components/ui/toast";
 import { useCreateAccount } from "@/hooks/accounts";
 import { useCategories } from "@/hooks/categories";
 import { useUsers } from "@/hooks/users";
 
-import GenericForm, { GenericFormValues } from "./GenericForm";
+import type { GenericFormValues } from "./GenericForm";
 
-interface Types {
+import GenericForm from "./GenericForm";
+
+type Types = {
   customTrigger?: React.ReactElement;
-}
+};
 
 const formSchema = z.object({
   kind: z.enum(["savings", "spending"]),

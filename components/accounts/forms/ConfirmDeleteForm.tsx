@@ -1,4 +1,6 @@
-import { FC, useEffect, useState } from "react";
+import type { FC } from "react";
+
+import { useEffect, useState } from "react";
 import { useSWRConfig } from "swr";
 
 import { Button } from "@/components/ui/button";
@@ -7,13 +9,13 @@ import { toastManager } from "@/components/ui/toast";
 import { useAccounts, useDeleteAccount } from "@/hooks/accounts";
 import { extractErrorMessage } from "@/utils/stringUtils";
 
-import { AccountResponse } from "../types";
+import type { AccountResponse } from "../types";
 
-interface Types {
+type Types = {
   uuid: string;
   open: boolean;
   setOpen: (open: boolean) => void;
-}
+};
 
 const ConfirmDeleteForm: FC<Types> = ({ uuid, open = false, setOpen }) => {
   const [account, setAccount] = useState<AccountResponse>();
@@ -23,7 +25,9 @@ const ConfirmDeleteForm: FC<Types> = ({ uuid, open = false, setOpen }) => {
 
   const { mutate } = useSWRConfig();
   useEffect(() => {
-    if (!accounts) return;
+    if (!accounts) {
+      return;
+    }
 
     const _account = accounts.find((item: AccountResponse) => item.uuid === uuid);
     if (_account != null) {
@@ -32,7 +36,9 @@ const ConfirmDeleteForm: FC<Types> = ({ uuid, open = false, setOpen }) => {
   }, [accounts, uuid]);
 
   const handleDelete = async () => {
-    if (account == null) return;
+    if (account == null) {
+      return;
+    }
 
     try {
       await deleteAccount();

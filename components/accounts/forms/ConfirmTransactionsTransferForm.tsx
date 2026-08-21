@@ -5,12 +5,12 @@ import * as Dlg from "@/components/ui/dialog";
 import { toastManager } from "@/components/ui/toast";
 import { useReassignTransactions } from "@/hooks/accounts";
 
-interface Types {
+type Types = {
   open: boolean;
   setOpen: (value: boolean) => void;
   sourceAccount: string;
   destAccount: string | undefined;
-}
+};
 
 const ConfirmTransactionsTransferForm: React.FC<Types> = ({
   open,

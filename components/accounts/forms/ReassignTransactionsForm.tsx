@@ -1,12 +1,14 @@
 import React from "react";
 import * as z from "zod";
 
+import type { AccountResponse } from "@/components/accounts/types";
+import type { FormErrors } from "@/components/ui/form";
+
 import { ConfirmTransactionsTransferForm } from "@/components/accounts/forms";
-import { AccountResponse } from "@/components/accounts/types";
 import { Button } from "@/components/ui/button";
 import * as Dlg from "@/components/ui/dialog";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Form, type FormErrors } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import * as Slc from "@/components/ui/select";
 import { useAccounts } from "@/hooks/accounts";
 
@@ -16,11 +18,11 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface Types {
+type Types = {
   uuid: string;
   open: boolean;
   setOpen: (open: boolean) => void;
-}
+};
 
 const ReassignTransactionsForm: React.FC<Types> = ({ uuid, open = false, setOpen }) => {
   const [isConfirmTransferOpen, setIsConfirmTransferOpen] = React.useState<boolean>(false);
