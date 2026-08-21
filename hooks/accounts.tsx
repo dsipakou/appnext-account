@@ -3,7 +3,7 @@
 import useSWRImmutable from "swr/immutable";
 import useSWRMutation from "swr/mutation";
 
-import { AccountResponse } from "@/components/accounts/types";
+import { AccountDetails, AccountResponse } from "@/components/accounts/types";
 import { deleteReq, fetchReq, patchReq, postReq } from "@/plugins/axios";
 
 import { Response } from "./types";
@@ -19,14 +19,14 @@ export const useAccounts = (): Response<AccountResponse[]> => {
   } as Response<AccountResponse[]>;
 };
 
-export const useAccount = (uuid: string): Response<AccountResponse> => {
+export const useAccount = (uuid: string): Response<AccountDetails> => {
   const { data, error, isLoading } = useSWRImmutable(uuid ? `accounts/${uuid}/` : null, fetchReq);
 
   return {
     data,
     isLoading,
     isError: error,
-  } as Response<AccountResponse>;
+  } as Response<AccountDetails>;
 };
 
 export const useCreateAccount = () => {

@@ -1,4 +1,4 @@
-export interface Account {
+export type Account = {
   uuid: string;
   title: string;
   kind: string;
@@ -6,9 +6,19 @@ export interface Account {
   user: string;
   isDefault: boolean;
   description: string;
-}
+};
 
-export interface AccountResponse extends Account {
+export type AccountResponse = {
   createdAt: string;
   modifiedAt: string;
-}
+} & Account;
+
+type Usage = {
+  month: string;
+  spendings: number;
+  income: number;
+};
+
+export type AccountDetails = {
+  usage: Usage[];
+} & AccountResponse;
