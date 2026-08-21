@@ -54,9 +54,9 @@ const CalendarBudgetItem: React.FC<Types> = ({ item, date, currency, clickShowTr
     <div className="flex w-full flex-col gap-2">
       <div className="flex w-full justify-between">
         <span
-          className={
-            isSameDay(date, new Date()) && "rounded-full bg-blue-500 px-1 font-bold text-white"
-          }
+          className={cn(
+            isSameDay(date, new Date()) && "rounded-full bg-blue-500 px-1 font-bold text-white",
+          )}
         >
           {format(date, "d")}
         </span>
