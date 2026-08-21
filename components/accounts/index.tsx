@@ -1,16 +1,12 @@
-// System
 import { useSession } from "next-auth/react";
 import * as React from "react";
 
 import AccountCard from "@/components/accounts/components/AccountCard";
 import { User } from "@/components/users/types";
-// Hooks
 import { useAccounts } from "@/hooks/accounts";
 import { useUsers } from "@/hooks/users";
 
-// Components
 import { AddForm as AddAccount } from "./forms";
-// Types
 import { AccountResponse } from "./types";
 
 const Index: React.FC = () => {

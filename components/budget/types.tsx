@@ -1,27 +1,28 @@
 export type RecurrentTypes = "monthly" | "weekly";
 
-export interface CurrencyMap {
+export type CurrencyMap = {
   [key: string]: number;
-}
+};
 
-export interface PlannedMap {
+export type PlannedMap = {
   planned: number;
   plannedInCurrencies: CurrencyMap;
-}
+};
 
-export interface SpentMap {
+export type SpentMap = {
   spentInBaseCurrency: number;
   spentInCurrencies: CurrencyMap;
   spentInOriginalCurrency: number;
-}
+};
 
-export interface GroupedByCategoryBudget extends PlannedMap, SpentMap {
+export type GroupedByCategoryBudget = {
   uuid: string;
   categoryName: string;
   budgets: MonthGroupedBudgetItem[];
-}
+} & PlannedMap &
+  SpentMap;
 
-export interface MonthGroupedBudgetItem {
+export type MonthGroupedBudgetItem = {
   uuid: string;
   title: string;
   items: MonthBudgetItem[];
@@ -32,13 +33,9 @@ export interface MonthGroupedBudgetItem {
   spentInCurrencies: CurrencyMap;
   spentInCurrenciesOverall: CurrencyMap;
   plannedInCurrencies: CurrencyMap;
-}
+};
 
-export interface BudgetSlim {
-  title: string;
-}
-
-export interface MonthBudgetItem extends PlannedMap, SpentMap {
+export type MonthBudgetItem = {
   uuid: string;
   title: string;
   category: string;
@@ -52,9 +49,10 @@ export interface MonthBudgetItem extends PlannedMap, SpentMap {
   isCompleted: boolean;
   createdAt: string;
   modifiedAt: string;
-}
+} & PlannedMap &
+  SpentMap;
 
-export interface WeekBudgetItem extends PlannedMap, SpentMap {
+export type WeekBudgetItem = {
   uuid: string;
   title: string;
   user: string;
@@ -68,14 +66,15 @@ export interface WeekBudgetItem extends PlannedMap, SpentMap {
   budgetDate: string;
   createdAt: string;
   modifiedAt: string;
-}
+} & PlannedMap &
+  SpentMap;
 
-export interface WeekBudgetResponse {
+export type WeekBudgetResponse = {
   data: WeekBudgetItem[];
   isLoading: boolean;
-}
+};
 
-export interface CompactWeekItem {
+export type CompactWeekItem = {
   uuid: string;
   title: string;
   user: string;
@@ -88,16 +87,16 @@ export interface CompactWeekItem {
   numberOfRepetitions?: number | null;
   isCompleted: boolean;
   budgetDate: string;
-}
+};
 
-export interface TransactionItem extends SpentMap {
+export type TransactionItem = {
   uuid: string;
   currency: string;
   currencyCode: string;
   transactionDate: string;
-}
+} & SpentMap;
 
-export interface BudgetItem {
+export type BudgetItem = {
   title: string;
   amount: string;
   currency: string;
@@ -108,9 +107,9 @@ export interface BudgetItem {
   budgetDate: string;
   description: string;
   isCompleted: boolean;
-}
+};
 
-export interface MonthSummedUsage {
+export type MonthSummedUsage = {
   month: string;
   amount: number;
-}
+};
