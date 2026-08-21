@@ -47,7 +47,7 @@ const AccountCard: React.FC<Types> = ({ account }) => {
   const user = getUser(account.user);
 
   return (
-    <div className="relative flex flex-row justify-between overflow-hidden rounded-2xl bg-white p-2">
+    <div className="relative flex flex-row justify-between overflow-hidden bg-white p-2">
       <div className="pointer-events-none absolute -top-24 -right-20 size-48 rounded-full bg-cyan-200/45 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 left-6 size-44 rounded-full bg-violet-200/35 blur-3xl" />
 

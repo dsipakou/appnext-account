@@ -1,6 +1,7 @@
 export interface Account {
   uuid: string;
   title: string;
+  kind: string;
   category: string | null;
   user: string;
   isDefault: boolean;

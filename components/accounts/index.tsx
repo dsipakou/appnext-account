@@ -40,9 +40,9 @@ const Index: React.FC = () => {
         <AddAccount />
       </div>
       {sortedYourAccounts.length === 0 && noAccounts}
-      <div className="rounded-xl bg-white p-3">
-        Your accounts
-        <div className="flex flex-col gap-1 rounded-xl bg-white p-4">
+      <div className="rounded-xl bg-white pt-3">
+        <span className="p-3">Your accounts</span>
+        <div className="flex flex-col rounded-xl bg-white py-3">
           {sortedYourAccounts.map((item: AccountResponse) => (
             <div key={item.uuid}>
               <AccountCard account={item} />
@@ -50,9 +50,9 @@ const Index: React.FC = () => {
           ))}
         </div>
       </div>
-      <div className="rounded-xl bg-white p-3">
-        Other accounts
-        <div className="flex flex-col gap-1 rounded-xl bg-white p-4">
+      <div className="rounded-xl bg-white pt-3">
+        <span className="p-3">Other accounts</span>
+        <div className="flex flex-col rounded-xl bg-white py-3">
           {otherAccounts.map((item: AccountResponse) => (
             <div key={item.uuid}>
               <AccountCard account={item} />
