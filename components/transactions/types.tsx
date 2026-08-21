@@ -1,4 +1,4 @@
-export type Sorting = 'added';
+export type Sorting = "added";
 
 export interface TransactionResponse {
   uuid: string;

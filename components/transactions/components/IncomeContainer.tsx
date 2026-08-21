@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 
-import { ConfirmDeleteForm, EditIncomeForm } from '@/components/transactions/forms';
+import { ConfirmDeleteForm, EditIncomeForm } from "@/components/transactions/forms";
 import {
   Select,
   SelectContent,
@@ -9,10 +9,10 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 
-import { TransactionResponse } from '../types';
-import { TransactionsTable } from './transactionTable';
+import { TransactionResponse } from "../types";
+import { TransactionsTable } from "./transactionTable";
 
 interface Types {
   transactions: TransactionResponse[];
@@ -22,10 +22,16 @@ interface Types {
   setYear: (value: number) => void;
 }
 
-const IncomeComponent: React.FC<Types> = ({ transactions = [], transactionsUrl, isLoading, year, setYear }) => {
+const IncomeComponent: React.FC<Types> = ({
+  transactions = [],
+  transactionsUrl,
+  isLoading,
+  year,
+  setYear,
+}) => {
   const [isOpenEditIncome, setIsOpenEditIncome] = React.useState<boolean>(false);
   const [isOpenDeleteIncome, setIsOpenDeleteIncome] = React.useState<boolean>(false);
-  const [activeIncomeUuid, setActiveIncomeUuid] = React.useState<string>('');
+  const [activeIncomeUuid, setActiveIncomeUuid] = React.useState<string>("");
 
   const currentYear = new Date().getFullYear();
   const startYear = 2000;
@@ -74,7 +80,7 @@ const IncomeComponent: React.FC<Types> = ({ transactions = [], transactionsUrl, 
           transactions={transactions}
           url={transactionsUrl}
           categoryType="INC"
-          disabledColumns={['budget']}
+          disabledColumns={["budget"]}
         />
       </div>
       {isOpenEditIncome && (

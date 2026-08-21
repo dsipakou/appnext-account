@@ -1,7 +1,7 @@
-import React from 'react';
+import React from "react";
 
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export enum ReportPages {
   Overall,
@@ -15,7 +15,11 @@ interface Types {
   changeReportType: (page: ReportPages) => void;
 }
 
-const ReportTypeSwitcher: React.FC<Types> = ({ activePage = ReportPages.Overall, wip = false, changeReportType }) => {
+const ReportTypeSwitcher: React.FC<Types> = ({
+  activePage = ReportPages.Overall,
+  wip = false,
+  changeReportType,
+}) => {
   return (
     <div className="flex w-full justify-center">
       <div className="flex rounded-md border bg-blue-500">
@@ -27,8 +31,8 @@ const ReportTypeSwitcher: React.FC<Types> = ({ activePage = ReportPages.Overall,
         >
           <span
             className={cn(
-              'flex h-full w-full items-center justify-center text-xl text-white',
-              activePage === ReportPages.Overall && 'rounded-sm bg-white text-blue-500',
+              "flex h-full w-full items-center justify-center text-xl text-white",
+              activePage === ReportPages.Overall && "rounded-sm bg-white text-blue-500",
             )}
           >
             Overall
@@ -42,8 +46,8 @@ const ReportTypeSwitcher: React.FC<Types> = ({ activePage = ReportPages.Overall,
         >
           <span
             className={cn(
-              'flex h-full w-full items-center justify-center text-xl text-white',
-              activePage === ReportPages.Chart && 'rounded-sm bg-white text-blue-500',
+              "flex h-full w-full items-center justify-center text-xl text-white",
+              activePage === ReportPages.Chart && "rounded-sm bg-white text-blue-500",
             )}
           >
             Chart
@@ -58,8 +62,8 @@ const ReportTypeSwitcher: React.FC<Types> = ({ activePage = ReportPages.Overall,
           >
             <span
               className={cn(
-                'flex h-full w-full items-center justify-center text-xl text-white',
-                activePage === ReportPages.Details && 'rounded-sm bg-white text-blue-500',
+                "flex h-full w-full items-center justify-center text-xl text-white",
+                activePage === ReportPages.Details && "rounded-sm bg-white text-blue-500",
               )}
             >
               Details

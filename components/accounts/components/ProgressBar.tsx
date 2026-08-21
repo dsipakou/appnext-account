@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface ProgressBarProps {
   value: number;
@@ -7,7 +7,12 @@ interface ProgressBarProps {
   label?: string;
 }
 
-export function ProgressBar({ value, maxValue, colorClass = 'bg-blue-600', label }: ProgressBarProps) {
+export function ProgressBar({
+  value,
+  maxValue,
+  colorClass = "bg-blue-600",
+  label,
+}: ProgressBarProps) {
   const percentage = Math.min((value / maxValue) * 100, 100);
 
   return (

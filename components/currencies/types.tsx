@@ -49,7 +49,7 @@ export interface ChartRates {
   data: ChartRate[];
 }
 
-export type ChartPeriod = 'month' | 'quarter' | 'biannual' | 'annual';
+export type ChartPeriod = "month" | "quarter" | "biannual" | "annual";
 
 export const ChartPeriodMap = {
   month: 30,

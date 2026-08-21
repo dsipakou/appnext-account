@@ -1,14 +1,19 @@
-import { addMonths, endOfMonth, startOfMonth, subMonths } from 'date-fns';
-import { useSession } from 'next-auth/react';
-import React from 'react';
+import { addMonths, endOfMonth, startOfMonth, subMonths } from "date-fns";
+import { useSession } from "next-auth/react";
+import React from "react";
 
-import { useStore } from '@/app/store';
-import { TransactionsReportResponse } from '@/components/transactions/types';
-import * as Tbl from '@/components/ui/table';
-import { useTransactionsReport } from '@/hooks/transactions';
-import { getFormattedDate, parseAndFormatDate, REPORT_FORMAT, SHORT_YEAR_MONTH_FORMAT } from '@/utils/dateUtils';
+import { useStore } from "@/app/store";
+import { TransactionsReportResponse } from "@/components/transactions/types";
+import * as Tbl from "@/components/ui/table";
+import { useTransactionsReport } from "@/hooks/transactions";
+import {
+  getFormattedDate,
+  parseAndFormatDate,
+  REPORT_FORMAT,
+  SHORT_YEAR_MONTH_FORMAT,
+} from "@/utils/dateUtils";
 
-import MonthRangeCalendar from './MonthRangeCalendar';
+import MonthRangeCalendar from "./MonthRangeCalendar";
 
 const ReportOverall: React.FC = () => {
   const [date, setDate] = React.useState<Date>(new Date());
@@ -25,7 +30,9 @@ const ReportOverall: React.FC = () => {
 
   const currencySign = useStore((state) => state.currency.sign);
 
-  const dates = [...new Set(reportResponse.map((item: TransactionsReportResponse) => item.month))].sort();
+  const dates = [
+    ...new Set(reportResponse.map((item: TransactionsReportResponse) => item.month)),
+  ].sort();
 
   const days: number[] = Array(31)
     .fill(0)
@@ -35,8 +42,9 @@ const ReportOverall: React.FC = () => {
     const eachMonthValues: Record<string, number> = {};
     dates.forEach((date: string, innerIndex: number) => {
       eachMonthValues[`month${innerIndex + 1}`] =
-        reportResponse.find((item: TransactionsReportResponse) => item.month === date && item.day === day)
-          ?.groupedAmount || 0;
+        reportResponse.find(
+          (item: TransactionsReportResponse) => item.month === date && item.day === day,
+        )?.groupedAmount || 0;
     });
     const row = {
       id: index + 1,
@@ -87,7 +95,9 @@ const ReportOverall: React.FC = () => {
             {aggregatedRows.map((row) => (
               <Tbl.TableRow
                 key={row.id}
-                className={row.id === new Date().getDate() ? 'bg-slate-300 text-slate-800' : undefined}
+                className={
+                  row.id === new Date().getDate() ? "bg-slate-300 text-slate-800" : undefined
+                }
               >
                 <Tbl.TableCell className="font-semibold">{row.day}</Tbl.TableCell>
                 {dates.map((month, index) => (

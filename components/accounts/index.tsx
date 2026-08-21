@@ -1,17 +1,17 @@
 // System
-import { useSession } from 'next-auth/react';
-import * as React from 'react';
+import { useSession } from "next-auth/react";
+import * as React from "react";
 
-import AccountCard from '@/components/accounts/components/AccountCard';
-import { User } from '@/components/users/types';
+import AccountCard from "@/components/accounts/components/AccountCard";
+import { User } from "@/components/users/types";
 // Hooks
-import { useAccounts } from '@/hooks/accounts';
-import { useUsers } from '@/hooks/users';
+import { useAccounts } from "@/hooks/accounts";
+import { useUsers } from "@/hooks/users";
 
 // Components
-import { AddForm as AddAccount } from './forms';
+import { AddForm as AddAccount } from "./forms";
 // Types
-import { AccountResponse } from './types';
+import { AccountResponse } from "./types";
 
 const Index: React.FC = () => {
   const { data: accounts = [] } = useAccounts();
@@ -19,12 +19,16 @@ const Index: React.FC = () => {
   const { data: users = [] } = useUsers();
 
   const authUser = users.find((item: User) => item.username === session?.user?.username);
-  const yourAccounts = authUser ? accounts.filter((item: AccountResponse) => item.user === authUser.uuid) : [];
+  const yourAccounts = authUser
+    ? accounts.filter((item: AccountResponse) => item.user === authUser.uuid)
+    : [];
   const sortedYourAccounts = yourAccounts.sort((a: AccountResponse, b: AccountResponse) => {
     if (a.isDefault && !b.isDefault) return a.isDefault ? -1 : 1;
     return a.title.localeCompare(b.title);
   });
-  const otherAccounts = authUser ? accounts.filter((item: AccountResponse) => item.user !== authUser.uuid) : accounts;
+  const otherAccounts = authUser
+    ? accounts.filter((item: AccountResponse) => item.user !== authUser.uuid)
+    : accounts;
   const sortedAccounts = [...yourAccounts, ...otherAccounts];
 
   const noAccounts = (

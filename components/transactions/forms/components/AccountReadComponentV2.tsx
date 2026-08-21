@@ -1,5 +1,5 @@
-import { CreditCard } from 'lucide-react';
-import React from 'react';
+import { CreditCard } from "lucide-react";
+import React from "react";
 
 const AccountReadComponentV2: React.FC<Types> = (params) => {
   return (

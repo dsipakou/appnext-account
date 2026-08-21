@@ -1,3 +1,3 @@
-import GeneralSummaryCard from './GeneralSummaryCard';
+import GeneralSummaryCard from "./GeneralSummaryCard";
 
 export { GeneralSummaryCard };

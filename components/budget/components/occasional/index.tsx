@@ -1,15 +1,15 @@
-import { Calendar, CheckCircle, DollarSign, User } from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import React from 'react';
+import { Calendar, CheckCircle, DollarSign, User } from "lucide-react";
+import { useSession } from "next-auth/react";
+import React from "react";
 
-import { useStore } from '@/app/store';
-import { BudgetItem } from '@/components/budget/types';
-import { Category } from '@/components/categories/types';
-import { Badge } from '@/components/ui/badge';
-import { useOccasionalBudgets } from '@/hooks/budget';
-import { useCategories } from '@/hooks/categories';
-import { getFormattedDate } from '@/utils/dateUtils';
-import { formatMoney } from '@/utils/numberUtils';
+import { useStore } from "@/app/store";
+import { BudgetItem } from "@/components/budget/types";
+import { Category } from "@/components/categories/types";
+import { Badge } from "@/components/ui/badge";
+import { useOccasionalBudgets } from "@/hooks/budget";
+import { useCategories } from "@/hooks/categories";
+import { getFormattedDate } from "@/utils/dateUtils";
+import { formatMoney } from "@/utils/numberUtils";
 
 interface OccasionalBudgetItemProps {
   budget: BudgetItem;
@@ -17,10 +17,16 @@ interface OccasionalBudgetItemProps {
   currencySign: string;
 }
 
-const OccasionalBudgetItem: React.FC<OccasionalBudgetItemProps> = ({ budget, categories, currencySign }) => {
-  const getCategoryIcon = (uuid: string) => categories.find((cat) => cat.uuid === uuid)?.icon || '📝';
+const OccasionalBudgetItem: React.FC<OccasionalBudgetItemProps> = ({
+  budget,
+  categories,
+  currencySign,
+}) => {
+  const getCategoryIcon = (uuid: string) =>
+    categories.find((cat) => cat.uuid === uuid)?.icon || "📝";
 
-  const getCategoryName = (uuid: string) => categories.find((cat) => cat.uuid === uuid)?.name || 'Unknown';
+  const getCategoryName = (uuid: string) =>
+    categories.find((cat) => cat.uuid === uuid)?.name || "Unknown";
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-md transition-shadow hover:shadow-lg">
@@ -51,7 +57,7 @@ const OccasionalBudgetItem: React.FC<OccasionalBudgetItemProps> = ({ budget, cat
             <Calendar className="h-4 w-4" />
             <span>Date</span>
           </div>
-          <span>{getFormattedDate(budget.budgetDate, 'MMM dd, yyyy')}</span>
+          <span>{getFormattedDate(budget.budgetDate, "MMM dd, yyyy")}</span>
         </div>
 
         <div className="flex items-center justify-between text-sm">
@@ -63,7 +69,9 @@ const OccasionalBudgetItem: React.FC<OccasionalBudgetItemProps> = ({ budget, cat
         </div>
 
         {budget.description && (
-          <div className="mt-3 rounded bg-gray-50 p-2 text-sm text-gray-700">{budget.description}</div>
+          <div className="mt-3 rounded bg-gray-50 p-2 text-sm text-gray-700">
+            {budget.description}
+          </div>
         )}
       </div>
     </div>

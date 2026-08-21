@@ -1,14 +1,18 @@
-import { CornerUpLeft } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import React from 'react';
+import { CornerUpLeft } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import React from "react";
 
-import { AddForm, ConfirmDeleteForm, ReassignTransactionsForm } from '@/components/categories/forms';
-import Toolbar from '@/components/common/layout/Toolbar';
-import { Button } from '@/components/ui/button';
-import { useCategories } from '@/hooks/categories';
+import {
+  AddForm,
+  ConfirmDeleteForm,
+  ReassignTransactionsForm,
+} from "@/components/categories/forms";
+import Toolbar from "@/components/common/layout/Toolbar";
+import { Button } from "@/components/ui/button";
+import { useCategories } from "@/hooks/categories";
 
-import { Category } from '../types';
+import { Category } from "../types";
 
 const Category = () => {
   const [parentCategory, setParentCategory] = React.useState<Category>();
@@ -23,7 +27,9 @@ const Category = () => {
     if (!categories) return;
 
     const parentCategory = categories.find((item: Category) => item.uuid === parentUuid);
-    const childrenCategories = categories.filter((item: Category) => item.parent === parentCategory?.uuid);
+    const childrenCategories = categories.filter(
+      (item: Category) => item.parent === parentCategory?.uuid,
+    );
 
     setParentCategory(parentCategory);
     setChildrenCategories(childrenCategories);
@@ -78,7 +84,9 @@ const Category = () => {
         <AddForm parent={parentCategory} />
       </Toolbar>
       <div className="grid grid-cols-3 justify-center gap-4">
-        <div className="col-span-3">{parentCategory != null && parentCategoryCard(parentCategory)}</div>
+        <div className="col-span-3">
+          {parentCategory != null && parentCategoryCard(parentCategory)}
+        </div>
         {childrenCategories.length === 0 && (
           <div className="col-span-3">
             <span className="text-md flex w-full justify-center from-indigo-400">

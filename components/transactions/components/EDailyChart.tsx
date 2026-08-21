@@ -1,10 +1,10 @@
-import ReactECharts from 'echarts-for-react';
-import { useSession } from 'next-auth/react';
-import React from 'react';
+import ReactECharts from "echarts-for-react";
+import { useSession } from "next-auth/react";
+import React from "react";
 
-import { useStore } from '@/app/store';
+import { useStore } from "@/app/store";
 // Types
-import { TransactionResponse } from '@/components/transactions/types';
+import { TransactionResponse } from "@/components/transactions/types";
 
 interface Types {
   transactions: TransactionResponse[];
@@ -25,7 +25,8 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
   const groupedTransactions = React.useMemo(
     () =>
       transactions.reduce((acc, item: TransactionResponse) => {
-        const summ = (acc[item.categoryDetails.parentName] || 0) + item.spentInCurrencies[user?.currency];
+        const summ =
+          (acc[item.categoryDetails.parentName] || 0) + item.spentInCurrencies[user?.currency];
         acc[item.categoryDetails.parentName] = summ;
         return acc;
       }, {}),
@@ -43,7 +44,7 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
 
     setOptions({
       tooltip: {
-        trigger: 'item',
+        trigger: "item",
         formatter: (params) => {
           const { name, value, percent } = params;
           return `
@@ -55,37 +56,37 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
           </div>
         `;
         },
-        extraCssText: 'box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); border-radius: 4px;',
+        extraCssText: "box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); border-radius: 4px;",
       },
       label: {
         show: true,
-        position: 'outside',
+        position: "outside",
       },
       series: [
         {
-          name: 'Expenses',
-          type: 'pie',
-          radius: ['40%', '70%'],
+          name: "Expenses",
+          type: "pie",
+          radius: ["40%", "70%"],
           avoidLabelOverlap: false,
           itemStyle: {
             borderRadius: 10,
-            borderColor: '#fff',
+            borderColor: "#fff",
             borderWidth: 2,
           },
           label: {
             show: true,
-            position: 'inside',
+            position: "inside",
             formatter: (params) => {
               const percent = params.percent;
               return percent < 2 ? `{d|${percent.toFixed(1)}%}` : `{d|${Math.round(percent)}%}`;
             },
             fontSize: 12,
-            fontWeight: 'bold',
-            color: '#fff',
+            fontWeight: "bold",
+            color: "#fff",
             rich: {
               d: {
                 fontSize: 12,
-                fontWeight: 'bold',
+                fontWeight: "bold",
                 padding: [2, 4],
                 borderRadius: 2,
               },
@@ -95,7 +96,7 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
             label: {
               show: true,
               fontSize: 14,
-              fontWeight: 'bold',
+              fontWeight: "bold",
             },
           },
           labelLine: {
@@ -109,7 +110,7 @@ const DailyChart: React.FC<Types> = ({ transactions }) => {
 
   return (
     <div className="relative h-[330px] w-full">
-      <ReactECharts style={{ height: '100%', width: '100%' }} option={options} notMerge={true} />
+      <ReactECharts style={{ height: "100%", width: "100%" }} option={options} notMerge={true} />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform text-center">
         <p className="text-2xl font-bold">
           {totalAmount.toFixed(2)} {currencySign}

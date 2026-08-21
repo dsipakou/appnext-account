@@ -1,15 +1,16 @@
+import type { KeyboardEvent, MouseEvent } from "react";
+
 import {
   KeyboardSensor as LibKeyboardSensor,
   MouseSensor as LibMouseSensor,
   PointerSensor,
   useDraggable,
   useDroppable,
-} from '@dnd-kit/core';
-import { GripHorizontal } from 'lucide-react';
-import type { KeyboardEvent, MouseEvent } from 'react';
-import React from 'react';
+} from "@dnd-kit/core";
+import { GripHorizontal } from "lucide-react";
+import React from "react";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 interface DroppableTypes {
   id: string;
@@ -28,9 +29,13 @@ interface DraggableTypes {
 export class SmartPointerSensor extends PointerSensor {
   static activators = [
     {
-      eventName: 'onPointerDown' as any,
+      eventName: "onPointerDown" as any,
       handler: ({ nativeEvent: event }: PointerEvent) => {
-        if (!event.isPrimary || event.button !== 0 || isInteractiveElement(event.target as Element)) {
+        if (
+          !event.isPrimary ||
+          event.button !== 0 ||
+          isInteractiveElement(event.target as Element)
+        ) {
           return false;
         }
 
@@ -41,7 +46,7 @@ export class SmartPointerSensor extends PointerSensor {
 }
 
 function isInteractiveElement(element: Element | null) {
-  const interactiveElements = ['button', 'input', 'textarea', 'select', 'option'];
+  const interactiveElements = ["button", "input", "textarea", "select", "option"];
   if (element?.tagName && interactiveElements.includes(element.tagName.toLowerCase())) {
     return true;
   }
@@ -64,7 +69,7 @@ const Droppable: React.ReactNode<DroppableTypes> = ({ id, children, onHover, cla
 export class MouseSensor extends LibMouseSensor {
   static activators = [
     {
-      eventName: 'onMouseDown' as const,
+      eventName: "onMouseDown" as const,
       handler: ({ nativeEvent: event }: MouseEvent) => {
         return shouldHandleEvent(event.target as HTMLElement);
       },
@@ -75,7 +80,7 @@ export class MouseSensor extends LibMouseSensor {
 export class KeyboardSensor extends LibKeyboardSensor {
   static activators = [
     {
-      eventName: 'onKeyDown' as const,
+      eventName: "onKeyDown" as const,
       handler: ({ nativeEvent: event }: KeyboardEvent<Element>) => {
         return shouldHandleEvent(event.target as HTMLElement);
       },
@@ -108,16 +113,16 @@ const Draggable: React.ReactNode<DraggableTypes> = ({ id, isLoading, children, c
     : undefined;
 
   return (
-    <div ref={setNodeRef} style={style} className={cn(className, 'pt-0')}>
+    <div ref={setNodeRef} style={style} className={cn(className, "pt-0")}>
       {isLoading ? (
-        <button className={cn('mb-1 flex h-4 w-4 cursor-default self-center text-zinc-200')}>
+        <button className={cn("mb-1 flex h-4 w-4 cursor-default self-center text-zinc-200")}>
           <GripHorizontal />
         </button>
       ) : (
         <button
           {...listeners}
           {...attributes}
-          className={cn('mb-1 flex h-4 w-4 cursor-move self-center text-zinc-700')}
+          className={cn("mb-1 flex h-4 w-4 cursor-move self-center text-zinc-700")}
         >
           <GripHorizontal />
         </button>

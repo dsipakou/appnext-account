@@ -1,21 +1,21 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { Category } from '@/components/categories/types';
-import { Button } from '@/components/ui/button';
-import * as Dlg from '@/components/ui/dialog';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form, type FormErrors } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import * as Slc from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import * as Tgl from '@/components/ui/toggle-group';
-import { User } from '@/components/users/types';
-import { cn } from '@/lib/utils';
+import { Category } from "@/components/categories/types";
+import { Button } from "@/components/ui/button";
+import * as Dlg from "@/components/ui/dialog";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Form, type FormErrors } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import * as Slc from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import * as Tgl from "@/components/ui/toggle-group";
+import { User } from "@/components/users/types";
+import { cn } from "@/lib/utils";
 
 export type GenericFormValues = {
-  kind: 'savings' | 'spending';
+  kind: "savings" | "spending";
   title: string;
   user: string;
   category: string;
@@ -62,7 +62,7 @@ const GenericForm: React.FC<Props> = ({
 
                 onChange((current) => ({
                   ...current,
-                  kind: kind as GenericFormValues['kind'],
+                  kind: kind as GenericFormValues["kind"],
                 }));
               }}
               disabled={isSubmitting}
@@ -114,7 +114,7 @@ const GenericForm: React.FC<Props> = ({
                       user,
                     }))
                   }
-                  value={values.user || ''}
+                  value={values.user || ""}
                   disabled={isSubmitting}
                   items={users.map((item) => ({
                     label: item.username,
@@ -151,22 +151,22 @@ const GenericForm: React.FC<Props> = ({
                   onCheckedChange={(checked) =>
                     onChange((current) => ({
                       ...current,
-                      category: checked ? (incomeCategories[0]?.uuid ?? '') : '',
+                      category: checked ? (incomeCategories[0]?.uuid ?? "") : "",
                     }))
                   }
                   disabled={isSubmitting}
                 />
               </div>
 
-              <div className={cn('flex w-full flex-1', !hasIncomeCategory && 'hidden')}>
+              <div className={cn("flex w-full flex-1", !hasIncomeCategory && "hidden")}>
                 <Slc.Select
                   onValueChange={(category) =>
                     onChange((current) => ({
                       ...current,
-                      category: category === 'none' ? '' : category,
+                      category: category === "none" ? "" : category,
                     }))
                   }
-                  value={values.category || incomeCategories[0]?.uuid || ''}
+                  value={values.category || incomeCategories[0]?.uuid || ""}
                   disabled={isSubmitting}
                   items={incomeCategories.map((item) => ({
                     label: item.name,

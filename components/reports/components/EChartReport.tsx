@@ -1,16 +1,16 @@
-import { endOfMonth, getDate, startOfMonth, subMonths } from 'date-fns';
-import ReactECharts from 'echarts-for-react';
-import { useSession } from 'next-auth/react';
-import React from 'react';
+import { endOfMonth, getDate, startOfMonth, subMonths } from "date-fns";
+import ReactECharts from "echarts-for-react";
+import { useSession } from "next-auth/react";
+import React from "react";
 
-import { useStore } from '@/app/store';
-import { Checkbox } from '@/components/ui/checkbox';
-import * as Slc from '@/components/ui/select';
-import { useTransactionsMonthlyReport } from '@/hooks/transactions';
-import { getFormattedDate } from '@/utils/dateUtils';
+import { useStore } from "@/app/store";
+import { Checkbox } from "@/components/ui/checkbox";
+import * as Slc from "@/components/ui/select";
+import { useTransactionsMonthlyReport } from "@/hooks/transactions";
+import { getFormattedDate } from "@/utils/dateUtils";
 
-import { ChartCategory, ChartData } from '../types';
-import MonthRangeCalendar from './MonthRangeCalendar';
+import { ChartCategory, ChartData } from "../types";
+import MonthRangeCalendar from "./MonthRangeCalendar";
 
 interface GroupByCategory {
   [key: string]: number[];
@@ -46,13 +46,18 @@ const generateIncomeHeader = (incomeTotal: number, currencySign: string) => `
     </div>
 `;
 
-const generateCategoryRow = (item: any, isHovered: boolean, currencySign: string, isIncome: boolean = false) => `
-  <div style="background-color: ${isHovered && item.color}" class="flex w-full items-center py-[2px] ${isHovered && 'text-white rounded-l-sm'}">
+const generateCategoryRow = (
+  item: any,
+  isHovered: boolean,
+  currencySign: string,
+  isIncome: boolean = false,
+) => `
+  <div style="background-color: ${isHovered && item.color}" class="flex w-full items-center py-[2px] ${isHovered && "text-white rounded-l-sm"}">
     <div style="background-color: ${item.color}" class="h-4 w-1 mr-3"></div>
-    <span class="${isHovered && 'font-bold text-lg'} w-full overflow-hidden">${item.seriesName}</span>
+    <span class="${isHovered && "font-bold text-lg"} w-full overflow-hidden">${item.seriesName}</span>
   </div>
-  <div style="background-color: ${isHovered && item.color}" class="flex w-fit text-right items-center px-5 ${isHovered ? 'font-semibold text-lg text-white rounded-r-sm' : 'text-sm'}">
-    ${isIncome ? '<span class="w-full">' : ''}${isIncome ? '+' : '-'} ${Number(item.value).toFixed(2)} ${currencySign}${isIncome ? '</span>' : ''}
+  <div style="background-color: ${isHovered && item.color}" class="flex w-fit text-right items-center px-5 ${isHovered ? "font-semibold text-lg text-white rounded-r-sm" : "text-sm"}">
+    ${isIncome ? '<span class="w-full">' : ""}${isIncome ? "+" : "-"} ${Number(item.value).toFixed(2)} ${currencySign}${isIncome ? "</span>" : ""}
   </div>
 `;
 
@@ -63,8 +68,8 @@ const generateBalanceRow = (item: any, currencySign: string) => `
       </div>
     </div>
     <div class="font-bold text-right text-2xl mt-4">
-      <span class="text-lg text-right pr-1 text-${item.value >= 0 ? 'green' : 'red'}-500">
-        ${item.value >= 0 ? '&#9650;' : '&#9660;'}
+      <span class="text-lg text-right pr-1 text-${item.value >= 0 ? "green" : "red"}-500">
+        ${item.value >= 0 ? "&#9650;" : "&#9660;"}
       </span>
       <span>
         ${Number(item.value).toFixed(2)} ${currencySign}
@@ -73,7 +78,7 @@ const generateBalanceRow = (item: any, currencySign: string) => `
 `;
 
 const EChartReport: React.FC = () => {
-  const [tooltipAxis, setTooltipAxis] = React.useState<'axis' | 'item'>('axis');
+  const [tooltipAxis, setTooltipAxis] = React.useState<"axis" | "item">("axis");
   const [date, setDate] = React.useState<Date>(new Date());
   const [upToDay, setUpToDay] = React.useState<number>(getDate(new Date()));
   const [showUpToDay, setShowUpToDay] = React.useState<boolean>(false);
@@ -101,32 +106,37 @@ const EChartReport: React.FC = () => {
     if (isDataLoading) return;
     if (chartData.length === 0) return;
 
-    const groupByCategory: GroupByCategory = chartData.reduce((acc: GroupByCategory, curr: ChartData) => {
-      /*
-       * {
-       *  "Food": [100, 80],
-       *  "Transport": [40, 10],
-       *  "Entertainment": [30]
-       * }
-       */
-      curr.categories.forEach((category: ChartCategory) => {
-        acc[category.name] = acc[category.name] || [];
-        acc[category.name].push(category.value);
-      });
-      return acc;
-    }, {});
+    const groupByCategory: GroupByCategory = chartData.reduce(
+      (acc: GroupByCategory, curr: ChartData) => {
+        /*
+         * {
+         *  "Food": [100, 80],
+         *  "Transport": [40, 10],
+         *  "Entertainment": [30]
+         * }
+         */
+        curr.categories.forEach((category: ChartCategory) => {
+          acc[category.name] = acc[category.name] || [];
+          acc[category.name].push(category.value);
+        });
+        return acc;
+      },
+      {},
+    );
 
     const outcomeCategories = chartData[0].categories
-      .filter((item: ChartCategory) => item.categoryType === 'EXP')
+      .filter((item: ChartCategory) => item.categoryType === "EXP")
       .reverse();
-    const incomeCategories = chartData[0].categories.filter((item: ChartCategory) => item.categoryType === 'INC');
+    const incomeCategories = chartData[0].categories.filter(
+      (item: ChartCategory) => item.categoryType === "INC",
+    );
     const diffArray = chartData.map((item: ChartData) => {
       const outcome = item.categories.reduce((acc: number, category: ChartCategory) => {
-        if (category.categoryType === 'EXP') acc += category.value;
+        if (category.categoryType === "EXP") acc += category.value;
         return acc;
       }, 0);
       const income = item.categories.reduce((acc: number, category: ChartCategory) => {
-        if (category.categoryType === 'INC') acc += category.value;
+        if (category.categoryType === "INC") acc += category.value;
         return acc;
       }, 0);
       return income - outcome;
@@ -139,13 +149,13 @@ const EChartReport: React.FC = () => {
       itemStyle: {
         borderRadius: [2, 2, 2, 2],
       },
-      stack: 'outcome',
-      type: 'bar',
+      stack: "outcome",
+      type: "bar",
       emphasis: {
-        focus: 'series',
+        focus: "series",
         itemStyle: {
           shadowBlur: 10,
-          shadowColor: 'rgba(0,0,0,0.3)',
+          shadowColor: "rgba(0,0,0,0.3)",
         },
       },
       label: {
@@ -153,11 +163,11 @@ const EChartReport: React.FC = () => {
         fontSize: 10,
         formatter: (params: any) =>
           params.value > 1000
-            ? '-' + Number(params.value / 1000).toFixed(2) + 'k'
-            : '-' + Number(params.value).toFixed(0),
-        textBorderColor: 'black',
+            ? "-" + Number(params.value / 1000).toFixed(2) + "k"
+            : "-" + Number(params.value).toFixed(0),
+        textBorderColor: "black",
         textBorderWidth: 2,
-        color: 'white',
+        color: "white",
       },
     }));
 
@@ -167,100 +177,100 @@ const EChartReport: React.FC = () => {
         ...incomeCategories.map((item: ChartCategory) => ({
           name: item.name,
           data: groupByCategory[item.name] || [],
-          stack: 'income',
-          sampling: 'sum',
-          type: 'bar',
+          stack: "income",
+          sampling: "sum",
+          type: "bar",
           emphasis: {
-            focus: 'series',
+            focus: "series",
             itemStyle: {
               shadowBlur: 10,
-              shadowColor: 'rgba(0,0,0,0.3)',
+              shadowColor: "rgba(0,0,0,0.3)",
             },
           },
           label: {
             show: true,
-            formatter: (params: any) => '+' + Number(params.value).toFixed(0),
+            formatter: (params: any) => "+" + Number(params.value).toFixed(0),
             fontSize: 10,
-            textBorderColor: 'white',
+            textBorderColor: "white",
             textBorderWidth: 2,
-            color: 'black',
+            color: "black",
           },
         })),
       );
 
       // Add difference
       formattedSeries.push({
-        name: 'Difference',
+        name: "Difference",
         data: diffArray || [],
-        stack: 'difference',
+        stack: "difference",
         itemStyle: {
-          color: '#ddd',
+          color: "#ddd",
         },
-        type: 'bar',
+        type: "bar",
         emphasis: {
-          focus: 'series',
+          focus: "series",
           itemStyle: {
             shadowBlur: 10,
-            shadowColor: 'rgba(0,0,0,0.3)',
+            shadowColor: "rgba(0,0,0,0.3)",
           },
         },
         label: {
           show: true,
           formatter: (params) => Number(params.value).toFixed(0),
           fontSize: 10,
-          textBorderColor: 'white',
+          textBorderColor: "white",
           textBorderWidth: 2,
-          color: 'black',
+          color: "black",
         },
       });
     }
 
     const optionsLocal = {
       color: [
-        '#4E79A7',
-        '#F28E2B',
-        '#E15759',
-        '#76B7B2',
-        '#59A14F',
-        '#EDC948',
-        '#B07AA1',
-        '#FF9DA7',
-        '#9C755F',
-        '#BAB0AC',
-        '#86BCB6',
-        '#D37295',
-        '#FABFD2',
-        '#8CD17D',
-        '#B6992D',
-        '#499894',
-        '#D4A6C8',
-        '#A0CBE8',
-        '#FFBE7D',
-        '#79706E',
+        "#4E79A7",
+        "#F28E2B",
+        "#E15759",
+        "#76B7B2",
+        "#59A14F",
+        "#EDC948",
+        "#B07AA1",
+        "#FF9DA7",
+        "#9C755F",
+        "#BAB0AC",
+        "#86BCB6",
+        "#D37295",
+        "#FABFD2",
+        "#8CD17D",
+        "#B6992D",
+        "#499894",
+        "#D4A6C8",
+        "#A0CBE8",
+        "#FFBE7D",
+        "#79706E",
       ],
       xAxis: {
-        type: 'category',
+        type: "category",
         data: chartData.map((item: ChartData) => item.date),
       },
       yAxis: {
-        type: 'value',
+        type: "value",
         minInterval: 100,
         maxInterval: 20000,
         splitNumber: 20,
       },
       grid: {
-        left: '3%',
-        right: '20%',
-        top: '3%',
-        bottom: '3%',
+        left: "3%",
+        right: "20%",
+        top: "3%",
+        bottom: "3%",
         containLabel: true,
       },
       legend: {
         data: outcomeCategories.map((item: ChartCategory) => item.name).reverse(),
-        orient: 'vertical',
-        top: 'center',
+        orient: "vertical",
+        top: "center",
         right: 10,
-        width: '20%',
+        width: "20%",
       },
       series: formattedSeries,
       tooltip: {
@@ -270,11 +280,15 @@ const EChartReport: React.FC = () => {
         },
 
         formatter: (params: any, ticket: any) => {
-          if (tooltipAxis === 'axis') {
+          if (tooltipAxis === "axis") {
             let output = '<div class="flex gap-2">';
 
             const outcomeTotal = params.reduce((acc: number, item: any) => {
-              if (outcomeCategories.map((category: ChartCategory) => category.name).includes(item.seriesName)) {
+              if (
+                outcomeCategories
+                  .map((category: ChartCategory) => category.name)
+                  .includes(item.seriesName)
+              ) {
                 acc += item.value;
               }
               return acc;
@@ -283,22 +297,30 @@ const EChartReport: React.FC = () => {
             output += generateExpenseHeader(outcomeTotal, currencySign);
 
             output += params.reduce((acc: string, item: any) => {
-              if (outcomeCategories.map((category: ChartCategory) => category.name).includes(item.seriesName)) {
+              if (
+                outcomeCategories
+                  .map((category: ChartCategory) => category.name)
+                  .includes(item.seriesName)
+              ) {
                 const isHovered = highlightedIndexRef.current === item.componentIndex;
                 acc = generateCategoryRow(item, isHovered, currencySign, false) + acc;
               }
               return acc;
-            }, '');
+            }, "");
 
-            output += '</div>';
+            output += "</div>";
 
             if (!showIncome) {
-              output += '</div>';
+              output += "</div>";
               return output;
             }
 
             const incomeTotal = params.reduce((acc: number, item: any) => {
-              if (incomeCategories.map((category: ChartCategory) => category.name).includes(item.seriesName)) {
+              if (
+                incomeCategories
+                  .map((category: ChartCategory) => category.name)
+                  .includes(item.seriesName)
+              ) {
                 acc += item.value;
               }
               return acc;
@@ -307,23 +329,25 @@ const EChartReport: React.FC = () => {
             output += generateIncomeHeader(incomeTotal, currencySign);
 
             output += params.reduce((acc: string, item: any) => {
-              if (incomeCategories.map((item: ChartCategory) => item.name).includes(item.seriesName)) {
+              if (
+                incomeCategories.map((item: ChartCategory) => item.name).includes(item.seriesName)
+              ) {
                 const isHovered = item.componentIndex === highlightedIndexRef.current;
                 acc += generateCategoryRow(item, isHovered, currencySign, true);
               }
               return acc;
-            }, '');
+            }, "");
 
             params.forEach((item: any) => {
-              if (item.seriesName === 'Difference') {
+              if (item.seriesName === "Difference") {
                 output += generateBalanceRow(item, currencySign);
               }
             });
 
-            output += '</div></div>';
+            output += "</div></div>";
             return output;
           }
-          return params.seriesName + ' ' + params.value.toFixed(2);
+          return params.seriesName + " " + params.value.toFixed(2);
         },
       },
     };
@@ -380,7 +404,7 @@ const EChartReport: React.FC = () => {
           option={options}
           notMerge={true}
           onEvents={chartEvents}
-          style={{ height: '100%', width: '100%' }}
+          style={{ height: "100%", width: "100%" }}
         />
       </div>
     </div>

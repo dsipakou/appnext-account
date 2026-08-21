@@ -1,4 +1,4 @@
-import Index from '@/components/categories';
+import Index from "@/components/categories";
 
 Category.auth = {};
 

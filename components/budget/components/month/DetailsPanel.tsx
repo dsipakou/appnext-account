@@ -1,12 +1,16 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from "react";
 
-import { GroupedByCategoryBudget, MonthBudgetItem, MonthGroupedBudgetItem } from '@/components/budget/types';
-import { useBudgetMonth } from '@/hooks/budget';
+import {
+  GroupedByCategoryBudget,
+  MonthBudgetItem,
+  MonthGroupedBudgetItem,
+} from "@/components/budget/types";
+import { useBudgetMonth } from "@/hooks/budget";
 
-import CategorySummaryCard from './CategorySummaryCard';
-import DetailsCalendar from './DetailsCalendar';
-import GroupedBudgetButton from './GroupedBudgetButton';
-import PreviousMonthsCard from './PreviousMonthsCard';
+import CategorySummaryCard from "./CategorySummaryCard";
+import DetailsCalendar from "./DetailsCalendar";
+import GroupedBudgetButton from "./GroupedBudgetButton";
+import PreviousMonthsCard from "./PreviousMonthsCard";
 
 interface Types {
   activeCategoryUuid: string;
@@ -16,14 +20,26 @@ interface Types {
   clickShowTransactions: (uuid: string) => void;
 }
 
-const DetailsPanel: FC<Types> = ({ activeCategoryUuid, startDate, endDate, user, clickShowTransactions }) => {
+const DetailsPanel: FC<Types> = ({
+  activeCategoryUuid,
+  startDate,
+  endDate,
+  user,
+  clickShowTransactions,
+}) => {
   const [budgetTitle, setBudgetTitle] = useState<string | undefined>();
   const [budgetItems, setBudgetItems] = useState<MonthBudgetItem[]>([]);
   const [activeBudgetUuid, setActiveBudgetUuid] = useState<string | null>(null);
-  const { data: budgetList = [], isLoading: isBudgetLoading } = useBudgetMonth(startDate, endDate, user);
+  const { data: budgetList = [], isLoading: isBudgetLoading } = useBudgetMonth(
+    startDate,
+    endDate,
+    user,
+  );
 
   const activeCategory =
-    budgetList.length > 0 ? budgetList.find((item: GroupedByCategoryBudget) => item.uuid === activeCategoryUuid) : null;
+    budgetList.length > 0
+      ? budgetList.find((item: GroupedByCategoryBudget) => item.uuid === activeCategoryUuid)
+      : null;
 
   const getBudgets = (category: GroupedByCategoryBudget): MonthGroupedBudgetItem[] => {
     if (category.budgets == null) return [];
@@ -32,7 +48,7 @@ const DetailsPanel: FC<Types> = ({ activeCategoryUuid, startDate, endDate, user,
 
   const categoryBudgets = activeCategory != null ? activeCategory.budgets : [];
 
-  const title = activeCategory?.categoryName || 'Choose category';
+  const title = activeCategory?.categoryName || "Choose category";
 
   useEffect(() => {
     if (!categoryBudgets || isBudgetLoading || !activeBudgetUuid) return;
@@ -61,7 +77,7 @@ const DetailsPanel: FC<Types> = ({ activeCategoryUuid, startDate, endDate, user,
     <div className="h-min-full flex flex-col rounded-lg border bg-white p-2">
       {activeBudgetUuid ? (
         <DetailsCalendar
-          title={title + ' > ' + budgetTitle}
+          title={title + " > " + budgetTitle}
           items={budgetItems}
           date={startDate}
           handleClose={handleCloseBudgetDetails}

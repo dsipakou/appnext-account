@@ -1,32 +1,37 @@
-import React from 'react';
+import React from "react";
 
-import { Button } from '@/components/ui/button';
-import * as Slc from '@/components/ui/select';
-import { useCurrencies } from '@/hooks/currencies';
-import { useRates, useRatesChart } from '@/hooks/rates';
+import { Button } from "@/components/ui/button";
+import * as Slc from "@/components/ui/select";
+import { useCurrencies } from "@/hooks/currencies";
+import { useRates, useRatesChart } from "@/hooks/rates";
 
-import CurrencyCard from './CurrencyCard';
-import CurrencyChart from './CurrencyChart';
-import AddForm from './forms/AddForm';
-import AddRatesForm from './forms/AddRatesForm';
-import ConfirmDeleteForm from './forms/ConfirmDeleteForm';
-import EditForm from './forms/EditForm';
-import { ChartPeriod, ChartPeriodMap, Currency } from './types';
+import CurrencyCard from "./CurrencyCard";
+import CurrencyChart from "./CurrencyChart";
+import AddForm from "./forms/AddForm";
+import AddRatesForm from "./forms/AddRatesForm";
+import ConfirmDeleteForm from "./forms/ConfirmDeleteForm";
+import EditForm from "./forms/EditForm";
+import { ChartPeriod, ChartPeriodMap, Currency } from "./types";
 
 const Index: React.FC = () => {
   const [selectedCurrencies, setSelectedCurrencies] = React.useState<Currency[]>([]);
   const [isAddCurrencyOpen, setIsAddCurrencyOpen] = React.useState<boolean>(false);
   const [isEditCurrencyOpen, setIsEditCurrencyOpen] = React.useState<boolean>(false);
   const [isDeleteCurrencyOpen, setIsDeleteCurrencyOpen] = React.useState<boolean>(false);
-  const [period, setPeriod] = React.useState<ChartPeriod>('month');
+  const [period, setPeriod] = React.useState<ChartPeriod>("month");
   const [activeCurrency, setActiveCurrency] = React.useState<string>();
   const { data: currencies = [] } = useCurrencies();
-  const { data: chartRates = [], isLoading: isChartLoading } = useRatesChart(ChartPeriodMap[period]);
+  const { data: chartRates = [], isLoading: isChartLoading } = useRatesChart(
+    ChartPeriodMap[period],
+  );
   const { data: rates = [] } = useRates(2);
 
   const selectCurrency = (code: string): void => {
     if (selectedCurrencies.find((item: Currency) => item.code === code) == null) {
-      setSelectedCurrencies([...selectedCurrencies, currencies.find((item: Currency) => item.code === code)]);
+      setSelectedCurrencies([
+        ...selectedCurrencies,
+        currencies.find((item: Currency) => item.code === code),
+      ]);
     }
   };
 
@@ -104,7 +109,9 @@ const Index: React.FC = () => {
           </div>
           {!!regularCurrencies.length && (
             <div className="nowrap flex w-full gap-3 overflow-x-scroll p-2">
-              {regularCurrencies.map((item: Currency, index: number) => !item.isBase && currencyCard(item, index))}
+              {regularCurrencies.map(
+                (item: Currency, index: number) => !item.isBase && currencyCard(item, index),
+              )}
             </div>
           )}
           {selectedCurrencies.length > 0 ? (
@@ -113,13 +120,13 @@ const Index: React.FC = () => {
                 <div className="flex items-center gap-2 pl-10">
                   <span className="text-sm font-semibold">Show data for</span>
                   <Slc.Select
-                    defaultValue={period || 'month'}
+                    defaultValue={period || "month"}
                     onValueChange={changeChartPeriod}
                     items={[
-                      { label: 'Month', value: 'month' },
-                      { label: '3 months', value: 'quarter' },
-                      { label: '6 months', value: 'biannual' },
-                      { label: 'Year', value: 'annual' },
+                      { label: "Month", value: "month" },
+                      { label: "3 months", value: "quarter" },
+                      { label: "6 months", value: "biannual" },
+                      { label: "Year", value: "annual" },
                     ]}
                   >
                     <Slc.SelectTrigger className="relative w-40 bg-white">
@@ -148,12 +155,18 @@ const Index: React.FC = () => {
               </div>
             </div>
           ) : (
-            !!regularCurrencies.length && <span className="mt-10 text-xl">Click on currency to view the chart</span>
+            !!regularCurrencies.length && (
+              <span className="mt-10 text-xl">Click on currency to view the chart</span>
+            )
           )}
         </div>
       )}
       <EditForm uuid={activeCurrency} open={isEditCurrencyOpen} setOpen={handleCloseModals} />
-      <ConfirmDeleteForm uuid={activeCurrency} open={isDeleteCurrencyOpen} handleClose={handleCloseModals} />
+      <ConfirmDeleteForm
+        uuid={activeCurrency}
+        open={isDeleteCurrencyOpen}
+        handleClose={handleCloseModals}
+      />
     </div>
   );
 };

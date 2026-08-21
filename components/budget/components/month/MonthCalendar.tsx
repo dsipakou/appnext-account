@@ -1,13 +1,13 @@
 // System
-import { addMonths, endOfMonth, format, isSameMonth, startOfMonth, subMonths } from 'date-fns';
-import { CalendarDays, RotateCcw } from 'lucide-react';
-import React from 'react';
-import { DateRange } from 'react-day-picker';
+import { addMonths, endOfMonth, format, isSameMonth, startOfMonth, subMonths } from "date-fns";
+import { CalendarDays, RotateCcw } from "lucide-react";
+import React from "react";
+import { DateRange } from "react-day-picker";
 
 // UI
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverPopup, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverPopup, PopoverTrigger } from "@/components/ui/popover";
 
 interface Types {
   date: Date;
@@ -41,7 +41,7 @@ const MonthCalendar: React.FC<Types> = ({ date: monthDate, setMonthDate }) => {
           <PopoverTrigger render={<Button variant="empty" />}>
             <div className="flex items-center">
               <CalendarDays className="mr-2 h-6 w-6" />
-              {monthDate ? format(monthDate, 'MMM, yyyy') : <span>Pick a date</span>}
+              {monthDate ? format(monthDate, "MMM, yyyy") : <span>Pick a date</span>}
             </div>
           </PopoverTrigger>
           {!isSameMonth(monthDate, new Date()) && (

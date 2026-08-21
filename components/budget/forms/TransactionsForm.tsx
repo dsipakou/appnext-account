@@ -1,13 +1,13 @@
 // External
-import React from 'react';
+import React from "react";
 
 // Components
-import { TransactionsTable } from '@/components/transactions/components/transactionTable';
+import { TransactionsTable } from "@/components/transactions/components/transactionTable";
 // UI
-import * as Dlg from '@/components/ui/dialog';
-import { Skeleton } from '@/components/ui/skeleton';
+import * as Dlg from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 // Hooks
-import { useBudgetTransactions } from '@/hooks/transactions';
+import { useBudgetTransactions } from "@/hooks/transactions";
 
 interface Props {
   open: boolean;
@@ -54,7 +54,13 @@ const TransactionsForm: React.FC<Props> = ({ open, handleClose, uuid }) => {
           <Dlg.DialogTitle>Transactions for selected budget</Dlg.DialogTitle>
         </Dlg.DialogHeader>
         <Dlg.DialogPanel>
-          <div>{isLoading ? <LoadingScreen /> : <TransactionsTable transactions={budgetTransactions} />}</div>
+          <div>
+            {isLoading ? (
+              <LoadingScreen />
+            ) : (
+              <TransactionsTable transactions={budgetTransactions} />
+            )}
+          </div>
         </Dlg.DialogPanel>
       </Dlg.DialogPopup>
     </Dlg.Dialog>

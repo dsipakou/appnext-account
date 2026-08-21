@@ -1,20 +1,20 @@
 // System
-import { useSession } from 'next-auth/react';
-import * as React from 'react';
-import { useSWRConfig } from 'swr';
+import { useSession } from "next-auth/react";
+import * as React from "react";
+import { useSWRConfig } from "swr";
 
 // Types
-import { CompactWeekItem } from '@/components/budget/types';
+import { CompactWeekItem } from "@/components/budget/types";
 // UI
-import * as Alr from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import * as Dlg from '@/components/ui/dialog';
-import { User } from '@/components/users/types';
+import * as Alr from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import * as Dlg from "@/components/ui/dialog";
+import { User } from "@/components/users/types";
 // Hooks
-import { useUsers } from '@/hooks/users';
+import { useUsers } from "@/hooks/users";
 
 // Components
-import { TransactionsTable } from '../components/transactionTable';
+import { TransactionsTable } from "../components/transactionTable";
 
 interface Types {
   open: boolean;
@@ -46,7 +46,7 @@ const UnsavedTransactionsAlert: React.FC<{ open: boolean; setOpen: (open: boolea
 };
 
 const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
-  const [user, setUser] = React.useState('');
+  const [user, setUser] = React.useState("");
   const [canClose, setCanClose] = React.useState<boolean>(true);
   const [alertOpen, setAlertOpen] = React.useState(false);
 
@@ -74,8 +74,8 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
       return;
     } else {
       mutate(url);
-      mutate((key) => typeof key === 'string' && key.includes('budget/usage'), undefined);
-      mutate((key) => typeof key === 'string' && key.includes('budget/weekly-usage'), undefined);
+      mutate((key) => typeof key === "string" && key.includes("budget/usage"), undefined);
+      mutate((key) => typeof key === "string" && key.includes("budget/weekly-usage"), undefined);
     }
 
     if (canClose) {

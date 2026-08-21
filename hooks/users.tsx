@@ -1,10 +1,10 @@
-import useSWRImmutable from 'swr/immutable';
-import useSWRMutation from 'swr/mutation';
+import useSWRImmutable from "swr/immutable";
+import useSWRMutation from "swr/mutation";
 
-import { Invite } from '@/components/users/types';
-import { deleteReq, fetchReq, patchReq, postReq } from '@/plugins/axios';
+import { Invite } from "@/components/users/types";
+import { deleteReq, fetchReq, patchReq, postReq } from "@/plugins/axios";
 
-import { Response } from './types';
+import { Response } from "./types";
 
 export interface UserResponse {
   uuid: string;
@@ -20,7 +20,7 @@ export interface UserResponse {
 }
 
 export const useUsers = (): Response<UserResponse[]> => {
-  const url = 'users/';
+  const url = "users/";
   const { data, error, isLoading } = useSWRImmutable(url, fetchReq);
 
   return {
@@ -31,7 +31,7 @@ export const useUsers = (): Response<UserResponse[]> => {
 };
 
 export const useCreateUser = () => {
-  const { trigger, isMutating } = useSWRMutation('users/', postReq, { revalidate: true });
+  const { trigger, isMutating } = useSWRMutation("users/", postReq, { revalidate: true });
 
   return {
     trigger,
@@ -40,7 +40,7 @@ export const useCreateUser = () => {
 };
 
 export const useInvites = (): Response<Invite[]> => {
-  const url = 'users/invite/';
+  const url = "users/invite/";
   const { data, error, isLoading } = useSWRImmutable(url, fetchReq);
 
   return {
@@ -51,7 +51,7 @@ export const useInvites = (): Response<Invite[]> => {
 };
 
 export const useCreateInvite = () => {
-  const { trigger, isMutating } = useSWRMutation('users/invite/', postReq, { revalidate: true });
+  const { trigger, isMutating } = useSWRMutation("users/invite/", postReq, { revalidate: true });
 
   return {
     trigger,
@@ -69,7 +69,7 @@ export const useRevokeInvite = (uuid: string) => {
 };
 
 export const useResetPassword = () => {
-  const { trigger, isMutating } = useSWRMutation('users/change-password/', patchReq);
+  const { trigger, isMutating } = useSWRMutation("users/change-password/", patchReq);
 
   return {
     trigger,

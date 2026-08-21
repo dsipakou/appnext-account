@@ -1,11 +1,11 @@
-import React from 'react';
+import React from "react";
 
-import { TransactionResponse } from '../../types';
+import { TransactionResponse } from "../../types";
 
 interface Types extends TransactionResponse {}
 
 const AmountReadComponentV2: React.FC<Types> = (transaction) => {
-  const currencySign = transaction.currency?.sign || '';
+  const currencySign = transaction.currency?.sign || "";
 
   if (!transaction.amount) {
     return;

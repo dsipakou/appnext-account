@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   ArrowDown,
@@ -15,42 +15,46 @@ import {
   Trash2,
   Upload,
   XIcon,
-} from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+} from "lucide-react";
+import { useSession } from "next-auth/react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 
-import { useStore } from '@/app/store';
-import { CompactWeekItem } from '@/components/budget/types';
+import { useStore } from "@/app/store";
+import { CompactWeekItem } from "@/components/budget/types";
 // Types
-import { Currency } from '@/components/currencies/types';
-import { ConfirmDeleteForm } from '@/components/transactions/forms';
-import { TransactionBulkResponse, TransactionResponse } from '@/components/transactions/types';
+import { Currency } from "@/components/currencies/types";
+import { ConfirmDeleteForm } from "@/components/transactions/forms";
+import { TransactionBulkResponse, TransactionResponse } from "@/components/transactions/types";
 // UI
-import { Button } from '@/components/ui/button';
-import * as Tbl from '@/components/ui/table';
-import { User } from '@/components/users/types';
+import { Button } from "@/components/ui/button";
+import * as Tbl from "@/components/ui/table";
+import { User } from "@/components/users/types";
 // Hooks
-import { useAccounts } from '@/hooks/accounts';
-import { useCategories } from '@/hooks/categories';
-import { useCurrencies } from '@/hooks/currencies';
-import { useBulkCreateTransaction, useCreateTransaction, useUpdateTransaction } from '@/hooks/transactions';
-import { useUsers } from '@/hooks/users';
-import { cn } from '@/lib/utils';
+import { useAccounts } from "@/hooks/accounts";
+import { useCategories } from "@/hooks/categories";
+import { useCurrencies } from "@/hooks/currencies";
+import {
+  useBulkCreateTransaction,
+  useCreateTransaction,
+  useUpdateTransaction,
+} from "@/hooks/transactions";
+import { useUsers } from "@/hooks/users";
+import { cn } from "@/lib/utils";
 // Date Utils
-import { getFormattedDate, parseDate } from '@/utils/dateUtils';
+import { getFormattedDate, parseDate } from "@/utils/dateUtils";
 
 // Cell Registry
-import { renderCellFromRegistry } from './cellRegistry';
-import { getInputStyle } from './utils/styles';
+import { renderCellFromRegistry } from "./cellRegistry";
+import { getInputStyle } from "./utils/styles";
 // Utils
-import { validateRow } from './utils/validation';
+import { validateRow } from "./utils/validation";
 
 interface Types {
   transactions?: TransactionResponse[];
   url?: string;
-  mode?: 'view' | 'bulk';
+  mode?: "view" | "bulk";
   budget?: CompactWeekItem;
-  categoryType?: 'INC' | 'EXP';
+  categoryType?: "INC" | "EXP";
   disabledColumns?: string[];
   handleCanClose?: (flag: boolean) => void;
 }
@@ -72,20 +76,20 @@ export type RowData = {
   inBase: number;
 };
 
-const allColumns = ['date', 'account', 'budget', 'category', 'outcome'];
+const allColumns = ["date", "account", "budget", "category", "outcome"];
 const cellWidthMap = {
-  date: 'w-[10%]', // 15% on small displays, 10% on medium+ displays
-  account: 'w-[8%]', // Minimal - just to identify account
-  budget: 'w-[15%]', // Shrinked - okay to truncate
-  category: 'w-[30%]', // 35% on small displays, 40% on medium+ displays (most important column)
-  outcome: 'w-[20%]', // As needed - fits amount + conversions
+  date: "w-[10%]", // 15% on small displays, 10% on medium+ displays
+  account: "w-[8%]", // Minimal - just to identify account
+  budget: "w-[15%]", // Shrinked - okay to truncate
+  category: "w-[30%]", // 35% on small displays, 40% on medium+ displays (most important column)
+  outcome: "w-[20%]", // As needed - fits amount + conversions
 };
 
 export const TransactionsTable = ({
   transactions = undefined,
   budget = undefined,
-  categoryType = 'EXP',
-  mode = 'view',
+  categoryType = "EXP",
+  mode = "view",
   disabledColumns = [],
   handleCanClose = () => {},
 }: Types) => {
@@ -103,9 +107,10 @@ export const TransactionsTable = ({
   const [changedFields, setChangedFields] = useState<{ [key: number]: Set<keyof RowData> }>({});
   const [nextId, setNextId] = useState<number>(0);
   const [invalidFields, setInvalidFields] = useState<{ [key: number]: Set<keyof RowData> }>({});
-  const [sortConfig, setSortConfig] = useState<{ key: keyof RowData; direction: 'ascending' | 'descending' } | null>(
-    null,
-  );
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof RowData;
+    direction: "ascending" | "descending";
+  } | null>(null);
   const [newRows, setNewRows] = useState<Set<number>>(new Set());
   const [visibleColumns, setVisibleColumns] = useState<Set<string>>(new Set(allColumns));
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
@@ -144,7 +149,7 @@ export const TransactionsTable = ({
   React.useEffect(() => {
     resetEditing();
     let validatedData: RowData[] = [];
-    if (mode === 'view' && transactions.length > 0) {
+    if (mode === "view" && transactions.length > 0) {
       validatedData = transactions.map((item: TransactionResponse, index: number) => ({
         id: index,
         uuid: item.uuid,
@@ -208,7 +213,7 @@ export const TransactionsTable = ({
     const groups = new Map<string, RowData[]>();
 
     data.forEach((row) => {
-      const parentCategory = row.categoryParentName || 'Uncategorized';
+      const parentCategory = row.categoryParentName || "Uncategorized";
       if (!groups.has(parentCategory)) {
         groups.set(parentCategory, []);
       }
@@ -219,34 +224,34 @@ export const TransactionsTable = ({
     groups.forEach((rows, parentCategory) => {
       let keys: Array<keyof RowData>;
       switch (sortConfig?.key) {
-        case 'date':
-          keys = ['date'];
+        case "date":
+          keys = ["date"];
           break;
-        case 'account':
-          keys = ['account'];
+        case "account":
+          keys = ["account"];
           break;
-        case 'budget':
-          keys = ['budgetName'];
+        case "budget":
+          keys = ["budgetName"];
           break;
-        case 'category':
-          keys = ['categoryName'];
+        case "category":
+          keys = ["categoryName"];
           break;
-        case 'outcome':
-          keys = ['outcome'];
+        case "outcome":
+          keys = ["outcome"];
           break;
         default:
-          keys = ['id'];
+          keys = ["id"];
       }
 
-      const direction = sortConfig?.direction || 'ascending';
+      const direction = sortConfig?.direction || "ascending";
       rows.sort((a: RowData, b: RowData) => {
-        const keyA = keys.length > 1 ? keys.map((key) => a[key]).join('') : a[keys[0]];
-        const keyB = keys.length > 1 ? keys.map((key) => b[key]).join('') : b[keys[0]];
+        const keyA = keys.length > 1 ? keys.map((key) => a[key]).join("") : a[keys[0]];
+        const keyB = keys.length > 1 ? keys.map((key) => b[key]).join("") : b[keys[0]];
         if (keyA < keyB) {
-          return direction === 'ascending' ? -1 : 1;
+          return direction === "ascending" ? -1 : 1;
         }
         if (keyA > keyB) {
-          return direction === 'ascending' ? 1 : -1;
+          return direction === "ascending" ? 1 : -1;
         }
         return 0;
       });
@@ -259,34 +264,34 @@ export const TransactionsTable = ({
     const sortableItems = [...data];
     let keys: Array<keyof RowData>;
     switch (sortConfig?.key) {
-      case 'date':
-        keys = ['date'];
+      case "date":
+        keys = ["date"];
         break;
-      case 'account':
-        keys = ['account'];
+      case "account":
+        keys = ["account"];
         break;
-      case 'budget':
-        keys = ['budgetName'];
+      case "budget":
+        keys = ["budgetName"];
         break;
-      case 'category':
-        keys = ['categoryParentName', 'categoryName'];
+      case "category":
+        keys = ["categoryParentName", "categoryName"];
         break;
-      case 'outcome':
-        keys = ['outcome'];
+      case "outcome":
+        keys = ["outcome"];
         break;
       default:
-        keys = ['id'];
+        keys = ["id"];
     }
 
-    const direction = sortConfig?.direction || 'ascending';
+    const direction = sortConfig?.direction || "ascending";
     sortableItems.sort((a: RowData, b: RowData) => {
-      const keyA = keys.length > 1 ? keys.map((key) => a[key]).join('') : a[keys[0]];
-      const keyB = keys.length > 1 ? keys.map((key) => b[key]).join('') : b[keys[0]];
+      const keyA = keys.length > 1 ? keys.map((key) => a[key]).join("") : a[keys[0]];
+      const keyB = keys.length > 1 ? keys.map((key) => b[key]).join("") : b[keys[0]];
       if (keyA < keyB) {
-        return direction === 'ascending' ? -1 : 1;
+        return direction === "ascending" ? -1 : 1;
       }
       if (keyA > keyB) {
-        return direction === 'ascending' ? 1 : -1;
+        return direction === "ascending" ? 1 : -1;
       }
       return 0;
     });
@@ -296,7 +301,9 @@ export const TransactionsTable = ({
   const totalSum = useMemo(() => {
     return data.reduce((sum, row: RowData) => {
       // Use converted amount if available, otherwise use original amount
-      const amount = row.outcomeInDefaultCurrency ? row.outcomeInDefaultCurrency : Number(row.outcome);
+      const amount = row.outcomeInDefaultCurrency
+        ? row.outcomeInDefaultCurrency
+        : Number(row.outcome);
       return sum + amount;
     }, 0);
   }, [data]);
@@ -316,16 +323,18 @@ export const TransactionsTable = ({
   const getGroupTotal = (rows: RowData[]) => {
     return rows.reduce((sum, row) => {
       // Use converted amount if available, otherwise use original amount
-      const amount = row.outcomeInDefaultCurrency ? row.outcomeInDefaultCurrency : Number(row.outcome);
+      const amount = row.outcomeInDefaultCurrency
+        ? row.outcomeInDefaultCurrency
+        : Number(row.outcome);
       return sum + amount;
     }, 0);
   };
 
   const requestSort = (key: keyof RowData) => {
-    let direction: 'ascending' | 'descending' = 'ascending';
+    let direction: "ascending" | "descending" = "ascending";
     if (sortConfig && sortConfig.key === key) {
-      if (sortConfig.direction === 'ascending') {
-        direction = 'descending';
+      if (sortConfig.direction === "ascending") {
+        direction = "descending";
       } else {
         setSortConfig(null);
         return;
@@ -348,7 +357,7 @@ export const TransactionsTable = ({
       category: row.category,
       currency: row.currency,
       transactionDate: getFormattedDate(row.date),
-      type: 'outcome',
+      type: "outcome",
       user,
     });
     setData((prevData: RowData[]) =>
@@ -386,11 +395,13 @@ export const TransactionsTable = ({
         category: row.category,
         currency: row.currency,
         transactionDate: getFormattedDate(row.date),
-        type: 'outcome',
+        type: "outcome",
         user,
       })),
     );
-    const resultMap = new Map(res.map((transaction: TransactionBulkResponse) => [transaction.rowId, transaction]));
+    const resultMap = new Map(
+      res.map((transaction: TransactionBulkResponse) => [transaction.rowId, transaction]),
+    );
     setData((prevData: RowData[]) =>
       prevData.map((r) =>
         resultMap.has(r.id)
@@ -433,7 +444,7 @@ export const TransactionsTable = ({
       return newSet;
     });
 
-    if (mode === 'view') {
+    if (mode === "view") {
       if (rowToSave.uuid) {
         try {
           // TODO: disable row
@@ -451,7 +462,7 @@ export const TransactionsTable = ({
             category: rowToSave.category,
             currency: rowToSave.currency,
             transactionDate: getFormattedDate(rowToSave.date),
-            type: 'outcome',
+            type: "outcome",
             user,
           });
         } catch (error) {
@@ -468,7 +479,9 @@ export const TransactionsTable = ({
         const changedKeys = Object.keys(rowToSave).filter(
           (key) =>
             JSON.stringify(rowToSave[key as keyof RowData]) !==
-            JSON.stringify(snapshots[currentSnapshotIndex]?.find((r) => r.id === id)?.[key as keyof RowData]),
+            JSON.stringify(
+              snapshots[currentSnapshotIndex]?.find((r) => r.id === id)?.[key as keyof RowData],
+            ),
         ) as Array<keyof RowData>;
 
         setChangedFields((prev) => ({
@@ -542,7 +555,9 @@ export const TransactionsTable = ({
   };
 
   const handleBudgetCompleted = (id: number) => {
-    setData((prevData: RowData[]) => prevData.map((row) => (row.id === id ? { ...row, isCompleted: true } : row)));
+    setData((prevData: RowData[]) =>
+      prevData.map((row) => (row.id === id ? { ...row, isCompleted: true } : row)),
+    );
     setEditedRows((prev) => {
       if (!prev[id]) {
         return prev;
@@ -591,7 +606,7 @@ export const TransactionsTable = ({
             setIsLoading(true);
             await handleUpdateTransaction(editedRow);
           } catch (error) {
-            console.log('errorUpdate', error);
+            console.log("errorUpdate", error);
           } finally {
             setIsLoading(false);
           }
@@ -602,7 +617,7 @@ export const TransactionsTable = ({
       try {
         await handleBulkCreate(transactions);
       } catch (error) {
-        console.log('errorBulkCreate', error);
+        console.log("errorBulkCreate", error);
       } finally {
         setIsLoading(false);
       }
@@ -614,15 +629,15 @@ export const TransactionsTable = ({
       id: nextId,
       uuid: undefined,
       date: budget?.budgetDate ? parseDate(budget.budgetDate) : new Date(),
-      account: '',
-      budget: budget?.uuid || '',
-      budgetName: budget?.title || '',
-      category: budget?.category || '',
-      categoryName: '',
-      categoryParentName: '',
+      account: "",
+      budget: budget?.uuid || "",
+      budgetName: budget?.title || "",
+      category: budget?.category || "",
+      categoryName: "",
+      categoryParentName: "",
       outcome: budget?.amount || 0,
       outcomeInDefaultCurrency: 0,
-      currency: budget?.currency || '',
+      currency: budget?.currency || "",
       inBase: 0,
     };
     setData((prevData) => [...prevData, newRow]);
@@ -696,15 +711,18 @@ export const TransactionsTable = ({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>, id: number) => {
-    if (e.key === 'Enter') {
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>,
+    id: number,
+  ) => {
+    if (e.key === "Enter") {
       e.preventDefault();
       handleSave(id);
     }
   };
 
   const getRowClassName = (row: RowData, isEditing: boolean, isEdited: boolean, isNew: boolean) => {
-    const baseClass = 'h-10 transition-colors duration-150 ease-in-out';
+    const baseClass = "h-10 transition-colors duration-150 ease-in-out";
 
     if (isEditing) {
       return `${baseClass} bg-blue-50 border-l-4 border-blue-500 shadow-sm`;
@@ -722,18 +740,18 @@ export const TransactionsTable = ({
   };
 
   const getCellTextColor = (isEditing: boolean, isChanged: boolean, isNew: boolean) => {
-    if (isEditing) return 'text-blue-700';
-    if (isNew) return 'text-green-700';
-    if (isChanged) return 'text-amber-700';
-    return 'text-slate-900';
+    if (isEditing) return "text-blue-700";
+    if (isNew) return "text-green-700";
+    if (isChanged) return "text-amber-700";
+    return "text-slate-900";
   };
 
   const renderCell = (row: RowData, key: keyof RowData) => {
     const isEditing = editingRows.has(row.id);
     const value = isEditing ? editedRows[row.id][key] : row[key];
-    const currencyValue = isEditing ? editedRows[row.id]['currency'] : row['currency'];
+    const currencyValue = isEditing ? editedRows[row.id]["currency"] : row["currency"];
     const isChanged = changedFields[row.id]?.has(key);
-    const isCurrencyChanged = changedFields[row.id]?.has('currency');
+    const isCurrencyChanged = changedFields[row.id]?.has("currency");
     const isInvalid = invalidFields[row.id]?.has(key);
     const isNew = newRows.has(row.id);
     const editedRow = editedRows[row.id];
@@ -775,7 +793,7 @@ export const TransactionsTable = ({
 
   return (
     <div className="flex h-full w-full flex-col">
-      {mode === 'bulk' && (
+      {mode === "bulk" && (
         <div className="mb-4 flex flex-shrink-0 items-center justify-between">
           <div className="flex items-center space-x-2">
             <Button
@@ -801,7 +819,7 @@ export const TransactionsTable = ({
                 className="h-8 border-green-600 bg-green-600 px-2 text-xs font-medium text-white hover:bg-green-800"
               >
                 <Upload className="mr-2 h-4 w-4" />
-                {isLoading ? 'Saving...' : 'Upload transactions'}
+                {isLoading ? "Saving..." : "Upload transactions"}
               </Button>
             )}
           </div>
@@ -819,12 +837,15 @@ export const TransactionsTable = ({
           <Tbl.Table>
             <Tbl.TableHeader className="after:bg-border sticky top-0 z-10 bg-white after:absolute after:bottom-0 after:h-px after:w-full">
               <Tbl.TableRow className="bg-muted/50">
-                {visibleColumns.has('date') && (
-                  <Tbl.TableHead className="flex cursor-pointer" onClick={() => requestSort('date')}>
+                {visibleColumns.has("date") && (
+                  <Tbl.TableHead
+                    className="flex cursor-pointer"
+                    onClick={() => requestSort("date")}
+                  >
                     <div className="flex items-center">
                       Date
-                      {sortConfig?.key === 'date' ? (
-                        sortConfig.direction === 'ascending' ? (
+                      {sortConfig?.key === "date" ? (
+                        sortConfig.direction === "ascending" ? (
                           <ArrowUp className="ml-2 h-4 w-4 text-black" />
                         ) : (
                           <ArrowDown className="ml-2 h-4 w-4 text-black" />
@@ -835,12 +856,12 @@ export const TransactionsTable = ({
                     </div>
                   </Tbl.TableHead>
                 )}
-                {visibleColumns.has('account') && (
-                  <Tbl.TableHead className="cursor-pointer" onClick={() => requestSort('account')}>
+                {visibleColumns.has("account") && (
+                  <Tbl.TableHead className="cursor-pointer" onClick={() => requestSort("account")}>
                     <div className="flex items-center">
                       Account
-                      {sortConfig?.key === 'account' ? (
-                        sortConfig.direction === 'ascending' ? (
+                      {sortConfig?.key === "account" ? (
+                        sortConfig.direction === "ascending" ? (
                           <ArrowUp className="ml-2 h-4 w-4 text-black" />
                         ) : (
                           <ArrowDown className="ml-2 h-4 w-4 text-black" />
@@ -851,12 +872,12 @@ export const TransactionsTable = ({
                     </div>
                   </Tbl.TableHead>
                 )}
-                {visibleColumns.has('budget') && (
-                  <Tbl.TableHead className="cursor-pointer" onClick={() => requestSort('budget')}>
+                {visibleColumns.has("budget") && (
+                  <Tbl.TableHead className="cursor-pointer" onClick={() => requestSort("budget")}>
                     <div className="flex items-center">
                       Budget
-                      {sortConfig?.key === 'budget' ? (
-                        sortConfig.direction === 'ascending' ? (
+                      {sortConfig?.key === "budget" ? (
+                        sortConfig.direction === "ascending" ? (
                           <ArrowUp className="ml-2 h-4 w-4 text-black" />
                         ) : (
                           <ArrowDown className="ml-2 h-4 w-4 text-black" />
@@ -867,12 +888,12 @@ export const TransactionsTable = ({
                     </div>
                   </Tbl.TableHead>
                 )}
-                {visibleColumns.has('category') && (
-                  <Tbl.TableHead className="cursor-pointer" onClick={() => requestSort('category')}>
+                {visibleColumns.has("category") && (
+                  <Tbl.TableHead className="cursor-pointer" onClick={() => requestSort("category")}>
                     <div className="flex items-center">
                       Category
-                      {sortConfig?.key === 'category' ? (
-                        sortConfig.direction === 'ascending' ? (
+                      {sortConfig?.key === "category" ? (
+                        sortConfig.direction === "ascending" ? (
                           <ArrowUp className="ml-2 h-4 w-4 text-black" />
                         ) : (
                           <ArrowDown className="ml-2 h-4 w-4 text-black" />
@@ -883,12 +904,12 @@ export const TransactionsTable = ({
                     </div>
                   </Tbl.TableHead>
                 )}
-                {visibleColumns.has('outcome') && (
-                  <Tbl.TableHead className="cursor-pointer" onClick={() => requestSort('outcome')}>
+                {visibleColumns.has("outcome") && (
+                  <Tbl.TableHead className="cursor-pointer" onClick={() => requestSort("outcome")}>
                     <div className="flex w-28 items-center">
                       Spent
-                      {sortConfig?.key === 'outcome' ? (
-                        sortConfig.direction === 'ascending' ? (
+                      {sortConfig?.key === "outcome" ? (
+                        sortConfig.direction === "ascending" ? (
                           <ArrowUp className="ml-2 h-4 w-4 text-black" />
                         ) : (
                           <ArrowDown className="ml-2 h-4 w-4 text-black" />
@@ -899,8 +920,8 @@ export const TransactionsTable = ({
                     </div>
                   </Tbl.TableHead>
                 )}
-                {visibleColumns.has('currency') && (
-                  <Tbl.TableHead className="cursor-pointer" onClick={() => requestSort('currency')}>
+                {visibleColumns.has("currency") && (
+                  <Tbl.TableHead className="cursor-pointer" onClick={() => requestSort("currency")}>
                     <div className="flex w-24 items-center"></div>
                   </Tbl.TableHead>
                 )}
@@ -930,12 +951,14 @@ export const TransactionsTable = ({
                             >
                               <ChevronRight
                                 className={`h-3 w-3 text-slate-500 transition-all duration-200 ${
-                                  isCollapsed ? 'rotate-0' : 'rotate-90'
+                                  isCollapsed ? "rotate-0" : "rotate-90"
                                 }`}
                               />
                             </Button>
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-slate-700">{parentCategory}</span>
+                              <span className="text-sm font-medium text-slate-700">
+                                {parentCategory}
+                              </span>
                               <span className="rounded-full bg-slate-200/60 px-1.5 py-0.5 text-xs text-slate-500">
                                 {rows.length}
                               </span>
@@ -943,20 +966,25 @@ export const TransactionsTable = ({
                           </div>
                           <div className="flex items-center">
                             <span className="text mr-2">Group total: </span>
-                            <span className="text mr-8 font-semibold text-slate-800">{groupTotal.toFixed(2)}</span>
+                            <span className="text mr-8 font-semibold text-slate-800">
+                              {groupTotal.toFixed(2)}
+                            </span>
                           </div>
                         </div>
                       </Tbl.TableCell>
                     </Tbl.TableRow>
                     {/* Transaction Rows */}
                     <Tbl.TableRow className="p-0">
-                      <Tbl.TableCell colSpan={Array.from(visibleColumns).length + 1} className="p-0">
+                      <Tbl.TableCell
+                        colSpan={Array.from(visibleColumns).length + 1}
+                        className="p-0"
+                      >
                         <div
                           className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                            isCollapsed ? 'max-h-0' : 'max-h-[2000px]'
+                            isCollapsed ? "max-h-0" : "max-h-[2000px]"
                           }`}
                           style={{
-                            transitionProperty: 'max-height',
+                            transitionProperty: "max-height",
                           }}
                         >
                           <table className="w-full table-fixed">
@@ -967,14 +995,17 @@ export const TransactionsTable = ({
                                 const isEdited = changedFields[row.id]?.size > 0;
                                 const isNew = newRows.has(row.id);
                                 return (
-                                  <tr key={row.id} className={getRowClassName(row, isEditing, isEdited, isNew)}>
+                                  <tr
+                                    key={row.id}
+                                    className={getRowClassName(row, isEditing, isEdited, isNew)}
+                                  >
                                     {(Object.keys(row) as Array<keyof RowData>).map(
                                       (key) =>
                                         visibleColumns.has(key) && (
                                           <td
                                             key={key}
                                             className={cn(
-                                              'overflow-hidden py-0 pr-0 pl-1 whitespace-nowrap',
+                                              "overflow-hidden py-0 pr-0 pl-1 whitespace-nowrap",
                                               cellWidthMap[key],
                                             )}
                                           >
@@ -1024,7 +1055,7 @@ export const TransactionsTable = ({
                                               >
                                                 <PencilIcon className="h-4 w-4" />
                                               </Button>
-                                              {mode === 'bulk' && (
+                                              {mode === "bulk" && (
                                                 <Button
                                                   size="sm"
                                                   variant="ghost"
@@ -1042,7 +1073,7 @@ export const TransactionsTable = ({
                                               >
                                                 <Trash2 className="h-4 w-4" />
                                               </Button>
-                                              {isSaved && !isEdited && mode === 'bulk' && (
+                                              {isSaved && !isEdited && mode === "bulk" && (
                                                 <CheckCheck className="h-4 w-4 self-center text-green-500" />
                                               )}
                                               {changedFields[row.id]?.size > 0 && isSaved && (

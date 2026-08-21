@@ -1,11 +1,11 @@
-import React from 'react';
+import React from "react";
 
-import { Currency } from '@/components/currencies/types';
-import CurrencyComponent from '@/components/transactions/forms/components/CurrencyComponentV2';
-import { MaskedInput } from '@/components/ui/currency-input';
-import { cn } from '@/lib/utils';
+import { Currency } from "@/components/currencies/types";
+import CurrencyComponent from "@/components/transactions/forms/components/CurrencyComponentV2";
+import { MaskedInput } from "@/components/ui/currency-input";
+import { cn } from "@/lib/utils";
 
-import { RowData } from '..';
+import { RowData } from "..";
 
 interface OutcomeCellProps {
   isEditing: boolean;
@@ -26,7 +26,10 @@ interface OutcomeCellProps {
   currencyInputRef?: React.RefObject<HTMLInputElement>;
   handleAmountChange?: (id: number, field: keyof RowData, value: any) => void;
   handleChange?: (id: number, field: keyof RowData, value: any) => void;
-  handleKeyDown?: (e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>, id: number) => void;
+  handleKeyDown?: (
+    e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>,
+    id: number,
+  ) => void;
 }
 
 interface CurrencyConversionsProps {
@@ -57,7 +60,9 @@ export const OutcomeCell: React.FC<OutcomeCellProps> = ({
   handleKeyDown,
 }) => {
   const isSaved = !!row.uuid;
-  const transactionCurrency = currencies.find((item: Currency) => item.uuid === (currencyValue || row.currency));
+  const transactionCurrency = currencies.find(
+    (item: Currency) => item.uuid === (currencyValue || row.currency),
+  );
 
   // Edit mode
   if (
@@ -85,7 +90,7 @@ export const OutcomeCell: React.FC<OutcomeCellProps> = ({
               })
             }
             id="amount"
-            onAccept={(val) => handleAmountChange(row.id, 'outcome', val)}
+            onAccept={(val) => handleAmountChange(row.id, "outcome", val)}
             onKeyDown={(e) => handleKeyDown(e, row.id)}
             scale={2}
             thousandsSeparator=" "
@@ -93,7 +98,7 @@ export const OutcomeCell: React.FC<OutcomeCellProps> = ({
             normalizeZeros
             autofix
             padFractionalZeros={false}
-            mapToRadix={[',', 'ю', 'б', '.']}
+            mapToRadix={[",", "ю", "б", "."]}
             required
           />
           <span className="ml-1 flex-shrink-0">{transactionCurrency?.sign}</span>
@@ -130,11 +135,13 @@ export const OutcomeCell: React.FC<OutcomeCellProps> = ({
   const shouldShowConversions = isSaved && !isChanged && !isCurrencyChanged;
 
   return (
-    <div className={cn(cellStyle, 'flex gap-2')}>
+    <div className={cn(cellStyle, "flex gap-2")}>
       <div className="flex min-w-0 flex-1 items-center justify-end px-2 text-right">
         <div className="flex items-center gap-1">
           <span className="font-semibold">{getDisplayAmount()}</span>
-          <span className={cn(isCurrencyChanged && 'font-bold text-amber-600')}>{getDisplayCurrency()}</span>
+          <span className={cn(isCurrencyChanged && "font-bold text-amber-600")}>
+            {getDisplayCurrency()}
+          </span>
         </div>
       </div>
       {/* Reserve space matching the currency dropdown width in edit mode */}
@@ -147,7 +154,9 @@ export const OutcomeCell: React.FC<OutcomeCellProps> = ({
             baseCurrency={baseCurrency}
           />
         ) : (
-          transactionCurrency && <span className="text-xs font-medium text-slate-400">{transactionCurrency.code}</span>
+          transactionCurrency && (
+            <span className="text-xs font-medium text-slate-400">{transactionCurrency.code}</span>
+          )
         )}
       </div>
     </div>

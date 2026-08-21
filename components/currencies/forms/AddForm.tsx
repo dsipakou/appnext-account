@@ -1,35 +1,35 @@
-import { Info } from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import React from 'react';
-import { useSWRConfig } from 'swr';
-import * as z from 'zod';
+import { Info } from "lucide-react";
+import { useSession } from "next-auth/react";
+import React from "react";
+import { useSWRConfig } from "swr";
+import * as z from "zod";
 
 // UI
-import { Button } from '@/components/ui/button';
-import * as Dlg from '@/components/ui/dialog';
-import * as Field from '@/components/ui/field';
-import * as Frm from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { toastManager } from '@/components/ui/toast';
-import * as Tlp from '@/components/ui/tooltip';
+import { Button } from "@/components/ui/button";
+import * as Dlg from "@/components/ui/dialog";
+import * as Field from "@/components/ui/field";
+import * as Frm from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { toastManager } from "@/components/ui/toast";
+import * as Tlp from "@/components/ui/tooltip";
 // Hooks
-import { useCreateCurrency } from '@/hooks/currencies';
+import { useCreateCurrency } from "@/hooks/currencies";
 // Utils
-import { extractErrorMessage } from '@/utils/stringUtils';
+import { extractErrorMessage } from "@/utils/stringUtils";
 
 interface Types {
   handleClose: () => void;
 }
 
 const formSchema = z.object({
-  verbalName: z.string().min(2, { message: 'Must be at least 2 characters long' }),
+  verbalName: z.string().min(2, { message: "Must be at least 2 characters long" }),
   code: z.string().length(3, {
-    message: 'Must be 3 characters long',
+    message: "Must be 3 characters long",
   }),
   sign: z.string({
-    message: 'You need to specify currency sign',
+    message: "You need to specify currency sign",
   }),
   isDefault: z.boolean().optional(),
   comments: z.string().optional(),
@@ -41,11 +41,11 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
   const { mutate } = useSWRConfig();
   const { update: updateSession } = useSession();
   const [values, setValues] = React.useState<FormValues>({
-    verbalName: '',
-    code: '',
-    sign: '',
+    verbalName: "",
+    code: "",
+    sign: "",
     isDefault: false,
-    comments: '',
+    comments: "",
   });
   const [errors, setErrors] = React.useState<Frm.FormErrors>({});
 
@@ -58,19 +58,19 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
         updateSession({ currency: payload.code });
       }
       toastManager.add({
-        id: 'currency-create',
-        title: 'Saved!',
-        type: 'success',
+        id: "currency-create",
+        title: "Saved!",
+        type: "success",
       });
-      mutate((key) => typeof key === 'string' && key.includes('rates/'), undefined);
+      mutate((key) => typeof key === "string" && key.includes("rates/"), undefined);
       handleClose();
     } catch (error) {
       const message = extractErrorMessage(error);
       toastManager.add({
-        id: 'currency-create-error',
-        title: 'Something went wrong',
+        id: "currency-create-error",
+        title: "Something went wrong",
         description: message,
-        type: 'error',
+        type: "error",
       });
     }
   };
@@ -78,7 +78,7 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
       setErrors({});
-      setValues({ verbalName: '', code: '', sign: '', isDefault: false, comments: '' });
+      setValues({ verbalName: "", code: "", sign: "", isDefault: false, comments: "" });
     }
   };
 
@@ -115,7 +115,9 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                     placeholder="US Dollar"
                     id="verbalName"
                     value={values.verbalName}
-                    onChange={(event) => setValues((current) => ({ ...current, verbalName: event.target.value }))}
+                    onChange={(event) =>
+                      setValues((current) => ({ ...current, verbalName: event.target.value }))
+                    }
                   />
                   <Field.FieldError />
                 </Field.Field>
@@ -130,7 +132,9 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                     maxLength={2}
                     id="sign"
                     value={values.sign}
-                    onChange={(event) => setValues((current) => ({ ...current, sign: event.target.value }))}
+                    onChange={(event) =>
+                      setValues((current) => ({ ...current, sign: event.target.value }))
+                    }
                   />
                   <Field.FieldError />
                 </Field.Field>
@@ -147,7 +151,9 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                     maxLength={3}
                     id="code"
                     value={values.code}
-                    onChange={(event) => setValues((current) => ({ ...current, code: event.target.value }))}
+                    onChange={(event) =>
+                      setValues((current) => ({ ...current, code: event.target.value }))
+                    }
                   />
                   <Field.FieldError />
                 </Field.Field>
@@ -158,7 +164,9 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                     <Switch
                       id="isDefault"
                       checked={values.isDefault}
-                      onCheckedChange={(isDefault) => setValues((current) => ({ ...current, isDefault }))}
+                      onCheckedChange={(isDefault) =>
+                        setValues((current) => ({ ...current, isDefault }))
+                      }
                       disabled={isCreating}
                     />
                     <Field.FieldLabel htmlFor="isDefault">make it default</Field.FieldLabel>
@@ -186,8 +194,10 @@ const AddForm: React.FC<Types> = ({ handleClose }) => {
                   placeholder="Any comments"
                   className="resize-none"
                   disabled={isCreating}
-                  value={values.comments ?? ''}
-                  onChange={(event) => setValues((current) => ({ ...current, comments: event.target.value }))}
+                  value={values.comments ?? ""}
+                  onChange={(event) =>
+                    setValues((current) => ({ ...current, comments: event.target.value }))
+                  }
                 />
                 <Field.FieldError />
               </Field.Field>

@@ -1,17 +1,17 @@
-import { useSession } from 'next-auth/react';
-import React from 'react';
-import { useSWRConfig } from 'swr';
+import { useSession } from "next-auth/react";
+import React from "react";
+import { useSWRConfig } from "swr";
 
-import { Button } from '@/components/ui/button';
-import * as Slc from '@/components/ui/select';
-import { toastManager } from '@/components/ui/toast';
-import { Invite, User } from '@/components/users/types';
-import { Roles, useRoles, useUpdateRole } from '@/hooks/roles';
-import { useInvites, UserResponse, useUsers } from '@/hooks/users';
+import { Button } from "@/components/ui/button";
+import * as Slc from "@/components/ui/select";
+import { toastManager } from "@/components/ui/toast";
+import { Invite, User } from "@/components/users/types";
+import { Roles, useRoles, useUpdateRole } from "@/hooks/roles";
+import { useInvites, UserResponse, useUsers } from "@/hooks/users";
 
-import AddForm from './forms/AddForm';
-import ChangePasswordForm from './forms/ChangePasswordForm';
-import ConfirmRevokeForm from './forms/ConfirmRevokeForm';
+import AddForm from "./forms/AddForm";
+import ChangePasswordForm from "./forms/ChangePasswordForm";
+import ConfirmRevokeForm from "./forms/ConfirmRevokeForm";
 
 interface RoleMap {
   [userUuid: string]: string;
@@ -19,7 +19,7 @@ interface RoleMap {
 
 const Index: React.FC = () => {
   const [selectedRoles, setSelectedRoles] = React.useState<RoleMap[]>({});
-  const [uuid, setUuid] = React.useState<string>('');
+  const [uuid, setUuid] = React.useState<string>("");
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const { data: users = [] } = useUsers();
   const {
@@ -55,18 +55,18 @@ const Index: React.FC = () => {
     try {
       setIsLoading(true);
       await update({ role: selectedRoles[userUuid] });
-      mutate('users/');
+      mutate("users/");
       toastManager.add({
-        id: 'user-role-update',
-        title: 'User role updated',
-        type: 'success',
+        id: "user-role-update",
+        title: "User role updated",
+        type: "success",
       });
     } catch (error) {
       toastManager.add({
-        id: 'user-role-update-error',
-        title: 'Failed',
-        description: 'Something went wrong, please try again later.',
-        type: 'error',
+        id: "user-role-update-error",
+        title: "Failed",
+        description: "Something went wrong, please try again later.",
+        type: "error",
       });
     } finally {
       setIsLoading(false);
@@ -96,7 +96,10 @@ const Index: React.FC = () => {
           <div className="flex w-full flex-col rounded-md bg-white p-2 drop-shadow">
             <span className="p-2 text-lg">Members</span>
             {members.map((item: UserResponse) => (
-              <div key={item.uuid} className="my-1 flex w-full items-center justify-between gap-4 bg-slate-100 p-4">
+              <div
+                key={item.uuid}
+                className="my-1 flex w-full items-center justify-between gap-4 bg-slate-100 p-4"
+              >
                 <div className="flex items-center gap-4">
                   <span className="text-lg font-semibold">{item.username}</span>
                   <span className="text-sky-500 italic">{item.role}</span>
@@ -143,10 +146,15 @@ const Index: React.FC = () => {
           <div className="flex flex-col divide-y bg-white">
             <span className="p-2 text-lg">Invites</span>
             {invites.length == 0 && (
-              <div className="justify-left my-1 flex w-full items-center gap-4 p-4">You do not have active invites</div>
+              <div className="justify-left my-1 flex w-full items-center gap-4 p-4">
+                You do not have active invites
+              </div>
             )}
             {invites.map((invite: Invite) => (
-              <div key={invite.uuid} className="justify-left my-1 flex w-full items-center gap-4 p-4">
+              <div
+                key={invite.uuid}
+                className="justify-left my-1 flex w-full items-center gap-4 p-4"
+              >
                 <div className="flex flex-1">{invite.inviteReciever}</div>
                 <div className="flex flex-1 justify-end">
                   <ConfirmRevokeForm uuid={invite.uuid} />

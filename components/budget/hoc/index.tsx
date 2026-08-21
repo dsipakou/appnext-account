@@ -1,45 +1,52 @@
-import { useRouter } from 'next/router';
-import { useSession } from 'next-auth/react';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { mutate } from 'swr';
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import * as React from "react";
+import { useEffect, useState } from "react";
+import { mutate } from "swr";
 
-import { useStore } from '@/app/store';
-import { GeneralSummaryCard } from '@/components/budget/components';
-import MonthCalendar from '@/components/budget/components/month/MonthCalendar';
-import WeekCalendar from '@/components/budget/components/week/WeekCalendar';
-import { AddForm, SavedForLaterForm, TransactionsForm } from '@/components/budget/forms';
-import { CompactWeekItem, PlannedMap, SpentMap } from '@/components/budget/types';
-import { Button } from '@/components/ui/button';
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import * as Slc from '@/components/ui/select';
-import { Spinner } from '@/components/ui/spinner';
-import { User } from '@/components/users/types';
-import { useBudgetMonth, useBudgetWeek } from '@/hooks/budget';
-import { UserResponse, useUsers } from '@/hooks/users';
-import { cn } from '@/lib/utils';
-import { getEndOfMonth, getEndOfWeek, getStartOfMonth, getStartOfWeek } from '@/utils/dateUtils';
+import { useStore } from "@/app/store";
+import { GeneralSummaryCard } from "@/components/budget/components";
+import MonthCalendar from "@/components/budget/components/month/MonthCalendar";
+import WeekCalendar from "@/components/budget/components/week/WeekCalendar";
+import { AddForm, SavedForLaterForm, TransactionsForm } from "@/components/budget/forms";
+import { CompactWeekItem, PlannedMap, SpentMap } from "@/components/budget/types";
+import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import * as Slc from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
+import { User } from "@/components/users/types";
+import { useBudgetMonth, useBudgetWeek } from "@/hooks/budget";
+import { UserResponse, useUsers } from "@/hooks/users";
+import { cn } from "@/lib/utils";
+import { getEndOfMonth, getEndOfWeek, getStartOfMonth, getStartOfWeek } from "@/utils/dateUtils";
 
-type BudgetType = 'month' | 'week' | 'recurrent';
+type BudgetType = "month" | "week" | "recurrent";
 
 function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
-  return (hocProps: Omit<T, 'activeType'>) => {
-    const activeType = hocProps.activeType || 'month';
+  return (hocProps: Omit<T, "activeType">) => {
+    const activeType = hocProps.activeType || "month";
     const router = useRouter();
     const {
       data: { user: userConfig },
     } = useSession();
-    const [user, setUser] = useState<string>('all');
-    const [startOfMonth, setStartOfMonth] = useState<string>('');
-    const [startOfWeek, setStartOfWeek] = useState<string>('');
-    const [endOfMonth, setEndOfMonth] = useState<string>('');
-    const [endOfWeek, setEndOfWeek] = useState<string>('');
+    const [user, setUser] = useState<string>("all");
+    const [startOfMonth, setStartOfMonth] = useState<string>("");
+    const [startOfWeek, setStartOfWeek] = useState<string>("");
+    const [endOfMonth, setEndOfMonth] = useState<string>("");
+    const [endOfWeek, setEndOfWeek] = useState<string>("");
     const [plannedSum, setPlannedSum] = useState<number>(0);
     const [spentSum, setSpentSum] = useState<number>(0);
     const [isOpenTransactionsForm, setIsOpenTransactionsForm] = useState<boolean>(false);
-    const [activeBudgetUuid, setActiveBudgetUuid] = useState<string>('');
-    const startDate = activeType === 'month' ? startOfMonth : startOfWeek;
-    const endDate = activeType === 'month' ? endOfMonth : endOfWeek;
+    const [activeBudgetUuid, setActiveBudgetUuid] = useState<string>("");
+    const startDate = activeType === "month" ? startOfMonth : startOfWeek;
+    const endDate = activeType === "month" ? endOfMonth : endOfWeek;
 
     const weekDate = useStore((state) => state.weekDate);
     const monthDate = useStore((state) => state.monthDate);
@@ -47,7 +54,10 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const setMonthDate = useStore((state) => state.setMonthDate);
 
     const { data: users = [], isLoading: isUserLoading } = useUsers();
-    const extendedUsers = React.useMemo(() => [{ username: 'All users', uuid: 'all' }, ...users], [users]);
+    const extendedUsers = React.useMemo(
+      () => [{ username: "All users", uuid: "all" }, ...users],
+      [users],
+    );
 
     const {
       data: budgetMonth = [],
@@ -78,7 +88,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     useEffect(() => {
       let _planned = 0;
       let _spent = 0;
-      if (activeType === 'month') {
+      if (activeType === "month") {
         if (!budgetMonth) return;
 
         _planned = budgetMonth.reduce((acc: number, { plannedInCurrencies }: PlannedMap) => {
@@ -111,7 +121,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
 
     const handleCloseModal = () => {
       setIsOpenTransactionsForm(false);
-      setActiveBudgetUuid('');
+      setActiveBudgetUuid("");
     };
 
     const mutateBudget = (updatedBudget?: CompactWeekItem): void => {
@@ -144,14 +154,14 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
         <div className="flex rounded-md bg-blue-500">
           <Button
             className="w-45 p-px disabled:opacity-100"
-            disabled={activeType === 'month'}
+            disabled={activeType === "month"}
             variant="empty"
-            onClick={() => handleTypeButtonClick('month')}
+            onClick={() => handleTypeButtonClick("month")}
           >
             <span
               className={cn(
-                'flex h-full w-full items-center justify-center text-xl text-white',
-                activeType === 'month' && 'rounded-sm bg-white text-blue-500',
+                "flex h-full w-full items-center justify-center text-xl text-white",
+                activeType === "month" && "rounded-sm bg-white text-blue-500",
               )}
             >
               Monthly
@@ -159,14 +169,14 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           </Button>
           <Button
             className="w-45 p-px disabled:opacity-100"
-            disabled={activeType === 'week'}
+            disabled={activeType === "week"}
             variant="empty"
-            onClick={() => handleTypeButtonClick('week')}
+            onClick={() => handleTypeButtonClick("week")}
           >
             <span
               className={cn(
-                'flex h-full w-full items-center justify-center text-xl text-white',
-                activeType === 'week' && 'rounded-md bg-white text-blue-500',
+                "flex h-full w-full items-center justify-center text-xl text-white",
+                activeType === "week" && "rounded-md bg-white text-blue-500",
               )}
             >
               Weekly
@@ -195,7 +205,10 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             onValueChange={changeUser}
             defaultValue="all"
             disabled={isUserLoading}
-            items={extendedUsers.map((item: UserResponse) => ({ label: item.username, value: item.uuid }))}
+            items={extendedUsers.map((item: UserResponse) => ({
+              label: item.username,
+              value: item.uuid,
+            }))}
           >
             <Slc.SelectTrigger className="text-muted-foreground relative w-full border-2 font-normal hover:text-black">
               <Slc.SelectValue placeholder="User" />
@@ -213,7 +226,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           </Slc.Select>
         </div>
         <div className="h-auto w-1/3">
-          {activeType === 'month' ? (
+          {activeType === "month" ? (
             <MonthCalendar date={monthDate} setMonthDate={setMonthDate} />
           ) : (
             <WeekCalendar date={weekDate} setWeekDate={setWeekDate} />
@@ -227,7 +240,9 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
         <EmptyHeader>
           <EmptyMedia variant="icon"></EmptyMedia>
           <EmptyTitle>No plans for this {activeType}</EmptyTitle>
-          <EmptyDescription>You haven&apos;t planned anything for this {activeType}.</EmptyDescription>
+          <EmptyDescription>
+            You haven&apos;t planned anything for this {activeType}.
+          </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
           <div className="flex gap-2">
@@ -241,14 +256,18 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
       <>
         {toolbar}
         <div className="flex h-full max-h-full flex-col">
-          {activeType !== 'recurrent' && (
+          {activeType !== "recurrent" && (
             <div className="w-full rounded bg-white p-1 shadow-sm shadow-zinc-300">{header}</div>
           )}
           <div className="@container-[size] mt-5 flex h-full max-h-full w-full">
-            {(activeType === 'month' && budgetMonth.length === 0) ||
-            (activeType === 'week' && budgetWeek.length === 0) ? (
+            {(activeType === "month" && budgetMonth.length === 0) ||
+            (activeType === "week" && budgetWeek.length === 0) ? (
               <div className="flex h-full w-full items-center justify-center">
-                {isWeekBudgetLoading || isMonthBudgetLoading ? <Spinner className="size-8" /> : emptyState}
+                {isWeekBudgetLoading || isMonthBudgetLoading ? (
+                  <Spinner className="size-8" />
+                ) : (
+                  emptyState
+                )}
               </div>
             ) : (
               <Component
@@ -263,7 +282,11 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
         </div>
         {activeBudgetUuid && (
           <>
-            <TransactionsForm open={isOpenTransactionsForm} handleClose={handleCloseModal} uuid={activeBudgetUuid} />
+            <TransactionsForm
+              open={isOpenTransactionsForm}
+              handleClose={handleCloseModal}
+              uuid={activeBudgetUuid}
+            />
           </>
         )}
       </>

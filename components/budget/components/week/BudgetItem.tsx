@@ -1,24 +1,24 @@
-import { BadgeCheck, Check, Edit, Loader, Plus, Repeat, ScrollText, Trash } from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import * as React from 'react';
-import { useSWRConfig } from 'swr';
+import { BadgeCheck, Check, Edit, Loader, Plus, Repeat, ScrollText, Trash } from "lucide-react";
+import { useSession } from "next-auth/react";
+import * as React from "react";
+import { useSWRConfig } from "swr";
 
-import { useStore } from '@/app/store';
-import ConfirmDeleteForm from '@/components/budget/forms/ConfirmDeleteForm';
-import EditForm from '@/components/budget/forms/EditForm';
-import { CompactWeekItem } from '@/components/budget/types';
-import { AddForm } from '@/components/transactions/forms';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Draggable } from '@/components/ui/dnd';
-import * as Prg from '@/components/ui/progress';
-import { toastManager } from '@/components/ui/toast';
-import { useEditBudget } from '@/hooks/budget';
-import { UserResponse, useUsers } from '@/hooks/users';
-import { cn } from '@/lib/utils';
-import { formatMoney } from '@/utils/numberUtils';
-import { extractErrorMessage } from '@/utils/stringUtils';
+import { useStore } from "@/app/store";
+import ConfirmDeleteForm from "@/components/budget/forms/ConfirmDeleteForm";
+import EditForm from "@/components/budget/forms/EditForm";
+import { CompactWeekItem } from "@/components/budget/types";
+import { AddForm } from "@/components/transactions/forms";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Draggable } from "@/components/ui/dnd";
+import * as Prg from "@/components/ui/progress";
+import { toastManager } from "@/components/ui/toast";
+import { useEditBudget } from "@/hooks/budget";
+import { UserResponse, useUsers } from "@/hooks/users";
+import { cn } from "@/lib/utils";
+import { formatMoney } from "@/utils/numberUtils";
+import { extractErrorMessage } from "@/utils/stringUtils";
 
 interface Types {
   index: number;
@@ -44,8 +44,10 @@ const BudgetItem: React.FC<Types> = ({
 }) => {
   const [isLoading] = React.useState<boolean>(false);
   const [isEditDialogOpened, setIsEditDialogOpened] = React.useState<boolean>(false);
-  const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] = React.useState<boolean>(false);
-  const [isAddTransactionDialogOpened, setIsAddTransactionDialogOpened] = React.useState<boolean>(false);
+  const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] =
+    React.useState<boolean>(false);
+  const [isAddTransactionDialogOpened, setIsAddTransactionDialogOpened] =
+    React.useState<boolean>(false);
   const { mutate } = useSWRConfig();
 
   const { data: users = [] } = useUsers();
@@ -64,16 +66,19 @@ const BudgetItem: React.FC<Types> = ({
 
   const handleClickComplete = async (): Promise<void> => {
     try {
-      const updatedBudget = await completeBudget({ isCompleted: !budget.isCompleted, category: budget.category });
+      const updatedBudget = await completeBudget({
+        isCompleted: !budget.isCompleted,
+        category: budget.category,
+      });
       mutateBudget(updatedBudget);
-      mutate('budget/upcomming/', undefined);
+      mutate("budget/upcomming/", undefined);
     } catch (error) {
       const message = extractErrorMessage(error);
       toastManager.add({
-        id: 'budget-complete-error',
-        title: 'Cannot be completed',
+        id: "budget-complete-error",
+        title: "Cannot be completed",
         description: message,
-        type: 'error',
+        type: "error",
       });
     }
   };
@@ -84,31 +89,39 @@ const BudgetItem: React.FC<Types> = ({
         id={budget.uuid}
         isLoading={isDragLoading}
         className={cn(
-          'group absolute flex h-20 w-full flex-col justify-between rounded-md p-1',
-          day === 1 && 'hover:left-4',
-          day === 0 && 'hover:right-4',
+          "group absolute flex h-20 w-full flex-col justify-between rounded-md p-1",
+          day === 1 && "hover:left-4",
+          day === 0 && "hover:right-4",
 
-          !isDragging && 'hover:z-20 hover:h-25 hover:w-72.5 hover:scale-110 hover:shadow-xl',
-          !budget.isCompleted && ['bg-white', isSameUser ? 'shadow-md' : 'text-blue-500'],
-          budget.isCompleted && 'bg-slate-300 opacity-90 grayscale-40',
+          !isDragging && "hover:z-20 hover:h-25 hover:w-72.5 hover:scale-110 hover:shadow-xl",
+          !budget.isCompleted && ["bg-white", isSameUser ? "shadow-md" : "text-blue-500"],
+          budget.isCompleted && "bg-slate-300 opacity-90 grayscale-40",
         )}
       >
         <div
           className={cn(
-            'absolute top-0 left-0 h-0 w-0 rounded-tl-sm border-r-transparent',
-            budget.recurrent === 'monthly' && 'border-t-25 border-r-25 border-t-cyan-400',
-            budget.recurrent === 'weekly' && 'border-t-25 border-r-25 border-t-orange-400',
+            "absolute top-0 left-0 h-0 w-0 rounded-tl-sm border-r-transparent",
+            budget.recurrent === "monthly" && "border-t-25 border-r-25 border-t-cyan-400",
+            budget.recurrent === "weekly" && "border-t-25 border-r-25 border-t-orange-400",
           )}
         ></div>
         {budget.isCompleted && (
-          <div className={cn('absolute top-1 right-1 flex items-center align-middle group-hover:right-3')}>
+          <div
+            className={cn(
+              "absolute top-1 right-1 flex items-center align-middle group-hover:right-3",
+            )}
+          >
             <BadgeCheck className="h-4 w-4 text-green-600" />
           </div>
         )}
         <div className="flex flex-row items-center gap-1">
           {!isSameUser && (
             <>
-              <div className={cn('absolute top-1 left-6 flex items-center align-middle group-hover:hidden')}>
+              <div
+                className={cn(
+                  "absolute top-1 left-6 flex items-center align-middle group-hover:hidden",
+                )}
+              >
                 <Avatar className="h-4 w-4">
                   <AvatarFallback className="bg-violet-500 text-xs font-bold text-white">
                     {budgetUser?.username.charAt(0)}
@@ -118,8 +131,8 @@ const BudgetItem: React.FC<Types> = ({
               <div className="justify-center text-sm font-bold">
                 <div
                   className={cn(
-                    'absolute top-1 left-6 hidden items-center align-middle',
-                    !isDragging && 'group-hover:flex',
+                    "absolute top-1 left-6 hidden items-center align-middle",
+                    !isDragging && "group-hover:flex",
                   )}
                 >
                   <Badge className="h-4 bg-violet-500">{budgetUser?.username}</Badge>
@@ -129,8 +142,8 @@ const BudgetItem: React.FC<Types> = ({
           )}
           <div
             className={cn(
-              'flex grow overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap',
-              !isDragging && 'group-hover:ml-1 group-hover:text-base',
+              "flex grow overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap",
+              !isDragging && "group-hover:ml-1 group-hover:text-base",
             )}
           >
             <span>{budget.title}</span>
@@ -139,26 +152,26 @@ const BudgetItem: React.FC<Types> = ({
             <>
               <div
                 className={cn(
-                  'absolute top-[2px] left-[2px] flex items-center align-middle',
-                  budget.recurrent === 'weekly' && 'text-orange-500',
-                  budget.recurrent === 'monthly' && 'text-cyan-500',
+                  "absolute top-[2px] left-[2px] flex items-center align-middle",
+                  budget.recurrent === "weekly" && "text-orange-500",
+                  budget.recurrent === "monthly" && "text-cyan-500",
                 )}
               >
-                <Repeat className={cn('mr-1 h-3 w-3 text-white')} />
+                <Repeat className={cn("mr-1 h-3 w-3 text-white")} />
               </div>
               <div
                 className={cn(
-                  'absolute top-1 right-9 hidden items-center align-middle',
-                  !isDragging && 'group-hover:flex',
-                  budget.recurrent === 'weekly' && 'text-orange-500',
-                  budget.recurrent === 'monthly' && 'text-cyan-500',
+                  "absolute top-1 right-9 hidden items-center align-middle",
+                  !isDragging && "group-hover:flex",
+                  budget.recurrent === "weekly" && "text-orange-500",
+                  budget.recurrent === "monthly" && "text-cyan-500",
                 )}
               >
                 <span
                   className={cn(
-                    'text-xs',
-                    budget.recurrent === 'weekly' && 'text-orange-500',
-                    budget.recurrent === 'monthly' && 'text-cyan-500',
+                    "text-xs",
+                    budget.recurrent === "weekly" && "text-orange-500",
+                    budget.recurrent === "monthly" && "text-cyan-500",
                   )}
                 >
                   {budget.recurrent}
@@ -168,31 +181,44 @@ const BudgetItem: React.FC<Types> = ({
           )}
         </div>
         <div className="flex h-full items-center justify-center">
-          <div className={cn('text-sm font-semibold', !isDragging && 'group-hover:flex')}>
+          <div className={cn("text-sm font-semibold", !isDragging && "group-hover:flex")}>
             <span>{formatMoney(budget.spent)}</span>
             <span>{currencySign}</span>
           </div>
           {budget.planned !== 0 && (
-            <div className={cn('mx-2 hidden text-xs font-semibold', !isDragging && 'group-hover:flex')}>of</div>
+            <div
+              className={cn("mx-2 hidden text-xs font-semibold", !isDragging && "group-hover:flex")}
+            >
+              of
+            </div>
           )}
           {budget.planned !== 0 && (
-            <div className={cn('flex text-xs', isDragging && 'hidden')}>
+            <div className={cn("flex text-xs", isDragging && "hidden")}>
               <span className="pl-1 group-hover:hidden">(</span>
               <span>{formatMoney(budget.planned)}</span>
               <span className="group-hover:hidden">)</span>
               <span className="hidden group-hover:flex">{currencySign}</span>
             </div>
           )}
-          <div className={cn('ml-[3px] text-xs', isDragging && 'hidden')}>
-            {budget.planned === 0 && <span className="ml-2 hidden group-hover:flex">(not planned)</span>}
+          <div className={cn("ml-[3px] text-xs", isDragging && "hidden")}>
+            {budget.planned === 0 && (
+              <span className="ml-2 hidden group-hover:flex">(not planned)</span>
+            )}
           </div>
         </div>
         <div className="flex items-center justify-center">
           {budget.planned !== 0 ? (
             <>
-              <Prg.Progress className="w-full" value={percentage > 100 ? percentage % 100 : percentage}>
-                <Prg.ProgressTrack className={cn('h-1.5 bg-gray-200', percentage > 100 && 'bg-red-200')}>
-                  <Prg.ProgressIndicator className={cn('bg-green-500', percentage > 100 && 'bg-red-500')} />
+              <Prg.Progress
+                className="w-full"
+                value={percentage > 100 ? percentage % 100 : percentage}
+              >
+                <Prg.ProgressTrack
+                  className={cn("h-1.5 bg-gray-200", percentage > 100 && "bg-red-200")}
+                >
+                  <Prg.ProgressIndicator
+                    className={cn("bg-green-500", percentage > 100 && "bg-red-500")}
+                  />
                 </Prg.ProgressTrack>
               </Prg.Progress>
               <div className="ml-2 text-xs font-bold">{`${percentage}%`}</div>
@@ -208,8 +234,8 @@ const BudgetItem: React.FC<Types> = ({
         </div>
         <div
           className={cn(
-            'hidden h-full justify-center gap-1 text-xs',
-            !isDragging && 'group-hover:flex group-hover:items-end',
+            "hidden h-full justify-center gap-1 text-xs",
+            !isDragging && "group-hover:flex group-hover:items-end",
           )}
           data-no-dnd="true"
         >
@@ -217,11 +243,17 @@ const BudgetItem: React.FC<Types> = ({
             disabled={isCompleting}
             variant="outline"
             size="slim"
-            className={cn('bg-background', budget.isCompleted && 'bg-muted-background')}
+            className={cn("bg-background", budget.isCompleted && "bg-muted-background")}
             onClick={handleClickComplete}
           >
-            {!isCompleting && <Check className={cn('text-muted-foreground h-4', budget.isCompleted && 'text-white')} />}
-            {isCompleting && <Loader className={cn('h-4 text-gray-400', budget.isCompleted && 'text-white')} />}
+            {!isCompleting && (
+              <Check
+                className={cn("text-muted-foreground h-4", budget.isCompleted && "text-white")}
+              />
+            )}
+            {isCompleting && (
+              <Loader className={cn("h-4 text-gray-400", budget.isCompleted && "text-white")} />
+            )}
           </Button>
           <Button
             disabled={isLoading}
@@ -250,7 +282,11 @@ const BudgetItem: React.FC<Types> = ({
           >
             <Edit className="h-4 w-4" />
           </Button>
-          <Button variant="destructive" size="slim" onClick={() => setIsConfirmDeleteDialogOpened(true)}>
+          <Button
+            variant="destructive"
+            size="slim"
+            onClick={() => setIsConfirmDeleteDialogOpened(true)}
+          >
             <Trash className="h-4 w-4" />
           </Button>
         </div>

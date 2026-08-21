@@ -1,22 +1,26 @@
 // System
-import { MoreHorizontal, TrashIcon, User as UserIcon } from 'lucide-react';
-import Link from 'next/link';
-import * as React from 'react';
+import { MoreHorizontal, TrashIcon, User as UserIcon } from "lucide-react";
+import Link from "next/link";
+import * as React from "react";
 
 // Components
-import { useStore } from '@/app/store';
-import { ConfirmDeleteForm, EditForm as EditAccount, ReassignTransactionsForm } from '@/components/accounts/forms';
-import { AccountResponse } from '@/components/accounts/types';
-import { AccountUsage } from '@/components/transactions/types';
-import { Button } from '@/components/ui/button';
+import { useStore } from "@/app/store";
+import {
+  ConfirmDeleteForm,
+  EditForm as EditAccount,
+  ReassignTransactionsForm,
+} from "@/components/accounts/forms";
+import { AccountResponse } from "@/components/accounts/types";
+import { AccountUsage } from "@/components/transactions/types";
+import { Button } from "@/components/ui/button";
 // UI
-import * as Mnu from '@/components/ui/menu';
+import * as Mnu from "@/components/ui/menu";
 // Types
-import { User } from '@/components/users/types';
-import { useAccountUsage } from '@/hooks/transactions';
+import { User } from "@/components/users/types";
+import { useAccountUsage } from "@/hooks/transactions";
 // Hooks
-import { useUsers } from '@/hooks/users';
-import { cn } from '@/lib/utils';
+import { useUsers } from "@/hooks/users";
+import { cn } from "@/lib/utils";
 
 interface Types {
   account: AccountResponse;
@@ -55,10 +59,12 @@ const AccountCard: React.FC<Types> = ({ account }) => {
         <div className="flex flex-1 p-4 pb-1.5">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <div className="truncate text-base leading-none font-semibold text-slate-950">{account.title}</div>
+              <div className="truncate text-base leading-none font-semibold text-slate-950">
+                {account.title}
+              </div>
               <div className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500">
                 <UserIcon className="size-3.5" />
-                <span className="truncate">{user?.username ?? 'No owner'}</span>
+                <span className="truncate">{user?.username ?? "No owner"}</span>
               </div>
             </div>
           </div>
@@ -70,10 +76,10 @@ const AccountCard: React.FC<Types> = ({ account }) => {
               <div className="text-xs text-slate-500">Balance this month</div>
               <div
                 className={cn(
-                  'mt-0.5 text-2xl font-semibold tracking-tight',
-                  balance > 0 && 'text-emerald-600',
-                  balance < 0 && 'text-red-500',
-                  balance === 0 && 'text-slate-950',
+                  "mt-0.5 text-2xl font-semibold tracking-tight",
+                  balance > 0 && "text-emerald-600",
+                  balance < 0 && "text-red-500",
+                  balance === 0 && "text-slate-950",
                 )}
               >
                 {formatMoney(balance, currencySign)}
@@ -87,14 +93,18 @@ const AccountCard: React.FC<Types> = ({ account }) => {
             ) : (
               <div className="flex items-center gap-3 text-xs">
                 <div>
-                  {' '}
-                  <span className="text-slate-500">Income </span>{' '}
-                  <span className="font-medium text-slate-800">{formatMoney(income, currencySign)}</span>
+                  {" "}
+                  <span className="text-slate-500">Income </span>{" "}
+                  <span className="font-medium text-slate-800">
+                    {formatMoney(income, currencySign)}
+                  </span>
                 </div>
                 <div className="h-3.5 w-px bg-slate-200" />
                 <div>
                   <span className="text-slate-500">Expenses </span>
-                  <span className="font-medium text-slate-800">{formatMoney(expenses, currencySign)}</span>
+                  <span className="font-medium text-slate-800">
+                    {formatMoney(expenses, currencySign)}
+                  </span>
                 </div>
               </div>
             )}
@@ -120,13 +130,17 @@ const AccountCard: React.FC<Types> = ({ account }) => {
           <Mnu.MenuPopup align="end" sideOffset={6}>
             <Mnu.MenuGroup>
               <Mnu.MenuGroupLabel>Details</Mnu.MenuGroupLabel>
-              <Mnu.MenuLinkItem render={<Link href={`/accounts/${account.uuid}`} />}>View Details</Mnu.MenuLinkItem>
+              <Mnu.MenuLinkItem render={<Link href={`/accounts/${account.uuid}`} />}>
+                View Details
+              </Mnu.MenuLinkItem>
             </Mnu.MenuGroup>
             <Mnu.MenuSeparator />
             <Mnu.MenuGroup>
               <Mnu.MenuGroupLabel>Actions</Mnu.MenuGroupLabel>
               <Mnu.MenuItem onClick={() => setEditOpen(true)}>Edit</Mnu.MenuItem>
-              <Mnu.MenuItem onClick={() => setReassignOpen(true)}>Reassign Transactions</Mnu.MenuItem>
+              <Mnu.MenuItem onClick={() => setReassignOpen(true)}>
+                Reassign Transactions
+              </Mnu.MenuItem>
               <Mnu.MenuItem onClick={() => setDeleteOpen(true)} variant="destructive">
                 <TrashIcon aria-hidden="true" />
                 Delete

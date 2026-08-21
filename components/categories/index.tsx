@@ -1,21 +1,21 @@
-import React from 'react';
+import React from "react";
 
-import Toolbar from '@/components/common/layout/Toolbar';
-import { Button } from '@/components/ui/button';
-import { useCategories } from '@/hooks/categories';
-import { cn } from '@/lib/utils';
+import Toolbar from "@/components/common/layout/Toolbar";
+import { Button } from "@/components/ui/button";
+import { useCategories } from "@/hooks/categories";
+import { cn } from "@/lib/utils";
 
-import Income from './components/Income';
-import Outcome from './components/Outcome';
-import AddForm from './forms/AddForm';
-import { Category } from './types';
+import Income from "./components/Income";
+import Outcome from "./components/Outcome";
+import AddForm from "./forms/AddForm";
+import { Category } from "./types";
 
 const Index = () => {
   const { data: categories = [] } = useCategories();
-  const [activeType, setActiveType] = React.useState<'income' | 'outcome'>('outcome');
+  const [activeType, setActiveType] = React.useState<"income" | "outcome">("outcome");
 
   const parentCategories: Category[] =
-    categories?.filter((item: Category) => item.parent === null && item.type !== 'INC') || [];
+    categories?.filter((item: Category) => item.parent === null && item.type !== "INC") || [];
 
   const categoriesByParent = (uuid: string): Category[] => {
     return categories?.filter((item: Category) => item.parent === uuid) || [];
@@ -29,17 +29,17 @@ const Index = () => {
 
   return (
     <>
-      <Toolbar title={'Categories'}>
+      <Toolbar title={"Categories"}>
         <div className="flex rounded-md bg-blue-500">
           <Button
             className="w-45 p-px disabled:opacity-100"
-            disabled={activeType === 'outcome'}
-            onClick={() => setActiveType('outcome')}
+            disabled={activeType === "outcome"}
+            onClick={() => setActiveType("outcome")}
           >
             <span
               className={cn(
-                'flex h-full w-full items-center justify-center text-xl text-white',
-                activeType === 'outcome' && 'rounded-md bg-white text-blue-500',
+                "flex h-full w-full items-center justify-center text-xl text-white",
+                activeType === "outcome" && "rounded-md bg-white text-blue-500",
               )}
             >
               Outcome
@@ -47,13 +47,13 @@ const Index = () => {
           </Button>
           <Button
             className="w-45 p-px disabled:opacity-100"
-            disabled={activeType === 'income'}
-            onClick={() => setActiveType('income')}
+            disabled={activeType === "income"}
+            onClick={() => setActiveType("income")}
           >
             <span
               className={cn(
-                'flex h-full w-full items-center justify-center text-xl text-white',
-                activeType === 'income' && 'rounded-md bg-white text-blue-500',
+                "flex h-full w-full items-center justify-center text-xl text-white",
+                activeType === "income" && "rounded-md bg-white text-blue-500",
               )}
             >
               Income
@@ -63,7 +63,7 @@ const Index = () => {
         <AddForm />
       </Toolbar>
       {categories.length === 0 && noCategories}
-      {activeType === 'income' ? (
+      {activeType === "income" ? (
         <Income />
       ) : (
         <Outcome parentCategories={parentCategories} categoriesByParent={categoriesByParent} />

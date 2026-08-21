@@ -1,13 +1,13 @@
-import useSWR from 'swr';
-import useSWRImmutable from 'swr/immutable';
-import useSWRMutation from 'swr/mutation';
+import useSWR from "swr";
+import useSWRImmutable from "swr/immutable";
+import useSWRMutation from "swr/mutation";
 
-import { ChartData } from '@/components/reports/types';
-import { AccountUsage, TransactionsReportResponse } from '@/components/transactions/types';
-import { Sorting, TransactionResponse } from '@/components/transactions/types';
-import { deleteReq, fetchReq, patchReq, postReq } from '@/plugins/axios';
+import { ChartData } from "@/components/reports/types";
+import { AccountUsage, TransactionsReportResponse } from "@/components/transactions/types";
+import { Sorting, TransactionResponse } from "@/components/transactions/types";
+import { deleteReq, fetchReq, patchReq, postReq } from "@/plugins/axios";
 
-import { Response } from './types';
+import { Response } from "./types";
 
 interface TransactionRequest {
   sorting?: Sorting;
@@ -17,9 +17,9 @@ interface TransactionRequest {
   dateTo?: string;
 }
 export const useTransactions = ({
-  sorting = 'added',
+  sorting = "added",
   limit = 15,
-  type = 'outcome',
+  type = "outcome",
   dateFrom,
   dateTo,
 }: TransactionRequest): Response<TransactionResponse[]> => {
@@ -39,7 +39,7 @@ export const useTransactions = ({
 };
 
 export const useCreateTransaction = () => {
-  const { trigger, isMutating } = useSWRMutation('transactions/', postReq, { revalidate: true });
+  const { trigger, isMutating } = useSWRMutation("transactions/", postReq, { revalidate: true });
 
   return {
     trigger,
@@ -48,7 +48,9 @@ export const useCreateTransaction = () => {
 };
 
 export const useBulkCreateTransaction = () => {
-  const { trigger, isMutating } = useSWRMutation('transactions/bulk-create/', postReq, { revalidate: true });
+  const { trigger, isMutating } = useSWRMutation("transactions/bulk-create/", postReq, {
+    revalidate: true,
+  });
 
   return {
     trigger,
@@ -57,7 +59,7 @@ export const useBulkCreateTransaction = () => {
 };
 
 export const useUpdateTransaction = () => {
-  const { trigger, isMutating } = useSWRMutation('transactions/', patchReq, { revalidate: true });
+  const { trigger, isMutating } = useSWRMutation("transactions/", patchReq, { revalidate: true });
 
   return {
     trigger,
@@ -66,7 +68,9 @@ export const useUpdateTransaction = () => {
 };
 
 export const useDeleteTransaction = (uuid: string) => {
-  const { trigger, isMutating } = useSWRMutation(`transactions/${uuid}`, deleteReq, { revalidate: true });
+  const { trigger, isMutating } = useSWRMutation(`transactions/${uuid}`, deleteReq, {
+    revalidate: true,
+  });
 
   return {
     trigger,
@@ -75,7 +79,9 @@ export const useDeleteTransaction = (uuid: string) => {
 };
 
 export const useReadLastAddedTransactions = () => {
-  const { trigger, isMutating } = useSWRMutation('transactions/last-added/', postReq, { revalidate: true });
+  const { trigger, isMutating } = useSWRMutation("transactions/last-added/", postReq, {
+    revalidate: true,
+  });
 
   return {
     trigger,
@@ -191,7 +197,8 @@ export const useTransactionsByDateRange = (
   dateFrom: string | null,
   dateTo: string | null,
 ): Response<TransactionResponse[]> => {
-  const url = dateFrom && dateTo ? `transactions/date-range/?dateFrom=${dateFrom}&dateTo=${dateTo}` : null;
+  const url =
+    dateFrom && dateTo ? `transactions/date-range/?dateFrom=${dateFrom}&dateTo=${dateTo}` : null;
 
   const { data, error, isLoading } = useSWRImmutable(url, fetchReq);
 

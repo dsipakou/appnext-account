@@ -1,14 +1,14 @@
-import { closestCenter, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
-import { restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
-import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import React from 'react';
-import { useSWRConfig } from 'swr';
+import { closestCenter, DndContext, DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import { restrictToVerticalAxis, restrictToWindowEdges } from "@dnd-kit/modifiers";
+import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import React from "react";
+import { useSWRConfig } from "swr";
 
-import { toastManager } from '@/components/ui/toast';
-import { useReorderCategories } from '@/hooks/categories';
+import { toastManager } from "@/components/ui/toast";
+import { useReorderCategories } from "@/hooks/categories";
 
-import { Category } from '../types';
-import { CategoryItem } from './CategoryItem';
+import { Category } from "../types";
+import { CategoryItem } from "./CategoryItem";
 
 interface Props {
   categories: Category[];
@@ -72,19 +72,19 @@ export const SortableCategoryList: React.FC<Props> = ({
           category: active.id,
           index: over.data.current.sortable.index,
         });
-        mutate('categories/');
+        mutate("categories/");
         toastManager.add({
-          id: 'category-reorder',
-          title: 'Category reordered',
-          type: 'success',
+          id: "category-reorder",
+          title: "Category reordered",
+          type: "success",
         });
       } catch (error) {
         // Revert optimistic update on error
         setCategoriesState(memorizedCategories);
         toastManager.add({
-          id: 'category-reorder-error',
-          title: 'Error reordering category',
-          type: 'error',
+          id: "category-reorder-error",
+          title: "Error reordering category",
+          type: "error",
         });
       } finally {
         setLoading(false);

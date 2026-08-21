@@ -1,14 +1,14 @@
-import { Trash } from 'lucide-react';
-import { useRouter } from 'next/router';
-import React from 'react';
-import { useSWRConfig } from 'swr';
+import { Trash } from "lucide-react";
+import { useRouter } from "next/router";
+import React from "react";
+import { useSWRConfig } from "swr";
 
-import { CategoryResponse } from '@/components/categories/types';
-import { Button } from '@/components/ui/button';
-import * as Dlg from '@/components/ui/dialog';
-import { toastManager } from '@/components/ui/toast';
-import { useCategories, useDeleteCategory } from '@/hooks/categories';
-import { extractErrorMessage } from '@/utils/stringUtils';
+import { CategoryResponse } from "@/components/categories/types";
+import { Button } from "@/components/ui/button";
+import * as Dlg from "@/components/ui/dialog";
+import { toastManager } from "@/components/ui/toast";
+import { useCategories, useDeleteCategory } from "@/hooks/categories";
+import { extractErrorMessage } from "@/utils/stringUtils";
 
 interface Types {
   uuid: string;
@@ -36,43 +36,43 @@ const ConfirmDeleteForm: React.FC<Types> = ({ uuid }) => {
     try {
       await deleteCategory();
       if (category!.uuid === queryUuid) {
-        router.push('/categories');
+        router.push("/categories");
       }
-      mutate('categories/');
+      mutate("categories/");
       setOpen(false);
       toastManager.add({
-        id: 'category-delete',
+        id: "category-delete",
         title: `Category '${category?.name}' deleted!`,
-        type: 'success',
+        type: "success",
       });
     } catch (error) {
       const message = extractErrorMessage(error);
-      if (message[0].includes('There are transactions assigned')) {
+      if (message[0].includes("There are transactions assigned")) {
         toastManager.add({
-          id: 'category-delete-has-transactions',
-          title: 'This category contains transactions',
-          description: 'You need to choose different category to re-assign transactions',
-          type: 'error',
+          id: "category-delete-has-transactions",
+          title: "This category contains transactions",
+          description: "You need to choose different category to re-assign transactions",
+          type: "error",
         });
-      } else if (message[0].includes('Cannot delete non empty parent category')) {
+      } else if (message[0].includes("Cannot delete non empty parent category")) {
         toastManager.add({
-          id: 'category-delete-has-children',
-          title: 'This parent category contains categories',
-          description: 'Parent category should be empty to delete it',
-          type: 'error',
+          id: "category-delete-has-children",
+          title: "This parent category contains categories",
+          description: "Parent category should be empty to delete it",
+          type: "error",
         });
-      } else if (message[0].includes('There are budgets assigned')) {
+      } else if (message[0].includes("There are budgets assigned")) {
         toastManager.add({
-          id: 'category-delete-has-budgets',
-          title: 'This category contains budgets',
-          description: 'You need to delete or re-assign budgets assigned to the category',
-          type: 'error',
+          id: "category-delete-has-budgets",
+          title: "This category contains budgets",
+          description: "You need to delete or re-assign budgets assigned to the category",
+          type: "error",
         });
       } else {
         toastManager.add({
-          id: 'category-delete-error',
-          title: 'Something went wrong',
-          type: 'error',
+          id: "category-delete-error",
+          title: "Something went wrong",
+          type: "error",
         });
       }
     }
@@ -86,7 +86,9 @@ const ConfirmDeleteForm: React.FC<Types> = ({ uuid }) => {
       <Dlg.DialogPopup>
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Please, confirm deletion</Dlg.DialogTitle>
-          <Dlg.DialogDescription>You are about to delete '{category?.name}' category</Dlg.DialogDescription>
+          <Dlg.DialogDescription>
+            You are about to delete '{category?.name}' category
+          </Dlg.DialogDescription>
         </Dlg.DialogHeader>
         <Dlg.DialogFooter>
           <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>

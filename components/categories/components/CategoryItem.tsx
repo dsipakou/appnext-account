@@ -1,21 +1,21 @@
 // System
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Pencil, ScrollText, X } from 'lucide-react';
-import React from 'react';
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical, Pencil, ScrollText, X } from "lucide-react";
+import React from "react";
 
-import { ReassignTransactionsForm } from '@/components/categories/forms';
-import { ConfirmDeleteForm } from '@/components/categories/forms';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import * as Ppv from '@/components/ui/popover';
-import * as Slc from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
-import * as Tlt from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
+import { ReassignTransactionsForm } from "@/components/categories/forms";
+import { ConfirmDeleteForm } from "@/components/categories/forms";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import * as Ppv from "@/components/ui/popover";
+import * as Slc from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import * as Tlt from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
-import { Category, CategoryType } from '../types';
+import { Category, CategoryType } from "../types";
 
 interface Props {
   id: string;
@@ -58,8 +58,8 @@ export const CategoryItem: React.FC<Props> = ({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    zIndex: isDragging ? '100' : 'auto',
-    boxShadow: isDragging ? '0 2px 0 rgba(0,0,0,0.5), 0 -1px 0 rgba(0,0,0,0.5)' : 'none',
+    zIndex: isDragging ? "100" : "auto",
+    boxShadow: isDragging ? "0 2px 0 rgba(0,0,0,0.5), 0 -1px 0 rgba(0,0,0,0.5)" : "none",
     opacity: isDragging ? 0.5 : 1,
   };
   return (
@@ -67,12 +67,18 @@ export const CategoryItem: React.FC<Props> = ({
       <Separator />
       <div className="group my-1 flex flex-nowrap items-center p-1" key={category.uuid}>
         <div className="ml-2 flex items-center">
-          <div className={cn('flex cursor-grab items-center active:cursor-grabbing')} {...attributes} {...listeners}>
-            <GripVertical className={cn('h-4 w-4 text-gray-400', isReordering && 'invisible')} />
+          <div
+            className={cn("flex cursor-grab items-center active:cursor-grabbing")}
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className={cn("h-4 w-4 text-gray-400", isReordering && "invisible")} />
           </div>
         </div>
         <span className="ml-4 flex h-6 items-center">{category.name}</span>
-        <div className="pl-2">{category.type === CategoryType.CapitalExpense && <Badge>Capital Expense</Badge>}</div>
+        <div className="pl-2">
+          {category.type === CategoryType.CapitalExpense && <Badge>Capital Expense</Badge>}
+        </div>
         <span>
           {!isDragging && (
             <ScrollText
@@ -89,7 +95,10 @@ export const CategoryItem: React.FC<Props> = ({
               )}
             </span>
           </Ppv.PopoverTrigger>
-          <Ppv.PopoverContent className="flex w-80 flex-col gap-3 rounded-md border-none bg-white" sideOffset={10}>
+          <Ppv.PopoverContent
+            className="flex w-80 flex-col gap-3 rounded-md border-none bg-white"
+            sideOffset={10}
+          >
             <Ppv.PopoverClose className="absolute top-5 right-5">
               <X className="h-4 w-4" />
             </Ppv.PopoverClose>
@@ -98,7 +107,9 @@ export const CategoryItem: React.FC<Props> = ({
               <div className="flex w-1/2 justify-center">
                 {selectedEmoji && (
                   <>
-                    <span className="flex items-center justify-center text-2xl">{selectedEmoji}</span>
+                    <span className="flex items-center justify-center text-2xl">
+                      {selectedEmoji}
+                    </span>
                     <Button variant="link" onClick={onEmojiClear}>
                       <X className="mr-2 h-4 w-4" />
                     </Button>
@@ -112,7 +123,10 @@ export const CategoryItem: React.FC<Props> = ({
                 onValueChange={onParentChange}
                 defaultValue={category.parent || undefined}
                 disabled={isUpdating}
-                items={parentCategories.map((item) => ({ label: item.icon + '  ' + item.name, value: item.uuid }))}
+                items={parentCategories.map((item) => ({
+                  label: item.icon + "  " + item.name,
+                  value: item.uuid,
+                }))}
               >
                 <Slc.SelectTrigger className="relative w-full">
                   <Slc.SelectValue placeholder="Choose parent category" />
@@ -142,7 +156,9 @@ export const CategoryItem: React.FC<Props> = ({
                   size="sm"
                   disabled={
                     !category.name ||
-                    (category.icon === selectedEmoji && category.name === category.name && parent === category.parent)
+                    (category.icon === selectedEmoji &&
+                      category.name === category.name &&
+                      parent === category.parent)
                   }
                   onClick={() =>
                     onSave(

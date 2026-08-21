@@ -1,29 +1,29 @@
-import { useSession } from 'next-auth/react';
-import React from 'react';
-import { useSWRConfig } from 'swr';
-import * as z from 'zod';
+import { useSession } from "next-auth/react";
+import React from "react";
+import { useSWRConfig } from "swr";
+import * as z from "zod";
 
-import { AccountResponse } from '@/components/accounts/types';
-import { Category } from '@/components/categories/types';
-import { Currency } from '@/components/currencies/types';
-import { AvailableRate } from '@/components/rates/types';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import * as Dlg from '@/components/ui/dialog';
-import * as Field from '@/components/ui/field';
-import * as Frm from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import * as Slc from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { toastManager } from '@/components/ui/toast';
-import { User } from '@/components/users/types';
-import { useAccounts } from '@/hooks/accounts';
-import { useCategories } from '@/hooks/categories';
-import { useCurrencies } from '@/hooks/currencies';
-import { useAvailableRates } from '@/hooks/rates';
-import { useCreateTransaction } from '@/hooks/transactions';
-import { useUsers } from '@/hooks/users';
-import { getFormattedDate } from '@/utils/dateUtils';
+import { AccountResponse } from "@/components/accounts/types";
+import { Category } from "@/components/categories/types";
+import { Currency } from "@/components/currencies/types";
+import { AvailableRate } from "@/components/rates/types";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import * as Dlg from "@/components/ui/dialog";
+import * as Field from "@/components/ui/field";
+import * as Frm from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import * as Slc from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { toastManager } from "@/components/ui/toast";
+import { User } from "@/components/users/types";
+import { useAccounts } from "@/hooks/accounts";
+import { useCategories } from "@/hooks/categories";
+import { useCurrencies } from "@/hooks/currencies";
+import { useAvailableRates } from "@/hooks/rates";
+import { useCreateTransaction } from "@/hooks/transactions";
+import { useUsers } from "@/hooks/users";
+import { getFormattedDate } from "@/utils/dateUtils";
 
 interface Types {
   open: boolean;
@@ -32,15 +32,15 @@ interface Types {
 }
 
 const formSchema = z.object({
-  account: z.string().uuid({ message: 'Please, select account' }),
+  account: z.string().uuid({ message: "Please, select account" }),
   amount: z.coerce.number().min(0, {
-    message: 'Should be positive number',
+    message: "Should be positive number",
   }),
-  category: z.string().uuid({ message: 'Please, select category' }),
-  currency: z.string().uuid({ message: 'Please, select currency' }),
+  category: z.string().uuid({ message: "Please, select category" }),
+  currency: z.string().uuid({ message: "Please, select currency" }),
   description: z.string().optional(),
   transactionDate: z.date({
-    message: 'Transaction date is required',
+    message: "Transaction date is required",
   }),
 });
 
@@ -54,15 +54,15 @@ type FormValues = {
 };
 
 const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
-  const [user, setUser] = React.useState('');
+  const [user, setUser] = React.useState("");
   const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
   const [month, setMonth] = React.useState<Date>(new Date());
   const [values, setValues] = React.useState<FormValues>({
-    account: '',
-    amount: '',
-    category: '',
-    currency: '',
-    description: '',
+    account: "",
+    amount: "",
+    category: "",
+    currency: "",
+    description: "",
     transactionDate: new Date(),
   });
   const [errors, setErrors] = React.useState<Frm.FormErrors>({});
@@ -74,7 +74,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
   const { data: users = [] } = useUsers();
   const { trigger: createTransaction, isMutating: isCreating } = useCreateTransaction();
 
-  const incomeCategories: Category[] = categories.filter((item: Category) => item.type === 'INC');
+  const incomeCategories: Category[] = categories.filter((item: Category) => item.type === "INC");
 
   const { data: availableRates = [] } = useAvailableRates(getFormattedDate(selectedDate));
   const {
@@ -101,17 +101,17 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
       });
       mutate(url);
       toastManager.add({
-        id: 'transaction-income-create',
-        title: 'Saved!',
-        type: 'success',
+        id: "transaction-income-create",
+        title: "Saved!",
+        type: "success",
       });
       handleClose();
     } catch (error) {
       toastManager.add({
-        id: 'transaction-income-create-error',
-        title: 'Something went wrong',
+        id: "transaction-income-create-error",
+        title: "Something went wrong",
         description: error,
-        type: 'error',
+        type: "error",
       });
     }
   };
@@ -121,11 +121,11 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
       setErrors({});
       const nextDate = new Date();
       setValues({
-        account: '',
-        amount: '',
-        category: '',
-        currency: '',
-        description: '',
+        account: "",
+        amount: "",
+        category: "",
+        currency: "",
+        description: "",
         transactionDate: nextDate,
       });
       setSelectedDate(nextDate);
@@ -165,7 +165,9 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                     id="amount"
                     autoFocus
                     value={values.amount}
-                    onChange={(event) => setValues((current) => ({ ...current, amount: event.target.value }))}
+                    onChange={(event) =>
+                      setValues((current) => ({ ...current, amount: event.target.value }))
+                    }
                   />
                   <Field.FieldError />
                 </Field.Field>
@@ -177,7 +179,10 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                     disabled={isCreating}
                     onValueChange={(category) => setValues((current) => ({ ...current, category }))}
                     value={values.category || undefined}
-                    items={incomeCategories.map((item: Category) => ({ label: item.name, value: item.uuid }))}
+                    items={incomeCategories.map((item: Category) => ({
+                      label: item.name,
+                      value: item.uuid,
+                    }))}
                   >
                     <Slc.SelectTrigger className="relative w-full">
                       <Slc.SelectValue placeholder="Select source of income" />
@@ -203,7 +208,10 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                     disabled={isCreating}
                     onValueChange={(account) => setValues((current) => ({ ...current, account }))}
                     value={values.account || undefined}
-                    items={accounts.map((item: AccountResponse) => ({ label: item.title, value: item.uuid }))}
+                    items={accounts.map((item: AccountResponse) => ({
+                      label: item.title,
+                      value: item.uuid,
+                    }))}
                   >
                     <Slc.SelectTrigger className="relative">
                       <Slc.SelectValue placeholder="Select income account" />
@@ -229,7 +237,10 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                     disabled={isCreating}
                     onValueChange={(currency) => setValues((current) => ({ ...current, currency }))}
                     value={values.currency || undefined}
-                    items={currencies.map((item: Currency) => ({ label: item.code, value: item.uuid }))}
+                    items={currencies.map((item: Currency) => ({
+                      label: item.code,
+                      value: item.uuid,
+                    }))}
                   >
                     <Slc.SelectTrigger className="relative w-full">
                       <Slc.SelectValue placeholder="Select currency" />
@@ -239,7 +250,9 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                         <Slc.SelectGroupLabel>Currencies</Slc.SelectGroupLabel>
                         {currencies &&
                           currencies.map((item: Currency) => {
-                            const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code);
+                            const rate = availableRates.find(
+                              (rate: AvailableRate) => rate.currencyCode === item.code,
+                            );
                             if (rate) {
                               if (rate.rateDate === getFormattedDate(selectedDate)) {
                                 return (
@@ -275,7 +288,9 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                     placeholder="Any notes for the income transaction"
                     className="resize-none"
                     value={values.description}
-                    onChange={(event) => setValues((current) => ({ ...current, description: event.target.value }))}
+                    onChange={(event) =>
+                      setValues((current) => ({ ...current, description: event.target.value }))
+                    }
                   />
                   <Field.FieldError />
                 </Field.Field>
@@ -289,7 +304,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
                   onSelect={(transactionDate) =>
                     transactionDate && setValues((current) => ({ ...current, transactionDate }))
                   }
-                  disabled={(date) => isCreating || date < new Date('1900-01-01')}
+                  disabled={(date) => isCreating || date < new Date("1900-01-01")}
                   month={month}
                   onMonthChange={setMonth}
                   weekStartsOn={1}

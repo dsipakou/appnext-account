@@ -12,8 +12,8 @@ import {
   setDefaultOptions,
   startOfMonth,
   startOfWeek,
-} from 'date-fns';
-import { enUS } from 'date-fns/locale';
+} from "date-fns";
+import { enUS } from "date-fns/locale";
 
 export interface WeekOfMonth {
   week: number;
@@ -26,23 +26,23 @@ export interface WeekDayWithFullDate {
   fullDate: Date;
 }
 
-export const DATE_FORMAT = 'yyyy-MM-dd';
-export const DAY_MONTH_YEAR_FORMAT = 'dd-MMM yyyy';
-export const MONTH_DAY_FORMAT = 'MMM dd';
-export const MONTH_ONLY_FORMAT = 'MMM';
-export const REPORT_FORMAT = 'yyyy-MMMM';
-export const SHORT_YEAR_MONTH_FORMAT = 'MMM-yy';
-export const LONG_YEAR_SHORT_MONTH_FORMAT = 'MMM-yyyy';
-export const SHORT_DAY_ONLY_FORMAT = 'EEE';
-export const FULL_DAY_ONLY_FORMAT = 'EEEE';
+export const DATE_FORMAT = "yyyy-MM-dd";
+export const DAY_MONTH_YEAR_FORMAT = "dd-MMM yyyy";
+export const MONTH_DAY_FORMAT = "MMM dd";
+export const MONTH_ONLY_FORMAT = "MMM";
+export const REPORT_FORMAT = "yyyy-MMMM";
+export const SHORT_YEAR_MONTH_FORMAT = "MMM-yy";
+export const LONG_YEAR_SHORT_MONTH_FORMAT = "MMM-yyyy";
+export const SHORT_DAY_ONLY_FORMAT = "EEE";
+export const FULL_DAY_ONLY_FORMAT = "EEEE";
 
 const formatRelativeLocale = {
   lastWeek: "'Last' eeee",
   yesterday: "'Yesterday'",
   today: "'Today'",
   tomorrow: "'Tomorrow'",
-  nextWeek: 'eeee',
-  other: 'P',
+  nextWeek: "eeee",
+  other: "P",
 };
 
 const locale = {
@@ -60,7 +60,11 @@ export const parseDate = (date: string, dateFormat: string = DATE_FORMAT): Date 
   return parseISO(date, dateFormat, new Date());
 };
 
-export const parseAndFormatDate = (date: string, outputFormat: string, inputFormat: string = DATE_FORMAT): string => {
+export const parseAndFormatDate = (
+  date: string,
+  outputFormat: string,
+  inputFormat: string = DATE_FORMAT,
+): string => {
   const _date = parseDate(date, inputFormat);
   return getFormattedDate(_date, outputFormat);
 };
@@ -112,7 +116,10 @@ export const getMonthWeeksWithDates = (
   return weekOfMonth;
 };
 
-export const getWeekDays = (dateOfWeek: Date, formatTemplate: string = SHORT_DAY_ONLY_FORMAT): string[] => {
+export const getWeekDays = (
+  dateOfWeek: Date,
+  formatTemplate: string = SHORT_DAY_ONLY_FORMAT,
+): string[] => {
   const everyDayOfWeek = eachDayOfInterval({
     start: startOfWeek(dateOfWeek),
     end: endOfWeek(dateOfWeek),

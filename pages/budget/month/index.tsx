@@ -1,4 +1,4 @@
-import Index from '@/components/budget/month';
+import Index from "@/components/budget/month";
 
 Month.auth = {};
 

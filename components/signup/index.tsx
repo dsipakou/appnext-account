@@ -1,14 +1,14 @@
-import axios from 'axios';
-import { Eye, EyeOff } from 'lucide-react';
-import Link from 'next/link';
-import { signIn } from 'next-auth/react';
-import React from 'react';
-import * as z from 'zod';
+import axios from "axios";
+import { Eye, EyeOff } from "lucide-react";
+import { signIn } from "next-auth/react";
+import Link from "next/link";
+import React from "react";
+import * as z from "zod";
 
-import { Button } from '@/components/ui/button';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form, type FormErrors } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Button } from "@/components/ui/button";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Form, type FormErrors } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
 const formSchema = z
   .object({
@@ -18,7 +18,7 @@ const formSchema = z
   })
   .refine((data) => data.password === data.repeatPassword, {
     message: "Passwords don't match",
-    path: ['repeatPassword'],
+    path: ["repeatPassword"],
   });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -27,9 +27,9 @@ const Index: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const [values, setValues] = React.useState<FormValues>({
-    email: '',
-    password: '',
-    repeatPassword: '',
+    email: "",
+    password: "",
+    repeatPassword: "",
   });
   const [errors, setErrors] = React.useState<FormErrors>({});
 
@@ -46,13 +46,13 @@ const Index: React.FC = () => {
     }
 
     axios
-      .post('users/register/', {
+      .post("users/register/", {
         ...payload,
-        username: payload.email.split('@')[0],
+        username: payload.email.split("@")[0],
       })
       .then((res) => {
         if (res.status === 201) {
-          signIn('credentials', {
+          signIn("credentials", {
             username: payload.email,
             password: payload.password,
             callbackUrl: `${window.location.origin}/`,
@@ -60,10 +60,13 @@ const Index: React.FC = () => {
         }
       })
       .catch((err) => {
-        if (Object.prototype.hasOwnProperty.call(err.response.data, 'password')) {
+        if (Object.prototype.hasOwnProperty.call(err.response.data, "password")) {
           setErrors((current) => ({ ...current, password: err.response.data.password }));
-        } else if (Object.prototype.hasOwnProperty.call(err.response.data, 'email')) {
-          setErrors((current) => ({ ...current, email: 'Most probably this email is already registered' }));
+        } else if (Object.prototype.hasOwnProperty.call(err.response.data, "email")) {
+          setErrors((current) => ({
+            ...current,
+            email: "Most probably this email is already registered",
+          }));
         }
       })
       .finally(() => {
@@ -105,7 +108,9 @@ const Index: React.FC = () => {
               className="w-full"
               disabled={isLoading}
               value={values.email}
-              onChange={(event) => setValues((current) => ({ ...current, email: event.target.value }))}
+              onChange={(event) =>
+                setValues((current) => ({ ...current, email: event.target.value }))
+              }
             />
             <FieldError />
           </Field>
@@ -113,18 +118,20 @@ const Index: React.FC = () => {
             <FieldLabel>Password</FieldLabel>
             <div className="relative w-full">
               <Input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 className="w-full"
                 disabled={isLoading}
                 required
                 value={values.password}
-                onChange={(event) => setValues((current) => ({ ...current, password: event.target.value }))}
+                onChange={(event) =>
+                  setValues((current) => ({ ...current, password: event.target.value }))
+                }
               />
               <button
                 type="button"
                 onClick={togglePasswordVisibility}
                 className="absolute top-1/2 right-3 -translate-y-1/2 transform"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -134,11 +141,13 @@ const Index: React.FC = () => {
           <Field name="repeatPassword">
             <FieldLabel>Repeat Password</FieldLabel>
             <Input
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               className="w-full"
               disabled={isLoading}
               value={values.repeatPassword}
-              onChange={(event) => setValues((current) => ({ ...current, repeatPassword: event.target.value }))}
+              onChange={(event) =>
+                setValues((current) => ({ ...current, repeatPassword: event.target.value }))
+              }
             />
             <FieldError />
           </Field>
@@ -147,7 +156,7 @@ const Index: React.FC = () => {
           </Button>
         </Form>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
             Log In
           </Link>
@@ -157,6 +166,6 @@ const Index: React.FC = () => {
   );
 };
 
-Index.layout = 'public';
+Index.layout = "public";
 
 export default Index;

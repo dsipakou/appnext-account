@@ -1,9 +1,9 @@
 export const formatMoney = (value: number) => {
   if (!value) return 0;
-  return value.toLocaleString('en-IN', {
+  return value.toLocaleString("en-IN", {
     maximumFractionDigits: 2,
     minimumFractionDigits: 2,
-    style: 'decimal',
+    style: "decimal",
   });
 };
 
@@ -17,17 +17,17 @@ export const getNumberWithPostfix = (value: number) => {
   const lastTwoDigits = value % 100;
 
   if (lastTwoDigits >= 11 && lastTwoDigits <= 13) {
-    return value + 'th';
+    return value + "th";
   }
 
   switch (lastDigit) {
     case 1:
-      return value + 'st';
+      return value + "st";
     case 2:
-      return value + 'nd';
+      return value + "nd";
     case 3:
-      return value + 'rd';
+      return value + "rd";
     default:
-      return value + 'th';
+      return value + "th";
   }
 };

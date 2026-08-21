@@ -1,12 +1,20 @@
-import { addDays, endOfWeek, format, getWeekOfMonth, isSameWeek, startOfWeek, subDays } from 'date-fns';
-import { CalendarDays, RotateCcw } from 'lucide-react';
-import * as React from 'react';
-import { rangeIncludesDate } from 'react-day-picker';
-import { DateRange } from 'react-day-picker';
+import {
+  addDays,
+  endOfWeek,
+  format,
+  getWeekOfMonth,
+  isSameWeek,
+  startOfWeek,
+  subDays,
+} from "date-fns";
+import { CalendarDays, RotateCcw } from "lucide-react";
+import * as React from "react";
+import { rangeIncludesDate } from "react-day-picker";
+import { DateRange } from "react-day-picker";
 
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverPopup, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverPopup, PopoverTrigger } from "@/components/ui/popover";
 
 interface Types {
   date: Date;
@@ -41,7 +49,7 @@ const WeekCalendar: React.FC<Types> = ({ date: weekDate, setWeekDate }) => {
             <div className="flex items-center">
               <CalendarDays className="mr-2 h-6 w-6" />
               {weekDate ? (
-                `Week ${getWeekOfMonth(weekDate)} of ${format(weekDate, 'MMM, yyyy')}`
+                `Week ${getWeekOfMonth(weekDate)} of ${format(weekDate, "MMM, yyyy")}`
               ) : (
                 <span>Pick a date</span>
               )}

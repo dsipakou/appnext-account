@@ -1,8 +1,8 @@
-import { BarChart, Calendar, Check, LineChart, PieChart, Users, Wallet } from 'lucide-react';
-import Link from 'next/link';
+import { BarChart, Calendar, Check, LineChart, PieChart, Users, Wallet } from "lucide-react";
+import Link from "next/link";
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
   return (
@@ -45,8 +45,8 @@ const Index = () => {
                   </span>
                 </div>
                 <p className="text-muted-foreground mx-auto max-w-[700px] md:text-xl">
-                  Empower your financial journey with our comprehensive budgeting tool. Track spending, manage accounts,
-                  and achieve your financial goals with ease.
+                  Empower your financial journey with our comprehensive budgeting tool. Track
+                  spending, manage accounts, and achieve your financial goals with ease.
                 </p>
               </div>
               <div className="space-x-4">
@@ -74,7 +74,8 @@ const Index = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">
-                    Monitor your expenses across multiple categories and accounts with intuitive categorization.
+                    Monitor your expenses across multiple categories and accounts with intuitive
+                    categorization.
                   </p>
                 </CardContent>
               </Card>
@@ -85,8 +86,8 @@ const Index = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">
-                    Organize your transactions with customizable categories and subcategories for granular control over
-                    your spending habits.
+                    Organize your transactions with customizable categories and subcategories for
+                    granular control over your spending habits.
                   </p>
                 </CardContent>
               </Card>
@@ -97,7 +98,8 @@ const Index = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">
-                    Share and manage budgets with family members, perfect for household or individuals.
+                    Share and manage budgets with family members, perfect for household or
+                    individuals.
                   </p>
                 </CardContent>
               </Card>
@@ -108,8 +110,8 @@ const Index = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">
-                    Set short-term and long-term financial goals with a planning tools and track your progress in
-                    real-time.
+                    Set short-term and long-term financial goals with a planning tools and track
+                    your progress in real-time.
                   </p>
                 </CardContent>
               </Card>
@@ -147,7 +149,9 @@ const Index = () => {
                   2
                 </div>
                 <h3 className="mb-2 text-xl font-bold">Add Your Accounts</h3>
-                <p className="text-muted-foreground">Create your accounts, categories and granular sub-categories.</p>
+                <p className="text-muted-foreground">
+                  Create your accounts, categories and granular sub-categories.
+                </p>
               </div>
               <div className="flex flex-col items-center text-center">
                 <div className="bg-primary text-primary-foreground mb-4 flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold">
@@ -155,8 +159,8 @@ const Index = () => {
                 </div>
                 <h3 className="mb-2 text-xl font-bold">Customize Your Budget</h3>
                 <p className="text-muted-foreground">
-                  Set up your personalized budget, spending limits, and financial goals to start taking control of your
-                  finances.
+                  Set up your personalized budget, spending limits, and financial goals to start
+                  taking control of your finances.
                 </p>
               </div>
             </div>
@@ -174,16 +178,21 @@ const Index = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="mb-4 text-4xl font-bold">$0</p>
-                  <p className="text-muted-foreground mb-4">Perfect for individuals and household</p>
+                  <p className="text-muted-foreground mb-4">
+                    Perfect for individuals and household
+                  </p>
                   <ul className="space-y-2">
                     <li className="flex items-center">
-                      <Check className="text-primary mr-2 h-5 w-5" /> Be the first to explore new features
+                      <Check className="text-primary mr-2 h-5 w-5" /> Be the first to explore new
+                      features
                     </li>
                     <li className="flex items-center">
-                      <Check className="text-primary mr-2 h-5 w-5" /> Experience improvements as they happen
+                      <Check className="text-primary mr-2 h-5 w-5" /> Experience improvements as
+                      they happen
                     </li>
                     <li className="flex items-center">
-                      <Check className="text-primary mr-2 h-5 w-5" /> Try out all features during development
+                      <Check className="text-primary mr-2 h-5 w-5" /> Try out all features during
+                      development
                     </li>
                     <li className="flex items-center">
                       <Check className="text-primary mr-2 h-5 w-5" /> No credit card
@@ -197,11 +206,16 @@ const Index = () => {
             </div>
           </div>
         </section>
-        <section id="cta" className="bg-primary text-primary-foreground w-full py-12 md:py-24 lg:py-32">
+        <section
+          id="cta"
+          className="bg-primary text-primary-foreground w-full py-12 md:py-24 lg:py-32"
+        >
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Start Your Financial Journey Today</h2>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+                  Start Your Financial Journey Today
+                </h2>
               </div>
             </div>
           </div>
@@ -228,6 +242,6 @@ const Index = () => {
   );
 };
 
-Index.layout = 'public';
+Index.layout = "public";
 
 export default Index;

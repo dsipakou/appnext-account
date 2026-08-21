@@ -1,16 +1,16 @@
 // External
-import { ArrowDownIcon, TrendingUpIcon } from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import React from 'react';
+import { ArrowDownIcon, TrendingUpIcon } from "lucide-react";
+import { useSession } from "next-auth/react";
+import React from "react";
 
 // Internal
-import { useStore } from '@/app/store';
+import { useStore } from "@/app/store";
 // Types
-import { TransactionResponse } from '@/components/transactions/types';
+import { TransactionResponse } from "@/components/transactions/types";
 // UI
-import * as Crd from '@/components/ui/card';
+import * as Crd from "@/components/ui/card";
 // Hooks
-import { useTransactions } from '@/hooks/transactions';
+import { useTransactions } from "@/hooks/transactions";
 
 const RecentTransactions = () => {
   const { data: recentTransactions = [] } = useTransactions({ limit: 6 });
@@ -38,13 +38,18 @@ const RecentTransactions = () => {
               <span className="flex items-center">
                 <span className="mr-2 h-2 w-2 rounded-full bg-red-300"></span>
                 <div className="w-64">
-                  <span className="w-[30%] truncate font-medium">{transaction.budgetDetails.title}</span>
-                  <span className="ml-3 w-[70%] truncate text-gray-400">{transaction.categoryDetails.parentName}</span>
+                  <span className="w-[30%] truncate font-medium">
+                    {transaction.budgetDetails.title}
+                  </span>
+                  <span className="ml-3 w-[70%] truncate text-gray-400">
+                    {transaction.categoryDetails.parentName}
+                  </span>
                 </div>
               </span>
               <span className="flex items-center">
                 <span className="font-semibold text-red-600">
-                  {Math.abs(transaction.spentInCurrencies[authUser?.currency]).toFixed(2)} {currencySign}
+                  {Math.abs(transaction.spentInCurrencies[authUser?.currency]).toFixed(2)}{" "}
+                  {currencySign}
                 </span>
                 <ArrowDownIcon className="ml-1 h-4 w-4 text-red-600" />
               </span>

@@ -1,16 +1,16 @@
 // System
-import { ArrowDownRight, ArrowUpRight, MoreVertical, Pencil, Trash2 } from 'lucide-react';
-import React from 'react';
+import { ArrowDownRight, ArrowUpRight, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import React from "react";
 
 // UI
-import { Badge } from '@/components/ui/badge';
-import * as Ddm from '@/components/ui/dropdown-menu';
-import * as Mnu from '@/components/ui/menu';
+import { Badge } from "@/components/ui/badge";
+import * as Ddm from "@/components/ui/dropdown-menu";
+import * as Mnu from "@/components/ui/menu";
 // Utils
-import { getRelativeDate } from '@/utils/dateUtils';
+import { getRelativeDate } from "@/utils/dateUtils";
 
 // Types
-import { Currency, Rate } from './types';
+import { Currency, Rate } from "./types";
 
 interface Types {
   currency: Currency;
@@ -59,7 +59,7 @@ const CurrencyCard: React.FC<Types> = ({
 
   const getDate = (currencyUuid: string | undefined): string => {
     const date = getRate(currencyUuid)?.rateDate;
-    if (date === undefined) return '';
+    if (date === undefined) return "";
 
     return getRelativeDate(date);
   };
@@ -98,7 +98,7 @@ const CurrencyCard: React.FC<Types> = ({
     <>
       <div
         onClick={handleClick}
-        className={`flex h-[180px] w-[270px] cursor-pointer flex-col rounded-lg ${!selected ? 'bg-white drop-shadow-lg' : 'bg-blue-500 text-white'} justify-between px-3 py-2`}
+        className={`flex h-[180px] w-[270px] cursor-pointer flex-col rounded-lg ${!selected ? "bg-white drop-shadow-lg" : "bg-blue-500 text-white"} justify-between px-3 py-2`}
       >
         <div className="flex justify-between">
           <span className="p-2 text-2xl font-semibold">{currency.code}</span>
@@ -129,11 +129,11 @@ const CurrencyCard: React.FC<Types> = ({
         </div>
         <div className="flex items-center gap-2 pl-2">
           <span className="flex items-end text-lg">
-            {getPercentage(currency.uuid) > 0 && '+'}
+            {getPercentage(currency.uuid) > 0 && "+"}
             {getPercentage(currency.uuid)?.toFixed(2)}%
           </span>
           <span className="text-sm">
-            {getPercentage(currency.uuid) > 0 && '+'}
+            {getPercentage(currency.uuid) > 0 && "+"}
             {getDelta()}
           </span>
           {getPercentage(currency.uuid) < 0 && <ArrowDownRight className="text-red-500" />}

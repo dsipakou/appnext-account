@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { signOut } from 'next-auth/react';
-import React from 'react';
+import { signOut } from "next-auth/react";
+import React from "react";
 
 const Index = () => {
   React.useEffect(() => {
     signOut({
-      callbackUrl: '/login',
+      callbackUrl: "/login",
     });
   }, []);
 };

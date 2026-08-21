@@ -1,13 +1,13 @@
-import { FC, useEffect, useState } from 'react';
-import { useSWRConfig } from 'swr';
+import { FC, useEffect, useState } from "react";
+import { useSWRConfig } from "swr";
 
-import { Button } from '@/components/ui/button';
-import * as Dlg from '@/components/ui/dialog';
-import { toastManager } from '@/components/ui/toast';
-import { useAccounts, useDeleteAccount } from '@/hooks/accounts';
-import { extractErrorMessage } from '@/utils/stringUtils';
+import { Button } from "@/components/ui/button";
+import * as Dlg from "@/components/ui/dialog";
+import { toastManager } from "@/components/ui/toast";
+import { useAccounts, useDeleteAccount } from "@/hooks/accounts";
+import { extractErrorMessage } from "@/utils/stringUtils";
 
-import { AccountResponse } from '../types';
+import { AccountResponse } from "../types";
 
 interface Types {
   uuid: string;
@@ -36,27 +36,27 @@ const ConfirmDeleteForm: FC<Types> = ({ uuid, open = false, setOpen }) => {
 
     try {
       await deleteAccount();
-      mutate('accounts/');
+      mutate("accounts/");
       setOpen(false);
       toastManager.add({
-        id: 'account-delete',
-        title: 'Deleted successfully',
-        type: 'success',
+        id: "account-delete",
+        title: "Deleted successfully",
+        type: "success",
       });
     } catch (error) {
       const message = extractErrorMessage(error);
-      if (message.error?.includes('transaction')) {
+      if (message.error?.includes("transaction")) {
         toastManager.add({
-          id: 'account-delete-has-transactions',
-          title: 'This account contains transactions',
-          description: 'You need to choose different account to re-assign transactions',
-          type: 'error',
+          id: "account-delete-has-transactions",
+          title: "This account contains transactions",
+          description: "You need to choose different account to re-assign transactions",
+          type: "error",
         });
       } else {
         toastManager.add({
-          id: 'account-delete-error',
-          title: 'Something went wrong',
-          type: 'error',
+          id: "account-delete-error",
+          title: "Something went wrong",
+          type: "error",
         });
       }
     }
@@ -67,7 +67,9 @@ const ConfirmDeleteForm: FC<Types> = ({ uuid, open = false, setOpen }) => {
       <Dlg.DialogPopup>
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Please, confirm deletion</Dlg.DialogTitle>
-          <Dlg.DialogDescription>You are about to delete {account?.title} account</Dlg.DialogDescription>
+          <Dlg.DialogDescription>
+            You are about to delete {account?.title} account
+          </Dlg.DialogDescription>
         </Dlg.DialogHeader>
         <Dlg.DialogFooter>
           <Button disabled={isDeleting} variant="secondary" onClick={() => setOpen(false)}>

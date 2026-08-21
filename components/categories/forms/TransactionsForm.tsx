@@ -1,12 +1,12 @@
 // External
-import React from 'react';
+import React from "react";
 
 // Components
-import { TransactionsTable } from '@/components/transactions/components/transactionTable';
+import { TransactionsTable } from "@/components/transactions/components/transactionTable";
 // UI
-import * as Dlg from '@/components/ui/dialog';
+import * as Dlg from "@/components/ui/dialog";
 // Hooks
-import { useCategoryTransactions } from '@/hooks/transactions';
+import { useCategoryTransactions } from "@/hooks/transactions";
 
 interface Props {
   open: boolean;

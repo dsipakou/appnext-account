@@ -1,8 +1,8 @@
-import { FC } from 'react';
+import { FC } from "react";
 
-import { useStore } from '@/app/store';
-import { cn } from '@/lib/utils';
-import { formatMoney } from '@/utils/numberUtils';
+import { useStore } from "@/app/store";
+import { cn } from "@/lib/utils";
+import { formatMoney } from "@/utils/numberUtils";
 
 interface Types {
   title: string;
@@ -23,10 +23,10 @@ const CategorySummaryButton: FC<Types> = ({ title, isActive, planned, spent }) =
   return (
     <div
       className={cn(
-        'h-[80px] cursor-pointer rounded-md',
+        "h-[80px] cursor-pointer rounded-md",
         isActive
-          ? 'w-[92%] border-slate-300 bg-slate-400 text-slate-50'
-          : 'w-[90%] bg-white drop-shadow hover:drop-shadow-lg',
+          ? "w-[92%] border-slate-300 bg-slate-400 text-slate-50"
+          : "w-[90%] bg-white drop-shadow hover:drop-shadow-lg",
       )}
     >
       <div className="flex h-full flex-col justify-center p-2">
@@ -36,7 +36,7 @@ const CategorySummaryButton: FC<Types> = ({ title, isActive, planned, spent }) =
               {formatMoney(planned)} {currencySign}
             </span>
             <div
-              className={cn('flex w-3', isActive ? 'bg-white' : 'bg-gray-400')}
+              className={cn("flex w-3", isActive ? "bg-white" : "bg-gray-400")}
               style={{ height: `${plannedPercent}%` }}
             ></div>
           </div>

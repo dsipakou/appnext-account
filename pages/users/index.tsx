@@ -1,4 +1,4 @@
-import Index from '@/components/users';
+import Index from "@/components/users";
 
 Users.auth = {};
 

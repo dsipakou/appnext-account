@@ -1,6 +1,6 @@
-import RecentTransactions from '@/components/dashboard/components/RecentTransactions';
-import UpcommingExpenses from '@/components/dashboard/components/UpcommingExpenses';
-import WeekWidget from '@/components/dashboard/components/WeekWidget';
+import RecentTransactions from "@/components/dashboard/components/RecentTransactions";
+import UpcommingExpenses from "@/components/dashboard/components/UpcommingExpenses";
+import WeekWidget from "@/components/dashboard/components/WeekWidget";
 
 const Dashboard = () => {
   return (

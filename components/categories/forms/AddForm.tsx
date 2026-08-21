@@ -1,26 +1,26 @@
-import EmojiPicker from 'emoji-picker-react';
-import { X } from 'lucide-react';
-import React from 'react';
-import * as z from 'zod';
+import EmojiPicker from "emoji-picker-react";
+import { X } from "lucide-react";
+import React from "react";
+import * as z from "zod";
 
-import { Button } from '@/components/ui/button';
-import * as Dlg from '@/components/ui/dialog';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form, type FormErrors } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Popover, PopoverClose, PopoverPopup, PopoverTrigger } from '@/components/ui/popover';
-import * as Slc from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { toastManager } from '@/components/ui/toast';
-import { useCategories, useCreateCategory } from '@/hooks/categories';
+import { Button } from "@/components/ui/button";
+import * as Dlg from "@/components/ui/dialog";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Form, type FormErrors } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverClose, PopoverPopup, PopoverTrigger } from "@/components/ui/popover";
+import * as Slc from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { toastManager } from "@/components/ui/toast";
+import { useCategories, useCreateCategory } from "@/hooks/categories";
 
-import { Category, CategoryType } from '../types';
+import { Category, CategoryType } from "../types";
 
 const formSchema = z
   .object({
     title: z.string().min(2, {
-      message: 'Must be at least 2 characters long',
+      message: "Must be at least 2 characters long",
     }),
     type: z.nativeEnum(CategoryType),
     isParent: z.boolean(),
@@ -30,9 +30,9 @@ const formSchema = z
   .superRefine((values, ctx) => {
     if (values.type !== CategoryType.Income && values.isParent && !values.parentCategory) {
       ctx.addIssue({
-        message: 'Non-parent category should have parent selected',
+        message: "Non-parent category should have parent selected",
         code: z.ZodIssueCode.custom,
-        path: ['parentCategory'],
+        path: ["parentCategory"],
       });
     }
   });
@@ -50,11 +50,11 @@ const AddForm: React.FC<Types> = ({ parent }) => {
   const [parentList, setParentList] = React.useState<Category[]>([]);
   const [selectedEmoji, setSelectedEmoji] = React.useState<string | null>(null);
   const [values, setValues] = React.useState<FormValues>({
-    title: '',
+    title: "",
     type: CategoryType.Expense,
     isParent: false,
     parentCategory: undefined,
-    description: '',
+    description: "",
   });
   const [errors, setErrors] = React.useState<FormErrors>({});
 
@@ -84,21 +84,21 @@ const AddForm: React.FC<Types> = ({ parent }) => {
       await createCategory({
         icon: selectedEmoji,
         name: payload.title,
-        parent: payload.parentCategory || '',
+        parent: payload.parentCategory || "",
         type: payload.type,
         description: payload.description,
       });
       toastManager.add({
-        id: 'category-create',
-        title: 'Saved!',
-        type: 'success',
+        id: "category-create",
+        title: "Saved!",
+        type: "success",
       });
     } catch {
       toastManager.add({
-        id: 'category-create-error',
-        title: 'Something went wrong',
-        description: 'Please, check your fields',
-        type: 'error',
+        id: "category-create-error",
+        title: "Something went wrong",
+        description: "Please, check your fields",
+        type: "error",
       });
     }
   };
@@ -107,11 +107,11 @@ const AddForm: React.FC<Types> = ({ parent }) => {
     if (!open) {
       setErrors({});
       setValues({
-        title: '',
+        title: "",
         type: CategoryType.Expense,
         isParent: false,
         parentCategory: undefined,
-        description: '',
+        description: "",
       });
       setSelectedEmoji(null);
     }
@@ -172,7 +172,9 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                   disabled={isCreating}
                   id="title"
                   value={values.title}
-                  onChange={(event) => setValues((current) => ({ ...current, title: event.target.value }))}
+                  onChange={(event) =>
+                    setValues((current) => ({ ...current, title: event.target.value }))
+                  }
                 />
                 <FieldError />
               </Field>
@@ -181,13 +183,15 @@ const AddForm: React.FC<Types> = ({ parent }) => {
               <Field name="type">
                 <FieldLabel>Category type</FieldLabel>
                 <Slc.Select
-                  onValueChange={(type) => setValues((current) => ({ ...current, type: type as CategoryType }))}
+                  onValueChange={(type) =>
+                    setValues((current) => ({ ...current, type: type as CategoryType }))
+                  }
                   value={values.type}
                   disabled={isCreating || !!parent}
                   items={[
-                    { label: 'Income', value: CategoryType.Income },
-                    { label: 'Expense', value: CategoryType.Expense },
-                    { label: 'Capital Expense', value: CategoryType.CapitalExpense },
+                    { label: "Income", value: CategoryType.Income },
+                    { label: "Expense", value: CategoryType.Expense },
+                    { label: "Capital Expense", value: CategoryType.CapitalExpense },
                   ]}
                 >
                   <Slc.SelectTrigger className="relative w-full">
@@ -197,7 +201,9 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                     <Slc.SelectGroup>
                       <Slc.SelectItem value={CategoryType.Income}>Income</Slc.SelectItem>
                       <Slc.SelectItem value={CategoryType.Expense}>Expense</Slc.SelectItem>
-                      <Slc.SelectItem value={CategoryType.CapitalExpense}>Capital Expense</Slc.SelectItem>
+                      <Slc.SelectItem value={CategoryType.CapitalExpense}>
+                        Capital Expense
+                      </Slc.SelectItem>
                     </Slc.SelectGroup>
                   </Slc.SelectContent>
                 </Slc.Select>
@@ -212,7 +218,9 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                       <Switch
                         id="isParent"
                         checked={values.isParent}
-                        onCheckedChange={(isParent) => setValues((current) => ({ ...current, isParent }))}
+                        onCheckedChange={(isParent) =>
+                          setValues((current) => ({ ...current, isParent }))
+                        }
                         disabled={isCreating || !!parent}
                       />
                       <FieldLabel htmlFor="isParent">Has parent</FieldLabel>
@@ -225,11 +233,13 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                 <div className="flex w-1/2">
                   <Field name="parentCategory">
                     <Slc.Select
-                      onValueChange={(parentCategory) => setValues((current) => ({ ...current, parentCategory }))}
+                      onValueChange={(parentCategory) =>
+                        setValues((current) => ({ ...current, parentCategory }))
+                      }
                       value={values.parentCategory}
                       disabled={isCreating || !!parent}
                       items={parentList.map((item: Category) => ({
-                        label: item.icon + '  ' + item.name,
+                        label: item.icon + "  " + item.name,
                         value: item.uuid,
                       }))}
                     >
@@ -258,8 +268,10 @@ const AddForm: React.FC<Types> = ({ parent }) => {
                   placeholder="Add description if you want"
                   className="resize-none"
                   disabled={isCreating}
-                  value={values.description ?? ''}
-                  onChange={(event) => setValues((current) => ({ ...current, description: event.target.value }))}
+                  value={values.description ?? ""}
+                  onChange={(event) =>
+                    setValues((current) => ({ ...current, description: event.target.value }))
+                  }
                 />
                 <FieldError />
               </Field>

@@ -1,14 +1,14 @@
-import React from 'react';
+import React from "react";
 
-import { Category } from '@/components/categories/types';
-import { useCategories } from '@/hooks/categories';
+import { Category } from "@/components/categories/types";
+import { useCategories } from "@/hooks/categories";
 
 interface Types {}
 
 const Income: React.FC<Types> = () => {
   const { data: categories = [] } = useCategories();
 
-  const filteredCategories = categories.filter((item: Category) => item.type === 'INC');
+  const filteredCategories = categories.filter((item: Category) => item.type === "INC");
 
   return (
     <div className="flex justify-center gap-3">

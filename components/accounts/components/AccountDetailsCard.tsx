@@ -1,9 +1,9 @@
-import { ArrowDownRight, ArrowUpRight, DollarSign } from 'lucide-react';
-import React from 'react';
+import { ArrowDownRight, ArrowUpRight, DollarSign } from "lucide-react";
+import React from "react";
 
-import { useStore } from '@/app/store';
-import { ProgressBar } from '@/components/accounts/components/ProgressBar';
-import { getFormattedDate } from '@/utils/dateUtils';
+import { useStore } from "@/app/store";
+import { ProgressBar } from "@/components/accounts/components/ProgressBar";
+import { getFormattedDate } from "@/utils/dateUtils";
 
 interface AccountDetailsCardProps {
   month: string;
@@ -12,7 +12,7 @@ interface AccountDetailsCardProps {
 }
 
 const AccountDetailsCard: React.FC<AccountDetailsCardProps> = ({ month, income, spendings }) => {
-  const formattedMonth = getFormattedDate(new Date(month), 'yyyy MMM');
+  const formattedMonth = getFormattedDate(new Date(month), "yyyy MMM");
   const hasIncome = income > 0;
   const hasExpenses = spendings > 0;
   const spendingRatio = hasIncome ? (spendings / income) * 100 : hasExpenses ? 100 : 0;
@@ -49,7 +49,7 @@ const AccountDetailsCard: React.FC<AccountDetailsCardProps> = ({ month, income, 
               <span className="text-gray-600">Expenses</span>
             </div>
             {hasExpenses ? (
-              <span className={`font-medium ${hasIncome ? 'text-red-600' : 'text-gray-600'}`}>
+              <span className={`font-medium ${hasIncome ? "text-red-600" : "text-gray-600"}`}>
                 {spendings.toFixed(2)} {currencySign}
               </span>
             ) : (
@@ -63,7 +63,7 @@ const AccountDetailsCard: React.FC<AccountDetailsCardProps> = ({ month, income, 
             <ProgressBar
               value={spendings}
               maxValue={hasIncome ? income : spendings}
-              colorClass={hasIncome ? 'bg-red-500' : 'bg-gray-500'}
+              colorClass={hasIncome ? "bg-red-500" : "bg-gray-500"}
               label="Spending Rate"
             />
             {hasIncome && (

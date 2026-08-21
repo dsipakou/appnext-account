@@ -1,18 +1,18 @@
-import { Repeat } from 'lucide-react';
-import React from 'react';
-import * as z from 'zod';
+import { Repeat } from "lucide-react";
+import React from "react";
+import * as z from "zod";
 
-import { ConfirmTransactionsTransferForm } from '@/components/categories/forms';
-import { Category, CategoryType } from '@/components/categories/types';
-import { Button } from '@/components/ui/button';
-import * as Dlg from '@/components/ui/dialog';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form, type FormErrors } from '@/components/ui/form';
-import * as Slc from '@/components/ui/select';
-import { useCategories } from '@/hooks/categories';
+import { ConfirmTransactionsTransferForm } from "@/components/categories/forms";
+import { Category, CategoryType } from "@/components/categories/types";
+import { Button } from "@/components/ui/button";
+import * as Dlg from "@/components/ui/dialog";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Form, type FormErrors } from "@/components/ui/form";
+import * as Slc from "@/components/ui/select";
+import { useCategories } from "@/hooks/categories";
 
 const formSchema = z.object({
-  category: z.string().min(1, { error: 'Please choose category' }),
+  category: z.string().min(1, { error: "Please choose category" }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -23,7 +23,7 @@ interface Types {
 
 const ReassignTransactionsForm: React.FC<Types> = ({ uuid }) => {
   const [isConfirmTransferOpen, setIsConfirmTransferOpen] = React.useState<boolean>(false);
-  const [values, setValues] = React.useState<FormValues>({ category: '' });
+  const [values, setValues] = React.useState<FormValues>({ category: "" });
   const [errors, setErrors] = React.useState<FormErrors>({});
 
   const { data: categories = [] } = useCategories();

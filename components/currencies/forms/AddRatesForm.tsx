@@ -1,25 +1,25 @@
 // System
 // UI
-import { Trash } from 'lucide-react';
-import React from 'react';
-import { useSWRConfig } from 'swr';
+import { Trash } from "lucide-react";
+import React from "react";
+import { useSWRConfig } from "swr";
 
-import ConfirmClearRatesForm from '@/components/currencies/forms/ConfirmClearRatesForm';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import * as Dlg from '@/components/ui/dialog';
-import * as Field from '@/components/ui/field';
-import * as Frm from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { toastManager } from '@/components/ui/toast';
+import ConfirmClearRatesForm from "@/components/currencies/forms/ConfirmClearRatesForm";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import * as Dlg from "@/components/ui/dialog";
+import * as Field from "@/components/ui/field";
+import * as Frm from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { toastManager } from "@/components/ui/toast";
 // Hooks
-import { RateResponse, useCreateBatchedRates, useRatesOnDate } from '@/hooks/rates';
+import { RateResponse, useCreateBatchedRates, useRatesOnDate } from "@/hooks/rates";
 // Utils
-import { getFormattedDate } from '@/utils/dateUtils';
-import { extractErrorMessage } from '@/utils/stringUtils';
+import { getFormattedDate } from "@/utils/dateUtils";
+import { extractErrorMessage } from "@/utils/stringUtils";
 
 // Types
-import { Currency, RateItemPostRequest, RatePostRequest } from '../types';
+import { Currency, RateItemPostRequest, RatePostRequest } from "../types";
 
 interface Types {
   currencies: Currency[];
@@ -44,7 +44,7 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
 
     if (currencies.length > 0) {
       currencies.forEach((item: Currency) => {
-        nextValues[item.uuid] = '';
+        nextValues[item.uuid] = "";
       });
     }
 
@@ -73,12 +73,12 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
     };
 
     Object.keys(formData).forEach((uuid: string) => {
-      if (uuid === 'rateDate') return;
+      if (uuid === "rateDate") return;
 
       const normalizedRate: number =
-        typeof formData[uuid] === 'number'
+        typeof formData[uuid] === "number"
           ? Number(formData[uuid])
-          : Number(String(formData[uuid]).replace(/[^0-9.]/g, ''));
+          : Number(String(formData[uuid]).replace(/[^0-9.]/g, ""));
       const rateItem: RateItemPostRequest = {
         currency: uuid,
         rate: String(normalizedRate),
@@ -97,19 +97,19 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
       //TODO: does not mutating
 
       mutate(url);
-      mutate((key) => typeof key === 'string' && key.includes('rates?limit='), undefined);
+      mutate((key) => typeof key === "string" && key.includes("rates?limit="), undefined);
       toastManager.add({
-        id: 'currency-rates-save',
-        title: 'Saved!',
-        type: 'success',
+        id: "currency-rates-save",
+        title: "Saved!",
+        type: "success",
       });
     } catch (error) {
       const message = extractErrorMessage(error);
       toastManager.add({
-        id: 'currency-rates-save-error',
-        title: 'Something went wrong',
+        id: "currency-rates-save-error",
+        title: "Something went wrong",
         description: message,
-        type: 'error',
+        type: "error",
       });
     }
   };
@@ -135,13 +135,15 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
                   !item.isBase && (
                     <Field.Field name={item.uuid} className="flex flex-row items-center gap-2 pr-2">
                       <Input
-                        value={values[item.uuid] ?? ''}
+                        value={values[item.uuid] ?? ""}
                         onChange={(event) => {
                           let value = event.target.value;
-                          value = value.replace(/,/g, '.');
-                          const firstDot = value.indexOf('.');
+                          value = value.replace(/,/g, ".");
+                          const firstDot = value.indexOf(".");
                           if (firstDot !== -1) {
-                            value = value.slice(0, firstDot + 1) + value.slice(firstDot + 1).replace(/\./g, '');
+                            value =
+                              value.slice(0, firstDot + 1) +
+                              value.slice(firstDot + 1).replace(/\./g, "");
                           }
                           setValues((current) => ({
                             ...current,
@@ -171,7 +173,11 @@ const AddRatesForm: React.FC<Types> = ({ currencies = [] }) => {
             <div className="flex w-full justify-between gap-2">
               {ratesOnDate.length > 0 && (
                 <>
-                  <Button type="button" variant="destructive" onClick={() => setIsClearRatesDialogOpen(true)}>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => setIsClearRatesDialogOpen(true)}
+                  >
                     <Trash className="h-5 w-5 text-red-500" /> Clear
                   </Button>
                   <ConfirmClearRatesForm

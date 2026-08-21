@@ -1,17 +1,17 @@
-import React from 'react';
-import * as z from 'zod';
+import React from "react";
+import * as z from "zod";
 
-import { Button } from '@/components/ui/button';
-import * as Dlg from '@/components/ui/dialog';
-import * as Field from '@/components/ui/field';
-import * as Form from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Button } from "@/components/ui/button";
+import * as Dlg from "@/components/ui/dialog";
+import * as Field from "@/components/ui/field";
+import * as Form from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 // UI
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from "@/components/ui/toast";
 // Hooks
-import { useResetPassword } from '@/hooks/users';
+import { useResetPassword } from "@/hooks/users";
 // Utils
-import { extractErrorMessage } from '@/utils/stringUtils';
+import { extractErrorMessage } from "@/utils/stringUtils";
 
 const formSchema = z
   .object({
@@ -22,9 +22,9 @@ const formSchema = z
   .superRefine((values, ctx) => {
     if (values.newPassword !== values.confirmPassword) {
       ctx.addIssue({
-        message: 'Passwords do not match',
+        message: "Passwords do not match",
         code: z.ZodIssueCode.custom,
-        path: ['confirmPassword'],
+        path: ["confirmPassword"],
       });
     }
   });
@@ -33,9 +33,9 @@ type FormValues = z.infer<typeof formSchema>;
 
 const ChangePasswordForm: React.FC = () => {
   const [values, setValues] = React.useState<FormValues>({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
   const [errors, setErrors] = React.useState<Form.FormErrors>({});
 
@@ -48,24 +48,24 @@ const ChangePasswordForm: React.FC = () => {
         newPassword: payload.newPassword,
       });
       toastManager.add({
-        id: 'user-password-update',
-        title: 'Password updated!',
-        type: 'success',
+        id: "user-password-update",
+        title: "Password updated!",
+        type: "success",
       });
     } catch (error) {
       const message = extractErrorMessage(error);
       toastManager.add({
-        id: 'user-password-update-error',
-        title: 'Something went wrong',
+        id: "user-password-update-error",
+        title: "Something went wrong",
         description: JSON.stringify(message),
-        type: 'error',
+        type: "error",
       });
     }
   };
 
   const cleanFormErrors = () => {
     setErrors({});
-    setValues({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    setValues({ currentPassword: "", newPassword: "", confirmPassword: "" });
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -102,7 +102,9 @@ const ChangePasswordForm: React.FC = () => {
                   type="password"
                   id="verbalName"
                   value={values.currentPassword}
-                  onChange={(event) => setValues((current) => ({ ...current, currentPassword: event.target.value }))}
+                  onChange={(event) =>
+                    setValues((current) => ({ ...current, currentPassword: event.target.value }))
+                  }
                 />
                 <Field.FieldError />
               </Field.Field>
@@ -116,7 +118,9 @@ const ChangePasswordForm: React.FC = () => {
                   type="password"
                   id="verbalName"
                   value={values.newPassword}
-                  onChange={(event) => setValues((current) => ({ ...current, newPassword: event.target.value }))}
+                  onChange={(event) =>
+                    setValues((current) => ({ ...current, newPassword: event.target.value }))
+                  }
                 />
                 <Field.FieldError />
               </Field.Field>
@@ -130,7 +134,9 @@ const ChangePasswordForm: React.FC = () => {
                   type="password"
                   id="verbalName"
                   value={values.confirmPassword}
-                  onChange={(event) => setValues((current) => ({ ...current, confirmPassword: event.target.value }))}
+                  onChange={(event) =>
+                    setValues((current) => ({ ...current, confirmPassword: event.target.value }))
+                  }
                 />
                 <Field.FieldError />
               </Field.Field>

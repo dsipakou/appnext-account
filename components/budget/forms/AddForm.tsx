@@ -1,32 +1,32 @@
-import { Repeat } from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import { FC, useEffect, useMemo, useRef, useState } from 'react';
-import { useSWRConfig } from 'swr';
-import * as z from 'zod';
+import { Repeat } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
+import { useSWRConfig } from "swr";
+import * as z from "zod";
 
-import { CategoryType } from '@/components/categories/types';
-import { Currency } from '@/components/currencies/types';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { AmountInput } from '@/components/ui/currency-input';
-import * as Dlg from '@/components/ui/dialog';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form, type FormErrors } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import * as Slc from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { toastManager } from '@/components/ui/toast';
-import { ToggleGroup, ToggleGroupItem, ToggleGroupSeparator } from '@/components/ui/toggle-group';
-import { User } from '@/components/users/types';
-import { useCreateBudget } from '@/hooks/budget';
-import { useCategories } from '@/hooks/categories';
-import { useCurrencies } from '@/hooks/currencies';
-import { useUsers } from '@/hooks/users';
-import { cn } from '@/lib/utils';
-import { getFormattedDate } from '@/utils/dateUtils';
+import { CategoryType } from "@/components/categories/types";
+import { Currency } from "@/components/currencies/types";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { AmountInput } from "@/components/ui/currency-input";
+import * as Dlg from "@/components/ui/dialog";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Form, type FormErrors } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import * as Slc from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { toastManager } from "@/components/ui/toast";
+import { ToggleGroup, ToggleGroupItem, ToggleGroupSeparator } from "@/components/ui/toggle-group";
+import { User } from "@/components/users/types";
+import { useCreateBudget } from "@/hooks/budget";
+import { useCategories } from "@/hooks/categories";
+import { useCurrencies } from "@/hooks/currencies";
+import { useUsers } from "@/hooks/users";
+import { cn } from "@/lib/utils";
+import { getFormattedDate } from "@/utils/dateUtils";
 
 interface Types {
   date?: Date;
@@ -35,15 +35,15 @@ interface Types {
 
 const formSchema = z.object({
   title: z.string().min(2, {
-    error: 'Title must be at least 2 characters',
+    error: "Title must be at least 2 characters",
   }),
   amount: z.coerce.number().min(0, {
-    error: 'Should be positive number',
+    error: "Should be positive number",
   }),
-  currency: z.uuid({ error: 'Please, select currency' }),
-  user: z.uuid({ error: 'Please, select user' }),
-  category: z.uuid({ error: 'Please, select category' }),
-  repeatType: z.enum(['', 'weekly', 'monthly']),
+  currency: z.uuid({ error: "Please, select currency" }),
+  user: z.uuid({ error: "Please, select user" }),
+  category: z.uuid({ error: "Please, select category" }),
+  repeatType: z.enum(["", "weekly", "monthly"]),
   numberOfRepetitions: z.coerce.number().int().positive().optional(),
   budgetDate: z.date(),
   description: z.string().optional(),
@@ -56,15 +56,15 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
   const [isSomeDay, setIsSomeDay] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const [values, setValues] = useState<FormValues>({
-    title: '',
+    title: "",
     amount: 0,
-    currency: '',
-    user: '',
-    category: '',
-    repeatType: '',
+    currency: "",
+    user: "",
+    category: "",
+    repeatType: "",
     numberOfRepetitions: undefined,
     budgetDate: date || new Date(),
-    description: '',
+    description: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const titleInputRef = useRef<HTMLInputElement>(null);
@@ -81,7 +81,10 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
   const { trigger: createBudget, isMutating: isCreating } = useCreateBudget();
 
   const parentList = useMemo(
-    () => categories.filter((category) => category.parent === null && category.type === CategoryType.Expense),
+    () =>
+      categories.filter(
+        (category) => category.parent === null && category.type === CategoryType.Expense,
+      ),
     [categories],
   );
 
@@ -99,7 +102,9 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
     const defaultCurrency = getDefaultCurrency();
 
     if (defaultCurrency) {
-      setValues((current) => (current.currency ? current : { ...current, currency: defaultCurrency }));
+      setValues((current) =>
+        current.currency ? current : { ...current, currency: defaultCurrency },
+      );
     }
   }, [currencies]);
 
@@ -113,7 +118,7 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
 
   const getDefaultCurrency = (): string => {
     if (!currencies) {
-      return '';
+      return "";
     }
 
     const _currency = currencies.find((item: Currency) => item.isDefault);
@@ -121,12 +126,12 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
       return _currency.uuid;
     }
 
-    return '';
+    return "";
   };
 
   const getDefaultUser = (): string => {
     if (!authUser || !users) {
-      return '';
+      return "";
     }
 
     const _user = users.find((item: User) => item.username === authUser?.username);
@@ -134,23 +139,23 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
       return _user.uuid;
     }
 
-    return '';
+    return "";
   };
 
   const getCurrencySign = (): string => {
-    return currencies.find((item: Currency) => item.uuid === values.currency)?.sign || '';
+    return currencies.find((item: Currency) => item.uuid === values.currency)?.sign || "";
   };
 
   const getFormDefaults = (): FormValues => ({
-    title: '',
+    title: "",
     amount: 0,
     currency: getDefaultCurrency(),
     user: getDefaultUser(),
-    category: '',
-    repeatType: '',
+    category: "",
+    repeatType: "",
     numberOfRepetitions: undefined,
     budgetDate: date || new Date(),
-    description: '',
+    description: "",
   });
 
   const handleSave = async (payload: FormValues) => {
@@ -163,22 +168,22 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
       };
 
       await createBudget(budgetData);
-      mutate((key) => typeof key === 'string' && key.includes('budget/usage'), undefined);
-      mutate((key) => typeof key === 'string' && key.includes('budget/weekly-usage'), undefined);
-      mutate('budget/pending/');
+      mutate((key) => typeof key === "string" && key.includes("budget/usage"), undefined);
+      mutate((key) => typeof key === "string" && key.includes("budget/weekly-usage"), undefined);
+      mutate("budget/pending/");
       clean(false);
       toastManager.add({
-        id: 'budget-create',
-        title: 'Saved!',
-        description: 'Your budget has been created successfully.',
-        type: 'success',
+        id: "budget-create",
+        title: "Saved!",
+        description: "Your budget has been created successfully.",
+        type: "success",
       });
     } catch {
       toastManager.add({
-        id: 'budget-create-error',
-        title: 'Something went wrong',
-        description: 'Please, check your fields for errors and try again.',
-        type: 'error',
+        id: "budget-create-error",
+        title: "Something went wrong",
+        description: "Please, check your fields for errors and try again.",
+        type: "error",
       });
     }
   };
@@ -230,7 +235,9 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                         disabled={isCreating}
                         id="title"
                         value={values.title}
-                        onChange={(event) => setValues((current) => ({ ...current, title: event.target.value }))}
+                        onChange={(event) =>
+                          setValues((current) => ({ ...current, title: event.target.value }))
+                        }
                       />
                       <FieldError />
                     </Field>
@@ -243,7 +250,9 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                           <div>
                             <AmountInput
                               value={values.amount}
-                              onAccept={(value) => setValues((current) => ({ ...current, amount: Number(value) || 0 }))}
+                              onAccept={(value) =>
+                                setValues((current) => ({ ...current, amount: Number(value) || 0 }))
+                              }
                               onFocus={(e) =>
                                 requestAnimationFrame(() => {
                                   e.target.select();
@@ -253,7 +262,9 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                               disabled={isCreating}
                             />
                           </div>
-                          <span className="flex items-center text-sm">{values.currency && getCurrencySign()}</span>
+                          <span className="flex items-center text-sm">
+                            {values.currency && getCurrencySign()}
+                          </span>
                         </div>
                         <FieldError />
                       </Field>
@@ -263,9 +274,14 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                         <FieldLabel className="pl-1">Currency</FieldLabel>
                         <Slc.Select
                           disabled={isCreating}
-                          onValueChange={(currency) => setValues((current) => ({ ...current, currency }))}
-                          value={values.currency || ''}
-                          items={currencies.map((item: Currency) => ({ label: item.code, value: item.uuid }))}
+                          onValueChange={(currency) =>
+                            setValues((current) => ({ ...current, currency }))
+                          }
+                          value={values.currency || ""}
+                          items={currencies.map((item: Currency) => ({
+                            label: item.code,
+                            value: item.uuid,
+                          }))}
                         >
                           <Slc.SelectTrigger className="relative w-full" id="currency">
                             <Slc.SelectValue placeholder="Select a currency" />
@@ -290,9 +306,14 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                       <FieldLabel className="pl-1">Category</FieldLabel>
                       <Slc.Select
                         disabled={isCreating}
-                        onValueChange={(category) => setValues((current) => ({ ...current, category }))}
-                        value={values.category || ''}
-                        items={parentList.map((item) => ({ label: item.icon + '  ' + item.name, value: item.uuid }))}
+                        onValueChange={(category) =>
+                          setValues((current) => ({ ...current, category }))
+                        }
+                        value={values.category || ""}
+                        items={parentList.map((item) => ({
+                          label: item.icon + "  " + item.name,
+                          value: item.uuid,
+                        }))}
                       >
                         <Slc.SelectTrigger className="relative w-full" id="category">
                           <Slc.SelectValue placeholder="Select category" />
@@ -301,7 +322,11 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                           <Slc.SelectGroup>
                             <Slc.SelectGroupLabel>Categories</Slc.SelectGroupLabel>
                             {parentList.map((item) => (
-                              <Slc.SelectItem key={item.uuid} value={item.uuid} className="flex items-center">
+                              <Slc.SelectItem
+                                key={item.uuid}
+                                value={item.uuid}
+                                className="flex items-center"
+                              >
                                 <span className="mr-2">{item.icon}</span>
                                 <span>{item.name}</span>
                               </Slc.SelectItem>
@@ -318,7 +343,7 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                       <Slc.Select
                         disabled={isCreating}
                         onValueChange={(user) => setValues((current) => ({ ...current, user }))}
-                        value={values.user || ''}
+                        value={values.user || ""}
                         items={users.map((item) => ({ label: item.username, value: item.uuid }))}
                       >
                         <Slc.SelectTrigger className="relative w-full" id="user">
@@ -345,13 +370,16 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                       <ToggleGroup
                         id="repeat"
                         className="w-full"
-                        value={values.repeatType ? [values.repeatType] : ['__none__']}
+                        value={values.repeatType ? [values.repeatType] : ["__none__"]}
                         onValueChange={(selectedValues) => {
-                          const repeatType = selectedValues[0] ?? '__none__';
+                          const repeatType = selectedValues[0] ?? "__none__";
 
                           setValues((current) => ({
                             ...current,
-                            repeatType: repeatType === '__none__' ? '' : (repeatType as FormValues['repeatType']),
+                            repeatType:
+                              repeatType === "__none__"
+                                ? ""
+                                : (repeatType as FormValues["repeatType"]),
                           }));
                         }}
                         variant="outline"
@@ -378,7 +406,7 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                     </Field>
                   </div>
                   <div>
-                    {(values.repeatType === 'weekly' || values.repeatType === 'monthly') && (
+                    {(values.repeatType === "weekly" || values.repeatType === "monthly") && (
                       <Field name="numberOfRepetitions">
                         <FieldLabel className="text-muted-foreground text-sm">
                           Number of repetitions (leave empty for infinite)
@@ -388,13 +416,14 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                           min="1"
                           placeholder="Infinite"
                           disabled={isCreating}
-                          value={values.numberOfRepetitions ?? ''}
+                          value={values.numberOfRepetitions ?? ""}
                           onChange={(event) => {
                             const repetitions = event.target.value;
 
                             setValues((current) => ({
                               ...current,
-                              numberOfRepetitions: repetitions === '' ? undefined : parseInt(repetitions, 10),
+                              numberOfRepetitions:
+                                repetitions === "" ? undefined : parseInt(repetitions, 10),
                             }));
                           }}
                         />
@@ -411,8 +440,10 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                       disabled={isCreating}
                       placeholder="Add description if you want"
                       className="h-full resize-none"
-                      value={values.description ?? ''}
-                      onChange={(event) => setValues((current) => ({ ...current, description: event.target.value }))}
+                      value={values.description ?? ""}
+                      onChange={(event) =>
+                        setValues((current) => ({ ...current, description: event.target.value }))
+                      }
                     />
                     <FieldError />
                   </Field>
@@ -427,10 +458,14 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                     <Field name="budgetDate" className="flex justify-center">
                       <Calendar
                         mode="single"
-                        className={cn('justify-center', isSomeDay && 'blur-xs')}
+                        className={cn("justify-center", isSomeDay && "blur-xs")}
                         selected={isSomeDay ? undefined : values.budgetDate}
-                        onSelect={(budgetDate) => budgetDate && setValues((current) => ({ ...current, budgetDate }))}
-                        disabled={(calendarDate) => isCreating || calendarDate < new Date('1900-01-01') || isSomeDay}
+                        onSelect={(budgetDate) =>
+                          budgetDate && setValues((current) => ({ ...current, budgetDate }))
+                        }
+                        disabled={(calendarDate) =>
+                          isCreating || calendarDate < new Date("1900-01-01") || isSomeDay
+                        }
                         weekStartsOn={1}
                       />
                       <FieldError />
@@ -438,7 +473,11 @@ const AddForm: FC<Types> = ({ date, customTrigger }) => {
                     <div className="mt-5 flex items-start gap-2">
                       <Field name="isSomeday">
                         <div className="flex items-center gap-2">
-                          <Switch id="isSomeday" checked={isSomeDay} onCheckedChange={setIsSomeDay} />
+                          <Switch
+                            id="isSomeday"
+                            checked={isSomeDay}
+                            onCheckedChange={setIsSomeDay}
+                          />
                           <Label>Save without date</Label>
                         </div>
                       </Field>

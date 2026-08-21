@@ -1,13 +1,13 @@
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { signIn, useSession } from 'next-auth/react';
-import React from 'react';
-import * as z from 'zod';
+import { signIn, useSession } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import React from "react";
+import * as z from "zod";
 
-import { Button } from '@/components/ui/button';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form, type FormErrors } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Button } from "@/components/ui/button";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Form, type FormErrors } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
 const formSchema = z.object({
   email: z.email(),
@@ -19,22 +19,22 @@ type FormValues = z.infer<typeof formSchema>;
 const Index: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [values, setValues] = React.useState<FormValues>({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
   const [errors, setErrors] = React.useState<FormErrors>({});
 
   const { status } = useSession();
   const router = useRouter();
 
-  if (status === 'authenticated') {
-    router.push('/');
+  if (status === "authenticated") {
+    router.push("/");
   }
 
   const handleLogin = (payload: FormValues) => {
     setIsLoading(true);
 
-    signIn('credentials', {
+    signIn("credentials", {
       username: payload.email,
       password: payload.password,
       callbackUrl: `${window.location.origin}/`,
@@ -57,12 +57,14 @@ const Index: React.FC = () => {
   };
 
   return (
-    status === 'unauthenticated' && (
+    status === "unauthenticated" && (
       <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gray-100">
         <div className="relative w-full max-w-md space-y-8 rounded-xl bg-white/90 p-10 shadow-md backdrop-blur-sm">
           <div className="space-y-2 text-center">
             <h1 className="text-3xl font-extrabold text-gray-900">Welcome back</h1>
-            <p className="text-gray-600">Log in to continue managing your finances and achieving your goals.</p>
+            <p className="text-gray-600">
+              Log in to continue managing your finances and achieving your goals.
+            </p>
           </div>
           <Form errors={errors} onSubmit={handleSubmit} className="space-y-8">
             <Field name="email">
@@ -71,7 +73,9 @@ const Index: React.FC = () => {
                 className="w-full"
                 disabled={isLoading}
                 value={values.email}
-                onChange={(event) => setValues((current) => ({ ...current, email: event.target.value }))}
+                onChange={(event) =>
+                  setValues((current) => ({ ...current, email: event.target.value }))
+                }
               />
               <FieldError />
             </Field>
@@ -82,7 +86,9 @@ const Index: React.FC = () => {
                 className="w-full"
                 disabled={isLoading}
                 value={values.password}
-                onChange={(event) => setValues((current) => ({ ...current, password: event.target.value }))}
+                onChange={(event) =>
+                  setValues((current) => ({ ...current, password: event.target.value }))
+                }
               />
               <FieldError />
             </Field>
@@ -104,6 +110,6 @@ const Index: React.FC = () => {
   );
 };
 
-Index.layout = 'public';
+Index.layout = "public";
 
 export default Index;

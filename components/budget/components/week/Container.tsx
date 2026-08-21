@@ -1,27 +1,27 @@
-import { DndContext } from '@dnd-kit/core';
-import { getDay, isThisWeek, isToday } from 'date-fns';
-import { useSession } from 'next-auth/react';
-import React from 'react';
+import { DndContext } from "@dnd-kit/core";
+import { getDay, isThisWeek, isToday } from "date-fns";
+import { useSession } from "next-auth/react";
+import React from "react";
 
-import { useStore } from '@/app/store';
-import { AddForm } from '@/components/budget/forms';
-import { CompactWeekItem, WeekBudgetItem, WeekBudgetResponse } from '@/components/budget/types';
-import { Button } from '@/components/ui/button';
-import { Droppable } from '@/components/ui/dnd';
-import { toastManager } from '@/components/ui/toast';
-import { useBudgetWeek, useEditBudget } from '@/hooks/budget';
-import { cn } from '@/lib/utils';
+import { useStore } from "@/app/store";
+import { AddForm } from "@/components/budget/forms";
+import { CompactWeekItem, WeekBudgetItem, WeekBudgetResponse } from "@/components/budget/types";
+import { Button } from "@/components/ui/button";
+import { Droppable } from "@/components/ui/dnd";
+import { toastManager } from "@/components/ui/toast";
+import { useBudgetWeek, useEditBudget } from "@/hooks/budget";
+import { cn } from "@/lib/utils";
 import {
   FULL_DAY_ONLY_FORMAT,
   getFormattedDate,
   getWeekDaysWithFullDays,
   parseDate,
   WeekDayWithFullDate,
-} from '@/utils/dateUtils';
-import { extractErrorMessage } from '@/utils/stringUtils';
+} from "@/utils/dateUtils";
+import { extractErrorMessage } from "@/utils/stringUtils";
 
-import BudgetItem from './BudgetItem';
-import Header from './ContainerHeader';
+import BudgetItem from "./BudgetItem";
+import Header from "./ContainerHeader";
 
 interface Types {
   startDate: string;
@@ -49,7 +49,7 @@ const Container: React.FC<Types> = ({
   const [weekGroup, setWeekGroup] = React.useState<GroupedByWeek>({});
   const [budgetState, setBudgetState] = React.useState<WeekBudgetItem[]>([]);
   const [isDragging, setIsDragging] = React.useState(false);
-  const [draggingUuid, setDraggingUuid] = React.useState<string>('');
+  const [draggingUuid, setDraggingUuid] = React.useState<string>("");
   const { data: budget }: WeekBudgetResponse = useBudgetWeek(startDate, endDate, user);
   const { trigger: dragBudget, isMutating } = useEditBudget(draggingUuid);
   const {
@@ -93,7 +93,10 @@ const Container: React.FC<Types> = ({
   }, [budgetState]);
 
   const addBudgetButton = (
-    <Button className="mt-2 h-[60px] w-full bg-white text-3xl text-stone-400 shadow-sm hover:bg-white" variant="ghost">
+    <Button
+      className="mt-2 h-[60px] w-full bg-white text-3xl text-stone-400 shadow-sm hover:bg-white"
+      variant="ghost"
+    >
       +
     </Button>
   );
@@ -104,7 +107,7 @@ const Container: React.FC<Types> = ({
   };
 
   const handleDragEnd = async (evt) => {
-    setDraggingUuid('');
+    setDraggingUuid("");
     if (!evt.over) return; // dropped outside droppable zone
 
     // Get the original day of the dragged item
@@ -132,10 +135,10 @@ const Container: React.FC<Types> = ({
       const updatedBudget = await dragBudget({ budgetDate: getFormattedDate(newDate) });
       mutateBudget(updatedBudget);
       toastManager.add({
-        id: 'budget-drag-update',
-        title: 'Saved!',
-        description: 'Your budget has been updated successfully.',
-        type: 'success',
+        id: "budget-drag-update",
+        title: "Saved!",
+        description: "Your budget has been updated successfully.",
+        type: "success",
       });
     } catch (error) {
       // Revert optimistic update on error
@@ -147,10 +150,10 @@ const Container: React.FC<Types> = ({
       });
       const message = extractErrorMessage(error);
       toastManager.add({
-        id: 'budget-drag-update-error',
-        title: 'Cannot update',
+        id: "budget-drag-update-error",
+        title: "Cannot update",
         description: message,
-        type: 'error',
+        type: "error",
       });
     } finally {
       setIsDragging(false);
@@ -163,22 +166,26 @@ const Container: React.FC<Types> = ({
         <Header date={startDate} />
         <div
           className={cn(
-            'grid max-w-full flex-1 grid-cols-7 justify-between gap-2 overflow-y-auto p-1 pb-3',
-            isThisWeek(daysFullFormatArray[0].fullDate) && 'grid-cols-8',
+            "grid max-w-full flex-1 grid-cols-7 justify-between gap-2 overflow-y-auto p-1 pb-3",
+            isThisWeek(daysFullFormatArray[0].fullDate) && "grid-cols-8",
           )}
         >
           {weekDaysArray.map((day: number, weekDayIndex: number) => (
             <Droppable
               id={weekDayIndex}
               key={weekDayIndex}
-              onHover={cn('ring-sky-200 ring rounded')}
-              className={cn(isToday(daysFullFormatArray[weekDayIndex].fullDate) && 'col-span-2 rounded bg-sky-100 p-1')}
+              onHover={cn("ring-sky-200 ring rounded")}
+              className={cn(
+                isToday(daysFullFormatArray[weekDayIndex].fullDate) &&
+                  "col-span-2 rounded bg-sky-100 p-1",
+              )}
             >
               <div
                 key={day}
                 className={cn(
-                  'group/col flex flex-col',
-                  isToday(daysFullFormatArray[weekDayIndex].fullDate) && 'col-span-2 rounded bg-sky-100 p-1',
+                  "group/col flex flex-col",
+                  isToday(daysFullFormatArray[weekDayIndex].fullDate) &&
+                    "col-span-2 rounded bg-sky-100 p-1",
                 )}
               >
                 <div className="flex flex-col items-center justify-center gap-1">
@@ -200,21 +207,29 @@ const Container: React.FC<Types> = ({
                 {weekGroup[day] && (
                   <div className="mt-2 flex items-center justify-center gap-1 p-1">
                     <span className="font-semibold">
-                      {weekGroup[day].reduce((acc: number, item: CompactWeekItem) => acc + item.spent, 0).toFixed(2)}
+                      {weekGroup[day]
+                        .reduce((acc: number, item: CompactWeekItem) => acc + item.spent, 0)
+                        .toFixed(2)}
                     </span>
                     <span className="text-xs">
-                      ({weekGroup[day].reduce((acc: number, item: CompactWeekItem) => acc + item.planned, 0).toFixed(2)}
+                      (
+                      {weekGroup[day]
+                        .reduce((acc: number, item: CompactWeekItem) => acc + item.planned, 0)
+                        .toFixed(2)}
                       ) {currencySign}
                     </span>
                   </div>
                 )}
                 <div
                   className={cn(
-                    'invisible flex h-15 w-4/5 self-center text-2xl',
-                    !isDragging && 'group-hover/col:visible',
+                    "invisible flex h-15 w-4/5 self-center text-2xl",
+                    !isDragging && "group-hover/col:visible",
                   )}
                 >
-                  <AddForm date={daysFullFormatArray[weekDayIndex].fullDate} customTrigger={addBudgetButton} />
+                  <AddForm
+                    date={daysFullFormatArray[weekDayIndex].fullDate}
+                    customTrigger={addBudgetButton}
+                  />
                 </div>
               </div>
             </Droppable>

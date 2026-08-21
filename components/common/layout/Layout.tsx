@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import axios from 'axios';
+import axios from "axios";
 import {
   CreditCard,
   DollarSign,
@@ -11,18 +11,18 @@ import {
   Menu,
   ScrollText,
   User2,
-} from 'lucide-react';
-import Link from 'next/link';
-import { signOut, useSession } from 'next-auth/react';
-import React, { FC, ReactElement, ReactNode } from 'react';
-import { useSWRConfig } from 'swr';
+} from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
+import React, { FC, ReactElement, ReactNode } from "react";
+import { useSWRConfig } from "swr";
 
-import { useStore } from '@/app/store';
-import { Currency } from '@/components/currencies/types';
-import { Button } from '@/components/ui/button';
-import * as Slc from '@/components/ui/select';
-import { useCurrencies } from '@/hooks/currencies';
-import { cn } from '@/lib/utils';
+import { useStore } from "@/app/store";
+import { Currency } from "@/components/currencies/types";
+import { Button } from "@/components/ui/button";
+import * as Slc from "@/components/ui/select";
+import { useCurrencies } from "@/hooks/currencies";
+import { cn } from "@/lib/utils";
 
 interface Props {
   children: ReactNode;
@@ -35,7 +35,7 @@ const Layout: FC<Props> = ({ children }) => {
   const { data: session, status: authStatus, update: updateSession } = useSession();
   const { mutate } = useSWRConfig();
 
-  if (authStatus === 'loading' || authStatus === 'unauthenticated') {
+  if (authStatus === "loading" || authStatus === "unauthenticated") {
     return;
   }
 
@@ -66,7 +66,7 @@ const Layout: FC<Props> = ({ children }) => {
   const handleCurrencyChange = (currencyCode: string) => {
     if (currencyCode !== user.currency) {
       axios
-        .patch('users/currency/', {
+        .patch("users/currency/", {
           currency: currencyCode,
         })
         .then((res) => {
@@ -74,7 +74,7 @@ const Layout: FC<Props> = ({ children }) => {
             // TODO: Remove this after migrating to session
             // updateCurrency(currencyCode)
             updateSession({ currency: currencyCode });
-            mutate((key) => typeof key === 'string' && key.includes('accounts'), undefined);
+            mutate((key) => typeof key === "string" && key.includes("accounts"), undefined);
             // TODO: mutate something
           }
         })
@@ -86,52 +86,56 @@ const Layout: FC<Props> = ({ children }) => {
 
   const menuItems = [
     {
-      name: 'Dashboard',
+      name: "Dashboard",
       icon: <LayoutDashboard />,
-      link: '/dashboard/',
+      link: "/dashboard/",
     },
     {
-      name: 'Accounts',
+      name: "Accounts",
       icon: <CreditCard />,
-      link: '/accounts/',
+      link: "/accounts/",
     },
     {
-      name: 'Transactions',
+      name: "Transactions",
       icon: <ScrollText />,
-      link: '/transactions/',
+      link: "/transactions/",
     },
     {
-      name: 'Categories',
+      name: "Categories",
       icon: <LayoutTemplate />,
-      link: '/categories/',
+      link: "/categories/",
     },
     {
-      name: 'Budget',
+      name: "Budget",
       icon: <GanttChart />,
-      link: '/budget/week',
+      link: "/budget/week",
     },
     {
-      name: 'Currencies',
+      name: "Currencies",
       icon: <DollarSign />,
-      link: '/currencies/',
+      link: "/currencies/",
     },
     {
-      name: 'Reports',
+      name: "Reports",
       icon: <LineChart />,
-      link: '/reports/',
+      link: "/reports/",
     },
   ];
 
   const bottomMenuItems = [
     {
-      name: 'Users',
+      name: "Users",
       icon: <User2 />,
-      link: '/users/',
+      link: "/users/",
     },
   ];
 
   const menuComponent = (name: string, icon: ReactElement, link: string): ReactElement => (
-    <div onClick={handleDrawerClose} key={name} className="block w-full hover:bg-slate-500 hover:text-white">
+    <div
+      onClick={handleDrawerClose}
+      key={name}
+      className="block w-full hover:bg-slate-500 hover:text-white"
+    >
       <Link href={link}>
         <div className="flex h-12 items-center justify-start pl-5">
           <div className="pr-5">{icon}</div>
@@ -145,8 +149,8 @@ const Layout: FC<Props> = ({ children }) => {
     <div className="bg-secondary flex h-screen flex-col">
       <div
         className={cn(
-          'fixed z-40 flex h-screen flex-col justify-between overflow-hidden bg-white drop-shadow-sm transition-all delay-50 ease-in-out',
-          open ? 'w-60 shadow-xl' : 'w-16',
+          "fixed z-40 flex h-screen flex-col justify-between overflow-hidden bg-white drop-shadow-sm transition-all delay-50 ease-in-out",
+          open ? "w-60 shadow-xl" : "w-16",
         )}
       >
         <div className="flex flex-col items-start">
@@ -202,14 +206,16 @@ const Layout: FC<Props> = ({ children }) => {
             <Button
               variant="link"
               className="text-white"
-              onClick={async () => await signOut({ callbackUrl: '/login' })}
+              onClick={async () => await signOut({ callbackUrl: "/login" })}
             >
               Logout
             </Button>
           </div>
         </div>
       </header>
-      <div className="container mx-auto flex min-h-0 flex-1 flex-col overflow-hidden pl-20">{children}</div>
+      <div className="container mx-auto flex min-h-0 flex-1 flex-col overflow-hidden pl-20">
+        {children}
+      </div>
     </div>
   );
 };

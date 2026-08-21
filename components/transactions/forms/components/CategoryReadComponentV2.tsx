@@ -1,9 +1,9 @@
-import React from 'react';
+import React from "react";
 
-import { Category } from '@/components/categories/types';
-import { useCategories } from '@/hooks/categories';
+import { Category } from "@/components/categories/types";
+import { useCategories } from "@/hooks/categories";
 
-import { TransactionResponse } from '../../types';
+import { TransactionResponse } from "../../types";
 
 interface Types extends TransactionResponse {}
 
@@ -12,9 +12,9 @@ const CategoryReadComponentV2: React.FC<Types> = (transaction) => {
   const { data: categories = [] } = useCategories();
 
   const getTrimmedCategoryName = (uuid: string): string => {
-    const categoryName = categories.find((item: Category) => item.uuid === uuid)?.name || '';
+    const categoryName = categories.find((item: Category) => item.uuid === uuid)?.name || "";
     if (categoryName.length > 10) {
-      return categoryName.substring(0, 10) + '...';
+      return categoryName.substring(0, 10) + "...";
     }
     return categoryName;
   };
@@ -33,7 +33,7 @@ const CategoryReadComponentV2: React.FC<Types> = (transaction) => {
           /
         </>
       )}
-      <span className="overflow-x-hidden text-sm">{transaction.category.name || ''}</span>
+      <span className="overflow-x-hidden text-sm">{transaction.category.name || ""}</span>
     </div>
   );
 };

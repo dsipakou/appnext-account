@@ -1,4 +1,4 @@
-import AccountDetails from '@/components/accounts/AccountDetails';
+import AccountDetails from "@/components/accounts/AccountDetails";
 
 Index.auth = {};
 

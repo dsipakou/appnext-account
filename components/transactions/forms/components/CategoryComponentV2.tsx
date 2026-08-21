@@ -1,19 +1,19 @@
-import React from 'react';
+import React from "react";
 
 // Types
-import { Category } from '@/components/categories/types';
-import { RowData } from '@/components/transactions/components/transactionTable';
-import * as Scr from '@/components/ui/scroll-area';
+import { Category } from "@/components/categories/types";
+import { RowData } from "@/components/transactions/components/transactionTable";
+import * as Scr from "@/components/ui/scroll-area";
 // UI
-import * as Slc from '@/components/ui/select';
+import * as Slc from "@/components/ui/select";
 // Utils
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 type Props = {
   user: string;
   value: string;
   categories: Category[];
-  categoryType: 'EXP' | 'INC';
+  categoryType: "EXP" | "INC";
   handleChange: (id: number, key: string, value: string) => void;
   handleKeyDown: (e: React.KeyboardEvent, id: number) => void;
   row: RowData;
@@ -33,7 +33,9 @@ export default function CategoryComponent({
   defaultOpen = false,
 }: Props) {
   const [open, setOpen] = React.useState<boolean>(defaultOpen);
-  const parents = categories.filter((item: Category) => item.parent === null && item.type === categoryType);
+  const parents = categories.filter(
+    (item: Category) => item.parent === null && item.type === categoryType,
+  );
 
   React.useEffect(() => {
     if (!open || !value) return;
@@ -42,19 +44,21 @@ export default function CategoryComponent({
       const scrollUuid = categories.find((item) => item.uuid === value)?.parent ?? value;
 
       document.querySelector<HTMLElement>(`[data-parent-id="${scrollUuid}"]`)?.scrollIntoView({
-        block: 'start',
-        behavior: 'instant',
+        block: "start",
+        behavior: "instant",
       });
     });
   }, [open, value, categories]);
 
   const onChange = (value: string) => {
     const category = categories.find((item: Category) => item.uuid === value);
-    const parent = category ? categories.find((item: Category) => item.uuid === category.parent) : '';
+    const parent = category
+      ? categories.find((item: Category) => item.uuid === category.parent)
+      : "";
 
-    handleChange(row.id, 'category', value);
-    handleChange(row.id, 'categoryName', category?.name || '');
-    handleChange(row.id, 'categoryParentName', parent?.name || '');
+    handleChange(row.id, "category", value);
+    handleChange(row.id, "categoryName", category?.name || "");
+    handleChange(row.id, "categoryParentName", parent?.name || "");
   };
 
   const handleOpen = () => {
@@ -68,8 +72,8 @@ export default function CategoryComponent({
       const scrollUuid = categories.find((item) => item.uuid === value)?.parent ?? value;
 
       document.querySelector<HTMLElement>(`[data-parent-id="${scrollUuid}"]`)?.scrollIntoView({
-        block: 'start',
-        behavior: 'instant',
+        block: "start",
+        behavior: "instant",
       });
     });
   }, [open, value, categories]);
@@ -83,7 +87,11 @@ export default function CategoryComponent({
       {categories
         .filter((item) => item.parent === parent.uuid)
         .map((child, index) => (
-          <Slc.SelectItem key={child.uuid} value={child.uuid} data-parent-id={index === 0 ? parent.uuid : undefined}>
+          <Slc.SelectItem
+            key={child.uuid}
+            value={child.uuid}
+            data-parent-id={index === 0 ? parent.uuid : undefined}
+          >
             {child.name}
           </Slc.SelectItem>
         ))}
@@ -102,8 +110,8 @@ export default function CategoryComponent({
     >
       <Slc.SelectTrigger
         className={cn(
-          'focus:border-primary h-8 w-full border-0 bg-white px-2 text-left text-sm focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-blue-700 focus-visible:outline-none',
-          isInvalid && 'border-2 border-red-400',
+          "focus:border-primary h-8 w-full border-0 bg-white px-2 text-left text-sm focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-blue-700 focus-visible:outline-none",
+          isInvalid && "border-2 border-red-400",
         )}
         onKeyDown={(e) => handleKeyDown(e, row.id)}
       >
@@ -113,9 +121,13 @@ export default function CategoryComponent({
             if (!selectedCategory) return;
 
             if (selectedCategory.parent === null) {
-              return <span className="text-gray-400">{selectedCategory.name} (select category)</span>;
+              return (
+                <span className="text-gray-400">{selectedCategory.name} (select category)</span>
+              );
             } else {
-              const parentCategory = categories.find((category) => category.uuid === selectedCategory.parent);
+              const parentCategory = categories.find(
+                (category) => category.uuid === selectedCategory.parent,
+              );
               return (
                 <span>
                   {parentCategory?.icon} {selectedCategory.name}

@@ -1,20 +1,20 @@
-import { Clock2 } from 'lucide-react';
-import React from 'react';
+import { Clock2 } from "lucide-react";
+import React from "react";
 
 // Types
-import { WeekBudgetItem } from '@/components/budget/types';
-import { Currency } from '@/components/currencies/types';
-import { AvailableRate } from '@/components/rates/types';
-import { RowData } from '@/components/transactions/components/transactionTable';
+import { WeekBudgetItem } from "@/components/budget/types";
+import { Currency } from "@/components/currencies/types";
+import { AvailableRate } from "@/components/rates/types";
+import { RowData } from "@/components/transactions/components/transactionTable";
 // UI
-import * as Slc from '@/components/ui/select';
+import * as Slc from "@/components/ui/select";
 // Hooks
-import { useBudgetWeek } from '@/hooks/budget';
-import { useCurrencies } from '@/hooks/currencies';
-import { useAvailableRates } from '@/hooks/rates';
+import { useBudgetWeek } from "@/hooks/budget";
+import { useCurrencies } from "@/hooks/currencies";
+import { useAvailableRates } from "@/hooks/rates";
 // Utils
-import { cn } from '@/lib/utils';
-import { getEndOfWeek, getFormattedDate, getStartOfWeek } from '@/utils/dateUtils';
+import { cn } from "@/lib/utils";
+import { getEndOfWeek, getFormattedDate, getStartOfWeek } from "@/utils/dateUtils";
 
 type Props = {
   user: string;
@@ -25,15 +25,24 @@ type Props = {
   handleKeyDown: (e: React.KeyboardEvent, id: number) => void;
 };
 
-export default function CurrencyComponent({ user, value, row, isSaved, handleChange, handleKeyDown }: Props) {
+export default function CurrencyComponent({
+  user,
+  value,
+  row,
+  isSaved,
+  handleChange,
+  handleKeyDown,
+}: Props) {
   const [selectedDate, setSelectedDate] = React.useState<Date>(row.date || new Date());
-  const [budgetUuid, setBudgetUuid] = React.useState<string>('');
+  const [budgetUuid, setBudgetUuid] = React.useState<string>("");
   const [weekStart, setWeekStart] = React.useState<string>(getStartOfWeek(row.date || new Date()));
   const [weekEnd, setWeekEnd] = React.useState<string>(getEndOfWeek(row.date || new Date()));
 
   const { data: budgets = [], isLoading: isBudgetsLoading } = useBudgetWeek(weekStart, weekEnd);
   const { data: currencies = [], isLoading: isCurrenciesLoading } = useCurrencies();
-  const { data: availableRates = [], isLoading: isRatesLoading } = useAvailableRates(getFormattedDate(selectedDate));
+  const { data: availableRates = [], isLoading: isRatesLoading } = useAvailableRates(
+    getFormattedDate(selectedDate),
+  );
 
   const baseCurrency = currencies.find((item: Currency) => item.isBase);
 
@@ -45,7 +54,10 @@ export default function CurrencyComponent({ user, value, row, isSaved, handleCha
     ? availableRates.find((item: AvailableRate) => item.currencyCode === budgetCurrency.code)
     : false;
 
-  const ratesByCode = React.useMemo(() => new Map(availableRates.map((r) => [r.currencyCode, r])), [availableRates]);
+  const ratesByCode = React.useMemo(
+    () => new Map(availableRates.map((r) => [r.currencyCode, r])),
+    [availableRates],
+  );
   const formattedDate = React.useMemo(() => getFormattedDate(row.date || new Date()), [row.date]);
   const { activeCurrencies, outdatedCurrencies, unavailableCurrencies } = React.useMemo(() => {
     const active = [];
@@ -64,7 +76,11 @@ export default function CurrencyComponent({ user, value, row, isSaved, handleCha
       }
     }
 
-    return { activeCurrencies: active, outdatedCurrencies: outdated, unavailableCurrencies: unavailable };
+    return {
+      activeCurrencies: active,
+      outdatedCurrencies: outdated,
+      unavailableCurrencies: unavailable,
+    };
   }, [currencies, ratesByCode, formattedDate]);
 
   const defaultCurrency = currencies.find((item: Currency) => item.isDefault);
@@ -105,13 +121,13 @@ export default function CurrencyComponent({ user, value, row, isSaved, handleCha
   }, [row.budget]);
 
   React.useEffect(() => {
-    handleChange(row.id, 'currency', preselectedValue() as string);
+    handleChange(row.id, "currency", preselectedValue() as string);
   }, [isBudgetCurrencyAvailable, isDefaultCurrencyAvailable]);
 
   return (
     <Slc.Select
       value={value as string}
-      onValueChange={(value) => handleChange(row.id, 'currency', value)}
+      onValueChange={(value) => handleChange(row.id, "currency", value)}
       onOpenChange={(open) => {
         if (!open) {
           (document.activeElement as HTMLElement)?.blur();
@@ -122,8 +138,8 @@ export default function CurrencyComponent({ user, value, row, isSaved, handleCha
     >
       <Slc.SelectTrigger
         className={cn(
-          'bg-background h-8 w-24 min-w-20 border-0 px-2 text-left text-sm',
-          'focus:border-primary focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-blue-700 focus-visible:outline-none',
+          "bg-background h-8 w-24 min-w-20 border-0 px-2 text-left text-sm",
+          "focus:border-primary focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-blue-700 focus-visible:outline-none",
         )}
         onKeyDown={(e) => handleKeyDown(e, row.id)}
       >

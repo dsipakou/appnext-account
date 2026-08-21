@@ -1,16 +1,15 @@
-import React from 'react';
+import React from "react";
 
-import { AccountResponse } from '@/components/accounts/types';
-import { CompactWeekItem } from '@/components/budget/types';
-import { CategoryResponse } from '@/components/categories/types';
-import { Currency } from '@/components/currencies/types';
-import { Button } from '@/components/ui/button';
+import type { AccountResponse } from "@/components/accounts/types";
+import type { CompactWeekItem } from "@/components/budget/types";
+import type { CategoryResponse } from "@/components/categories/types";
+import type { Currency } from "@/components/currencies/types";
 
-import { RowData } from '.';
-// Unified Cell Components (handle both display and edit modes)
-import { AccountCell, BudgetCell, CategoryCell, DateCell, OutcomeCell } from './cells';
+import type { RowData } from ".";
 
-interface RenderCellProps {
+import { AccountCell, BudgetCell, CategoryCell, DateCell, OutcomeCell } from "./cells";
+
+type RenderCellProps = {
   row: RowData;
   key: keyof RowData;
   isEditing: boolean;
@@ -23,7 +22,7 @@ interface RenderCellProps {
   currencies: Currency[];
   user: string | null;
   budget?: CompactWeekItem;
-  categoryType: 'INC' | 'EXP';
+  categoryType: "INC" | "EXP";
   defaultCurrencySign: string;
   baseCurrency: Currency | undefined;
   defaultCurrency: Currency | undefined;
@@ -39,7 +38,7 @@ interface RenderCellProps {
   handleAmountChange: (id: number, field: keyof RowData, value: any) => void;
   handleKeyDown: (e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>, id: number) => void;
   handleBudgetCompleted: (id: number) => void;
-}
+};
 
 export const renderCellFromRegistry = ({
   row,
@@ -70,7 +69,7 @@ export const renderCellFromRegistry = ({
   handleBudgetCompleted,
 }: RenderCellProps): React.ReactNode => {
   switch (key) {
-    case 'date':
+    case "date":
       return (
         <DateCell
           isEditing={isEditing}
@@ -82,7 +81,7 @@ export const renderCellFromRegistry = ({
           user={user}
         />
       );
-    case 'account':
+    case "account":
       return (
         <AccountCell
           isEditing={isEditing}
@@ -96,7 +95,7 @@ export const renderCellFromRegistry = ({
           user={budget?.user || user}
         />
       );
-    case 'budget':
+    case "budget":
       return (
         <BudgetCell
           isEditing={isEditing}
@@ -113,7 +112,7 @@ export const renderCellFromRegistry = ({
           user={user}
         />
       );
-    case 'category':
+    case "category":
       return (
         <CategoryCell
           isEditing={isEditing}
@@ -128,10 +127,10 @@ export const renderCellFromRegistry = ({
           row={editedRow}
           isInvalid={isInvalid}
           user={user}
-          defaultOpen={!!budget}
+          defaultOpen={Boolean(budget)}
         />
       );
-    case 'outcome':
+    case "outcome":
       return (
         <OutcomeCell
           isEditing={isEditing}
@@ -154,8 +153,8 @@ export const renderCellFromRegistry = ({
           handleKeyDown={handleKeyDown}
         />
       );
-    case 'currency':
-    case 'outcomeInDefaultCurrency':
+    case "currency":
+    case "outcomeInDefaultCurrency":
       return null;
     default:
       return null;

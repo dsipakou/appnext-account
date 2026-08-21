@@ -1,14 +1,14 @@
-import { format, isSameDay } from 'date-fns';
-import { MoreVertical, Pencil, Trash2 } from 'lucide-react';
-import React from 'react';
+import { format, isSameDay } from "date-fns";
+import { MoreVertical, Pencil, Trash2 } from "lucide-react";
+import React from "react";
 
-import { useStore } from '@/app/store';
-import { ConfirmDeleteForm, EditForm } from '@/components/budget/forms';
-import { MonthBudgetItem } from '@/components/budget/types';
-import * as Mnu from '@/components/ui/menu';
-import * as Prg from '@/components/ui/progress';
-import { cn } from '@/lib/utils';
-import { formatMoney } from '@/utils/numberUtils';
+import { useStore } from "@/app/store";
+import { ConfirmDeleteForm, EditForm } from "@/components/budget/forms";
+import { MonthBudgetItem } from "@/components/budget/types";
+import * as Mnu from "@/components/ui/menu";
+import * as Prg from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
+import { formatMoney } from "@/utils/numberUtils";
 
 interface Types {
   item: MonthBudgetItem | undefined;
@@ -19,7 +19,8 @@ interface Types {
 
 const CalendarBudgetItem: React.FC<Types> = ({ item, date, currency, clickShowTransactions }) => {
   const [isEditDialogOpened, setIsEditDialogOpened] = React.useState<boolean>(false);
-  const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] = React.useState<boolean>(false);
+  const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] =
+    React.useState<boolean>(false);
 
   const currencySign = useStore((state) => state.currency.sign);
 
@@ -27,8 +28,12 @@ const CalendarBudgetItem: React.FC<Types> = ({ item, date, currency, clickShowTr
     return (
       <div className="flex w-full flex-col gap-2">
         <div className="flex w-full">
-          <span className={cn(isSameDay(date, new Date()) && 'rounded-full bg-blue-500 px-1 font-bold text-white')}>
-            {format(date, 'd')}
+          <span
+            className={cn(
+              isSameDay(date, new Date()) && "rounded-full bg-blue-500 px-1 font-bold text-white",
+            )}
+          >
+            {format(date, "d")}
           </span>
         </div>
       </div>
@@ -48,8 +53,12 @@ const CalendarBudgetItem: React.FC<Types> = ({ item, date, currency, clickShowTr
   return (
     <div className="flex w-full flex-col gap-2">
       <div className="flex w-full justify-between">
-        <span className={isSameDay(date, new Date()) && 'rounded-full bg-blue-500 px-1 font-bold text-white'}>
-          {format(date, 'd')}
+        <span
+          className={
+            isSameDay(date, new Date()) && "rounded-full bg-blue-500 px-1 font-bold text-white"
+          }
+        >
+          {format(date, "d")}
         </span>
         <Mnu.Menu>
           <Mnu.MenuTrigger>
@@ -80,21 +89,31 @@ const CalendarBudgetItem: React.FC<Types> = ({ item, date, currency, clickShowTr
         </span>
         <div className="relative w-full">
           <Prg.Progress
-            className={cn('h-5 rounded-sm', percentage > 100 && 'bg-red-200', percentage <= 100 && 'bg-gray-200')}
+            className={cn(
+              "h-5 rounded-sm",
+              percentage > 100 && "bg-red-200",
+              percentage <= 100 && "bg-gray-200",
+            )}
             value={percentage > 100 ? percentage % 100 : percentage}
           >
             <Prg.ProgressIndicator
-              className={cn('rounded-sm', percentage > 100 && 'bg-red-500', percentage <= 100 && 'bg-green-500')}
+              className={cn(
+                "rounded-sm",
+                percentage > 100 && "bg-red-500",
+                percentage <= 100 && "bg-green-500",
+              )}
             />
           </Prg.Progress>
           <div className="absolute top-0 h-full w-full">
             <span className="flex h-full items-center justify-center text-xs font-semibold text-white">
-              {planned === 0 ? 'Not planned' : percentage}
+              {planned === 0 ? "Not planned" : percentage}
             </span>
           </div>
         </div>
       </div>
-      {isEditDialogOpened && <EditForm uuid={item.uuid} open={isEditDialogOpened} setOpen={setIsEditDialogOpened} />}
+      {isEditDialogOpened && (
+        <EditForm uuid={item.uuid} open={isEditDialogOpened} setOpen={setIsEditDialogOpened} />
+      )}
       {isConfirmDeleteDialogOpened && (
         <ConfirmDeleteForm
           uuid={item.uuid}

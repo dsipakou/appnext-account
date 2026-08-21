@@ -1,4 +1,4 @@
-export type RecurrentTypes = 'monthly' | 'weekly';
+export type RecurrentTypes = "monthly" | "weekly";
 
 export interface CurrencyMap {
   [key: string]: number;

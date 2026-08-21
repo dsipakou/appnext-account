@@ -1,4 +1,4 @@
-import { RowData } from '.';
+import { RowData } from ".";
 
 export interface BaseCellProps {
   row: RowData;

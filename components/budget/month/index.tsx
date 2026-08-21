@@ -1,7 +1,7 @@
-import { FC } from 'react';
+import { FC } from "react";
 
-import Container from '@/components/budget/components/month/Container';
-import withBudgetTemplate from '@/components/budget/hoc';
+import Container from "@/components/budget/components/month/Container";
+import withBudgetTemplate from "@/components/budget/hoc";
 
 const MonthTemplate = withBudgetTemplate(Container);
 

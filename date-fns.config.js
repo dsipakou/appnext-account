@@ -1,13 +1,13 @@
-import { setDefaultOptions } from 'date-fns';
-import { enUS } from 'date-fns/locale';
+import { setDefaultOptions } from "date-fns";
+import { enUS } from "date-fns/locale";
 
 const formatRelativeLocale = {
   lastWeek: "'Last' eeee",
   yesterday: "'Yesterday'",
   today: "'Today'",
   tomorrow: "'Tomorrow'",
-  nextWeek: 'eeee',
-  other: 'P',
+  nextWeek: "eeee",
+  other: "P",
 };
 
 const locale = {

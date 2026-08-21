@@ -1,6 +1,6 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
-import { ReportPages } from '@/components/reports/components/ReportTypeSwitcher';
+import { ReportPages } from "@/components/reports/components/ReportTypeSwitcher";
 
 interface Currency {
   sign: string;
@@ -20,7 +20,7 @@ interface StoreState {
 
 export const useStore = create<StoreState>((set) => ({
   reportType: ReportPages.Chart,
-  currency: { sign: '', code: '' },
+  currency: { sign: "", code: "" },
   weekDate: new Date(),
   monthDate: new Date(),
   setReportType: (page: ReportPages) => set(() => ({ reportType: page })),

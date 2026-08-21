@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 
-import Index from '@/components/billing';
+import Index from "@/components/billing";
 
 Billing.auth = {};
 

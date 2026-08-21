@@ -1,7 +1,7 @@
 export interface ChartCategory {
   name: string;
   value: number;
-  categoryType: 'EXP' | 'INC';
+  categoryType: "EXP" | "INC";
 }
 
 export interface ChartData {

@@ -1,4 +1,4 @@
-import Index from '@/components/reports';
+import Index from "@/components/reports";
 
 Reports.auth = {};
 

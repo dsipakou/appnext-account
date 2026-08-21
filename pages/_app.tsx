@@ -1,21 +1,24 @@
-import '@/plugins/axios';
-import '@/date-fns.config.js';
-import '../styles/globals.css';
+import "@/plugins/axios";
+import "@/date-fns.config.js";
+import "../styles/globals.css";
+import type { Session } from "next-auth";
+import type { AppProps } from "next/app";
 
-import axios from 'axios';
-import type { AppProps } from 'next/app';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-import type { Session } from 'next-auth';
-import { SessionProvider, useSession } from 'next-auth/react';
-import React, { lazy } from 'react';
+import axios from "axios";
+import { SessionProvider, useSession } from "next-auth/react";
+import Head from "next/head";
+import { useRouter } from "next/router";
+import React, { lazy } from "react";
 
-import { AnchoredToastProvider, ToastProvider } from '@/components/ui/toast';
+import { AnchoredToastProvider, ToastProvider } from "@/components/ui/toast";
 
-const Layout = lazy(async () => await import('../components/common/layout/Layout'));
+const Layout = lazy(async () => await import("../components/common/layout/Layout"));
 
-const App = ({ Component, pageProps: { session, ...pageProps } }: AppProps<{ session: Session }>) => {
-  if (Component.layout === 'public') {
+const App = ({
+  Component,
+  pageProps: { session, ...pageProps },
+}: AppProps<{ session: Session }>) => {
+  if (Component.layout === "public") {
     return (
       <>
         <Head>
@@ -64,11 +67,11 @@ function Auth({ children }: AuthProps) {
   const { data: session, status } = useSession({
     required: true,
     onUnauthenticated() {
-      router.push('/login');
+      router.push("/login");
     },
   });
 
-  if (status === 'loading') {
+  if (status === "loading") {
     return <div>Loading...</div>;
   }
 

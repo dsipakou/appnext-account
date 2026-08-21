@@ -1,10 +1,10 @@
-import React from 'react';
-import { useSWRConfig } from 'swr';
+import React from "react";
+import { useSWRConfig } from "swr";
 
-import { Button } from '@/components/ui/button';
-import * as Dlg from '@/components/ui/dialog';
-import { toastManager } from '@/components/ui/toast';
-import { useRevokeInvite } from '@/hooks/users';
+import { Button } from "@/components/ui/button";
+import * as Dlg from "@/components/ui/dialog";
+import { toastManager } from "@/components/ui/toast";
+import { useRevokeInvite } from "@/hooks/users";
 
 interface Types {
   uuid: string;
@@ -18,17 +18,17 @@ const ConfirmRevokeForm: React.FC<Types> = ({ uuid }) => {
   const handleRevoke = async (): void => {
     try {
       await revokeInvite();
-      mutate('users/invite/');
+      mutate("users/invite/");
       toastManager.add({
-        id: 'user-invite-revoke',
-        title: 'Invite revoked!',
-        type: 'success',
+        id: "user-invite-revoke",
+        title: "Invite revoked!",
+        type: "success",
       });
     } catch (error) {
       toastManager.add({
-        id: 'user-invite-revoke-error',
-        title: 'Something went wrong',
-        type: 'error',
+        id: "user-invite-revoke-error",
+        title: "Something went wrong",
+        type: "error",
       });
     }
   };

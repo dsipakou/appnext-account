@@ -8,17 +8,17 @@ import {
   isWeekend,
   startOfMonth,
   startOfWeek,
-} from 'date-fns';
-import { ArrowLeft } from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import React from 'react';
+} from "date-fns";
+import { ArrowLeft } from "lucide-react";
+import { useSession } from "next-auth/react";
+import React from "react";
 
-import { MonthBudgetItem } from '@/components/budget/types';
-import { useCurrencies } from '@/hooks/currencies';
-import { cn } from '@/lib/utils';
-import { getFormattedDate, parseDate } from '@/utils/dateUtils';
+import { MonthBudgetItem } from "@/components/budget/types";
+import { useCurrencies } from "@/hooks/currencies";
+import { cn } from "@/lib/utils";
+import { getFormattedDate, parseDate } from "@/utils/dateUtils";
 
-import CalendarBudgetItem from './CalendarBudgetItem';
+import CalendarBudgetItem from "./CalendarBudgetItem";
 
 interface Types {
   title: string;
@@ -28,7 +28,13 @@ interface Types {
   clickShowTransactions: (uuid: string) => void;
 }
 
-const DetailsCalendar: React.FC<Types> = ({ title, items, date, handleClose, clickShowTransactions }) => {
+const DetailsCalendar: React.FC<Types> = ({
+  title,
+  items,
+  date,
+  handleClose,
+  clickShowTransactions,
+}) => {
   const { data: session } = useSession();
   const authUser = session!.user;
 
@@ -66,14 +72,14 @@ const DetailsCalendar: React.FC<Types> = ({ title, items, date, handleClose, cli
         <div
           key={day}
           className={cn(
-            'flex h-24 rounded-md border p-1',
-            isSameMonth(currentDate, activeDate) && 'bg-gray-100',
+            "flex h-24 rounded-md border p-1",
+            isSameMonth(currentDate, activeDate) && "bg-gray-100",
             isWeekend(currentDate) &&
               !isSameWeek(currentDate, new Date()) &&
               isSameMonth(currentDate, activeDate) &&
-              'bg-red-50',
-            isSameWeek(currentDate, new Date()) && 'bg-blue-50',
-            isSameDay(currentDate, new Date()) && 'border-2 border-blue-500',
+              "bg-red-50",
+            isSameWeek(currentDate, new Date()) && "bg-blue-50",
+            isSameDay(currentDate, new Date()) && "border-2 border-blue-500",
           )}
         >
           <CalendarBudgetItem
@@ -95,9 +101,9 @@ const DetailsCalendar: React.FC<Types> = ({ title, items, date, handleClose, cli
       <div className="relative flex w-full flex-col py-2">
         <div className="relative flex w-full items-center justify-center py-2">
           <ArrowLeft className="absolute left-2 cursor-pointer" onClick={handleClose} />
-          <span className="mr-2 text-sm font-medium text-gray-500">{title.split(' > ')[0]}</span>
+          <span className="mr-2 text-sm font-medium text-gray-500">{title.split(" > ")[0]}</span>
           <span className="mx-1 text-gray-400">›</span>
-          <span className="ml-2 text-xl font-bold text-gray-800">{title.split(' > ')[1]}</span>
+          <span className="ml-2 text-xl font-bold text-gray-800">{title.split(" > ")[1]}</span>
         </div>
       </div>
       <div className="grid grid-cols-7 gap-1">{generateWeeksForCurrentMonth()}</div>

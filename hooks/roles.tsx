@@ -1,16 +1,16 @@
-import useSWRImmutable from 'swr/immutable';
-import useSWRMutation from 'swr/mutation';
+import useSWRImmutable from "swr/immutable";
+import useSWRMutation from "swr/mutation";
 
-import { fetchReq, patchReq } from '@/plugins/axios';
+import { fetchReq, patchReq } from "@/plugins/axios";
 
-import { Response } from './types';
+import { Response } from "./types";
 
 export interface Roles {
   name: string;
 }
 
 export const useRoles = (): Response<Roles[]> => {
-  const url = 'roles/';
+  const url = "roles/";
   const { data, error, isLoading } = useSWRImmutable(url, fetchReq);
 
   return {

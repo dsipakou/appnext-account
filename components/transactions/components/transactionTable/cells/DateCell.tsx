@@ -1,10 +1,10 @@
-import { format } from 'date-fns';
-import React from 'react';
+import { format } from "date-fns";
+import React from "react";
 
-import DateComponent from '@/components/transactions/forms/components/DateComponentV2';
-import { Badge } from '@/components/ui/badge';
+import DateComponent from "@/components/transactions/forms/components/DateComponentV2";
+import { Badge } from "@/components/ui/badge";
 
-import { RowData } from '..';
+import { RowData } from "..";
 
 interface DateCellProps {
   isEditing: boolean;
@@ -28,13 +28,21 @@ export const DateCell: React.FC<DateCellProps> = ({
 }) => {
   if (isEditing && row && handleChange) {
     console.log(value);
-    return <DateComponent user={user} value={value} handleChange={handleChange} row={row} isInvalid={isInvalid} />;
+    return (
+      <DateComponent
+        user={user}
+        value={value}
+        handleChange={handleChange}
+        row={row}
+        isInvalid={isInvalid}
+      />
+    );
   }
 
   return (
     <div className="flex items-center justify-center px-1">
       <Badge variant="outline" className={`text-xs font-medium ${cellStyle}`}>
-        {format(value, 'dd MMM yyyy')}
+        {format(value, "dd MMM yyyy")}
       </Badge>
     </div>
   );

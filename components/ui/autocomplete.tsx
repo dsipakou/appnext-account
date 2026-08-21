@@ -1,12 +1,12 @@
-import { Command as CommandPrimitive } from 'cmdk';
-import { Check } from 'lucide-react';
-import { type KeyboardEvent, useCallback, useRef, useState } from 'react';
+import { Command as CommandPrimitive } from "cmdk";
+import { Check } from "lucide-react";
+import { type KeyboardEvent, useCallback, useRef, useState } from "react";
 
-import { CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
+import { CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
-export type Option = Record<'value' | 'label', string> & Record<string, string>;
+export type Option = Record<"value" | "label", string> & Record<string, string>;
 
 type AutoCompleteProps = {
   options: Option[];
@@ -31,7 +31,7 @@ export const AutoComplete = ({
 
   const [isOpen, setOpen] = useState(false);
   const [selected, setSelected] = useState<Option>(value as Option);
-  const [inputValue, setInputValue] = useState<string>(value?.label || '');
+  const [inputValue, setInputValue] = useState<string>(value?.label || "");
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLDivElement>) => {
@@ -46,7 +46,7 @@ export const AutoComplete = ({
       }
 
       // This is not a default behaviour of the <input /> field
-      if (event.key === 'Enter' && input.value !== '') {
+      if (event.key === "Enter" && input.value !== "") {
         const optionToSelect = options.find((option) => option.label === input.value);
         if (optionToSelect) {
           setSelected(optionToSelect);
@@ -54,7 +54,7 @@ export const AutoComplete = ({
         }
       }
 
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         input.blur();
       }
     },
@@ -97,8 +97,8 @@ export const AutoComplete = ({
       <div className="">
         <div
           className={cn(
-            'animate-in fade-in-0 zoom-in-95 absolute top-10 z-10 max-w-[18rem] rounded-xl bg-white outline-none',
-            isOpen ? 'block' : 'hidden',
+            "animate-in fade-in-0 zoom-in-95 absolute top-10 z-10 max-w-[18rem] rounded-xl bg-white outline-none",
+            isOpen ? "block" : "hidden",
           )}
         >
           <CommandList className="rounded-lg ring-1 ring-slate-200">
@@ -122,7 +122,7 @@ export const AutoComplete = ({
                         event.stopPropagation();
                       }}
                       onSelect={() => handleSelectOption(option)}
-                      className={cn('flex w-full items-center gap-2', !isSelected ? 'pl-8' : null)}
+                      className={cn("flex w-full items-center gap-2", !isSelected ? "pl-8" : null)}
                     >
                       {isSelected ? <Check className="w-4" /> : null}
                       {option.label}

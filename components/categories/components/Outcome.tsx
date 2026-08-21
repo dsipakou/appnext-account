@@ -1,27 +1,27 @@
 // System
-import EmojiPicker from 'emoji-picker-react';
-import { Pencil, X } from 'lucide-react';
-import React from 'react';
-import { useSWRConfig } from 'swr';
-import * as z from 'zod';
+import EmojiPicker from "emoji-picker-react";
+import { Pencil, X } from "lucide-react";
+import React from "react";
+import { useSWRConfig } from "swr";
+import * as z from "zod";
 
 // Components
-import { TransactionsForm } from '@/components/categories/forms';
-import { ConfirmDeleteForm } from '@/components/categories/forms';
-import * as Acd from '@/components/ui/accordion';
+import { TransactionsForm } from "@/components/categories/forms";
+import { ConfirmDeleteForm } from "@/components/categories/forms";
+import * as Acd from "@/components/ui/accordion";
 // UI
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import * as Ppv from '@/components/ui/popover';
-import { toastManager } from '@/components/ui/toast';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import * as Ppv from "@/components/ui/popover";
+import { toastManager } from "@/components/ui/toast";
 // Hooks
-import { useUpdateCategory } from '@/hooks/categories';
+import { useUpdateCategory } from "@/hooks/categories";
 // Utils
-import { extractErrorMessage } from '@/utils/stringUtils';
+import { extractErrorMessage } from "@/utils/stringUtils";
 
 // Types
-import { Category } from '../types';
-import { SortableCategoryList } from './SortableCategoryList';
+import { Category } from "../types";
+import { SortableCategoryList } from "./SortableCategoryList";
 
 interface Types {
   parentCategories: Category[];
@@ -35,11 +35,11 @@ const popupSchema = z.object({
 });
 
 const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
-  const [errors, setErrors] = React.useState<string>('');
-  const [uuid, setUuid] = React.useState<string>('');
-  const [activeCategoryUuid, setActiveCategoryUuid] = React.useState<string>('');
-  const [categoryName, setCategoryName] = React.useState<string>('');
-  const [parent, setParent] = React.useState<string | null>('');
+  const [errors, setErrors] = React.useState<string>("");
+  const [uuid, setUuid] = React.useState<string>("");
+  const [activeCategoryUuid, setActiveCategoryUuid] = React.useState<string>("");
+  const [categoryName, setCategoryName] = React.useState<string>("");
+  const [parent, setParent] = React.useState<string | null>("");
   const [isOpenTransactionsForm, setIsOpenTransactionsForm] = React.useState<boolean>(false);
   const [selectedEmoji, setSelectedEmoji] = React.useState<string | null>(null);
 
@@ -62,7 +62,7 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
 
   const handleCloseModal = () => {
     setIsOpenTransactionsForm(false);
-    setActiveCategoryUuid('');
+    setActiveCategoryUuid("");
   };
 
   const handleSave = async (category: Category, originalName: string) => {
@@ -74,10 +74,10 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
       }
 
       toastManager.add({
-        id: 'category-update-validation-error',
-        title: 'Please, check your input',
+        id: "category-update-validation-error",
+        title: "Please, check your input",
         description: errors.toString(),
-        type: 'error',
+        type: "error",
       });
     }
 
@@ -90,19 +90,19 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
         ...validatedPayload.data,
         icon: selectedEmoji,
       });
-      mutate('categories/');
+      mutate("categories/");
       toastManager.add({
-        id: 'category-update',
-        title: 'Category updated',
-        type: 'success',
+        id: "category-update",
+        title: "Category updated",
+        type: "success",
       });
     } catch (error) {
       const message = extractErrorMessage(error);
       toastManager.add({
-        id: 'category-update-error',
-        title: 'Something went wrong',
+        id: "category-update-error",
+        title: "Something went wrong",
         description: message,
-        type: 'error',
+        type: "error",
       });
     }
   };
@@ -110,7 +110,9 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
   const emojiPopover = () => {
     return (
       <Ppv.Popover>
-        <Ppv.PopoverTrigger render={<Button variant="outline" className="flex-1" />}>Choose icon</Ppv.PopoverTrigger>
+        <Ppv.PopoverTrigger render={<Button variant="outline" className="flex-1" />}>
+          Choose icon
+        </Ppv.PopoverTrigger>
         <Ppv.PopoverPopup className="flex w-100 justify-center" sideOffset={5}>
           <div>
             <EmojiPicker
@@ -143,7 +145,10 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
                     <Pencil className="ml-3 hidden h-7 w-7 cursor-pointer p-1 group-hover:flex hover:text-blue-400" />
                   </span>
                 </Ppv.PopoverTrigger>
-                <Ppv.PopoverPopup className="flex w-80 flex-col gap-3 rounded-md border-none bg-white" sideOffset={10}>
+                <Ppv.PopoverPopup
+                  className="flex w-80 flex-col gap-3 rounded-md border-none bg-white"
+                  sideOffset={10}
+                >
                   <Ppv.PopoverClose className="absolute top-5 right-5">
                     <X className="h-4 w-4" />
                   </Ppv.PopoverClose>
@@ -152,7 +157,9 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
                     <div className="flex w-1/2 justify-center">
                       {selectedEmoji && (
                         <>
-                          <span className="flex items-center justify-center text-2xl">{selectedEmoji}</span>
+                          <span className="flex items-center justify-center text-2xl">
+                            {selectedEmoji}
+                          </span>
                           <Button variant="link" onClick={() => setSelectedEmoji(null)}>
                             <X className="mr-2 h-4 w-4" />
                           </Button>
@@ -173,8 +180,13 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
                     <div className="flex gap-2">
                       <Button
                         size="sm"
-                        disabled={item.icon === selectedEmoji && (!categoryName || categoryName === item.name)}
-                        onClick={() => handleSave({ ...item, name: categoryName || item.name }, item.name)}
+                        disabled={
+                          item.icon === selectedEmoji &&
+                          (!categoryName || categoryName === item.name)
+                        }
+                        onClick={() =>
+                          handleSave({ ...item, name: categoryName || item.name }, item.name)
+                        }
                       >
                         Save
                       </Button>
@@ -204,7 +216,11 @@ const Outcome: React.FC<Types> = ({ parentCategories, categoriesByParent }) => {
         ))}
       </Acd.Accordion>
       {activeCategoryUuid && (
-        <TransactionsForm open={isOpenTransactionsForm} handleClose={handleCloseModal} uuid={activeCategoryUuid} />
+        <TransactionsForm
+          open={isOpenTransactionsForm}
+          handleClose={handleCloseModal}
+          uuid={activeCategoryUuid}
+        />
       )}
     </div>
   );

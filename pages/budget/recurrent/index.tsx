@@ -1,4 +1,4 @@
-import Index from '@/components/budget/recurrent';
+import Index from "@/components/budget/recurrent";
 
 Recurrent.auth = {};
 

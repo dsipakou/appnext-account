@@ -1,11 +1,11 @@
-import useSWR from 'swr';
-import useSWRImmutable from 'swr/immutable';
-import useSWRMutation from 'swr/mutation';
+import useSWR from "swr";
+import useSWRImmutable from "swr/immutable";
+import useSWRMutation from "swr/mutation";
 
-import { AvailableRate } from '@/components/rates/types';
-import { fetchReq, postReq } from '@/plugins/axios';
+import { AvailableRate } from "@/components/rates/types";
+import { fetchReq, postReq } from "@/plugins/axios";
 
-import { Response } from './types';
+import { Response } from "./types";
 
 export interface RateResponse {
   uuid: string;
@@ -41,7 +41,7 @@ export const useRatesChart = (period: number = 30): Response<ChartResponse[]> =>
 };
 
 export const useCreateBatchedRates = () => {
-  const { trigger, isMutating } = useSWRMutation('rates/batched/', postReq, { revalidate: true });
+  const { trigger, isMutating } = useSWRMutation("rates/batched/", postReq, { revalidate: true });
 
   return {
     trigger,

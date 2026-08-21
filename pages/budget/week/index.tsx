@@ -1,4 +1,4 @@
-import Index from '@/components/budget/week';
+import Index from "@/components/budget/week";
 
 Week.auth = {};
 

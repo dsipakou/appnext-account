@@ -1,18 +1,18 @@
-import * as React from 'react';
-import { useSWRConfig } from 'swr';
-import * as z from 'zod';
+import * as React from "react";
+import { useSWRConfig } from "swr";
+import * as z from "zod";
 
-import { AccountResponse } from '@/components/accounts/types';
-import { CategoryType } from '@/components/categories/types';
-import * as Dlg from '@/components/ui/dialog';
-import { type FormErrors } from '@/components/ui/form';
-import { toastManager } from '@/components/ui/toast';
-import { useAccounts, useUpdateAccount } from '@/hooks/accounts';
-import { useCategories } from '@/hooks/categories';
-import { useUsers } from '@/hooks/users';
-import { extractErrorMessage } from '@/utils/stringUtils';
+import { AccountResponse } from "@/components/accounts/types";
+import { CategoryType } from "@/components/categories/types";
+import * as Dlg from "@/components/ui/dialog";
+import { type FormErrors } from "@/components/ui/form";
+import { toastManager } from "@/components/ui/toast";
+import { useAccounts, useUpdateAccount } from "@/hooks/accounts";
+import { useCategories } from "@/hooks/categories";
+import { useUsers } from "@/hooks/users";
+import { extractErrorMessage } from "@/utils/stringUtils";
 
-import GenericForm, { GenericFormValues } from './GenericForm';
+import GenericForm, { GenericFormValues } from "./GenericForm";
 
 interface Types {
   uuid: string;
@@ -21,12 +21,12 @@ interface Types {
 }
 
 const formSchema = z.object({
-  kind: z.enum(['savings', 'spending']),
+  kind: z.enum(["savings", "spending"]),
   title: z.string().min(2, {
-    error: 'Title must be at least 2 characters',
+    error: "Title must be at least 2 characters",
   }),
   user: z.uuid({
-    error: 'Please, select user',
+    error: "Please, select user",
   }),
   category: z.string(),
   description: z.string().optional(),
@@ -37,11 +37,11 @@ const EditForm: React.FC<Types> = ({ uuid, open, setOpen }) => {
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [values, setValues] = React.useState<AccountFormValues>({
-    kind: 'spending',
-    title: '',
-    user: '',
-    category: '',
-    description: '',
+    kind: "spending",
+    title: "",
+    user: "",
+    category: "",
+    description: "",
   });
 
   const [errors, setErrors] = React.useState<FormErrors>({});
@@ -73,8 +73,8 @@ const EditForm: React.FC<Types> = ({ uuid, open, setOpen }) => {
       kind: account.kind,
       title: account.title,
       user: account.user,
-      category: account.category ?? '',
-      description: account.description ?? '',
+      category: account.category ?? "",
+      description: account.description ?? "",
     });
     setIsLoading(false);
   }, [accounts, uuid, open]);
@@ -94,21 +94,21 @@ const EditForm: React.FC<Types> = ({ uuid, open, setOpen }) => {
     try {
       await updateAccount(result.data);
 
-      mutate('accounts/');
+      mutate("accounts/");
 
       toastManager.add({
-        id: 'account-update',
-        title: 'Saved!',
-        type: 'success',
+        id: "account-update",
+        title: "Saved!",
+        type: "success",
       });
 
       setOpen(false);
     } catch (error) {
       toastManager.add({
-        id: 'account-update-error',
-        title: 'Something went wrong',
+        id: "account-update-error",
+        title: "Something went wrong",
         description: extractErrorMessage(error),
-        type: 'error',
+        type: "error",
       });
     }
   };

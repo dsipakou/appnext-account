@@ -1,15 +1,20 @@
-'use client';
+"use client";
 
-import useSWRImmutable from 'swr/immutable';
-import useSWRMutation from 'swr/mutation';
+import useSWRImmutable from "swr/immutable";
+import useSWRMutation from "swr/mutation";
 
-import { BudgetItem, GroupedByCategoryBudget, MonthSummedUsage, WeekBudgetItem } from '@/components/budget/types';
-import { deleteReq, fetchReq, patchReq, postReq } from '@/plugins/axios';
+import {
+  BudgetItem,
+  GroupedByCategoryBudget,
+  MonthSummedUsage,
+  WeekBudgetItem,
+} from "@/components/budget/types";
+import { deleteReq, fetchReq, patchReq, postReq } from "@/plugins/axios";
 
-import { Response } from './types';
+import { Response } from "./types";
 
 export const useCreateBudget = () => {
-  const { trigger, isMutating } = useSWRMutation('budget/', postReq, { revalidate: true });
+  const { trigger, isMutating } = useSWRMutation("budget/", postReq, { revalidate: true });
 
   return {
     trigger,
@@ -18,7 +23,9 @@ export const useCreateBudget = () => {
 };
 
 export const useDeleteBudget = (uuid: string) => {
-  const { trigger, isMutating } = useSWRMutation(`budget/${uuid}/`, deleteReq, { revalidate: true });
+  const { trigger, isMutating } = useSWRMutation(`budget/${uuid}/`, deleteReq, {
+    revalidate: true,
+  });
 
   return {
     trigger,
@@ -27,7 +34,9 @@ export const useDeleteBudget = (uuid: string) => {
 };
 
 export const useStopBudgetSeries = (uuid: string) => {
-  const { trigger, isMutating } = useSWRMutation(`budget/series/${uuid}/stop/`, postReq, { revalidate: true });
+  const { trigger, isMutating } = useSWRMutation(`budget/series/${uuid}/stop/`, postReq, {
+    revalidate: true,
+  });
 
   return {
     trigger,
@@ -56,9 +65,13 @@ export const useEditBudget = (uuid: string) => {
   };
 };
 
-export const useBudgetMonth = (dateFrom: string, dateTo: string, user: string): Response<GroupedByCategoryBudget[]> => {
+export const useBudgetMonth = (
+  dateFrom: string,
+  dateTo: string,
+  user: string,
+): Response<GroupedByCategoryBudget[]> => {
   let url = `budget/usage/?dateFrom=${dateFrom}&dateTo=${dateTo}`;
-  if (user && user !== 'all') url = `${url}&user=${user}`;
+  if (user && user !== "all") url = `${url}&user=${user}`;
   const { data, error, isLoading } = useSWRImmutable(dateFrom && dateTo ? url : null, fetchReq);
 
   return {
@@ -69,9 +82,13 @@ export const useBudgetMonth = (dateFrom: string, dateTo: string, user: string): 
   } as Response<GroupedByCategoryBudget[]>;
 };
 
-export const useBudgetWeek = (dateFrom: string, dateTo: string, user?: string): Response<WeekBudgetItem[]> => {
+export const useBudgetWeek = (
+  dateFrom: string,
+  dateTo: string,
+  user?: string,
+): Response<WeekBudgetItem[]> => {
   let url = `budget/weekly-usage/?dateFrom=${dateFrom}&dateTo=${dateTo}`;
-  if (user && user !== 'all') {
+  if (user && user !== "all") {
     url = `${url}&user=${user}`;
   }
   const { data, error, isLoading } = useSWRImmutable(dateFrom && dateTo ? url : null, fetchReq);
@@ -85,7 +102,7 @@ export const useBudgetWeek = (dateFrom: string, dateTo: string, user?: string): 
 };
 
 export const usePendingBudget = (): Response<WeekBudgetItem[]> => {
-  const url = 'budget/pending/';
+  const url = "budget/pending/";
   const { data, error, isLoading } = useSWRImmutable(url, fetchReq);
 
   return {
@@ -97,7 +114,7 @@ export const usePendingBudget = (): Response<WeekBudgetItem[]> => {
 };
 
 export const useGetUpcommingBudget = (): Response<BudgetItem[]> => {
-  const { data, error, isLoading } = useSWRImmutable('budget/upcomming/', fetchReq);
+  const { data, error, isLoading } = useSWRImmutable("budget/upcomming/", fetchReq);
 
   return {
     data,
@@ -106,7 +123,10 @@ export const useGetUpcommingBudget = (): Response<BudgetItem[]> => {
   } as Response<BudgetItem[]>;
 };
 
-export const useBudgetLastMonthsUsage = (month: string, category?: string): Response<MonthSummedUsage[]> => {
+export const useBudgetLastMonthsUsage = (
+  month: string,
+  category?: string,
+): Response<MonthSummedUsage[]> => {
   const url = `budget/last-months/?category=${category}&month=${month}`;
   const { data, error, isLoading } = useSWRImmutable(category ? url : null, fetchReq);
 
@@ -119,8 +139,8 @@ export const useBudgetLastMonthsUsage = (month: string, category?: string): Resp
 };
 
 export const useOccasionalBudgets = (user?: string): Response<BudgetItem[]> => {
-  let url = 'budget/?recurrent=occasional';
-  if (user && user !== 'all') {
+  let url = "budget/?recurrent=occasional";
+  if (user && user !== "all") {
     url = `${url}&user=${user}`;
   }
   const { data, error, isLoading } = useSWRImmutable(url, fetchReq);

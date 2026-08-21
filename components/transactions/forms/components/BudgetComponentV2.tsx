@@ -1,25 +1,25 @@
-import { Plus } from 'lucide-react';
-import React from 'react';
-import { useSWRConfig } from 'swr';
-import * as z from 'zod';
+import { Plus } from "lucide-react";
+import React from "react";
+import { useSWRConfig } from "swr";
+import * as z from "zod";
 
-import { Account } from '@/components/accounts/types';
-import { WeekBudgetItem } from '@/components/budget/types';
-import { Category, CategoryType } from '@/components/categories/types';
-import { Currency } from '@/components/currencies/types';
-import { RowData } from '@/components/transactions/components/transactionTable';
-import { Button } from '@/components/ui/button';
-import * as Dlg from '@/components/ui/dialog';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form, type FormErrors } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import * as Slc from '@/components/ui/select';
-import { toastManager } from '@/components/ui/toast';
-import { useBudgetWeek, useCreateBudget } from '@/hooks/budget';
-import { useCategories } from '@/hooks/categories';
-import { useCurrencies } from '@/hooks/currencies';
-import { cn } from '@/lib/utils';
-import { getEndOfWeek, getFormattedDate, getStartOfWeek } from '@/utils/dateUtils';
+import { Account } from "@/components/accounts/types";
+import { WeekBudgetItem } from "@/components/budget/types";
+import { Category, CategoryType } from "@/components/categories/types";
+import { Currency } from "@/components/currencies/types";
+import { RowData } from "@/components/transactions/components/transactionTable";
+import { Button } from "@/components/ui/button";
+import * as Dlg from "@/components/ui/dialog";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Form, type FormErrors } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import * as Slc from "@/components/ui/select";
+import { toastManager } from "@/components/ui/toast";
+import { useBudgetWeek, useCreateBudget } from "@/hooks/budget";
+import { useCategories } from "@/hooks/categories";
+import { useCurrencies } from "@/hooks/currencies";
+import { cn } from "@/lib/utils";
+import { getEndOfWeek, getFormattedDate, getStartOfWeek } from "@/utils/dateUtils";
 
 type Props = {
   user: string;
@@ -34,30 +34,38 @@ type Props = {
 
 const formSchema = z.object({
   title: z.string().min(2, {
-    error: 'Title must be at least 2 characters',
+    error: "Title must be at least 2 characters",
   }),
   amount: z.coerce.number().min(0, {
-    error: 'Should be positive number',
+    error: "Should be positive number",
   }),
-  currency: z.uuid({ error: 'Please, select currency' }),
-  category: z.uuid({ error: 'Please, select category' }),
+  currency: z.uuid({ error: "Please, select currency" }),
+  category: z.uuid({ error: "Please, select category" }),
   user: z.uuid(),
   budgetDate: z.string(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function BudgetComponent({ user, value, accounts, handleChange, handleKeyDown, row, isInvalid }: Props) {
+export default function BudgetComponent({
+  user,
+  value,
+  accounts,
+  handleChange,
+  handleKeyDown,
+  row,
+  isInvalid,
+}: Props) {
   const [weekStart, setWeekStart] = React.useState<string>(getStartOfWeek(row.date || new Date()));
   const [weekEnd, setWeekEnd] = React.useState<string>(getEndOfWeek(row.date || new Date()));
   const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false);
   const [errors, setErrors] = React.useState<FormErrors>({});
   const [values, setValues] = React.useState<FormValues>({
-    title: '',
+    title: "",
     amount: 0,
-    currency: '',
-    category: '',
-    user: '',
+    currency: "",
+    category: "",
+    user: "",
     budgetDate: getFormattedDate(row.date || new Date()),
   });
 
@@ -80,7 +88,7 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
     (category: Category) => category.parent === null && category.type === CategoryType.Expense,
   );
 
-  const defaultCurrency = currencies.find((item: Currency) => item.isDefault)?.uuid || '';
+  const defaultCurrency = currencies.find((item: Currency) => item.isDefault)?.uuid || "";
 
   React.useEffect(() => {
     setWeekStart(getStartOfWeek(row.date));
@@ -99,18 +107,18 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
   }, [accountUser]);
 
   const onChange = (value: string) => {
-    if (value === '__create_new__') {
+    if (value === "__create_new__") {
       setIsCreateDialogOpen(true);
       return;
     }
 
     const budget = filteredBudgets.find((item: WeekBudgetItem) => item.uuid === value);
-    handleChange(row.id, 'budget', value);
-    handleChange(row.id, 'budgetName', budget?.title || '');
-    handleChange(row.id, 'isCompleted', budget?.isCompleted || false);
-    handleChange(row.id, 'category', budget?.category || '');
-    handleChange(row.id, 'categoryName', '');
-    handleChange(row.id, 'categoryParentName', '');
+    handleChange(row.id, "budget", value);
+    handleChange(row.id, "budgetName", budget?.title || "");
+    handleChange(row.id, "isCompleted", budget?.isCompleted || false);
+    handleChange(row.id, "category", budget?.category || "");
+    handleChange(row.id, "categoryName", "");
+    handleChange(row.id, "categoryParentName", "");
   };
 
   const handleCreateBudget = async (event: React.SubmitEvent<HTMLFormElement>) => {
@@ -129,29 +137,29 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
       const response = await createBudget(result.data);
 
       // Revalidate budget data
-      await mutate((key) => typeof key === 'string' && key.includes('budget/weekly-usage'));
+      await mutate((key) => typeof key === "string" && key.includes("budget/weekly-usage"));
 
       // Set the newly created budget as selected
       if (result && response.uuid) {
-        handleChange(row.id, 'budget', response.uuid);
-        handleChange(row.id, 'budgetName', values.title);
-        handleChange(row.id, 'category', values.category);
+        handleChange(row.id, "budget", response.uuid);
+        handleChange(row.id, "budgetName", values.title);
+        handleChange(row.id, "category", values.category);
       }
 
       // Reset form
       setIsCreateDialogOpen(false);
 
       toastManager.add({
-        id: 'transaction-budget-create',
-        title: 'Budget created successfully!',
-        type: 'success',
+        id: "transaction-budget-create",
+        title: "Budget created successfully!",
+        type: "success",
       });
     } catch (error) {
       toastManager.add({
-        id: 'transaction-budget-create-error',
-        title: 'Failed to create budget',
-        description: 'Please try again',
-        type: 'error',
+        id: "transaction-budget-create-error",
+        title: "Failed to create budget",
+        description: "Please try again",
+        type: "error",
       });
     }
   };
@@ -171,12 +179,12 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
       >
         <Slc.SelectTrigger
           className={cn(
-            'focus:border-primary h-8 w-full border-0 bg-white px-2 text-left text-sm focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-blue-700 focus-visible:outline-none',
-            isInvalid && 'border-2 border-red-400',
+            "focus:border-primary h-8 w-full border-0 bg-white px-2 text-left text-sm focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-blue-700 focus-visible:outline-none",
+            isInvalid && "border-2 border-red-400",
           )}
           onKeyDown={(e) => handleKeyDown(e, row.id)}
         >
-          <Slc.SelectValue placeholder={!accountUser ? 'Select account first' : ''} />
+          <Slc.SelectValue placeholder={!accountUser ? "Select account first" : ""} />
         </Slc.SelectTrigger>
         <Slc.SelectContent>
           {accountUser && (
@@ -233,7 +241,9 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
                   <Input
                     id="title"
                     value={values.title}
-                    onChange={(e) => setValues((current) => ({ ...current, title: e.target.value }))}
+                    onChange={(e) =>
+                      setValues((current) => ({ ...current, title: e.target.value }))
+                    }
                     placeholder="Budget title"
                     disabled={isCreating}
                   />
@@ -247,7 +257,9 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
                     id="amount"
                     type="number"
                     value={values.amount}
-                    onChange={(e) => setValues((current) => ({ ...current, amount: e.target.value }))}
+                    onChange={(e) =>
+                      setValues((current) => ({ ...current, amount: e.target.value }))
+                    }
                     placeholder="0"
                     disabled={isCreating}
                   />
@@ -315,7 +327,7 @@ export default function BudgetComponent({ user, value, accounts, handleChange, h
             <Dlg.DialogFooter>
               <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
               <Button type="submit" disabled={isCreating}>
-                {isCreating ? 'Creating...' : 'Create Budget'}
+                {isCreating ? "Creating..." : "Create Budget"}
               </Button>
             </Dlg.DialogFooter>
           </Form>

@@ -1,14 +1,14 @@
-import React from 'react';
-import { useSWRConfig } from 'swr';
+import React from "react";
+import { useSWRConfig } from "swr";
 
-import { RecurrentTypes } from '@/components/budget/types';
-import { Button } from '@/components/ui/button';
-import * as Dlg from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import * as Rdg from '@/components/ui/radio-group';
-import { Spinner } from '@/components/ui/spinner';
-import { toastManager } from '@/components/ui/toast';
-import { useDeleteBudget, useStopBudgetSeries } from '@/hooks/budget';
+import { RecurrentTypes } from "@/components/budget/types";
+import { Button } from "@/components/ui/button";
+import * as Dlg from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import * as Rdg from "@/components/ui/radio-group";
+import { Spinner } from "@/components/ui/spinner";
+import { toastManager } from "@/components/ui/toast";
+import { useDeleteBudget, useStopBudgetSeries } from "@/hooks/budget";
 
 interface Types {
   open: boolean;
@@ -19,7 +19,7 @@ interface Types {
 }
 
 const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, recurrent, budgetDate }) => {
-  const [deletionMode, setDeletionMode] = React.useState<'instance' | 'series'>('instance');
+  const [deletionMode, setDeletionMode] = React.useState<"instance" | "series">("instance");
 
   const { mutate } = useSWRConfig();
   const { trigger: deleteBudget, isMutating: isDeletingBudget } = useDeleteBudget(uuid);
@@ -27,7 +27,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, recurrent, bu
 
   const handleDelete = async () => {
     try {
-      if (recurrent && recurrent !== 'occasional' && deletionMode === 'series') {
+      if (recurrent && recurrent !== "occasional" && deletionMode === "series") {
         // Stop the series
         await stopSeries({ until: budgetDate });
       } else {
@@ -36,46 +36,53 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, recurrent, bu
       }
       setOpen(false);
       toastManager.add({
-        id: 'budget-delete',
-        title: 'Deleted!',
-        description: deletionMode === 'series' ? 'Series stopped successfully' : 'Budget deleted successfully',
-        type: 'success',
+        id: "budget-delete",
+        title: "Deleted!",
+        description:
+          deletionMode === "series" ? "Series stopped successfully" : "Budget deleted successfully",
+        type: "success",
       });
       // Clear all budget-related cache entries
       await mutate(
         (key) =>
-          typeof key === 'string' &&
-          (key.includes('budget/weekly-usage/') || key.includes('budget/usage/') || key.includes('budget/pending/')),
+          typeof key === "string" &&
+          (key.includes("budget/weekly-usage/") ||
+            key.includes("budget/usage/") ||
+            key.includes("budget/pending/")),
         undefined,
         { revalidate: true },
       );
     } catch (error) {
       toastManager.add({
-        id: 'budget-delete-error',
-        title: 'Something went wrong',
-        description: 'Please, try again later',
-        type: 'error',
+        id: "budget-delete-error",
+        title: "Something went wrong",
+        description: "Please, try again later",
+        type: "error",
       });
     }
   };
 
-  const isRecurrent = recurrent && recurrent !== 'occasional';
+  const isRecurrent = recurrent && recurrent !== "occasional";
   const isLoading = isDeletingBudget || isStoppingSeries;
 
   return (
     <Dlg.Dialog open={open} onOpenChange={setOpen}>
       <Dlg.DialogPopup>
         <Dlg.DialogHeader>
-          <Dlg.DialogTitle>{isRecurrent ? 'Delete recurring budget' : 'Please, confirm deletion'}</Dlg.DialogTitle>
+          <Dlg.DialogTitle>
+            {isRecurrent ? "Delete recurring budget" : "Please, confirm deletion"}
+          </Dlg.DialogTitle>
         </Dlg.DialogHeader>
         <Dlg.DialogPanel>
           {isRecurrent ? (
             <div className="flex flex-col gap-4">
-              <p className="leading-7">This is a {recurrent} recurring budget. How would you like to delete it?</p>
+              <p className="leading-7">
+                This is a {recurrent} recurring budget. How would you like to delete it?
+              </p>
 
               <Rdg.RadioGroup
                 value={deletionMode}
-                onValueChange={(value) => setDeletionMode(value as 'instance' | 'series')}
+                onValueChange={(value) => setDeletionMode(value as "instance" | "series")}
               >
                 <div className="flex items-center space-x-2">
                   <Rdg.Radio value="instance" id="instance" disabled={isLoading} />
@@ -110,7 +117,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, recurrent, bu
             <div className="text-muted-foreground flex items-center justify-center gap-3 py-4">
               <Spinner className="size-5" />
               <span className="text-sm font-medium">
-                {deletionMode === 'series' ? 'Stopping series...' : 'Deleting budget...'}
+                {deletionMode === "series" ? "Stopping series..." : "Deleting budget..."}
               </span>
             </div>
           )}
@@ -120,7 +127,7 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open, setOpen, uuid, recurrent, bu
             Cancel
           </Button>
           <Button disabled={isLoading} variant="destructive" onClick={handleDelete}>
-            {deletionMode === 'series' ? 'Stop Series' : 'Delete'}
+            {deletionMode === "series" ? "Stop Series" : "Delete"}
           </Button>
         </Dlg.DialogFooter>
       </Dlg.DialogPopup>

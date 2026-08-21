@@ -1,17 +1,17 @@
-import React from 'react';
-import * as z from 'zod';
+import React from "react";
+import * as z from "zod";
 
-import { ConfirmTransactionsTransferForm } from '@/components/accounts/forms';
-import { AccountResponse } from '@/components/accounts/types';
-import { Button } from '@/components/ui/button';
-import * as Dlg from '@/components/ui/dialog';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form, type FormErrors } from '@/components/ui/form';
-import * as Slc from '@/components/ui/select';
-import { useAccounts } from '@/hooks/accounts';
+import { ConfirmTransactionsTransferForm } from "@/components/accounts/forms";
+import { AccountResponse } from "@/components/accounts/types";
+import { Button } from "@/components/ui/button";
+import * as Dlg from "@/components/ui/dialog";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Form, type FormErrors } from "@/components/ui/form";
+import * as Slc from "@/components/ui/select";
+import { useAccounts } from "@/hooks/accounts";
 
 const formSchema = z.object({
-  account: z.string().min(1, { error: 'Please choose account' }),
+  account: z.string().min(1, { error: "Please choose account" }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -24,7 +24,7 @@ interface Types {
 
 const ReassignTransactionsForm: React.FC<Types> = ({ uuid, open = false, setOpen }) => {
   const [isConfirmTransferOpen, setIsConfirmTransferOpen] = React.useState<boolean>(false);
-  const [values, setValues] = React.useState<FormValues>({ account: '' });
+  const [values, setValues] = React.useState<FormValues>({ account: "" });
   const [errors, setErrors] = React.useState<FormErrors>({});
 
   const { data: accounts = [] } = useAccounts();
@@ -58,14 +58,19 @@ const ReassignTransactionsForm: React.FC<Types> = ({ uuid, open = false, setOpen
                   <FieldLabel>Re-assign transactions from this account to</FieldLabel>
                   <Slc.Select
                     onValueChange={(account) => setValues({ account })}
-                    value={values.account || ''}
+                    value={values.account || ""}
                     disabled={filteredAccounts.length === 0}
-                    items={filteredAccounts.map((item) => ({ label: item.title, value: item.uuid }))}
+                    items={filteredAccounts.map((item) => ({
+                      label: item.title,
+                      value: item.uuid,
+                    }))}
                   >
                     <Slc.SelectTrigger className="relative w-full">
                       <Slc.SelectValue
                         placeholder={
-                          filteredAccounts.length > 0 ? 'Choose account' : 'You do not have applicable accounts'
+                          filteredAccounts.length > 0
+                            ? "Choose account"
+                            : "You do not have applicable accounts"
                         }
                       />
                     </Slc.SelectTrigger>

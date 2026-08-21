@@ -1,10 +1,10 @@
-import { CreditCardIcon } from 'lucide-react';
-import React from 'react';
+import { CreditCardIcon } from "lucide-react";
+import React from "react";
 
-import { AccountResponse } from '@/components/accounts/types';
-import AccountComponent from '@/components/transactions/forms/components/AccountComponentV2';
+import { AccountResponse } from "@/components/accounts/types";
+import AccountComponent from "@/components/transactions/forms/components/AccountComponentV2";
 
-import { RowData } from '..';
+import { RowData } from "..";
 
 interface AccountCellProps {
   isEditing: boolean;
@@ -13,7 +13,10 @@ interface AccountCellProps {
   cellStyle: string;
   // Edit mode props
   handleChange?: (id: number, field: keyof RowData, value: any) => void;
-  handleKeyDown?: (e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>, id: number) => void;
+  handleKeyDown?: (
+    e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>,
+    id: number,
+  ) => void;
   row?: RowData;
   isInvalid?: boolean;
   user?: string | null;

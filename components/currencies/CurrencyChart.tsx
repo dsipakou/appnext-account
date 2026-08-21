@@ -1,7 +1,7 @@
-import ReactECharts from 'echarts-for-react';
-import React from 'react';
+import ReactECharts from "echarts-for-react";
+import React from "react";
 
-import { ChartPeriod, ChartRates, Currency } from './types';
+import { ChartPeriod, ChartRates, Currency } from "./types";
 
 interface Props {
   data: ChartRates[];
@@ -14,17 +14,17 @@ const CurrencyChart: React.FC<Props> = ({ data: chartData, isLoading, currencies
   const options = React.useMemo(() => {
     if (isLoading || chartData.length === 0) {
       return {
-        xAxis: { type: 'category', data: [] },
-        yAxis: { type: 'value' },
+        xAxis: { type: "category", data: [] },
+        yAxis: { type: "value" },
         series: [],
       };
     }
 
     return {
       animationDuration: 500,
-      animationEasing: 'cubicOut',
+      animationEasing: "cubicOut",
 
-      color: ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'],
+      color: ["#2563EB", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#06B6D4"],
 
       grid: {
         top: 20,
@@ -35,36 +35,36 @@ const CurrencyChart: React.FC<Props> = ({ data: chartData, isLoading, currencies
 
       legend: {
         top: 0,
-        icon: 'roundRect',
+        icon: "roundRect",
         itemWidth: 14,
         itemHeight: 4,
       },
 
       tooltip: {
-        trigger: 'axis',
-        backgroundColor: '#fff',
-        borderColor: '#E5E7EB',
+        trigger: "axis",
+        backgroundColor: "#fff",
+        borderColor: "#E5E7EB",
         borderWidth: 1,
         textStyle: {
-          color: '#111827',
+          color: "#111827",
         },
         axisPointer: {
-          type: 'cross',
+          type: "cross",
           lineStyle: {
-            color: '#94A3B8',
+            color: "#94A3B8",
           },
         },
       },
 
       xAxis: {
-        type: 'category',
+        type: "category",
         boundaryGap: false,
 
         data: chartData[0].data.map((item) => item.rateDate).reverse(),
 
         axisLine: {
           lineStyle: {
-            color: '#E5E7EB',
+            color: "#E5E7EB",
           },
         },
 
@@ -73,20 +73,22 @@ const CurrencyChart: React.FC<Props> = ({ data: chartData, isLoading, currencies
         },
 
         axisLabel: {
-          color: '#6B7280',
+          color: "#6B7280",
         },
       },
 
       yAxis: {
-        type: 'value',
+        type: "value",
 
         // Не начинать ось с нуля
         scale: true,
 
         // Небольшие отступы сверху и снизу
-        min: (value: { min: number; max: number }) => (value.min - (value.max - value.min) * 0.05).toFixed(2),
+        min: (value: { min: number; max: number }) =>
+          (value.min - (value.max - value.min) * 0.05).toFixed(2),
 
-        max: (value: { min: number; max: number }) => (value.max + (value.max - value.min) * 0.05).toFixed(2),
+        max: (value: { min: number; max: number }) =>
+          (value.max + (value.max - value.min) * 0.05).toFixed(2),
 
         splitNumber: 5,
 
@@ -99,12 +101,12 @@ const CurrencyChart: React.FC<Props> = ({ data: chartData, isLoading, currencies
         },
 
         axisLabel: {
-          color: '#6B7280',
+          color: "#6B7280",
         },
 
         splitLine: {
           lineStyle: {
-            color: '#F3F4F6',
+            color: "#F3F4F6",
           },
         },
       },
@@ -112,14 +114,14 @@ const CurrencyChart: React.FC<Props> = ({ data: chartData, isLoading, currencies
       series: currencies.map((currency) => ({
         name: currency.code,
 
-        type: 'line',
+        type: "line",
 
         smooth: 0.2,
 
         showSymbol: false,
 
         emphasis: {
-          focus: 'series',
+          focus: "series",
         },
 
         lineStyle: {
@@ -139,7 +141,7 @@ const CurrencyChart: React.FC<Props> = ({ data: chartData, isLoading, currencies
 
   return (
     <div className="relative h-83 w-full">
-      <ReactECharts option={options} style={{ height: '100%', width: '100%' }} notMerge />
+      <ReactECharts option={options} style={{ height: "100%", width: "100%" }} notMerge />
     </div>
   );
 };

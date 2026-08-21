@@ -1,12 +1,12 @@
-import React from 'react';
-import { useSWRConfig } from 'swr';
+import React from "react";
+import { useSWRConfig } from "swr";
 
-import { RowData } from '@/components/transactions/components/transactionTable';
-import { Button } from '@/components/ui/button';
-import * as Dlg from '@/components/ui/dialog';
-import { toastManager } from '@/components/ui/toast';
-import { useDeleteTransaction } from '@/hooks/transactions';
-import { getFormattedDate } from '@/utils/dateUtils';
+import { RowData } from "@/components/transactions/components/transactionTable";
+import { Button } from "@/components/ui/button";
+import * as Dlg from "@/components/ui/dialog";
+import { toastManager } from "@/components/ui/toast";
+import { useDeleteTransaction } from "@/hooks/transactions";
+import { getFormattedDate } from "@/utils/dateUtils";
 
 interface Types {
   open: boolean;
@@ -15,16 +15,21 @@ interface Types {
   handleClose: () => void;
 }
 
-const ConfirmDeleteForm: React.FC<Types> = ({ open = false, row, handleRemoveCompleted, handleClose }) => {
+const ConfirmDeleteForm: React.FC<Types> = ({
+  open = false,
+  row,
+  handleRemoveCompleted,
+  handleClose,
+}) => {
   const { mutate } = useSWRConfig();
   const { trigger: deleteTransaction, isMutating: isDeleting } = useDeleteTransaction(row?.uuid);
 
   const shouldRevalidateTransactionList = (key: unknown, transactionDate: string): boolean => {
-    if (typeof key !== 'string' || !key.startsWith('transactions?')) {
+    if (typeof key !== "string" || !key.startsWith("transactions?")) {
       return false;
     }
 
-    const hasDateFilter = key.includes('dateFrom');
+    const hasDateFilter = key.includes("dateFrom");
     const includesTransactionDate =
       key.includes(`dateFrom=${transactionDate}`) || key.includes(`dateTo=${transactionDate}`);
 
@@ -38,15 +43,17 @@ const ConfirmDeleteForm: React.FC<Types> = ({ open = false, row, handleRemoveCom
 
       // Mutate transaction lists that might contain this transaction
       const transactionDate = getFormattedDate(row.date);
-      mutate((key) => shouldRevalidateTransactionList(key, transactionDate), undefined, { revalidate: true });
+      mutate((key) => shouldRevalidateTransactionList(key, transactionDate), undefined, {
+        revalidate: true,
+      });
 
       handleRemoveCompleted(row.id);
       handleClose();
     } catch (error) {
       toastManager.add({
-        id: 'transaction-delete-error',
-        title: 'Please, try again',
-        type: 'error',
+        id: "transaction-delete-error",
+        title: "Please, try again",
+        type: "error",
       });
     }
   };

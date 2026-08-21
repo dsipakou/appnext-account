@@ -1,14 +1,14 @@
-import React from 'react';
-import * as z from 'zod';
+import React from "react";
+import * as z from "zod";
 
-import { Button } from '@/components/ui/button';
-import * as Dlg from '@/components/ui/dialog';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form, type FormErrors } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { toastManager } from '@/components/ui/toast';
-import { useCreateInvite } from '@/hooks/users';
-import { extractErrorMessage } from '@/utils/stringUtils';
+import { Button } from "@/components/ui/button";
+import * as Dlg from "@/components/ui/dialog";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Form, type FormErrors } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { toastManager } from "@/components/ui/toast";
+import { useCreateInvite } from "@/hooks/users";
+import { extractErrorMessage } from "@/utils/stringUtils";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -17,7 +17,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const AddForm: React.FC = () => {
-  const [values, setValues] = React.useState<FormValues>({ email: '' });
+  const [values, setValues] = React.useState<FormValues>({ email: "" });
   const [errors, setErrors] = React.useState<FormErrors>({});
 
   const { trigger: createInvite, isMutating: isCreating } = useCreateInvite();
@@ -25,7 +25,7 @@ const AddForm: React.FC = () => {
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
       setErrors({});
-      setValues({ email: '' });
+      setValues({ email: "" });
     }
   };
 
@@ -33,24 +33,24 @@ const AddForm: React.FC = () => {
     try {
       await createInvite(payload);
       toastManager.add({
-        id: 'user-invite-create',
-        title: 'Saved!',
-        type: 'success',
+        id: "user-invite-create",
+        title: "Saved!",
+        type: "success",
       });
     } catch (error) {
       const message = extractErrorMessage(error);
-      if (JSON.stringify(message).includes('unique set')) {
+      if (JSON.stringify(message).includes("unique set")) {
         toastManager.add({
-          id: 'user-invite-duplicate',
-          title: 'You have already sent invite for this user',
-          type: 'error',
+          id: "user-invite-duplicate",
+          title: "You have already sent invite for this user",
+          type: "error",
         });
       } else {
         toastManager.add({
-          id: 'user-invite-create-error',
-          title: 'Something went wrong',
+          id: "user-invite-create-error",
+          title: "Something went wrong",
           description: JSON.stringify(message),
-          type: 'error',
+          type: "error",
         });
       }
     }

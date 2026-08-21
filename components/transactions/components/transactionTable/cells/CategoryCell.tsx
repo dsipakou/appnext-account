@@ -1,9 +1,9 @@
-import React from 'react';
+import React from "react";
 
-import { CategoryResponse } from '@/components/categories/types';
-import CategoryComponent from '@/components/transactions/forms/components/CategoryComponentV2';
+import { CategoryResponse } from "@/components/categories/types";
+import CategoryComponent from "@/components/transactions/forms/components/CategoryComponentV2";
 
-import { RowData } from '..';
+import { RowData } from "..";
 
 interface CategoryCellProps {
   isEditing: boolean;
@@ -13,9 +13,12 @@ interface CategoryCellProps {
   cellStyle: string;
   // Edit mode props
   categories?: CategoryResponse[];
-  categoryType?: 'INC' | 'EXP';
+  categoryType?: "INC" | "EXP";
   handleChange?: (id: number, field: keyof RowData, value: any) => void;
-  handleKeyDown?: (e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>, id: number) => void;
+  handleKeyDown?: (
+    e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>,
+    id: number,
+  ) => void;
   row?: RowData;
   isInvalid?: boolean;
   user?: string | null;
@@ -37,7 +40,15 @@ export const CategoryCell: React.FC<CategoryCellProps> = ({
   user,
   defaultOpen,
 }) => {
-  if (isEditing && row && handleChange && handleKeyDown && categories && categoryType && value !== undefined) {
+  if (
+    isEditing &&
+    row &&
+    handleChange &&
+    handleKeyDown &&
+    categories &&
+    categoryType &&
+    value !== undefined
+  ) {
     return (
       <CategoryComponent
         user={user}

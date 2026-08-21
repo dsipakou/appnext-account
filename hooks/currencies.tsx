@@ -1,10 +1,10 @@
-import useSWRImmutable from 'swr/immutable';
-import useSWRMutation from 'swr/mutation';
+import useSWRImmutable from "swr/immutable";
+import useSWRMutation from "swr/mutation";
 
-import { deleteReq, fetchReq, patchReq, postReq } from '@/plugins/axios';
+import { deleteReq, fetchReq, patchReq, postReq } from "@/plugins/axios";
 
 export const useCurrencies = () => {
-  const { data, error, isLoading } = useSWRImmutable('currencies/', fetchReq);
+  const { data, error, isLoading } = useSWRImmutable("currencies/", fetchReq);
 
   return {
     data,
@@ -14,7 +14,7 @@ export const useCurrencies = () => {
 };
 
 export const useCreateCurrency = () => {
-  const { trigger, isMutating } = useSWRMutation('currencies/', postReq, { revalidate: true });
+  const { trigger, isMutating } = useSWRMutation("currencies/", postReq, { revalidate: true });
 
   return {
     trigger,
@@ -23,7 +23,9 @@ export const useCreateCurrency = () => {
 };
 
 export const useUpdateCurrency = (uuid: string) => {
-  const { trigger, isMutating } = useSWRMutation(`currencies/${uuid}/`, patchReq, { revalidate: true });
+  const { trigger, isMutating } = useSWRMutation(`currencies/${uuid}/`, patchReq, {
+    revalidate: true,
+  });
 
   return {
     trigger,
@@ -32,7 +34,9 @@ export const useUpdateCurrency = (uuid: string) => {
 };
 
 export const useClearCurrenciesOnDate = (date: string) => {
-  const { trigger, isMutating } = useSWRMutation(`rates/clear/${date}`, deleteReq, { revalidate: true });
+  const { trigger, isMutating } = useSWRMutation(`rates/clear/${date}`, deleteReq, {
+    revalidate: true,
+  });
 
   return {
     trigger,
@@ -41,7 +45,9 @@ export const useClearCurrenciesOnDate = (date: string) => {
 };
 
 export const useDeleteCurrency = (uuid: string) => {
-  const { trigger, isMutating } = useSWRMutation(`currencies/${uuid}/`, deleteReq, { revalidate: true });
+  const { trigger, isMutating } = useSWRMutation(`currencies/${uuid}/`, deleteReq, {
+    revalidate: true,
+  });
 
   return {
     trigger,

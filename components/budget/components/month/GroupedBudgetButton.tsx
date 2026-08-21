@@ -1,18 +1,18 @@
-import { format, getDate } from 'date-fns';
-import { BadgeCheck, Repeat2 } from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import { FC } from 'react';
+import { format, getDate } from "date-fns";
+import { BadgeCheck, Repeat2 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { FC } from "react";
 
-import { useStore } from '@/app/store';
-import { MonthBudgetItem, MonthGroupedBudgetItem } from '@/components/budget/types';
-import { Category } from '@/components/categories/types';
-import { Badge } from '@/components/ui/badge';
-import * as Prg from '@/components/ui/progress';
-import * as Tlt from '@/components/ui/tooltip';
-import { useCategories } from '@/hooks/categories';
-import { cn } from '@/lib/utils';
-import { getFormattedDate, LONG_YEAR_SHORT_MONTH_FORMAT, parseDate } from '@/utils/dateUtils';
-import { formatMoney, getNumberWithPostfix } from '@/utils/numberUtils';
+import { useStore } from "@/app/store";
+import { MonthBudgetItem, MonthGroupedBudgetItem } from "@/components/budget/types";
+import { Category } from "@/components/categories/types";
+import { Badge } from "@/components/ui/badge";
+import * as Prg from "@/components/ui/progress";
+import * as Tlt from "@/components/ui/tooltip";
+import { useCategories } from "@/hooks/categories";
+import { cn } from "@/lib/utils";
+import { getFormattedDate, LONG_YEAR_SHORT_MONTH_FORMAT, parseDate } from "@/utils/dateUtils";
+import { formatMoney, getNumberWithPostfix } from "@/utils/numberUtils";
 
 interface Types {
   item: MonthGroupedBudgetItem;
@@ -35,16 +35,18 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
 
   const currencySign = useStore((state) => state.currency.sign);
 
-  const getCategoryIcon = (uuid: string) => categories.find((item: Category) => item.uuid === uuid)?.icon || '';
-  const getCategoryName = (uuid: string) => categories.find((item: Category) => item.uuid === uuid)?.name || '';
+  const getCategoryIcon = (uuid: string) =>
+    categories.find((item: Category) => item.uuid === uuid)?.icon || "";
+  const getCategoryName = (uuid: string) =>
+    categories.find((item: Category) => item.uuid === uuid)?.name || "";
 
   const getRepeatDay = (item: MonthBudgetItem) => {
-    if (item.recurrent === 'monthly') {
-      return `Monthly on day ${format(parseDate(item.budgetDate), 'dd')}`;
-    } else if (item.recurrent === 'weekly') {
-      return `Weekly on ${format(parseDate(item.budgetDate), 'EEEE')}`;
+    if (item.recurrent === "monthly") {
+      return `Monthly on day ${format(parseDate(item.budgetDate), "dd")}`;
+    } else if (item.recurrent === "weekly") {
+      return `Weekly on ${format(parseDate(item.budgetDate), "EEEE")}`;
     }
-    return '';
+    return "";
   };
 
   const recurrent = item.items[0].recurrent;
@@ -53,14 +55,18 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
     return (
       <>
         <Prg.Progress
-          className={cn('h-8 rounded-lg', percentage > 100 ? 'bg-red-200' : 'bg-gray-300')}
+          className={cn("h-8 rounded-lg", percentage > 100 ? "bg-red-200" : "bg-gray-300")}
           value={percentage > 100 ? percentage % 100 : percentage}
         >
-          <Prg.ProgressIndicator className={cn('rounded-lg', percentage > 100 ? 'bg-red-500' : 'bg-blue-500')} />
+          <Prg.ProgressIndicator
+            className={cn("rounded-lg", percentage > 100 ? "bg-red-500" : "bg-blue-500")}
+          />
         </Prg.Progress>
         <div className="absolute top-0 h-full w-full">
           <span className="flex h-full items-center justify-center text-lg font-semibold text-white">
-            <div className="flex items-center gap-2">{planned === 0 ? 'Not planned' : `${percentage}%`}</div>
+            <div className="flex items-center gap-2">
+              {planned === 0 ? "Not planned" : `${percentage}%`}
+            </div>
           </span>
         </div>
       </>
@@ -98,7 +104,10 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
               className="flex h-5 w-full justify-center overflow-hidden bg-sky-500 whitespace-nowrap text-white"
             >
               <span className="font-bold">
-                {getFormattedDate(parseDate(item.items[0].budgetDate), LONG_YEAR_SHORT_MONTH_FORMAT)}
+                {getFormattedDate(
+                  parseDate(item.items[0].budgetDate),
+                  LONG_YEAR_SHORT_MONTH_FORMAT,
+                )}
               </span>
             </Badge>
           </div>
@@ -110,19 +119,19 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
   return (
     <div
       className={cn(
-        'h-[172px] cursor-pointer rounded-lg p-2 hover:drop-shadow-lg',
-        recurrent && 'border-gray-300',
-        isCompleted && 'bg-slate-200 text-slate-500 drop-shadow-sm',
-        !isCompleted && 'bg-slate-50 outline-zinc-200 drop-shadow',
+        "h-[172px] cursor-pointer rounded-lg p-2 hover:drop-shadow-lg",
+        recurrent && "border-gray-300",
+        isCompleted && "bg-slate-200 text-slate-500 drop-shadow-sm",
+        !isCompleted && "bg-slate-50 outline-zinc-200 drop-shadow",
       )}
     >
       {!!recurrent && (
         <>
           <div
             className={cn(
-              'absolute top-0 left-0 z-60 h-0 w-0 rounded-tl-lg border-r-transparent',
-              recurrent === 'monthly' && 'border-t-[28px] border-r-[28px] border-t-cyan-400',
-              recurrent === 'weekly' && 'border-t-[28px] border-r-[28px] border-t-orange-400',
+              "absolute top-0 left-0 z-60 h-0 w-0 rounded-tl-lg border-r-transparent",
+              recurrent === "monthly" && "border-t-[28px] border-r-[28px] border-t-cyan-400",
+              recurrent === "weekly" && "border-t-[28px] border-r-[28px] border-t-orange-400",
             )}
           ></div>
           <div className="absolute top-[2px] left-[2px] text-white">
@@ -158,7 +167,9 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
             <span className="text-xl font-bold">{formatMoney(spent)}</span>
             <span className="mx-1 text-xl font-bold">{currencySign}</span>
             {!item.isAnotherCategory && spent !== spentOverall && (
-              <span className="mr-1 text-xs font-light italic">+{formatMoney(spentOverall - spent)}</span>
+              <span className="mr-1 text-xs font-light italic">
+                +{formatMoney(spentOverall - spent)}
+              </span>
             )}
           </div>
           {planned !== 0 && (
@@ -180,7 +191,7 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
         <div className="flex w-full">
           <div className="flex-1 justify-end">
             {item.items[0].recurrent && (
-              <Badge variant="outline" className={cn('bg-white', isCompleted && 'text-slate-500')}>
+              <Badge variant="outline" className={cn("bg-white", isCompleted && "text-slate-500")}>
                 {getRepeatDay(item.items[0])}
               </Badge>
             )}

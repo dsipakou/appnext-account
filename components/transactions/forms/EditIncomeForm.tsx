@@ -1,26 +1,26 @@
-import React from 'react';
-import { useSWRConfig } from 'swr';
-import * as z from 'zod';
+import React from "react";
+import { useSWRConfig } from "swr";
+import * as z from "zod";
 
-import { AccountResponse } from '@/components/accounts/types';
-import { Category, CategoryType } from '@/components/categories/types';
-import { Currency } from '@/components/currencies/types';
-import { AvailableRate } from '@/components/rates/types';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import * as Dlg from '@/components/ui/dialog';
-import * as Field from '@/components/ui/field';
-import * as Frm from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import * as Slc from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { toastManager } from '@/components/ui/toast';
-import { useAccounts } from '@/hooks/accounts';
-import { useCategories } from '@/hooks/categories';
-import { useCurrencies } from '@/hooks/currencies';
-import { useAvailableRates } from '@/hooks/rates';
-import { useTransaction, useUpdateTransaction } from '@/hooks/transactions';
-import { getFormattedDate, parseDate } from '@/utils/dateUtils';
+import { AccountResponse } from "@/components/accounts/types";
+import { Category, CategoryType } from "@/components/categories/types";
+import { Currency } from "@/components/currencies/types";
+import { AvailableRate } from "@/components/rates/types";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import * as Dlg from "@/components/ui/dialog";
+import * as Field from "@/components/ui/field";
+import * as Frm from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import * as Slc from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { toastManager } from "@/components/ui/toast";
+import { useAccounts } from "@/hooks/accounts";
+import { useCategories } from "@/hooks/categories";
+import { useCurrencies } from "@/hooks/currencies";
+import { useAvailableRates } from "@/hooks/rates";
+import { useTransaction, useUpdateTransaction } from "@/hooks/transactions";
+import { getFormattedDate, parseDate } from "@/utils/dateUtils";
 
 interface Types {
   uuid: string;
@@ -30,15 +30,15 @@ interface Types {
 }
 
 const formSchema = z.object({
-  account: z.string().uuid({ message: 'Please, select account' }),
+  account: z.string().uuid({ message: "Please, select account" }),
   amount: z.coerce.number().min(0, {
-    message: 'Should be positive number',
+    message: "Should be positive number",
   }),
-  category: z.string().uuid({ message: 'Please, select category' }),
-  currency: z.string().uuid({ message: 'Please, select currency' }),
+  category: z.string().uuid({ message: "Please, select category" }),
+  currency: z.string().uuid({ message: "Please, select currency" }),
   description: z.string().optional(),
   transactionDate: z.date({
-    message: 'Transaction date is required',
+    message: "Transaction date is required",
   }),
 });
 
@@ -55,11 +55,11 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
   const [selectedDate, setSelectedDate] = React.useState<string>(getFormattedDate(new Date()));
   const [month, setMonth] = React.useState<Date>(new Date());
   const [values, setValues] = React.useState<FormValues>({
-    account: '',
-    amount: '',
-    category: '',
-    currency: '',
-    description: '',
+    account: "",
+    amount: "",
+    category: "",
+    currency: "",
+    description: "",
     transactionDate: new Date(),
   });
   const [errors, setErrors] = React.useState<Frm.FormErrors>({});
@@ -85,7 +85,7 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
       amount: String(transaction.amount),
       category: transaction.category,
       currency: transaction.currency,
-      description: transaction.description || '',
+      description: transaction.description || "",
       transactionDate: parseDate(transaction.transactionDate),
     });
 
@@ -107,16 +107,16 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
       // TODO: wrong url - outcome instead of outcome
       mutate(url);
       toastManager.add({
-        id: 'transaction-income-update',
-        title: 'Transaction updated',
-        type: 'success',
+        id: "transaction-income-update",
+        title: "Transaction updated",
+        type: "success",
       });
     } catch {
       toastManager.add({
-        id: 'transaction-income-update-error',
-        title: 'Cannot update transaction',
-        description: 'Something went wrong, please try again later.',
-        type: 'error',
+        id: "transaction-income-update-error",
+        title: "Cannot update transaction",
+        description: "Something went wrong, please try again later.",
+        type: "error",
       });
     }
   };
@@ -126,11 +126,11 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
       setErrors({});
       const nextDate = new Date();
       setValues({
-        account: '',
-        amount: '',
-        category: '',
-        currency: '',
-        description: '',
+        account: "",
+        amount: "",
+        category: "",
+        currency: "",
+        description: "",
         transactionDate: nextDate,
       });
       setSelectedDate(getFormattedDate(nextDate));
@@ -170,7 +170,9 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                     id="amount"
                     autoFocus
                     value={values.amount}
-                    onChange={(event) => setValues((current) => ({ ...current, amount: event.target.value }))}
+                    onChange={(event) =>
+                      setValues((current) => ({ ...current, amount: event.target.value }))
+                    }
                   />
                   <Field.FieldError />
                 </Field.Field>
@@ -182,7 +184,10 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                     disabled={isUpdating || isTransactionLoading || isRatesLoading}
                     onValueChange={(currency) => setValues((current) => ({ ...current, currency }))}
                     value={values.currency || undefined}
-                    items={currencies.map((item: Currency) => ({ label: item.code, value: item.uuid }))}
+                    items={currencies.map((item: Currency) => ({
+                      label: item.code,
+                      value: item.uuid,
+                    }))}
                   >
                     <Slc.SelectTrigger className="relative w-full">
                       <Slc.SelectValue placeholder="Select currency" />
@@ -191,7 +196,9 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                       <Slc.SelectGroup>
                         <Slc.SelectGroupLabel>Currencies</Slc.SelectGroupLabel>
                         {currencies.map((item: Currency) => {
-                          const rate = availableRates.find((rate: AvailableRate) => rate.currencyCode === item.code);
+                          const rate = availableRates.find(
+                            (rate: AvailableRate) => rate.currencyCode === item.code,
+                          );
                           if (rate) {
                             if (rate.rateDate === selectedDate) {
                               return (
@@ -227,7 +234,10 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                     disabled={isUpdating || isTransactionLoading || isRatesLoading}
                     onValueChange={(category) => setValues((current) => ({ ...current, category }))}
                     value={values.category || undefined}
-                    items={incomeCategories.map((item: Category) => ({ label: item.name, value: item.uuid }))}
+                    items={incomeCategories.map((item: Category) => ({
+                      label: item.name,
+                      value: item.uuid,
+                    }))}
                   >
                     <Slc.SelectTrigger className="relative w-[180px]">
                       <Slc.SelectValue placeholder="Select category" />
@@ -254,7 +264,10 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                     disabled={isUpdating || isTransactionLoading || isRatesLoading}
                     onValueChange={(account) => setValues((current) => ({ ...current, account }))}
                     value={values.account || undefined}
-                    items={accounts.map((item: AccountResponse) => ({ label: item.title, value: item.uuid }))}
+                    items={accounts.map((item: AccountResponse) => ({
+                      label: item.title,
+                      value: item.uuid,
+                    }))}
                   >
                     <Slc.SelectTrigger className="relative w-[180px]">
                       <Slc.SelectValue placeholder="Select account" />
@@ -282,7 +295,10 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                       transactionDate && setValues((current) => ({ ...current, transactionDate }))
                     }
                     disabled={(date) =>
-                      isUpdating || isTransactionLoading || isRatesLoading || date < new Date('1900-01-01')
+                      isUpdating ||
+                      isTransactionLoading ||
+                      isRatesLoading ||
+                      date < new Date("1900-01-01")
                     }
                     month={month}
                     onMonthChange={setMonth}
@@ -300,7 +316,9 @@ const EditIncomeForm: React.FC<Types> = ({ uuid, open, url, handleClose }) => {
                   placeholder="Any notes for the transaction"
                   className="resize-none"
                   value={values.description}
-                  onChange={(event) => setValues((current) => ({ ...current, description: event.target.value }))}
+                  onChange={(event) =>
+                    setValues((current) => ({ ...current, description: event.target.value }))
+                  }
                 />
                 <Field.FieldError />
               </Field.Field>

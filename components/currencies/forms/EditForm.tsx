@@ -1,21 +1,21 @@
-import { Info } from 'lucide-react';
-import React, { FC, useEffect } from 'react';
-import { useSWRConfig } from 'swr';
-import * as z from 'zod';
+import { Info } from "lucide-react";
+import React, { FC, useEffect } from "react";
+import { useSWRConfig } from "swr";
+import * as z from "zod";
 
-import { Button } from '@/components/ui/button';
-import * as Dlg from '@/components/ui/dialog';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Form, type FormErrors } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { toastManager } from '@/components/ui/toast';
-import * as Tlt from '@/components/ui/tooltip';
-import { useCurrencies, useUpdateCurrency } from '@/hooks/currencies';
-import { extractErrorMessage } from '@/utils/stringUtils';
+import { Button } from "@/components/ui/button";
+import * as Dlg from "@/components/ui/dialog";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Form, type FormErrors } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { toastManager } from "@/components/ui/toast";
+import * as Tlt from "@/components/ui/tooltip";
+import { useCurrencies, useUpdateCurrency } from "@/hooks/currencies";
+import { extractErrorMessage } from "@/utils/stringUtils";
 
-import { Currency } from '../types';
+import { Currency } from "../types";
 
 interface Types {
   uuid: string;
@@ -24,12 +24,12 @@ interface Types {
 }
 
 const formSchema = z.object({
-  verbalName: z.string().min(2, { message: 'Must be at least 2 characters long' }),
+  verbalName: z.string().min(2, { message: "Must be at least 2 characters long" }),
   code: z.string().length(3, {
-    message: 'Must be 3 characters long',
+    message: "Must be 3 characters long",
   }),
   sign: z.string({
-    message: 'You need to specify currency sign',
+    message: "You need to specify currency sign",
   }),
   isDefault: z.boolean(),
   comments: z.string().optional(),
@@ -42,11 +42,11 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
   const { data: currencies = [] } = useCurrencies();
   const { trigger: updateCurrency, isMutating: isUpdating } = useUpdateCurrency(uuid);
   const [values, setValues] = React.useState<FormValues>({
-    verbalName: '',
-    code: '',
-    sign: '',
+    verbalName: "",
+    code: "",
+    sign: "",
     isDefault: false,
-    comments: '',
+    comments: "",
   });
   const [errors, setErrors] = React.useState<FormErrors>({});
   useEffect(() => {
@@ -60,7 +60,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
       code: _currency.code,
       sign: _currency.sign,
       isDefault: _currency.isDefault,
-      comments: _currency.comments || '',
+      comments: _currency.comments || "",
     });
     return () => {};
   }, [currencies, uuid]);
@@ -68,20 +68,20 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
   const handleUpdate = async (payload: FormValues): Promise<void> => {
     try {
       await updateCurrency(payload);
-      mutate('currencies/');
+      mutate("currencies/");
       cleanFormErrors(false);
       toastManager.add({
-        id: 'currency-update',
-        title: 'Saved!',
-        type: 'success',
+        id: "currency-update",
+        title: "Saved!",
+        type: "success",
       });
     } catch (error) {
       const message = extractErrorMessage(error);
       toastManager.add({
-        id: 'currency-update-error',
-        title: 'Something went wrong',
+        id: "currency-update-error",
+        title: "Something went wrong",
         description: message,
-        type: 'error',
+        type: "error",
       });
     }
   };
@@ -89,7 +89,7 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
   const cleanFormErrors = (open: boolean) => {
     if (!open) {
       setErrors({});
-      setValues({ verbalName: '', code: '', sign: '', isDefault: false, comments: '' });
+      setValues({ verbalName: "", code: "", sign: "", isDefault: false, comments: "" });
     }
     setOpen(false);
   };
@@ -126,7 +126,9 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                     placeholder="US Dollar"
                     id="verbalName"
                     value={values.verbalName}
-                    onChange={(event) => setValues((current) => ({ ...current, verbalName: event.target.value }))}
+                    onChange={(event) =>
+                      setValues((current) => ({ ...current, verbalName: event.target.value }))
+                    }
                   />
                   <FieldError />
                 </Field>
@@ -140,7 +142,9 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                     placeholder="$"
                     id="sign"
                     value={values.sign}
-                    onChange={(event) => setValues((current) => ({ ...current, sign: event.target.value }))}
+                    onChange={(event) =>
+                      setValues((current) => ({ ...current, sign: event.target.value }))
+                    }
                   />
                   <FieldError />
                 </Field>
@@ -156,7 +160,9 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                     placeholder="USD"
                     id="code"
                     value={values.code}
-                    onChange={(event) => setValues((current) => ({ ...current, code: event.target.value }))}
+                    onChange={(event) =>
+                      setValues((current) => ({ ...current, code: event.target.value }))
+                    }
                   />
                   <FieldError />
                 </Field>
@@ -167,7 +173,9 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                     <Switch
                       id="isDefault"
                       checked={values.isDefault}
-                      onCheckedChange={(isDefault) => setValues((current) => ({ ...current, isDefault }))}
+                      onCheckedChange={(isDefault) =>
+                        setValues((current) => ({ ...current, isDefault }))
+                      }
                       disabled={isUpdating}
                     />
                     <FieldLabel htmlFor="isDefault">set as default</FieldLabel>
@@ -195,8 +203,10 @@ const EditForm: FC<Types> = ({ uuid, open, setOpen }) => {
                   placeholder="Any comments"
                   className="resize-none"
                   disabled={isUpdating}
-                  value={values.comments ?? ''}
-                  onChange={(event) => setValues((current) => ({ ...current, comments: event.target.value }))}
+                  value={values.comments ?? ""}
+                  onChange={(event) =>
+                    setValues((current) => ({ ...current, comments: event.target.value }))
+                  }
                 />
                 <FieldError />
               </Field>

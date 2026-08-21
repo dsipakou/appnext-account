@@ -1,16 +1,16 @@
-import { Check } from 'lucide-react';
-import React from 'react';
-import { useSWRConfig } from 'swr';
+import { Check } from "lucide-react";
+import React from "react";
+import { useSWRConfig } from "swr";
 
-import { AccountResponse } from '@/components/accounts/types';
-import BudgetComponent from '@/components/transactions/forms/components/BudgetComponentV2';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { toastManager } from '@/components/ui/toast';
-import { useEditBudget } from '@/hooks/budget';
-import { extractErrorMessage } from '@/utils/stringUtils';
+import { AccountResponse } from "@/components/accounts/types";
+import BudgetComponent from "@/components/transactions/forms/components/BudgetComponentV2";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { toastManager } from "@/components/ui/toast";
+import { useEditBudget } from "@/hooks/budget";
+import { extractErrorMessage } from "@/utils/stringUtils";
 
-import { RowData } from '..';
+import { RowData } from "..";
 
 interface BudgetCellProps {
   isEditing: boolean;
@@ -22,7 +22,10 @@ interface BudgetCellProps {
   // Edit mode props
   accounts?: AccountResponse[];
   handleChange?: (id: number, field: keyof RowData, value: any) => void;
-  handleKeyDown?: (e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>, id: number) => void;
+  handleKeyDown?: (
+    e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>,
+    id: number,
+  ) => void;
   row?: RowData;
   isInvalid?: boolean;
   user?: string | null;
@@ -50,18 +53,24 @@ export const BudgetCell: React.FC<BudgetCellProps> = ({
       await completeBudget({ isCompleted: true });
       handleCompleted();
 
-      mutate((key) => typeof key === 'string' && key.includes('budget/usage'), undefined, { revalidate: true });
-      mutate((key) => typeof key === 'string' && key.includes('budget/weekly-usage'), undefined, { revalidate: true });
-      mutate((key) => typeof key === 'string' && key.includes('transactions/'), undefined, { revalidate: true });
-      mutate('budget/pending/', undefined, { revalidate: true });
-      mutate('budget/upcomming/', undefined, { revalidate: true });
+      mutate((key) => typeof key === "string" && key.includes("budget/usage"), undefined, {
+        revalidate: true,
+      });
+      mutate((key) => typeof key === "string" && key.includes("budget/weekly-usage"), undefined, {
+        revalidate: true,
+      });
+      mutate((key) => typeof key === "string" && key.includes("transactions/"), undefined, {
+        revalidate: true,
+      });
+      mutate("budget/pending/", undefined, { revalidate: true });
+      mutate("budget/upcomming/", undefined, { revalidate: true });
     } catch (error) {
       const message = extractErrorMessage(error);
       toastManager.add({
-        id: 'transaction-budget-complete-error',
-        title: 'Cannot be completed',
+        id: "transaction-budget-complete-error",
+        title: "Cannot be completed",
         description: message,
-        type: 'error',
+        type: "error",
       });
     }
   };

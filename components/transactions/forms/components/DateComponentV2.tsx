@@ -1,15 +1,15 @@
-import { addDays, format, isSameWeek, subDays } from 'date-fns';
-import { ArrowBigLeft, ArrowBigRight } from 'lucide-react';
-import React from 'react';
+import { addDays, format, isSameWeek, subDays } from "date-fns";
+import { ArrowBigLeft, ArrowBigRight } from "lucide-react";
+import React from "react";
 
 // Types
-import { RowData } from '@/components/transactions/components/transactionTable';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
+import { RowData } from "@/components/transactions/components/transactionTable";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 // UI
-import * as Ppv from '@/components/ui/popover';
+import * as Ppv from "@/components/ui/popover";
 // Utils
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 type Props = {
   user: string;
@@ -23,9 +23,9 @@ export default function DateComponent({ user, value, handleChange, row, isInvali
   const [openCalendar, setOpenCalendar] = React.useState<number | null>(null);
 
   const onChange = (value: Date) => {
-    handleChange(row.id, 'date', value);
+    handleChange(row.id, "date", value);
     if (!isSameWeek(value, row.date)) {
-      handleChange(row.id, 'budget', null);
+      handleChange(row.id, "budget", null);
     }
     setOpenCalendar(null);
   };
@@ -35,19 +35,22 @@ export default function DateComponent({ user, value, handleChange, row, isInvali
       <Button size="sm" variant="ghost" onClick={() => onChange(subDays(value as Date, 1))}>
         <ArrowBigLeft className="h-4 w-4" />
       </Button>
-      <Ppv.Popover open={openCalendar === row.id} onOpenChange={(open) => setOpenCalendar(open ? row.id : null)}>
+      <Ppv.Popover
+        open={openCalendar === row.id}
+        onOpenChange={(open) => setOpenCalendar(open ? row.id : null)}
+      >
         <Ppv.PopoverTrigger
           render={
             <Button
               variant="outline"
               className={cn(
-                'mx-1 h-8 cursor-pointer border-0 text-sm font-normal',
-                isInvalid && 'outline outline-red-400',
+                "mx-1 h-8 cursor-pointer border-0 text-sm font-normal",
+                isInvalid && "outline outline-red-400",
               )}
             />
           }
         >
-          {format(value as Date, 'dd MMM')}
+          {format(value as Date, "dd MMM")}
         </Ppv.PopoverTrigger>
         <Ppv.PopoverPopup>
           <Calendar

@@ -1,4 +1,4 @@
-import Currencies from '@/components/currencies';
+import Currencies from "@/components/currencies";
 
 Index.auth = {};
 

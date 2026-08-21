@@ -1,11 +1,11 @@
-import { useSession } from 'next-auth/react';
-import React from 'react';
+import { useSession } from "next-auth/react";
+import React from "react";
 
-import { GroupedByCategoryBudget } from '@/components/budget/types';
-import { useBudgetMonth } from '@/hooks/budget';
+import { GroupedByCategoryBudget } from "@/components/budget/types";
+import { useBudgetMonth } from "@/hooks/budget";
 
-import CategorySummaryButton from './CategorySummaryButton';
-import DetailsPanel from './DetailsPanel';
+import CategorySummaryButton from "./CategorySummaryButton";
+import DetailsPanel from "./DetailsPanel";
 
 interface Types {
   startDate: string;
@@ -18,7 +18,7 @@ const Container: React.FC<Types> = ({ startDate, endDate, user, clickShowTransac
   const {
     data: { user: authUser },
   } = useSession();
-  const [activeCategoryUuid, setActiveCategoryUuid] = React.useState<string>('');
+  const [activeCategoryUuid, setActiveCategoryUuid] = React.useState<string>("");
   const { data: budget = [] } = useBudgetMonth(startDate, endDate, user);
 
   React.useEffect(() => {
@@ -35,7 +35,11 @@ const Container: React.FC<Types> = ({ startDate, endDate, user, clickShowTransac
         <div className="flex flex-col gap-2">
           {budget &&
             budget.map((item: GroupedByCategoryBudget) => (
-              <div className="flex justify-center" key={item.uuid} onClick={() => setActiveCategoryUuid(item.uuid)}>
+              <div
+                className="flex justify-center"
+                key={item.uuid}
+                onClick={() => setActiveCategoryUuid(item.uuid)}
+              >
                 <CategorySummaryButton
                   title={item.categoryName}
                   isActive={activeCategoryUuid === item.uuid}

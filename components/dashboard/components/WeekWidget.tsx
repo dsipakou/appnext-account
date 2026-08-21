@@ -1,14 +1,14 @@
-import ReactECharts from 'echarts-for-react';
-import { BarChartIcon } from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import React from 'react';
+import ReactECharts from "echarts-for-react";
+import { BarChartIcon } from "lucide-react";
+import { useSession } from "next-auth/react";
+import React from "react";
 
-import { useStore } from '@/app/store';
-import { WeekBudgetItem, WeekBudgetResponse } from '@/components/budget/types';
-import * as Crd from '@/components/ui/card';
-import { useBudgetWeek } from '@/hooks/budget';
-import { getEndOfWeek, getStartOfWeek } from '@/utils/dateUtils';
-import { getFormattedDate, parseDate } from '@/utils/dateUtils';
+import { useStore } from "@/app/store";
+import { WeekBudgetItem, WeekBudgetResponse } from "@/components/budget/types";
+import * as Crd from "@/components/ui/card";
+import { useBudgetWeek } from "@/hooks/budget";
+import { getEndOfWeek, getStartOfWeek } from "@/utils/dateUtils";
+import { getFormattedDate, parseDate } from "@/utils/dateUtils";
 
 interface WeeklySummary {
   name: string;
@@ -32,13 +32,13 @@ const WeekWidget = () => {
   const { data: budget = [] }: WeekBudgetResponse = useBudgetWeek(
     getStartOfWeek(new Date()),
     getEndOfWeek(new Date()),
-    'all',
+    "all",
   );
   React.useEffect(() => {
     const template = Array(7)
       .fill(0)
       .map(() => ({
-        name: '',
+        name: "",
         index: 0,
         planned: 0,
         actual: 0,
@@ -48,7 +48,7 @@ const WeekWidget = () => {
       const weekday = getMappedWeekdayIndex(parseDate(item.budgetDate));
 
       if (!template[weekday].name) {
-        template[weekday].name = getFormattedDate(parseDate(item.budgetDate), 'EEE');
+        template[weekday].name = getFormattedDate(parseDate(item.budgetDate), "EEE");
       }
       template[weekday].planned += item.plannedInCurrencies[authUser?.currency];
       template[weekday].actual += item.spentInCurrencies[authUser?.currency] || 0;
@@ -58,12 +58,12 @@ const WeekWidget = () => {
 
   const weekSpendingOption = {
     tooltip: {
-      trigger: 'axis',
-      axisPointer: { type: 'shadow' },
+      trigger: "axis",
+      axisPointer: { type: "shadow" },
       formatter: (params: any[]) => {
-        const planned = params.find((p) => p.seriesName === 'Planned');
-        const actual = params.find((p) => p.seriesName === 'Actual');
-        const day = params[0]?.axisValue ?? '';
+        const planned = params.find((p) => p.seriesName === "Planned");
+        const actual = params.find((p) => p.seriesName === "Actual");
+        const day = params[0]?.axisValue ?? "";
         return `
           <div class="font-sans p-1">
             <div class="font-bold mb-1">${day}</div>
@@ -74,56 +74,56 @@ const WeekWidget = () => {
           </div>
         `;
       },
-      extraCssText: 'box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-radius: 4px;',
+      extraCssText: "box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-radius: 4px;",
     },
     legend: {
-      data: ['Planned', 'Actual'],
+      data: ["Planned", "Actual"],
       top: 0,
-      textStyle: { color: '#6B7280' },
+      textStyle: { color: "#6B7280" },
     },
     grid: {
-      top: '12%',
-      left: '3%',
-      right: '3%',
-      bottom: '3%',
+      top: "12%",
+      left: "3%",
+      right: "3%",
+      bottom: "3%",
       containLabel: true,
     },
     xAxis: {
       data: weeklySummary.map((item) => item.name),
-      axisLabel: { color: '#6B7280', fontWeight: 500 },
-      axisLine: { lineStyle: { color: '#E5E7EB' } },
+      axisLabel: { color: "#6B7280", fontWeight: 500 },
+      axisLine: { lineStyle: { color: "#E5E7EB" } },
     },
     yAxis: {
-      type: 'value',
+      type: "value",
       splitNumber: 4,
-      axisLabel: { color: '#9CA3AF' },
-      splitLine: { lineStyle: { color: '#F3F4F6' } },
+      axisLabel: { color: "#9CA3AF" },
+      splitLine: { lineStyle: { color: "#F3F4F6" } },
     },
     series: [
       {
-        name: 'Planned',
-        type: 'bar',
+        name: "Planned",
+        type: "bar",
         data: weeklySummary.map((item) => item.planned.toFixed(2)),
         itemStyle: {
-          color: '#3B82F6',
+          color: "#3B82F6",
           borderRadius: [6, 6, 0, 0],
         },
         emphasis: {
-          focus: 'series',
-          itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.2)' },
+          focus: "series",
+          itemStyle: { shadowBlur: 10, shadowColor: "rgba(0,0,0,0.2)" },
         },
       },
       {
-        name: 'Actual',
-        type: 'bar',
+        name: "Actual",
+        type: "bar",
         data: weeklySummary.map((item) => item.actual.toFixed(2)),
         itemStyle: {
-          color: '#10B981',
+          color: "#10B981",
           borderRadius: [6, 6, 0, 0],
         },
         emphasis: {
-          focus: 'series',
-          itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.2)' },
+          focus: "series",
+          itemStyle: { shadowBlur: 10, shadowColor: "rgba(0,0,0,0.2)" },
         },
       },
     ],
@@ -138,7 +138,7 @@ const WeekWidget = () => {
         </Crd.CardTitle>
       </Crd.CardHeader>
       <Crd.CardContent className="pt-4">
-        <ReactECharts option={weekSpendingOption} style={{ height: '250px' }} />
+        <ReactECharts option={weekSpendingOption} style={{ height: "250px" }} />
       </Crd.CardContent>
     </Crd.Card>
   );

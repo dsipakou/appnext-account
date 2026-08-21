@@ -1,7 +1,7 @@
-import { FC } from 'react';
+import { FC } from "react";
 
-import { useStore } from '@/app/store';
-import { formatMoney } from '@/utils/numberUtils';
+import { useStore } from "@/app/store";
+import { formatMoney } from "@/utils/numberUtils";
 
 interface Types {
   title: string;
@@ -19,7 +19,9 @@ const GeneralSummaryCard: FC<Types> = ({ title, planned, spent }) => {
   return (
     <div className="flex h-[80px] flex-col items-center justify-center border bg-slate-600 text-white">
       <div className="flex w-full justify-center">
-        <span className="text-yellow-300">{title.charAt(0).toUpperCase() + title.slice(1)} Summary</span>
+        <span className="text-yellow-300">
+          {title.charAt(0).toUpperCase() + title.slice(1)} Summary
+        </span>
       </div>
       <div className="flex w-full">
         <div className="flex flex-1">
@@ -32,7 +34,10 @@ const GeneralSummaryCard: FC<Types> = ({ title, planned, spent }) => {
             </div>
           </div>
           <div className="ml-2 flex items-end">
-            <div className="w-5 rounded bg-yellow-400" style={{ height: `${plannedPercent}%` }}></div>
+            <div
+              className="w-5 rounded bg-yellow-400"
+              style={{ height: `${plannedPercent}%` }}
+            ></div>
           </div>
         </div>
         <div className="mx-1 w-[1px] bg-gray-500"></div>

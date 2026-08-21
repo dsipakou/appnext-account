@@ -6,10 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint . && oxfmt --check .",
+    "format": "oxfmt .",
     "check": "pnpm lint && pnpm format:check",
     "test": "vitest",
     "test:run": "vitest run",
@@ -50,12 +49,10 @@
     "zod": "^4.0.0",
     "zustand": "^5.0.14"
   },
-  "overrides": {
-    "@radix-ui/react-focus-scope": "1.1.1"
-  },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@next/eslint-plugin-next": "^16.2.11",
+    "@standard-config/oxlint": "^2.8.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.1",
@@ -64,11 +61,10 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.2",
-    "eslint": "^9.39.5",
-    "eslint-config-next": "16.2.10",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-simple-import-sort": "^13.0.0",
     "happy-dom": "^20.11.0",
+    "oxfmt": "^0.64.0",
+    "oxlint": "^1.79.0",
+    "oxlint-tsgolint": "^7.0.2001",
     "postcss": "^8.5.22",
     "postcss-flexbugs-fixes": "^5.0.2",
     "prettier": "^3.9.6",
@@ -77,5 +73,8 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.65.0",
     "vitest": "4.1.10"
+  },
+  "overrides": {
+    "@radix-ui/react-focus-scope": "1.1.1"
   }
 }

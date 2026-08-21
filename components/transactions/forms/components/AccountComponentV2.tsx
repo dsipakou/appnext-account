@@ -1,16 +1,16 @@
-import React from 'react';
+import React from "react";
 
 // Types
-import { Account } from '@/components/accounts/types';
-import { WeekBudgetItem } from '@/components/budget/types';
-import { RowData } from '@/components/transactions/components/transactionTable';
+import { Account } from "@/components/accounts/types";
+import { WeekBudgetItem } from "@/components/budget/types";
+import { RowData } from "@/components/transactions/components/transactionTable";
 // UI
-import * as Slc from '@/components/ui/select';
+import * as Slc from "@/components/ui/select";
 // Hooks
-import { useBudgetWeek } from '@/hooks/budget';
+import { useBudgetWeek } from "@/hooks/budget";
 // Utils
-import { cn } from '@/lib/utils';
-import { getEndOfWeek, getStartOfWeek } from '@/utils/dateUtils';
+import { cn } from "@/lib/utils";
+import { getEndOfWeek, getStartOfWeek } from "@/utils/dateUtils";
 
 type Props = {
   user: string;
@@ -50,7 +50,7 @@ export default function AccountComponent({
     if (!defaultAccount) return;
     // If no account passed (i.e. while duplicating) select default
     if (!value) {
-      handleChange(row.id, 'account', defaultAccount?.uuid || '');
+      handleChange(row.id, "account", defaultAccount?.uuid || "");
     }
   }, [defaultAccount]);
 
@@ -64,9 +64,9 @@ export default function AccountComponent({
 
   const changeValue = (value: string) => {
     if (!isAccountAndBudgetMatch(value)) {
-      handleChange(row.id, 'budget', null);
+      handleChange(row.id, "budget", null);
     }
-    handleChange(row.id, 'account', value);
+    handleChange(row.id, "account", value);
   };
 
   return (
@@ -82,8 +82,8 @@ export default function AccountComponent({
     >
       <Slc.SelectTrigger
         className={cn(
-          'focus:border-primary h-8 w-full border-0 bg-white px-2 text-left text-sm focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-blue-700 focus-visible:outline-none',
-          isInvalid && 'outline outline-red-400',
+          "focus:border-primary h-8 w-full border-0 bg-white px-2 text-left text-sm focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-blue-700 focus-visible:outline-none",
+          isInvalid && "outline outline-red-400",
         )}
         onKeyDown={(e) => handleKeyDown(e, row.id)}
       >

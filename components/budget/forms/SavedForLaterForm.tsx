@@ -1,16 +1,16 @@
-import { Info, Pencil, Trash } from 'lucide-react';
-import React from 'react';
+import { Info, Pencil, Trash } from "lucide-react";
+import React from "react";
 
-import ConfirmDeleteForm from '@/components/budget/forms/ConfirmDeleteForm';
-import EditForm from '@/components/budget/forms/EditForm';
-import { WeekBudgetItem } from '@/components/budget/types';
-import { Category } from '@/components/categories/types';
-import { Currency } from '@/components/currencies/types';
-import { Button } from '@/components/ui/button';
-import * as Dlg from '@/components/ui/dialog';
-import { usePendingBudget } from '@/hooks/budget';
-import { useCategories } from '@/hooks/categories';
-import { useCurrencies } from '@/hooks/currencies';
+import ConfirmDeleteForm from "@/components/budget/forms/ConfirmDeleteForm";
+import EditForm from "@/components/budget/forms/EditForm";
+import { WeekBudgetItem } from "@/components/budget/types";
+import { Category } from "@/components/categories/types";
+import { Currency } from "@/components/currencies/types";
+import { Button } from "@/components/ui/button";
+import * as Dlg from "@/components/ui/dialog";
+import { usePendingBudget } from "@/hooks/budget";
+import { useCategories } from "@/hooks/categories";
+import { useCurrencies } from "@/hooks/currencies";
 
 interface Types {
   weekUrl: string;
@@ -19,21 +19,22 @@ interface Types {
 
 const SavedForLaterForm: React.FC<Types> = ({ weekUrl, monthUrl }) => {
   const [isEditDialogOpened, setIsEditDialogOpened] = React.useState<boolean>(false);
-  const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] = React.useState<boolean>(false);
-  const [activeBudgetUuid, setActiveBudgetUuid] = React.useState<string>('');
+  const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] =
+    React.useState<boolean>(false);
+  const [activeBudgetUuid, setActiveBudgetUuid] = React.useState<string>("");
 
   const { data: pendingBudget = [] } = usePendingBudget();
   const { data: categories = [] } = useCategories();
   const { data: currencies = [] } = useCurrencies();
 
   const getCurrencySign = (currency: Currency) => {
-    return currencies.find((item: Currency) => item == currency)?.sign || '';
+    return currencies.find((item: Currency) => item == currency)?.sign || "";
   };
 
   const clearForm = () => {};
 
   const getCategoryName = (uuid: string): string => {
-    return categories.find((item: Category) => item.uuid === uuid)?.name || '';
+    return categories.find((item: Category) => item.uuid === uuid)?.name || "";
   };
 
   const clickEdit = (uuid: string) => {
@@ -49,7 +50,9 @@ const SavedForLaterForm: React.FC<Types> = ({ weekUrl, monthUrl }) => {
   return (
     <Dlg.Dialog onOpenChange={clearForm}>
       <Dlg.DialogTrigger
-        render={<Button variant="ghost" className="border-blue-500 text-blue-500 hover:text-blue-600" />}
+        render={
+          <Button variant="ghost" className="border-blue-500 text-blue-500 hover:text-blue-600" />
+        }
       >
         Saved for later
       </Dlg.DialogTrigger>
@@ -67,8 +70,12 @@ const SavedForLaterForm: React.FC<Types> = ({ weekUrl, monthUrl }) => {
                 <div className="flex">
                   <Info className="mr-1 h-4 w-4 text-blue-500" />
                   <div className="flex flex-col">
-                    <span className="text-m flex">If you want to plan something but haven't decided on a date yet</span>
-                    <span className="text-sm">just create a budget and don't specify a date for it.</span>
+                    <span className="text-m flex">
+                      If you want to plan something but haven't decided on a date yet
+                    </span>
+                    <span className="text-sm">
+                      just create a budget and don't specify a date for it.
+                    </span>
                   </div>
                 </div>
               </div>
@@ -96,10 +103,18 @@ const SavedForLaterForm: React.FC<Types> = ({ weekUrl, monthUrl }) => {
                         </span>
                       </div>
                       <div className="flex h-full items-center justify-end">
-                        <Button variant="ghost" size="xs" onClick={() => clickEdit(budgetItem.uuid)}>
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          onClick={() => clickEdit(budgetItem.uuid)}
+                        >
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="xs" onClick={() => clickDelete(budgetItem.uuid)}>
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          onClick={() => clickDelete(budgetItem.uuid)}
+                        >
                           <Trash className="h-4 w-4 text-red-600" />
                         </Button>
                       </div>

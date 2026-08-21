@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
-  output: 'standalone',
+  output: "standalone",
   reactStrictMode: true,
   typescript: {
     ignoreBuildErrors: true,
@@ -9,22 +9,22 @@ module.exports = {
     return {
       beforeFiles: [
         {
-          source: '/',
-          destination: '/', // Keep all other paths for app subdomain
+          source: "/",
+          destination: "/", // Keep all other paths for app subdomain
           has: [
             {
-              type: 'host',
-              value: 'ispentadollar.com', // Only for subdomain
+              type: "host",
+              value: "ispentadollar.com", // Only for subdomain
             },
           ],
         },
         {
-          source: '/',
-          destination: '/dashboard', // Keep all other paths for app subdomain
+          source: "/",
+          destination: "/dashboard", // Keep all other paths for app subdomain
           has: [
             {
-              type: 'host',
-              value: 'app.ispentadollar.com', // Only for subdomain
+              type: "host",
+              value: "app.ispentadollar.com", // Only for subdomain
             },
           ],
         },

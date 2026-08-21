@@ -1,17 +1,17 @@
 // External
-import { CalendarIcon } from 'lucide-react';
-import React from 'react';
+import { CalendarIcon } from "lucide-react";
+import React from "react";
 
 // Types
-import { BudgetItem } from '@/components/budget/types';
-import { Currency } from '@/components/currencies/types';
+import { BudgetItem } from "@/components/budget/types";
+import { Currency } from "@/components/currencies/types";
 // UI
-import * as Crd from '@/components/ui/card';
-import { useGetUpcommingBudget } from '@/hooks/budget';
+import * as Crd from "@/components/ui/card";
+import { useGetUpcommingBudget } from "@/hooks/budget";
 // Hooks
-import { useCurrencies } from '@/hooks/currencies';
+import { useCurrencies } from "@/hooks/currencies";
 // Utils
-import { getRelativeDate } from '@/utils/dateUtils';
+import { getRelativeDate } from "@/utils/dateUtils";
 
 const UpcommingExpenses = () => {
   const { data: upcomingExpenses = [] } = useGetUpcommingBudget();
@@ -34,7 +34,9 @@ const UpcommingExpenses = () => {
             >
               <span className="flex items-center">
                 <span className="mr-2 h-2 w-2 rounded-full bg-yellow-300"></span>
-                <span className="mr-2 w-16 text-xs text-gray-500">{getRelativeDate(item.budgetDate)}</span>
+                <span className="mr-2 w-16 text-xs text-gray-500">
+                  {getRelativeDate(item.budgetDate)}
+                </span>
                 <span className="w-40 truncate font-medium">{item.title}</span>
               </span>
               <span className="flex items-center space-x-2">

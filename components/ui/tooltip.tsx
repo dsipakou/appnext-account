@@ -1,11 +1,13 @@
-'use client';
+"use client";
 
-import { Tooltip as TooltipPrimitive } from '@base-ui/react/tooltip';
-import type React from 'react';
+import type React from "react";
 
-import { cn } from '@/lib/utils';
+import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 
-export const TooltipCreateHandle: typeof TooltipPrimitive.createHandle = TooltipPrimitive.createHandle;
+import { cn } from "@/lib/utils";
+
+export const TooltipCreateHandle: typeof TooltipPrimitive.createHandle =
+  TooltipPrimitive.createHandle;
 
 export const TooltipProvider: typeof TooltipPrimitive.Provider = TooltipPrimitive.Provider;
 
@@ -17,18 +19,18 @@ export function TooltipTrigger(props: TooltipPrimitive.Trigger.Props): React.Rea
 
 export function TooltipPopup({
   className,
-  align = 'center',
+  align = "center",
   sideOffset = 4,
-  side = 'top',
+  side = "top",
   anchor,
   children,
   portalProps,
   ...props
 }: TooltipPrimitive.Popup.Props & {
-  align?: TooltipPrimitive.Positioner.Props['align'];
-  side?: TooltipPrimitive.Positioner.Props['side'];
-  sideOffset?: TooltipPrimitive.Positioner.Props['sideOffset'];
-  anchor?: TooltipPrimitive.Positioner.Props['anchor'];
+  align?: TooltipPrimitive.Positioner.Props["align"];
+  side?: TooltipPrimitive.Positioner.Props["side"];
+  sideOffset?: TooltipPrimitive.Positioner.Props["sideOffset"];
+  anchor?: TooltipPrimitive.Positioner.Props["anchor"];
   portalProps?: TooltipPrimitive.Portal.Props;
 }): React.ReactElement {
   return (
@@ -43,7 +45,7 @@ export function TooltipPopup({
       >
         <TooltipPrimitive.Popup
           className={cn(
-            'bg-popover text-popover-foreground relative flex h-(--popup-height,auto) w-(--popup-width,auto) origin-(--transform-origin) rounded-md border text-xs text-balance shadow-md/5 transition-[width,height,scale,opacity] not-dark:bg-clip-padding before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-md)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] data-ending-style:scale-98 data-ending-style:opacity-0 data-instant:duration-0 data-starting-style:scale-98 data-starting-style:opacity-0 dark:before:shadow-[0_-1px_--theme(--color-white/6%)]',
+            "bg-popover text-popover-foreground relative flex h-(--popup-height,auto) w-(--popup-width,auto) origin-(--transform-origin) rounded-md border text-xs text-balance shadow-md/5 transition-[width,height,scale,opacity] not-dark:bg-clip-padding before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-md)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] data-ending-style:scale-98 data-ending-style:opacity-0 data-instant:duration-0 data-starting-style:scale-98 data-starting-style:opacity-0 dark:before:shadow-[0_-1px_--theme(--color-white/6%)]",
             className,
           )}
           data-slot="tooltip-popup"
