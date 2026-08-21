@@ -16,7 +16,7 @@ import * as Slc from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { User } from '@/components/users/types';
 import { useBudgetMonth, useBudgetWeek } from '@/hooks/budget';
-import { useUsers } from '@/hooks/users';
+import { UserResponse, useUsers } from '@/hooks/users';
 import { cn } from '@/lib/utils';
 import { getEndOfMonth, getEndOfWeek, getStartOfMonth, getStartOfWeek } from '@/utils/dateUtils';
 
@@ -47,6 +47,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const setMonthDate = useStore((state) => state.setMonthDate);
 
     const { data: users = [], isLoading: isUserLoading } = useUsers();
+    const extendedUsers = React.useMemo(() => [{ username: 'All users', uuid: 'all' }, ...users], [users]);
 
     const {
       data: budgetMonth = [],
@@ -194,7 +195,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             onValueChange={changeUser}
             defaultValue="all"
             disabled={isUserLoading}
-            items={users.map((item: User) => ({ label: item.username, value: item.uuid }))}
+            items={extendedUsers.map((item: UserResponse) => ({ label: item.username, value: item.uuid }))}
           >
             <Slc.SelectTrigger className="text-muted-foreground relative w-full border-2 font-normal hover:text-black">
               <Slc.SelectValue placeholder="User" />
@@ -202,9 +203,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             <Slc.SelectPopup>
               <Slc.SelectGroup>
                 <Slc.SelectGroupLabel>Users</Slc.SelectGroupLabel>
-                <Slc.SelectItem value="all">All users</Slc.SelectItem>
-                <Slc.SelectSeparator />
-                {users.map((item: User) => (
+                {extendedUsers.map((item: UserResponse) => (
                   <Slc.SelectItem value={item.uuid} key={item.uuid}>
                     {item.username}
                   </Slc.SelectItem>
