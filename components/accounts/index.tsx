@@ -33,14 +33,13 @@ const Index: React.FC = () => {
         <span className="text-xl font-semibold">Accounts</span>
         <AddAccount />
       </div>
-      {isAccountsLoading && (
+      {isAccountsLoading ? (
         <div className="flex h-full items-center justify-center">
           <div className="text-center">
             <Spinner className="size-8" />
           </div>
         </div>
-      )}
-      {!isAccountsLoading && sortedYourAccounts.length === 0 ? (
+      ) : sortedYourAccounts.length === 0 ? (
         <div className="flex flex-1 items-center justify-center">
           <span className="text-2xl">No accounts added</span>
         </div>
