@@ -36,7 +36,7 @@ const EditForm: React.FC<Types> = ({ uuid, open, setOpen }) => {
   const { mutate } = useSWRConfig();
 
   const [isLoading, setIsLoading] = React.useState(false);
-  const [values, setValues] = React.useState<AccountFormValues>({
+  const [values, setValues] = React.useState<GenericFormValues>({
     kind: "spending",
     title: "",
     user: "",

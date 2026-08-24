@@ -1,7 +1,8 @@
-// System
 import { MoreHorizontal, TrashIcon, User as UserIcon } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
+// System
+import { useSWRConfig } from "swr";
 
 // Components
 import { useStore } from "@/app/store";
@@ -15,12 +16,15 @@ import { AccountUsage } from "@/components/transactions/types";
 import { Button } from "@/components/ui/button";
 // UI
 import * as Mnu from "@/components/ui/menu";
+import { toastManager } from "@/components/ui/toast";
 // Types
 import { User } from "@/components/users/types";
+import { useMakeDefaultAccount } from "@/hooks/accounts";
 import { useAccountUsage } from "@/hooks/transactions";
 // Hooks
 import { useUsers } from "@/hooks/users";
 import { cn } from "@/lib/utils";
+import { extractErrorMessage } from "@/utils/stringUtils";
 
 interface Types {
   account: AccountResponse;
@@ -34,8 +38,8 @@ const AccountCard: React.FC<Types> = ({ account }) => {
   const [reassignOpen, setReassignOpen] = React.useState<boolean>(false);
 
   const { data: users = [] } = useUsers();
+  const { mutate } = useSWRConfig();
 
-  // By default income and spent are 0
   const { data: usage = { income: 0, spent: 0 } as AccountUsage } = useAccountUsage(account.uuid);
   const income = usage.income;
   const expenses = usage.spent;
@@ -50,21 +54,54 @@ const AccountCard: React.FC<Types> = ({ account }) => {
   };
   const user = getUser(account.user);
 
+  const { trigger: makeAccountDefault, isMutating: isUpdating } = useMakeDefaultAccount(
+    account.uuid,
+  );
+
+  const makeDefault = async () => {
+    try {
+      await makeAccountDefault();
+
+      mutate("accounts/");
+      toastManager.add({
+        id: "account-update",
+        title: "Default account updated!",
+        type: "success",
+      });
+    } catch (error) {
+      toastManager.add({
+        id: "account-update-error",
+        title: "Something went wrong",
+        description: extractErrorMessage(error),
+        type: "error",
+      });
+    }
+  };
+
   return (
     <div className="relative flex flex-row justify-between overflow-hidden bg-white p-2">
-      <div className="pointer-events-none absolute -top-24 -right-20 size-48 rounded-full bg-cyan-200/45 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 left-6 size-44 rounded-full bg-violet-200/35 blur-3xl" />
+      <div className="pointer-events-none absolute -top-24 -right-20 size-30 rounded-full bg-cyan-200/45 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 left-6 size-24 rounded-full bg-violet-200/75 blur-3xl" />
 
       <div className="flex flex-1 justify-start gap-4">
         <div className="flex flex-1 p-4 pb-1.5">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <div className="truncate text-base leading-none font-semibold text-slate-950">
+              <div className="truncate text-3xl leading-none font-semibold text-slate-950">
                 {account.title}
               </div>
               <div className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500">
                 <UserIcon className="size-3.5" />
                 <span className="truncate">{user?.username ?? "No owner"}</span>
+              </div>
+              <div className="mt-2">
+                {account.isDefault ? (
+                  <span className="mt-1.5 text-xs font-medium text-emerald-600">Default</span>
+                ) : (
+                  <Button size="xs" onClick={makeDefault}>
+                    <span>Make default</span>
+                  </Button>
+                )}
               </div>
             </div>
           </div>

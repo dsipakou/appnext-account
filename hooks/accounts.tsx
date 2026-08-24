@@ -49,6 +49,17 @@ export const useUpdateAccount = (uuid: string) => {
   };
 };
 
+export const useMakeDefaultAccount = (uuid: string) => {
+  const { trigger, isMutating } = useSWRMutation(`accounts/${uuid}/default/`, patchReq, {
+    revalidate: true,
+  });
+
+  return {
+    trigger,
+    isMutating,
+  };
+};
+
 export const useReassignTransactions = (uuid: string) => {
   const { trigger, isMutating } = useSWRMutation(`accounts/${uuid}/reassign/`, postReq, {
     revalidate: true,
