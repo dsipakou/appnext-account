@@ -39,7 +39,7 @@ const Index: React.FC = () => {
             <Spinner className="size-8" />
           </div>
         </div>
-      ) : sortedYourAccounts.length === 0 ? (
+      ) : accounts.length === 0 ? (
         <div className="flex flex-1 items-center justify-center">
           <span className="text-2xl">No accounts added</span>
         </div>
@@ -55,16 +55,18 @@ const Index: React.FC = () => {
               ))}
             </div>
           </div>
-          <div className="rounded-xl bg-white pt-3">
-            <span className="p-3">Other accounts</span>
-            <div className="flex flex-col rounded-xl bg-white py-3">
-              {otherAccounts.map((item: AccountResponse) => (
-                <div key={item.uuid}>
-                  <AccountCard account={item} />
-                </div>
-              ))}
+          {otherAccounts.length > 0 && (
+            <div className="rounded-xl bg-white pt-3">
+              <span className="p-3">Other accounts</span>
+              <div className="flex flex-col rounded-xl bg-white py-3">
+                {otherAccounts.map((item: AccountResponse) => (
+                  <div key={item.uuid}>
+                    <AccountCard account={item} />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </>
       )}
     </div>
