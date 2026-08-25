@@ -1,3 +1,5 @@
+import * as z from "zod";
+
 export type RecurrentTypes = "monthly" | "weekly";
 
 export type CurrencyMap = {
@@ -113,3 +115,29 @@ export type MonthSummedUsage = {
   month: string;
   amount: number;
 };
+
+export const formSchema = z.object({
+  title: z.string().min(2, {
+    error: "Title must be at least 2 characters",
+  }),
+  amount: z.coerce.number().min(0, {
+    error: "Should be positive number",
+  }),
+  currency: z.uuid({
+    error: "Please, select currency",
+  }),
+  user: z.uuid({
+    error: "Please, select user",
+  }),
+  category: z.uuid({
+    error: "Please, select category",
+  }),
+  repeatType: z.enum(["", "weekly", "monthly"]),
+  numberOfRepetitions: z.coerce.number().int().positive().optional(),
+  budgetDate: z.date({
+    error: "Budget date is required",
+  }),
+  description: z.string().optional(),
+});
+
+export type FormValues = z.infer<typeof formSchema>;

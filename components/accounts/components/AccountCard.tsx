@@ -96,9 +96,9 @@ const AccountCard: React.FC<Types> = ({ account }) => {
               </div>
               <div className="mt-2">
                 {account.isDefault ? (
-                  <span className="mt-1.5 text-xs font-medium text-emerald-600">Default</span>
+                  <span className="mt-1.5 text-xs font-medium">Default</span>
                 ) : (
-                  <Button size="xs" onClick={makeDefault}>
+                  <Button size="slim" onClick={makeDefault}>
                     <span>Make default</span>
                   </Button>
                 )}
