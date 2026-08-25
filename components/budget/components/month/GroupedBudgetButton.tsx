@@ -134,7 +134,7 @@ const GroupedBudgetButton: FC<Types> = ({ item }) => {
               recurrent === "weekly" && "border-t-[28px] border-r-[28px] border-t-orange-400",
             )}
           ></div>
-          <div className="absolute top-[2px] left-[2px] text-white">
+          <div className="absolute top-[1px] left-[1px] z-70 text-white">
             <Repeat2 className="h-4 w-4"></Repeat2>
           </div>
         </>
