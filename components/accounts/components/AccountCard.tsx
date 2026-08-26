@@ -1,10 +1,15 @@
-import { MoreHorizontal, TrashIcon, User as UserIcon } from "lucide-react";
+import {
+  MoreHorizontal,
+  TrashIcon,
+  Link as LinkIcon,
+  Pencil,
+  Search,
+  User as UserIcon,
+} from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
-// System
 import { useSWRConfig } from "swr";
 
-// Components
 import { useStore } from "@/app/store";
 import {
   ConfirmDeleteForm,
@@ -14,14 +19,11 @@ import {
 import { AccountResponse } from "@/components/accounts/types";
 import { AccountUsage } from "@/components/transactions/types";
 import { Button } from "@/components/ui/button";
-// UI
 import * as Mnu from "@/components/ui/menu";
 import { toastManager } from "@/components/ui/toast";
-// Types
 import { User } from "@/components/users/types";
 import { useMakeDefaultAccount } from "@/hooks/accounts";
 import { useAccountUsage } from "@/hooks/transactions";
-// Hooks
 import { useUsers } from "@/hooks/users";
 import { cn } from "@/lib/utils";
 import { extractErrorMessage } from "@/utils/stringUtils";
@@ -168,14 +170,19 @@ const AccountCard: React.FC<Types> = ({ account }) => {
             <Mnu.MenuGroup>
               <Mnu.MenuGroupLabel>Details</Mnu.MenuGroupLabel>
               <Mnu.MenuLinkItem render={<Link href={`/accounts/${account.uuid}`} />}>
+                <Search aria-hidden="true" />
                 View Details
               </Mnu.MenuLinkItem>
             </Mnu.MenuGroup>
             <Mnu.MenuSeparator />
             <Mnu.MenuGroup>
               <Mnu.MenuGroupLabel>Actions</Mnu.MenuGroupLabel>
-              <Mnu.MenuItem onClick={() => setEditOpen(true)}>Edit</Mnu.MenuItem>
+              <Mnu.MenuItem onClick={() => setEditOpen(true)}>
+                <Pencil aria-hidden="true" />
+                Edit
+              </Mnu.MenuItem>
               <Mnu.MenuItem onClick={() => setReassignOpen(true)}>
+                <LinkIcon aria-hidden="true" />
                 Reassign Transactions
               </Mnu.MenuItem>
               <Mnu.MenuItem onClick={() => setDeleteOpen(true)} variant="destructive">
