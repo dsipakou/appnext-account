@@ -40,7 +40,7 @@ const AddIncomeForm: React.FC<Types> = ({ open, url, handleClose }) => {
     <>
       <Dlg.Dialog open={open} onOpenChange={onClose}>
         <Dlg.DialogPopup className="mx-3 flex h-[95vh] w-4/5 flex-col overflow-hidden sm:max-w-full">
-          <Dlg.DialogHeader className="flex-shrink-0">
+          <Dlg.DialogHeader className="shrink-0">
             <Dlg.DialogTitle>Add income transactions</Dlg.DialogTitle>
           </Dlg.DialogHeader>
           <Dlg.DialogPanel className="min-h-0 flex-1">
