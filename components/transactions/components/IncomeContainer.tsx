@@ -11,16 +11,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { TransactionResponse } from "../types";
+import type { TransactionResponse } from "../types";
+
 import { TransactionsTable } from "./transactionTable";
 
-interface Types {
+type Types = {
   transactions: TransactionResponse[];
   transactionsUrl: string;
   isLoading: boolean;
   year: number;
   setYear: (value: number) => void;
-}
+};
 
 const IncomeComponent: React.FC<Types> = ({
   transactions = [],
@@ -81,6 +82,7 @@ const IncomeComponent: React.FC<Types> = ({
           url={transactionsUrl}
           categoryType="INC"
           disabledColumns={["budget"]}
+          transactionType="income"
         />
       </div>
       {isOpenEditIncome && (

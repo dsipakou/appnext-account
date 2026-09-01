@@ -1,9 +1,9 @@
 import React from "react";
 
 // Types
-import { Category } from "@/components/categories/types";
-import { RowData } from "@/components/transactions/components/transactionTable";
-import * as Scr from "@/components/ui/scroll-area";
+import type { Category } from "@/components/categories/types";
+import type { RowData } from "@/components/transactions/components/transactionTable";
+
 // UI
 import * as Slc from "@/components/ui/select";
 // Utils
@@ -21,8 +21,17 @@ type Props = {
   defaultOpen?: boolean;
 };
 
+const renderIncomeCategory = (category: Category, index: number): React.ReactElement => (
+  <Slc.SelectItem
+    key={category.uuid}
+    value={category.uuid}
+    data-parent-id={index === 0 ? category.uuid : undefined}
+  >
+    {category.icon} {category.name}
+  </Slc.SelectItem>
+);
+
 export default function CategoryComponent({
-  user,
   value,
   categories,
   categoryType,
@@ -31,14 +40,21 @@ export default function CategoryComponent({
   row,
   isInvalid,
   defaultOpen = false,
-}: Props) {
+}: Props): React.ReactElement {
   const [open, setOpen] = React.useState<boolean>(defaultOpen);
   const parents = categories.filter(
     (item: Category) => item.parent === null && item.type === categoryType,
   );
+  const selectableCategories = categories.filter((item) =>
+    categoryType === "INC"
+      ? item.parent === null && item.type === categoryType
+      : item.parent !== null,
+  );
 
   React.useEffect(() => {
-    if (!open || !value) return;
+    if (!open || !value) {
+      return;
+    }
 
     requestAnimationFrame(() => {
       const scrollUuid = categories.find((item) => item.uuid === value)?.parent ?? value;
@@ -66,7 +82,9 @@ export default function CategoryComponent({
   };
 
   React.useEffect(() => {
-    if (!open || !value) return;
+    if (!open || !value) {
+      return;
+    }
 
     requestAnimationFrame(() => {
       const scrollUuid = categories.find((item) => item.uuid === value)?.parent ?? value;
@@ -104,9 +122,7 @@ export default function CategoryComponent({
       open={open}
       onValueChange={(value) => onChange(value)}
       onOpenChange={handleOpen}
-      items={categories
-        .filter((item) => item.parent !== null)
-        .map((item: Category) => ({ label: item.name, value: item.uuid }))}
+      items={selectableCategories.map((item: Category) => ({ label: item.name, value: item.uuid }))}
     >
       <Slc.SelectTrigger
         className={cn(
@@ -118,33 +134,37 @@ export default function CategoryComponent({
         <Slc.SelectValue>
           {(item) => {
             const selectedCategory = categories.find((category) => category.uuid === item);
-            if (!selectedCategory) return;
+            if (!selectedCategory) {
+              return;
+            }
 
-            if (selectedCategory.parent === null) {
+            if (selectedCategory.parent === null && categoryType === "EXP") {
               return (
                 <span className="text-gray-400">{selectedCategory.name} (select category)</span>
               );
-            } else {
-              const parentCategory = categories.find(
-                (category) => category.uuid === selectedCategory.parent,
-              );
-              return (
-                <span>
-                  {parentCategory?.icon} {selectedCategory.name}
-                </span>
-              );
             }
+
+            const parentCategory = categories.find(
+              (category) => category.uuid === selectedCategory.parent,
+            );
+            return (
+              <span>
+                {parentCategory?.icon || selectedCategory.icon} {selectedCategory.name}
+              </span>
+            );
           }}
         </Slc.SelectValue>
       </Slc.SelectTrigger>
       <Slc.SelectPopup className="max-h-120">
         <Slc.SelectGroup>
-          {parents.map((parent) => (
-            <React.Fragment key={parent.uuid}>
-              {expenseList(parent)}
-              <Slc.SelectSeparator />
-            </React.Fragment>
-          ))}
+          {categoryType === "INC"
+            ? parents.map(renderIncomeCategory)
+            : parents.map((parent) => (
+                <React.Fragment key={parent.uuid}>
+                  {expenseList(parent)}
+                  <Slc.SelectSeparator />
+                </React.Fragment>
+              ))}
         </Slc.SelectGroup>
       </Slc.SelectPopup>
     </Slc.Select>

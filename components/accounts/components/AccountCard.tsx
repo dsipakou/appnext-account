@@ -147,7 +147,7 @@ const AccountCard: React.FC<Types> = ({ account }) => {
                 </div>
               </div>
             )}
-            <div className="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+            <div className="h-px bg-linear-to-r from-transparent via-slate-200 to-transparent" />
           </div>
         </div>
       </div>

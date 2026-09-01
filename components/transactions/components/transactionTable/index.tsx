@@ -26,7 +26,7 @@ import type { TransactionBulkResponse, TransactionResponse } from "@/components/
 import type { User } from "@/components/users/types";
 
 import { useStore } from "@/app/store";
-import { ConfirmDeleteForm } from "@/components/transactions/forms";
+import ConfirmDeleteForm from "@/components/transactions/forms/ConfirmDeleteForm";
 // UI
 import { Button } from "@/components/ui/button";
 import * as Tbl from "@/components/ui/table";
@@ -56,6 +56,7 @@ type Types = {
   mode?: "view" | "bulk";
   budget?: CompactWeekItem;
   categoryType?: "INC" | "EXP";
+  transactionType?: "income" | "outcome";
   disabledColumns?: string[];
   handleCanClose?: (flag: boolean) => void;
 };
@@ -90,6 +91,7 @@ export const TransactionsTable = ({
   transactions,
   budget,
   categoryType = "EXP",
+  transactionType = "outcome",
   mode = "view",
   disabledColumns = [],
   handleCanClose = () => {},
@@ -360,7 +362,7 @@ export const TransactionsTable = ({
       category: row.category,
       currency: row.currency,
       transactionDate: getFormattedDate(row.date),
-      type: "outcome",
+      type: transactionType,
       user,
     });
     setData((prevData: RowData[]) =>
@@ -398,7 +400,7 @@ export const TransactionsTable = ({
         category: row.category,
         currency: row.currency,
         transactionDate: getFormattedDate(row.date),
-        type: "outcome",
+        type: transactionType,
         user,
       })),
     );
@@ -413,7 +415,7 @@ export const TransactionsTable = ({
               uuid: resultMap.get(r.id)!.uuid,
               account: resultMap.get(r.id)!.account,
               budget: resultMap.get(r.id)!.budget,
-              budgetName: resultMap.get(r.id)!.budgetDetails.title,
+              budgetName: resultMap.get(r.id)!.budgetDetails?.title || "",
               category: resultMap.get(r.id)!.category,
               categoryName: resultMap.get(r.id)!.categoryDetails.name,
               categoryParentName: resultMap.get(r.id)!.categoryDetails.parentName,
@@ -465,7 +467,7 @@ export const TransactionsTable = ({
             category: rowToSave.category,
             currency: rowToSave.currency,
             transactionDate: getFormattedDate(rowToSave.date),
-            type: "outcome",
+            type: transactionType,
             user,
           });
         } catch {

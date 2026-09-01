@@ -1,32 +1,28 @@
-// System
-import { useSession } from "next-auth/react";
 import * as React from "react";
 import { useSWRConfig } from "swr";
 
 // Types
-import { CompactWeekItem } from "@/components/budget/types";
+import type { CompactWeekItem } from "@/components/budget/types";
+
 // UI
 import * as Alr from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import * as Dlg from "@/components/ui/dialog";
-import { User } from "@/components/users/types";
-// Hooks
-import { useUsers } from "@/hooks/users";
 
 // Components
 import { TransactionsTable } from "../components/transactionTable";
 
-interface Types {
+type Types = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   url: string;
   budget?: CompactWeekItem;
-}
+};
 
-const UnsavedTransactionsAlert: React.FC<{ open: boolean; setOpen: (open: boolean) => void }> = ({
-  open = false,
-  setOpen,
-}) => {
+export const UnsavedTransactionsAlert: React.FC<{
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}> = ({ open = false, setOpen }) => {
   return (
     <Alr.AlertDialog open={open} onOpenChange={setOpen}>
       <Alr.AlertDialogTrigger />
@@ -46,23 +42,9 @@ const UnsavedTransactionsAlert: React.FC<{ open: boolean; setOpen: (open: boolea
 };
 
 const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
-  const [user, setUser] = React.useState("");
   const [canClose, setCanClose] = React.useState<boolean>(true);
   const [alertOpen, setAlertOpen] = React.useState(false);
-
-  const { data: users = [] } = useUsers();
-
-  const {
-    data: { user: authUser },
-  } = useSession();
   const { mutate } = useSWRConfig();
-
-  React.useEffect(() => {
-    if (!authUser || users.length === 0) return;
-
-    const _user = users.find((item: User) => item.username === authUser.username)!;
-    setUser(_user.uuid);
-  }, [authUser, users]);
 
   const handleCanClose = (flag: boolean) => {
     setCanClose(flag);
@@ -72,11 +54,11 @@ const AddForm: React.FC<Types> = ({ open, onOpenChange, url, budget }) => {
     if (open) {
       onOpenChange(open);
       return;
-    } else {
-      mutate(url);
-      mutate((key) => typeof key === "string" && key.includes("budget/usage"), undefined);
-      mutate((key) => typeof key === "string" && key.includes("budget/weekly-usage"), undefined);
     }
+
+    mutate(url);
+    mutate((key) => typeof key === "string" && key.includes("budget/usage"), undefined);
+    mutate((key) => typeof key === "string" && key.includes("budget/weekly-usage"), undefined);
 
     if (canClose) {
       onOpenChange(false);
