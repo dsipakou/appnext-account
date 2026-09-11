@@ -1,9 +1,19 @@
 import React from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import * as Slc from "@/components/ui/select";
 import { useCurrencies } from "@/hooks/currencies";
 import { useRates, useRatesChart } from "@/hooks/rates";
+
+import type { ChartPeriod, Currency } from "./types";
 
 import CurrencyCard from "./CurrencyCard";
 import CurrencyChart from "./CurrencyChart";
@@ -11,7 +21,7 @@ import AddForm from "./forms/AddForm";
 import AddRatesForm from "./forms/AddRatesForm";
 import ConfirmDeleteForm from "./forms/ConfirmDeleteForm";
 import EditForm from "./forms/EditForm";
-import { ChartPeriod, ChartPeriodMap, Currency } from "./types";
+import { ChartPeriodMap } from "./types";
 
 const Index: React.FC = () => {
   const [selectedCurrencies, setSelectedCurrencies] = React.useState<Currency[]>([]);
@@ -81,9 +91,23 @@ const Index: React.FC = () => {
     </div>
   );
 
-  const noCurrencies = (
+  const emptyState = (
     <div className="flex flex-1 items-center justify-center">
-      <span className="text-2xl">No currencies added</span>
+      <Empty className="max-w-2xl border bg-white shadow-sm">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <span className="text-xl">$</span>
+          </EmptyMedia>
+          <EmptyTitle>Add your base currency</EmptyTitle>
+          <EmptyDescription>
+            Start with the currency you use most. You can add exchange rates and compare other
+            currencies after that.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <AddForm handleClose={closeAddCurrencyForm} />
+        </EmptyContent>
+      </Empty>
     </div>
   );
 
@@ -97,7 +121,7 @@ const Index: React.FC = () => {
         </div>
       </div>
       {!currencies.length ? (
-        noCurrencies
+        emptyState
       ) : (
         <div className="flex flex-col items-center">
           <div className="mb-2 flex w-2/3 items-center justify-center gap-3 rounded border bg-white p-1">

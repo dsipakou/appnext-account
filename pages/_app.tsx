@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unassigned-import */
 import "@/plugins/axios";
 import "@/date-fns.config.js";
 import "../styles/globals.css";
@@ -12,12 +13,19 @@ import React, { lazy } from "react";
 
 import { AnchoredToastProvider, ToastProvider } from "@/components/ui/toast";
 
-const Layout = lazy(async () => await import("../components/common/layout/Layout"));
+const Layout = lazy(async () => import("../components/common/layout/Layout"));
+
+type AppPropsWithAuth = AppProps<{ session: Session }> & {
+  Component: AppProps["Component"] & {
+    auth?: Record<string, never>;
+    layout?: "public";
+  };
+};
 
 const App = ({
   Component,
   pageProps: { session, ...pageProps },
-}: AppProps<{ session: Session }>) => {
+}: AppPropsWithAuth): React.ReactElement => {
   if (Component.layout === "public") {
     return (
       <>
@@ -57,25 +65,35 @@ const App = ({
   );
 };
 
-interface AuthProps {
-  children: React.ReactNode;
-}
+type AuthProps = {
+  children: React.ReactElement;
+};
 
-function Auth({ children }: AuthProps) {
+function Auth({ children }: AuthProps): React.ReactElement {
   const router = useRouter();
+  const [isAuthHeaderReady, setIsAuthHeaderReady] = React.useState(false);
 
   const { data: session, status } = useSession({
     required: true,
     onUnauthenticated() {
-      router.push("/login");
+      void router.push("/login");
     },
   });
 
-  if (status === "loading") {
+  React.useEffect(() => {
+    if (!session?.user.token) {
+      delete axios.defaults.headers.common.Authorization;
+      setIsAuthHeaderReady(false);
+      return;
+    }
+
+    axios.defaults.headers.common.Authorization = `Token ${session.user.token}`;
+    setIsAuthHeaderReady(true);
+  }, [session?.user.token]);
+
+  if (status === "loading" || !isAuthHeaderReady) {
     return <div>Loading...</div>;
   }
-
-  axios.defaults.headers.common.Authorization = `Token ${session.user.token}`;
 
   return children;
 }

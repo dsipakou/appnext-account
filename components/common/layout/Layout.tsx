@@ -9,6 +9,7 @@ import {
   LayoutTemplate,
   LineChart,
   Menu,
+  Receipt,
   ScrollText,
   User2,
 } from "lucide-react";
@@ -27,6 +28,8 @@ import { cn } from "@/lib/utils";
 interface Props {
   children: ReactNode;
 }
+
+const isUnderConstruction = process.env.NEXT_PUBLIC_UNDER_CONSTRUCTION === "true";
 
 const Layout: FC<Props> = ({ children }) => {
   const [open, setOpen] = React.useState(false);
@@ -120,6 +123,15 @@ const Layout: FC<Props> = ({ children }) => {
       icon: <LineChart />,
       link: "/reports/",
     },
+    ...(isUnderConstruction
+      ? [
+          {
+            name: "Billing",
+            icon: <Receipt />,
+            link: "/billing/",
+          },
+        ]
+      : []),
   ];
 
   const bottomMenuItems = [

@@ -6,7 +6,8 @@ import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Form, type FormErrors } from "@/components/ui/form";
+import type { FormErrors } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
 const formSchema = z.object({
@@ -16,7 +17,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const Index: React.FC = () => {
+const Index: React.FC & { layout?: "public" } = () => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [values, setValues] = React.useState<FormValues>({
     email: "",
@@ -27,18 +28,27 @@ const Index: React.FC = () => {
   const { status } = useSession();
   const router = useRouter();
 
-  if (status === "authenticated") {
-    router.push("/");
-  }
+  React.useEffect(() => {
+    if (status === "authenticated") {
+      void router.push("/");
+    }
+  }, [router, status]);
 
-  const handleLogin = (payload: FormValues) => {
+  const handleLogin = async (payload: FormValues) => {
     setIsLoading(true);
 
-    signIn("credentials", {
+    const result = await signIn("credentials", {
+      redirect: false,
       username: payload.email,
       password: payload.password,
-      callbackUrl: `${window.location.origin}/`,
     });
+
+    if (result?.ok) {
+      await router.push("/");
+      return;
+    }
+
+    setErrors((current) => ({ ...current, password: "Invalid email or password" }));
     setIsLoading(false);
   };
 
@@ -53,7 +63,7 @@ const Index: React.FC = () => {
     }
 
     setErrors({});
-    handleLogin(result.data);
+    void handleLogin(result.data);
   };
 
   return (
