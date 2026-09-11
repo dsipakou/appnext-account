@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import * as Slc from "@/components/ui/select";
 import { toastManager } from "@/components/ui/toast";
 import { Invite, User } from "@/components/users/types";
+import { useBillingSubscription } from "@/hooks/billing";
 import { Roles, useRoles, useUpdateRole } from "@/hooks/roles";
 import { useInvites, UserResponse, useUsers } from "@/hooks/users";
 
@@ -27,6 +28,7 @@ const Index: React.FC = () => {
   } = useSession();
   const { data: roles = [] } = useRoles();
   const { data: invites = [] } = useInvites();
+  const { data: billing } = useBillingSubscription();
 
   const { mutate } = useSWRConfig();
   const { trigger: update } = useUpdateRole(uuid);
@@ -34,6 +36,9 @@ const Index: React.FC = () => {
   const me = users.find((item: User) => item.username === authUser.username);
 
   const members = users.filter((item: User) => item.username !== authUser.username);
+  const memberLimit = billing?.effectivePlan.maxMembers;
+  const occupiedMemberSlots = users.length + invites.length;
+  const isMemberLimitReached = memberLimit != null && occupiedMemberSlots >= memberLimit;
 
   React.useEffect(() => {
     if (!members.length) return;
@@ -77,7 +82,17 @@ const Index: React.FC = () => {
     <div className="flex flex-col">
       <div className="my-3 flex w-full items-center justify-between px-6">
         <span className="text-xl font-semibold">User management</span>
-        <AddForm />
+        <div className="flex items-center gap-3">
+          {memberLimit != null && (
+            <span className="text-muted-foreground text-sm">
+              {occupiedMemberSlots}/{memberLimit} member slots used
+            </span>
+          )}
+          <AddForm
+            disabled={isMemberLimitReached}
+            disabledReason="Workspace member limit reached. Upgrade your plan to invite more users."
+          />
+        </div>
       </div>
       <div className="mt-6 flex w-full flex-col gap-4 px-20">
         {me != null && (

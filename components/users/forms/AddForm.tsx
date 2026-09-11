@@ -1,10 +1,12 @@
 import React from "react";
 import * as z from "zod";
 
+import type { FormErrors } from "@/components/ui/form";
+
 import { Button } from "@/components/ui/button";
 import * as Dlg from "@/components/ui/dialog";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Form, type FormErrors } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toastManager } from "@/components/ui/toast";
 import { useCreateInvite } from "@/hooks/users";
@@ -16,7 +18,12 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const AddForm: React.FC = () => {
+type Props = {
+  disabled?: boolean;
+  disabledReason?: string;
+};
+
+const AddForm: React.FC<Props> = ({ disabled = false, disabledReason }) => {
   const [values, setValues] = React.useState<FormValues>({ email: "" });
   const [errors, setErrors] = React.useState<FormErrors>({});
 
@@ -72,14 +79,17 @@ const AddForm: React.FC = () => {
 
   return (
     <Dlg.Dialog onOpenChange={cleanFormErrors}>
-      <Dlg.DialogTrigger className="mx-2" render={<Button />}>
+      <Dlg.DialogTrigger className="mx-2" disabled={disabled} render={<Button />}>
         + Add member
       </Dlg.DialogTrigger>
+      {disabled && disabledReason && (
+        <span className="text-muted-foreground text-sm">{disabledReason}</span>
+      )}
       <Dlg.DialogPopup>
         <Dlg.DialogHeader>
           <Dlg.DialogTitle>Add user to the workspace</Dlg.DialogTitle>
         </Dlg.DialogHeader>
-        <Form errors={errors} onSubmit={handleSubmit} className="contents">
+        <Form errors={errors} onSubmit={(event) => void handleSubmit(event)} className="contents">
           <Dlg.DialogPanel>
             <div className="flex w-full">
               <Field name="email">
@@ -98,7 +108,9 @@ const AddForm: React.FC = () => {
           </Dlg.DialogPanel>
           <Dlg.DialogFooter>
             <Dlg.DialogClose render={<Button variant="ghost" />}>Cancel</Dlg.DialogClose>
-            <Button type="submit">Send invite</Button>
+            <Button type="submit" disabled={isCreating}>
+              Send invite
+            </Button>
           </Dlg.DialogFooter>
         </Form>
       </Dlg.DialogPopup>

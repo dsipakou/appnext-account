@@ -2,15 +2,24 @@ import React from "react";
 
 import Toolbar from "@/components/common/layout/Toolbar";
 import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { useCategories } from "@/hooks/categories";
 import { cn } from "@/lib/utils";
+
+import type { Category } from "./types";
 
 import Income from "./components/Income";
 import Outcome from "./components/Outcome";
 import AddForm from "./forms/AddForm";
-import { Category } from "./types";
 
-const Index = () => {
+const Index = (): React.ReactElement => {
   const { data: categories = [] } = useCategories();
   const [activeType, setActiveType] = React.useState<"income" | "outcome">("outcome");
 
@@ -21,11 +30,34 @@ const Index = () => {
     return categories?.filter((item: Category) => item.parent === uuid) || [];
   };
 
-  const noCategories = (
+  const emptyState = (
     <div className="flex flex-1 items-center justify-center">
-      <span className="text-2xl">No categories added</span>
+      <Empty className="max-w-2xl border bg-white shadow-sm">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <span className="text-xl">#</span>
+          </EmptyMedia>
+          <EmptyTitle>Create your first category</EmptyTitle>
+          <EmptyDescription>
+            Categories help group your spending and income, so reports and budgets stay meaningful.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <AddForm />
+        </EmptyContent>
+      </Empty>
     </div>
   );
+
+  let content = (
+    <Outcome parentCategories={parentCategories} categoriesByParent={categoriesByParent} />
+  );
+
+  if (categories.length === 0) {
+    content = emptyState;
+  } else if (activeType === "income") {
+    content = <Income />;
+  }
 
   return (
     <>
@@ -62,12 +94,7 @@ const Index = () => {
         </div>
         <AddForm />
       </Toolbar>
-      {categories.length === 0 && noCategories}
-      {activeType === "income" ? (
-        <Income />
-      ) : (
-        <Outcome parentCategories={parentCategories} categoriesByParent={categoriesByParent} />
-      )}
+      {content}
     </>
   );
 };

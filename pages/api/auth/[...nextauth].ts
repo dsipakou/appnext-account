@@ -1,8 +1,34 @@
 import axios from "axios";
 import NextAuth from "next-auth";
+import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-export const authOptions = {
+type LoginResponse = {
+  currency: string;
+  token: string;
+  username: string;
+};
+
+type LoginUser = LoginResponse & {
+  id: string;
+};
+
+const getApiUrl = (path: string) => {
+  const schema = process.env.API_SCHEMA ?? process.env.NEXT_PUBLIC_API_SCHEMA;
+  const host = process.env.API_HOST ?? process.env.NEXT_PUBLIC_API_HOST;
+  const port = process.env.API_PORT ?? process.env.NEXT_PUBLIC_API_PORT;
+  const isProd = process.env.ENV_TYPE === "prod" || process.env.NEXT_PUBLIC_ENV_TYPE === "prod";
+
+  if (!schema || !host) {
+    throw new Error("API_SCHEMA/API_HOST env variables are required");
+  }
+
+  const baseUrl = isProd || !port ? `${schema}://${host}` : `${schema}://${host}:${port}`;
+
+  return `${baseUrl}${path}`;
+};
+
+export const authOptions: NextAuthOptions = {
   // Configure one or more authentication providers
   pages: {
     signIn: "/login",
@@ -24,44 +50,45 @@ export const authOptions = {
       async authorize(credentials) {
         // Add logic here to look up the user from the credentials supplied
         try {
-          let url;
-          if (process.env.NEXT_PUBLIC_ENV_TYPE === "prod") {
-            url = `${process.env.NEXT_PUBLIC_API_SCHEMA}://${process.env.NEXT_PUBLIC_API_HOST}/users/login/`;
-          } else {
-            url = `${process.env.NEXT_PUBLIC_API_SCHEMA}://${process.env.NEXT_PUBLIC_API_HOST}:${process.env.NEXT_PUBLIC_API_PORT}/users/login/`;
-          }
-          console.log(url);
-          const response = await axios.post(url, {
+          const response = await axios.post<LoginResponse>(getApiUrl("/users/login/"), {
             email: credentials?.username,
             password: credentials?.password,
           });
-          if (response) {
-            // Any object returned will be saved in `user` property of the JWT
-            return response.data;
-          } else {
-            // If you return null then an error will be displayed advising the user to check their details.
-            return null;
 
-            // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
-          }
-        } catch (e) {
-          console.log("after");
-          console.log(e);
+          // Any object returned will be saved in `user` property of the JWT.
+          return response ? ({ ...response.data, id: response.data.username } satisfies LoginUser) : null;
+        } catch {
+          // Returning null shows a credentials error without leaking backend details.
           return null;
         }
       },
     }),
   ],
   callbacks: {
-    async session({ token, session }) {
-      session.user = token;
+    session({ session, token }) {
+      session.user = {
+        ...session.user,
+        currency: token.currency,
+        token: token.token,
+        username: token.username,
+      };
+
       return session;
     },
-    async jwt({ token, trigger, user, session }) {
-      if (trigger === "update" && session?.currency) {
-        token.currency = session.currency;
+    jwt({ token, trigger, user, session }) {
+      if (user) {
+        token.currency = user.currency;
+        token.token = user.token;
+        token.username = user.username;
       }
-      return { ...token, ...user };
+
+      const updatedSession = session as { currency?: unknown } | undefined;
+
+      if (trigger === "update" && typeof updatedSession?.currency === "string") {
+        token.currency = updatedSession.currency;
+      }
+
+      return token;
     },
   },
 };

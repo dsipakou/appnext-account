@@ -1,16 +1,19 @@
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { mutate } from "swr";
+
+import type { CompactWeekItem, PlannedMap, SpentMap } from "@/components/budget/types";
+import type { UserResponse } from "@/hooks/users";
 
 import { useStore } from "@/app/store";
 import { GeneralSummaryCard } from "@/components/budget/components";
 import MonthCalendar from "@/components/budget/components/month/MonthCalendar";
 import WeekCalendar from "@/components/budget/components/week/WeekCalendar";
 import { AddForm, SavedForLaterForm, TransactionsForm } from "@/components/budget/forms";
-import { CompactWeekItem, PlannedMap, SpentMap } from "@/components/budget/types";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Empty,
   EmptyContent,
@@ -21,8 +24,10 @@ import {
 } from "@/components/ui/empty";
 import * as Slc from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import { useAccounts } from "@/hooks/accounts";
 import { useBudgetMonth, useBudgetWeek } from "@/hooks/budget";
-import { UserResponse, useUsers } from "@/hooks/users";
+import { useCategories } from "@/hooks/categories";
+import { useUsers } from "@/hooks/users";
 import { cn } from "@/lib/utils";
 import { getEndOfMonth, getEndOfWeek, getStartOfMonth, getStartOfWeek } from "@/utils/dateUtils";
 
@@ -46,6 +51,11 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     const [activeBudgetUuid, setActiveBudgetUuid] = useState<string>("");
     const startDate = activeType === "month" ? startOfMonth : startOfWeek;
     const endDate = activeType === "month" ? endOfMonth : endOfWeek;
+    const { data: accounts = [], isLoading: isAccountsLoading } = useAccounts();
+    const { data: categories = [], isLoading: isCategoriesLoading } = useCategories();
+    const hasNoAccounts = accounts.length === 0;
+    const hasNoCategories = categories.length === 0;
+    const hasMissingSetup = hasNoAccounts || hasNoCategories;
 
     const weekDate = useStore((state) => state.weekDate);
     const monthDate = useStore((state) => state.monthDate);
@@ -251,6 +261,83 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
       </Empty>
     );
 
+    const setupEmptyState = (
+      <Empty className="max-w-2xl border bg-white shadow-sm">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <span className="text-xl">$</span>
+          </EmptyMedia>
+          <EmptyTitle>Set up your budget workspace</EmptyTitle>
+          <EmptyDescription>
+            Add{" "}
+            {hasNoAccounts && hasNoCategories ? "an account and a category" : "the missing item"}{" "}
+            before planning this {activeType}. Budgets need somewhere money comes from and a
+            category to organize it.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <div className="grid w-full gap-3 sm:grid-cols-2">
+            <div className="rounded-lg border bg-slate-50 p-4 text-left">
+              <div className="font-medium">Accounts</div>
+              <div className="text-muted-foreground mt-1 text-sm">
+                {hasNoAccounts
+                  ? "Create your first wallet, card, or cash account."
+                  : "You already have accounts."}
+              </div>
+            </div>
+            <div className="rounded-lg border bg-slate-50 p-4 text-left">
+              <div className="font-medium">Categories</div>
+              <div className="text-muted-foreground mt-1 text-sm">
+                {hasNoCategories
+                  ? "Create categories like groceries, rent, or subscriptions."
+                  : "You already have categories."}
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-wrap justify-center gap-2">
+            {hasNoAccounts && (
+              <Link href="/accounts/" className={buttonVariants()}>
+                Add account
+              </Link>
+            )}
+            {hasNoCategories && (
+              <Link
+                href="/categories/"
+                className={buttonVariants({ variant: hasNoAccounts ? "outline" : "default" })}
+              >
+                Add category
+              </Link>
+            )}
+          </div>
+        </EmptyContent>
+      </Empty>
+    );
+
+    const isBudgetLoading = isWeekBudgetLoading || isMonthBudgetLoading;
+    const isSetupLoading = isAccountsLoading || isCategoriesLoading;
+    const hasNoBudget =
+      (activeType === "month" && budgetMonth.length === 0) ||
+      (activeType === "week" && budgetWeek.length === 0);
+    const shouldCenterContent = isBudgetLoading || isSetupLoading || hasMissingSetup || hasNoBudget;
+
+    let content = (
+      <Component
+        startDate={startDate}
+        endDate={endDate}
+        clickShowTransactions={handleClickTransactions}
+        mutateBudget={mutateBudget}
+        user={user}
+      />
+    );
+
+    if (isBudgetLoading || isSetupLoading) {
+      content = <Spinner className="size-8" />;
+    } else if (hasMissingSetup) {
+      content = setupEmptyState;
+    } else if (hasNoBudget) {
+      content = emptyState;
+    }
+
     return (
       <>
         {toolbar}
@@ -259,23 +346,10 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
             <div className="w-full rounded bg-white p-1 shadow-sm shadow-zinc-300">{header}</div>
           )}
           <div className="@container-[size] mt-5 flex h-full max-h-full w-full">
-            {(activeType === "month" && budgetMonth.length === 0) ||
-            (activeType === "week" && budgetWeek.length === 0) ? (
-              <div className="flex h-full w-full items-center justify-center">
-                {isWeekBudgetLoading || isMonthBudgetLoading ? (
-                  <Spinner className="size-8" />
-                ) : (
-                  emptyState
-                )}
-              </div>
+            {shouldCenterContent ? (
+              <div className="flex h-full w-full items-center justify-center">{content}</div>
             ) : (
-              <Component
-                startDate={startDate}
-                endDate={endDate}
-                clickShowTransactions={handleClickTransactions}
-                mutateBudget={mutateBudget}
-                user={user}
-              />
+              content
             )}
           </div>
         </div>

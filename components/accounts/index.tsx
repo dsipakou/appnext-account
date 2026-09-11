@@ -1,14 +1,24 @@
 import { useSession } from "next-auth/react";
 import * as React from "react";
 
+import type { User } from "@/components/users/types";
+
 import AccountCard from "@/components/accounts/components/AccountCard";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { Spinner } from "@/components/ui/spinner";
-import { User } from "@/components/users/types";
 import { useAccounts } from "@/hooks/accounts";
 import { useUsers } from "@/hooks/users";
 
+import type { AccountResponse } from "./types";
+
 import { AddForm as AddAccount } from "./forms";
-import { AccountResponse } from "./types";
 
 const Index: React.FC = () => {
   const { data: accounts = [], isLoading: isAccountsLoading } = useAccounts();
@@ -19,13 +29,72 @@ const Index: React.FC = () => {
   const yourAccounts = authUser
     ? accounts.filter((item: AccountResponse) => item.user === authUser.uuid)
     : [];
-  const sortedYourAccounts = yourAccounts.sort((a: AccountResponse, b: AccountResponse) => {
-    if (a.isDefault && !b.isDefault) return a.isDefault ? -1 : 1;
+  const sortedYourAccounts = yourAccounts.toSorted((a: AccountResponse, b: AccountResponse) => {
+    if (a.isDefault && !b.isDefault) {
+      return a.isDefault ? -1 : 1;
+    }
+
     return a.title.localeCompare(b.title);
   });
   const otherAccounts = authUser
     ? accounts.filter((item: AccountResponse) => item.user !== authUser.uuid)
     : accounts;
+
+  const emptyState = (
+    <Empty className="max-w-2xl border bg-white shadow-sm">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <span className="text-xl">$</span>
+        </EmptyMedia>
+        <EmptyTitle>Create your first account</EmptyTitle>
+        <EmptyDescription>
+          Add a wallet, card, or cash account to start tracking balances and planning your budget.
+        </EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <AddAccount />
+      </EmptyContent>
+    </Empty>
+  );
+
+  let content = (
+    <>
+      <div className="rounded-xl bg-white pt-3">
+        <span className="p-3">Your accounts</span>
+        <div className="flex flex-col rounded-xl bg-white py-3">
+          {sortedYourAccounts.map((item: AccountResponse) => (
+            <div key={item.uuid}>
+              <AccountCard account={item} />
+            </div>
+          ))}
+        </div>
+      </div>
+      {otherAccounts.length > 0 && (
+        <div className="rounded-xl bg-white pt-3">
+          <span className="p-3">Other accounts</span>
+          <div className="flex flex-col rounded-xl bg-white py-3">
+            {otherAccounts.map((item: AccountResponse) => (
+              <div key={item.uuid}>
+                <AccountCard account={item} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  );
+
+  if (isAccountsLoading) {
+    content = (
+      <div className="flex h-full items-center justify-center">
+        <div className="text-center">
+          <Spinner className="size-8" />
+        </div>
+      </div>
+    );
+  } else if (accounts.length === 0) {
+    content = <div className="flex flex-1 items-center justify-center">{emptyState}</div>;
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-2 overflow-y-auto">
@@ -33,42 +102,7 @@ const Index: React.FC = () => {
         <span className="text-xl font-semibold">Accounts</span>
         <AddAccount />
       </div>
-      {isAccountsLoading ? (
-        <div className="flex h-full items-center justify-center">
-          <div className="text-center">
-            <Spinner className="size-8" />
-          </div>
-        </div>
-      ) : accounts.length === 0 ? (
-        <div className="flex flex-1 items-center justify-center">
-          <span className="text-2xl">No accounts added</span>
-        </div>
-      ) : (
-        <>
-          <div className="rounded-xl bg-white pt-3">
-            <span className="p-3">Your accounts</span>
-            <div className="flex flex-col rounded-xl bg-white py-3">
-              {sortedYourAccounts.map((item: AccountResponse) => (
-                <div key={item.uuid}>
-                  <AccountCard account={item} />
-                </div>
-              ))}
-            </div>
-          </div>
-          {otherAccounts.length > 0 && (
-            <div className="rounded-xl bg-white pt-3">
-              <span className="p-3">Other accounts</span>
-              <div className="flex flex-col rounded-xl bg-white py-3">
-                {otherAccounts.map((item: AccountResponse) => (
-                  <div key={item.uuid}>
-                    <AccountCard account={item} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </>
-      )}
+      {content}
     </div>
   );
 };
