@@ -70,7 +70,7 @@ export default function BudgetComponent({
     budgetDate: getFormattedDate(row.date || new Date()),
   });
 
-  const { data: budgets = [] } = useBudgetWeek(weekStart, weekEnd);
+  const { data: budgets = [], isLoading: isBudgetsLoading } = useBudgetWeek(weekStart, weekEnd);
   const { data: categories = [] } = useCategories();
   const currencies = (useCurrencies() as { data?: Currency[] }).data ?? [];
   const { trigger: createBudget, isMutating: isCreating } = useCreateBudget();
@@ -107,6 +107,24 @@ export default function BudgetComponent({
     if (!accountUser) return;
     setValues((current) => ({ ...current, user: accountUser }));
   }, [accountUser]);
+
+  React.useEffect(() => {
+    if (!value || isBudgetsLoading) {
+      return;
+    }
+
+    const hasSelectedBudget = filteredBudgets.some((item: WeekBudgetItem) => item.uuid === value);
+    if (hasSelectedBudget) {
+      return;
+    }
+
+    handleChange(row.id, "budget", "");
+    handleChange(row.id, "budgetName", "");
+    handleChange(row.id, "isCompleted", false);
+    handleChange(row.id, "category", "");
+    handleChange(row.id, "categoryName", "");
+    handleChange(row.id, "categoryParentName", "");
+  }, [filteredBudgets, handleChange, isBudgetsLoading, row.id, value]);
 
   const onChange = (value: string) => {
     if (value === "__create_new__") {
