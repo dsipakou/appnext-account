@@ -4,7 +4,6 @@ import React from "react";
 // Types
 import { WeekBudgetItem } from "@/components/budget/types";
 import { Currency } from "@/components/currencies/types";
-import { AvailableRate } from "@/components/rates/types";
 import { RowData } from "@/components/transactions/components/transactionTable";
 // UI
 import * as Slc from "@/components/ui/select";
@@ -15,6 +14,8 @@ import { useAvailableRates } from "@/hooks/rates";
 // Utils
 import { cn } from "@/lib/utils";
 import { getEndOfWeek, getFormattedDate, getStartOfWeek } from "@/utils/dateUtils";
+
+import { getCurrencyAvailability, getPreselectedCurrency } from "./currencySelection";
 
 type Props = {
   user: string;
@@ -34,7 +35,6 @@ export default function CurrencyComponent({
   handleKeyDown,
 }: Props) {
   const [selectedDate, setSelectedDate] = React.useState<Date>(row.date || new Date());
-  const [budgetUuid, setBudgetUuid] = React.useState<string>("");
   const [weekStart, setWeekStart] = React.useState<string>(getStartOfWeek(row.date || new Date()));
   const [weekEnd, setWeekEnd] = React.useState<string>(getEndOfWeek(row.date || new Date()));
 
@@ -46,67 +46,17 @@ export default function CurrencyComponent({
 
   const baseCurrency = currencies.find((item: Currency) => item.isBase);
 
-  const selectedBudget = budgets.find((item: WeekBudgetItem) => item.uuid === budgetUuid);
+  const selectedBudget = budgets.find((item: WeekBudgetItem) => item.uuid === row.budget);
   const budgetCurrency = selectedBudget
     ? currencies.find((item: Currency) => item.uuid === selectedBudget.currency)
-    : null;
-  const isBudgetCurrencyAvailable = budgetCurrency
-    ? availableRates.find((item: AvailableRate) => item.currencyCode === budgetCurrency.code)
-    : false;
-
-  const ratesByCode = React.useMemo(
-    () => new Map(availableRates.map((r) => [r.currencyCode, r])),
-    [availableRates],
-  );
+    : undefined;
   const formattedDate = React.useMemo(() => getFormattedDate(row.date || new Date()), [row.date]);
-  const { activeCurrencies, outdatedCurrencies, unavailableCurrencies } = React.useMemo(() => {
-    const active = [];
-    const outdated = [];
-    const unavailable = [];
-
-    for (const currency of currencies) {
-      const rate = ratesByCode.get(currency.code);
-
-      if (!rate) {
-        unavailable.push(currency);
-      } else if (currency.isBase || rate.rateDate === formattedDate) {
-        active.push(currency);
-      } else {
-        outdated.push(currency);
-      }
-    }
-
-    return {
-      activeCurrencies: active,
-      outdatedCurrencies: outdated,
-      unavailableCurrencies: unavailable,
-    };
-  }, [currencies, ratesByCode, formattedDate]);
+  const { activeCurrencies, outdatedCurrencies, unavailableCurrencies } = React.useMemo(
+    () => getCurrencyAvailability(currencies, availableRates, formattedDate),
+    [availableRates, currencies, formattedDate],
+  );
 
   const defaultCurrency = currencies.find((item: Currency) => item.isDefault);
-  const isDefaultCurrencyAvailable = availableRates.find(
-    (item: AvailableRate) => item.currencyCode === defaultCurrency?.code,
-  );
-
-  const preselectedValue = () => {
-    if (value) {
-      return value;
-    }
-    if (isSaved) {
-      return row.currency;
-    }
-    // If new user didnt't add any currency yet
-    if (!baseCurrency) {
-      return;
-    }
-    if (isBudgetCurrencyAvailable) {
-      return budgetCurrency!.uuid;
-    }
-    if (isDefaultCurrencyAvailable) {
-      return defaultCurrency!.uuid;
-    }
-    return baseCurrency.uuid;
-  };
 
   React.useEffect(() => {
     setSelectedDate(row.date);
@@ -115,14 +65,34 @@ export default function CurrencyComponent({
   }, [row.date]);
 
   React.useEffect(() => {
-    if (row.budget) {
-      setBudgetUuid(row.budget);
-    }
-  }, [row.budget]);
+    const preselectedValue = getPreselectedCurrency({
+      value,
+      rowCurrency: row.currency,
+      isSaved,
+      isLoading: isRatesLoading || isCurrenciesLoading || isBudgetsLoading,
+      baseCurrency,
+      budgetCurrency,
+      defaultCurrency,
+      availableRates,
+    });
 
-  React.useEffect(() => {
-    handleChange(row.id, "currency", preselectedValue() as string);
-  }, [isBudgetCurrencyAvailable, isDefaultCurrencyAvailable]);
+    if (preselectedValue && preselectedValue !== value) {
+      handleChange(row.id, "currency", preselectedValue);
+    }
+  }, [
+    availableRates,
+    baseCurrency,
+    budgetCurrency,
+    defaultCurrency,
+    handleChange,
+    isBudgetsLoading,
+    isCurrenciesLoading,
+    isRatesLoading,
+    isSaved,
+    row.currency,
+    row.id,
+    value,
+  ]);
 
   return (
     <Slc.Select

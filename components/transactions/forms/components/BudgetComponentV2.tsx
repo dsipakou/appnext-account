@@ -23,6 +23,7 @@ import { getEndOfWeek, getFormattedDate, getStartOfWeek } from "@/utils/dateUtil
 import type { CreateBudgetFormValues } from "../CreateBudgetForm";
 
 import { CreateBudgetForm } from "../CreateBudgetForm";
+import { isSelectedBudgetUnavailable } from "./budgetSelection";
 
 type Props = {
   user: string;
@@ -109,12 +110,7 @@ export default function BudgetComponent({
   }, [accountUser]);
 
   React.useEffect(() => {
-    if (!value || isBudgetsLoading) {
-      return;
-    }
-
-    const hasSelectedBudget = filteredBudgets.some((item: WeekBudgetItem) => item.uuid === value);
-    if (hasSelectedBudget) {
+    if (!isSelectedBudgetUnavailable(accountUser, value, isBudgetsLoading, filteredBudgets)) {
       return;
     }
 
