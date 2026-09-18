@@ -281,7 +281,7 @@ const Container: FC<Types> = ({ user }) => {
         </div>
 
         <div className="mt-5 grid gap-4 md:grid-cols-2">
-          <div className="rounded-xl border bg-slate-50 p-3">
+          <div className="rounded-xl border border-r-cyan-400 border-b-cyan-400 bg-cyan-100 p-3">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <div className="text-muted-foreground text-sm font-medium">
@@ -298,7 +298,7 @@ const Container: FC<Types> = ({ user }) => {
             </div>
           </div>
 
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-3">
+          <div className="rounded-xl border border-r-orange-400 border-b-orange-400 bg-orange-100 p-3">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <div className="text-muted-foreground text-sm font-medium">
