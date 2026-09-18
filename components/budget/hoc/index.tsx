@@ -364,7 +364,7 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
           {activeType !== "recurrent" && (
             <div className="w-full rounded bg-white p-1 shadow-sm shadow-zinc-300">{header}</div>
           )}
-          <div className="@container-[size] mt-5 flex h-full max-h-full w-full">
+          <div className="@container-[size] flex h-full max-h-full w-full">
             {shouldCenterContent ? (
               <div className="flex h-full w-full items-center justify-center">{content}</div>
             ) : (

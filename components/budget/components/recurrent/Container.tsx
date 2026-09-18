@@ -237,16 +237,13 @@ const Container: FC<Types> = ({ user }) => {
 
   return (
     <div className="flex h-full max-h-full w-full flex-col gap-5 overflow-hidden">
-      <div className="rounded-xl bg-white p-5 shadow-sm shadow-zinc-300">
+      <div className="rounded-xl bg-white p-3 shadow-sm shadow-zinc-300">
         <div className="grid items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
           <div className="min-w-0">
             <div className="flex items-center gap-2 text-2xl font-bold text-slate-900">
               <Repeat className="h-6 w-6 text-blue-500" />
               Recurrent budgets
             </div>
-            <p className="text-muted-foreground mt-1">
-              Monthly recurring commitments that are active in {monthTitle}.
-            </p>
           </div>
           <div className="flex rounded-md bg-blue-500 p-px lg:justify-self-center">
             <Button
