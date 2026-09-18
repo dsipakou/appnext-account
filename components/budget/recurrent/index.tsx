@@ -1,6 +1,6 @@
-import { FC } from "react";
+import type { FC } from "react";
 
-import Container from "@/components/budget/components/occasional";
+import Container from "@/components/budget/components/recurrent/Container";
 import withBudgetTemplate from "@/components/budget/hoc";
 
 const RecurrentTemplate = withBudgetTemplate(Container);

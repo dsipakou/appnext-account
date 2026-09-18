@@ -47,7 +47,6 @@ const AddForm: React.FC<Types> = ({ parent }) => {
   const { data: categories = [] } = useCategories();
   const { trigger: createCategory, isMutating: isCreating } = useCreateCategory();
 
-  const [parentList, setParentList] = React.useState<Category[]>([]);
   const [selectedEmoji, setSelectedEmoji] = React.useState<string | null>(null);
   const [values, setValues] = React.useState<FormValues>({
     title: "",
@@ -58,20 +57,17 @@ const AddForm: React.FC<Types> = ({ parent }) => {
   });
   const [errors, setErrors] = React.useState<FormErrors>({});
 
-  React.useEffect(() => {
-    if (!categories) return;
-
-    const parents = categories.filter(
+  const parentList = React.useMemo(() => {
+    return categories.filter(
       (category: Category) => category.parent === null && category.type !== CategoryType.Income,
     );
-    setParentList(parents);
   }, [categories]);
 
   React.useEffect(() => {
-    if (!values.isParent) {
+    if (!values.isParent && values.parentCategory) {
       setValues((current) => ({ ...current, parentCategory: undefined }));
     }
-  }, [values.isParent]);
+  }, [values.isParent, values.parentCategory]);
 
   React.useEffect(() => {
     if (parent != null) {

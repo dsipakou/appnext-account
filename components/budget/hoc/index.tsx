@@ -5,7 +5,13 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import { mutate } from "swr";
 
-import type { CompactWeekItem, PlannedMap, SpentMap } from "@/components/budget/types";
+import type {
+  CompactWeekItem,
+  GroupedByCategoryBudget,
+  PlannedMap,
+  SpentMap,
+  WeekBudgetItem,
+} from "@/components/budget/types";
 import type { UserResponse } from "@/hooks/users";
 
 import { useStore } from "@/app/store";
@@ -32,6 +38,9 @@ import { cn } from "@/lib/utils";
 import { getEndOfMonth, getEndOfWeek, getStartOfMonth, getStartOfWeek } from "@/utils/dateUtils";
 
 type BudgetType = "month" | "week" | "recurrent";
+
+const EMPTY_MONTH_BUDGET: GroupedByCategoryBudget[] = [];
+const EMPTY_WEEK_BUDGET: WeekBudgetItem[] = [];
 
 function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
   return (hocProps: Omit<T, "activeType">) => {
@@ -69,12 +78,12 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
     );
 
     const {
-      data: budgetMonth = [],
+      data: budgetMonth = EMPTY_MONTH_BUDGET,
       url: monthUrl,
       isLoading: isMonthBudgetLoading,
     } = useBudgetMonth(startOfMonth, endOfMonth, user);
     const {
-      data: budgetWeek = [],
+      data: budgetWeek = EMPTY_WEEK_BUDGET,
       url: weekUrl,
       isLoading: isWeekBudgetLoading,
     } = useBudgetWeek(startOfWeek, endOfWeek, user);
@@ -191,13 +200,23 @@ function withBudgetTemplate<T>(Component: React.ComponentType<T>) {
               Weekly
             </span>
           </Button>
+          <Button
+            className="w-45 p-px disabled:opacity-100"
+            disabled={activeType === "recurrent"}
+            variant="empty"
+            onClick={() => handleTypeButtonClick("recurrent")}
+          >
+            <span
+              className={cn(
+                "flex h-full w-full items-center justify-center text-xl text-white",
+                activeType === "recurrent" && "rounded-md bg-white text-blue-500",
+              )}
+            >
+              Recurrent
+            </span>
+          </Button>
         </div>
         <div className="flex items-center">
-          {/* <Link href="/budget/recurrent"> */}
-          {/*   <span className="hover:bg-accent hover:text-accent-foreground text-blue-500 border-blue-500 hover:text-blue-600"> */}
-          {/*     Recurrent */}
-          {/*   </span> */}
-          {/* </Link> */}
           <SavedForLaterForm weekUrl={weekUrl} monthUrl={monthUrl} />
           <AddForm monthUrl={monthUrl} weekUrl={weekUrl} />
         </div>
