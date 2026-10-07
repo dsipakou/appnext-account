@@ -43,6 +43,10 @@ type RecurrentBudget = {
   occurrences: number;
 };
 
+type SessionUser = {
+  username?: string;
+};
+
 type Types = {
   user: string;
 };
@@ -235,9 +239,8 @@ const Container: FC<Types> = ({ user }) => {
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const [excludedBudgetIds, setExcludedBudgetIds] = useState<Set<string>>(() => new Set());
   const currency = useStore((state) => state.currency);
-  const {
-    data: { user: authUser },
-  } = useSession();
+  const { data: session } = useSession();
+  const authUsername = (session?.user as SessionUser | undefined)?.username;
   const { data: users = [] } = useUsers();
   const startDate = getStartOfMonth(selectedMonth);
   const endDate = getEndOfMonth(selectedMonth);
@@ -291,7 +294,7 @@ const Container: FC<Types> = ({ user }) => {
   const getBudgetUser = (budgetUser: string) => users.find((item) => item.uuid === budgetUser);
 
   const shouldShowBudgetUser = (budgetUser?: UserResponse) => {
-    return budgetUser !== undefined && budgetUser.username !== authUser?.username;
+    return budgetUser !== undefined && budgetUser.username !== authUsername;
   };
 
   const currentMonth = new Date();
