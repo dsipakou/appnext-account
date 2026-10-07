@@ -1,7 +1,8 @@
 import type { FC } from "react";
 
 import { addMonths } from "date-fns";
-import { Calendar, Repeat } from "lucide-react";
+import { Calendar, MoreVertical, Pencil, Repeat, Trash2 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useMemo, useState } from "react";
 
 import type {
@@ -9,12 +10,17 @@ import type {
   MonthGroupedBudgetItem,
   RecurrentTypes,
 } from "@/components/budget/types";
+import type { UserResponse } from "@/hooks/users";
 
 import { useStore } from "@/app/store";
+import { ConfirmDeleteForm, EditForm } from "@/components/budget/forms";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import * as Mnu from "@/components/ui/menu";
 import { Spinner } from "@/components/ui/spinner";
 import { useBudgetMonth } from "@/hooks/budget";
+import { useUsers } from "@/hooks/users";
 import { cn } from "@/lib/utils";
 import {
   getEndOfMonth,
@@ -28,10 +34,12 @@ import { formatMoney } from "@/utils/numberUtils";
 type RecurrentBudget = {
   uuid: string;
   title: string;
+  user: string;
   categoryName: string;
   recurrent: RecurrentTypes;
   plannedAmount: number;
   dates: string[];
+  budgetDate: string;
   occurrences: number;
 };
 
@@ -65,6 +73,14 @@ const getBudgetCountLabel = (count: number): string => {
   return `${count} ${count === 1 ? "budget" : "budgets"}`;
 };
 
+const getIncludedBudgetCountLabel = (includedCount: number, totalCount: number): string => {
+  if (includedCount === totalCount) {
+    return getBudgetCountLabel(totalCount);
+  }
+
+  return `${includedCount} of ${getBudgetCountLabel(totalCount)}`;
+};
+
 const getBudgetPlannedAmount = (budget: MonthGroupedBudgetItem, currency: string): number => {
   return budget.plannedInCurrencies[currency] ?? 0;
 };
@@ -83,20 +99,26 @@ const getRecurrentBudgets = (
       }
 
       const [{ recurrent }] = recurrentItems;
-      const budgetKey = `${item.title}-${recurrent}`;
+      const sortedRecurrentItems = recurrentItems.toSorted((a, b) =>
+        a.budgetDate.localeCompare(b.budgetDate),
+      );
+      const [representativeBudget] = sortedRecurrentItems;
+      const budgetKey = `${item.title}-${recurrent}-${representativeBudget.user}`;
       const existingBudget = recurrentBudgets.get(budgetKey);
-      const dates = recurrentItems.map((budgetItem) => budgetItem.budgetDate);
+      const dates = sortedRecurrentItems.map((budgetItem) => budgetItem.budgetDate);
       const plannedAmount = getBudgetPlannedAmount(item, currency);
       const isActualOnlyBudget = item.isAnotherCategory || item.isAnotherMonth;
 
       if (!existingBudget) {
         recurrentBudgets.set(budgetKey, {
-          uuid: item.uuid,
+          uuid: representativeBudget.uuid,
           title: item.title,
+          user: representativeBudget.user,
           categoryName: isActualOnlyBudget ? "" : category.categoryName,
           recurrent,
           plannedAmount: isActualOnlyBudget ? 0 : plannedAmount,
           dates,
+          budgetDate: representativeBudget.budgetDate,
           occurrences: dates.length,
         });
         continue;
@@ -120,17 +142,57 @@ const getRecurrentBudgets = (
 const RecurrentBudgetCard: FC<{
   budget: RecurrentBudget;
   currencySign: string;
-}> = ({ budget, currencySign }) => {
+  isIncluded: boolean;
+  onIncludedChange: (isIncluded: boolean) => void;
+  budgetUser?: UserResponse;
+  showUser: boolean;
+}> = ({ budget, currencySign, isIncluded, onIncludedChange, budgetUser, showUser }) => {
+  const [isEditDialogOpened, setIsEditDialogOpened] = useState(false);
+  const [isConfirmDeleteDialogOpened, setIsConfirmDeleteDialogOpened] = useState(false);
+
   return (
-    <div className="rounded-xl border bg-white p-4 shadow-sm">
+    <div className={cn("rounded-xl border bg-white p-4 shadow-sm", !isIncluded && "opacity-60")}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="text-lg font-semibold text-slate-900">{budget.title}</div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="text-lg font-semibold text-slate-900">{budget.title}</div>
+            {showUser && budgetUser && (
+              <Badge variant="outline" className="bg-violet-50 text-violet-700">
+                {budgetUser.username}
+              </Badge>
+            )}
+          </div>
           <div className="text-muted-foreground text-sm">{budget.categoryName}</div>
         </div>
-        <Badge variant={budget.recurrent === "monthly" ? "default" : "secondary"}>
-          {budget.recurrent}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant={budget.recurrent === "monthly" ? "default" : "secondary"}>
+            {budget.recurrent}
+          </Badge>
+          <Mnu.Menu>
+            <Mnu.MenuTrigger
+              className={buttonVariants({ variant: "ghost", size: "icon-xs" })}
+              aria-label="Budget actions"
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Mnu.MenuTrigger>
+            <Mnu.MenuPopup align="end">
+              <Mnu.MenuGroup>
+                <Mnu.MenuGroupLabel>Actions</Mnu.MenuGroupLabel>
+                <Mnu.MenuItem onClick={() => setIsEditDialogOpened(true)}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  <span>Edit</span>
+                </Mnu.MenuItem>
+                <Mnu.MenuItem
+                  variant="destructive"
+                  onClick={() => setIsConfirmDeleteDialogOpened(true)}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  <span>Delete</span>
+                </Mnu.MenuItem>
+              </Mnu.MenuGroup>
+            </Mnu.MenuPopup>
+          </Mnu.Menu>
+        </div>
       </div>
       <div className="mt-4 flex items-end justify-between">
         <div className="text-muted-foreground flex items-center gap-2 text-sm">
@@ -149,29 +211,88 @@ const RecurrentBudgetCard: FC<{
           </div>
         </div>
       </div>
+      <label className="text-muted-foreground mt-3 flex cursor-pointer items-center gap-2 text-sm">
+        <Checkbox checked={isIncluded} onClick={() => onIncludedChange(!isIncluded)} />
+        <span>Include in total</span>
+      </label>
+      {isEditDialogOpened && (
+        <EditForm uuid={budget.uuid} open={isEditDialogOpened} setOpen={setIsEditDialogOpened} />
+      )}
+      {isConfirmDeleteDialogOpened && (
+        <ConfirmDeleteForm
+          uuid={budget.uuid}
+          open={isConfirmDeleteDialogOpened}
+          setOpen={setIsConfirmDeleteDialogOpened}
+          recurrent={budget.recurrent}
+          budgetDate={budget.budgetDate}
+        />
+      )}
     </div>
   );
 };
 
 const Container: FC<Types> = ({ user }) => {
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
+  const [excludedBudgetIds, setExcludedBudgetIds] = useState<Set<string>>(() => new Set());
   const currency = useStore((state) => state.currency);
+  const {
+    data: { user: authUser },
+  } = useSession();
+  const { data: users = [] } = useUsers();
   const startDate = getStartOfMonth(selectedMonth);
   const endDate = getEndOfMonth(selectedMonth);
   const { data: budget = [], isLoading } = useBudgetMonth(startDate, endDate, user);
 
-  const { monthlyBudgets, weeklyBudgets, monthlyTotal, weeklyTotal } = useMemo(() => {
+  const {
+    monthlyBudgets,
+    weeklyBudgets,
+    monthlyIncludedCount,
+    weeklyIncludedCount,
+    monthlyTotal,
+    weeklyTotal,
+  } = useMemo(() => {
     const recurrentBudgets = getRecurrentBudgets(budget, currency.code);
-    const monthlyBudgets = recurrentBudgets.filter((item) => item.recurrent === "monthly");
-    const weeklyBudgets = recurrentBudgets.filter((item) => item.recurrent === "weekly");
+    const monthlyBudgets = recurrentBudgets
+      .filter((item) => item.recurrent === "monthly")
+      .toSorted((a, b) => a.budgetDate.localeCompare(b.budgetDate));
+    const weeklyBudgets = recurrentBudgets
+      .filter((item) => item.recurrent === "weekly")
+      .toSorted((a, b) => a.budgetDate.localeCompare(b.budgetDate));
+
+    const includedMonthlyBudgets = monthlyBudgets.filter(
+      (item) => !excludedBudgetIds.has(item.uuid),
+    );
+    const includedWeeklyBudgets = weeklyBudgets.filter((item) => !excludedBudgetIds.has(item.uuid));
 
     return {
       monthlyBudgets,
       weeklyBudgets,
-      monthlyTotal: monthlyBudgets.reduce((acc, item) => acc + item.plannedAmount, 0),
-      weeklyTotal: weeklyBudgets.reduce((acc, item) => acc + item.plannedAmount, 0),
+      monthlyIncludedCount: includedMonthlyBudgets.length,
+      weeklyIncludedCount: includedWeeklyBudgets.length,
+      monthlyTotal: includedMonthlyBudgets.reduce((acc, item) => acc + item.plannedAmount, 0),
+      weeklyTotal: includedWeeklyBudgets.reduce((acc, item) => acc + item.plannedAmount, 0),
     };
-  }, [budget, currency.code]);
+  }, [budget, currency.code, excludedBudgetIds]);
+
+  const handleBudgetIncludedChange = (uuid: string, isIncluded: boolean) => {
+    setExcludedBudgetIds((current) => {
+      const next = new Set(current);
+
+      if (isIncluded) {
+        next.delete(uuid);
+      } else {
+        next.add(uuid);
+      }
+
+      return next;
+    });
+  };
+
+  const getBudgetUser = (budgetUser: string) => users.find((item) => item.uuid === budgetUser);
+
+  const shouldShowBudgetUser = (budgetUser?: UserResponse) => {
+    return budgetUser !== undefined && budgetUser.username !== authUser?.username;
+  };
 
   const currentMonth = new Date();
   const nextMonth = addMonths(currentMonth, 1);
@@ -189,13 +310,23 @@ const Container: FC<Types> = ({ user }) => {
               No monthly recurrent budgets active in {monthTitle}.
             </div>
           ) : (
-            monthlyBudgets.map((budget) => (
-              <RecurrentBudgetCard
-                key={`${budget.uuid}-${budget.dates.join("-")}`}
-                budget={budget}
-                currencySign={currency.sign}
-              />
-            ))
+            monthlyBudgets.map((budget) => {
+              const budgetUser = getBudgetUser(budget.user);
+
+              return (
+                <RecurrentBudgetCard
+                  key={`${budget.uuid}-${budget.dates.join("-")}`}
+                  budget={budget}
+                  currencySign={currency.sign}
+                  isIncluded={!excludedBudgetIds.has(budget.uuid)}
+                  onIncludedChange={(isIncluded) =>
+                    handleBudgetIncludedChange(budget.uuid, isIncluded)
+                  }
+                  budgetUser={budgetUser}
+                  showUser={shouldShowBudgetUser(budgetUser)}
+                />
+              );
+            })
           )}
         </div>
       </div>
@@ -208,13 +339,23 @@ const Container: FC<Types> = ({ user }) => {
               No weekly recurrent budgets active in {monthTitle}.
             </div>
           ) : (
-            weeklyBudgets.map((budget) => (
-              <RecurrentBudgetCard
-                key={`${budget.uuid}-${budget.dates.join("-")}`}
-                budget={budget}
-                currencySign={currency.sign}
-              />
-            ))
+            weeklyBudgets.map((budget) => {
+              const budgetUser = getBudgetUser(budget.user);
+
+              return (
+                <RecurrentBudgetCard
+                  key={`${budget.uuid}-${budget.dates.join("-")}`}
+                  budget={budget}
+                  currencySign={currency.sign}
+                  isIncluded={!excludedBudgetIds.has(budget.uuid)}
+                  onIncludedChange={(isIncluded) =>
+                    handleBudgetIncludedChange(budget.uuid, isIncluded)
+                  }
+                  budgetUser={budgetUser}
+                  showUser={shouldShowBudgetUser(budgetUser)}
+                />
+              );
+            })
           )}
         </div>
       </div>
@@ -290,7 +431,7 @@ const Container: FC<Types> = ({ user }) => {
                 <div className="text-muted-foreground mt-1 text-xs">Planned in {monthTitle}</div>
               </div>
               <Badge variant="outline" className="bg-white text-slate-600">
-                {getBudgetCountLabel(monthlyBudgets.length)}
+                {getIncludedBudgetCountLabel(monthlyIncludedCount, monthlyBudgets.length)}
               </Badge>
             </div>
             <div className="mt-4 text-3xl font-bold tracking-tight text-slate-900">
@@ -307,7 +448,7 @@ const Container: FC<Types> = ({ user }) => {
                 <div className="text-muted-foreground mt-1 text-xs">Planned in {monthTitle}</div>
               </div>
               <Badge variant="outline" className="bg-white text-amber-700">
-                {getBudgetCountLabel(weeklyBudgets.length)}
+                {getIncludedBudgetCountLabel(weeklyIncludedCount, weeklyBudgets.length)}
               </Badge>
             </div>
             <div className="mt-4 text-3xl font-bold tracking-tight text-slate-900">
