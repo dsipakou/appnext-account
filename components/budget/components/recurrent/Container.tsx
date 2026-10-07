@@ -38,9 +38,14 @@ type RecurrentBudget = {
   categoryName: string;
   recurrent: RecurrentTypes;
   plannedAmount: number;
+  spentAmount: number;
   dates: string[];
   budgetDate: string;
   occurrences: number;
+};
+
+type SessionUser = {
+  username?: string;
 };
 
 type Types = {
@@ -85,6 +90,24 @@ const getBudgetPlannedAmount = (budget: MonthGroupedBudgetItem, currency: string
   return budget.plannedInCurrencies[currency] ?? 0;
 };
 
+const getBudgetSpentAmount = (budget: MonthGroupedBudgetItem, currency: string): number => {
+  return budget.spentInCurrencies[currency] ?? 0;
+};
+
+const getRemainingAmountLabel = (plannedAmount: number, spentAmount: number): string => {
+  const remainingAmount = plannedAmount - spentAmount;
+
+  if (remainingAmount < 0) {
+    return "Over by";
+  }
+
+  return "Remaining";
+};
+
+const getRemainingAmount = (plannedAmount: number, spentAmount: number): number => {
+  return Math.abs(plannedAmount - spentAmount);
+};
+
 const getRecurrentBudgets = (
   budget: GroupedByCategoryBudget[],
   currency: string,
@@ -107,6 +130,7 @@ const getRecurrentBudgets = (
       const existingBudget = recurrentBudgets.get(budgetKey);
       const dates = sortedRecurrentItems.map((budgetItem) => budgetItem.budgetDate);
       const plannedAmount = getBudgetPlannedAmount(item, currency);
+      const spentAmount = getBudgetSpentAmount(item, currency);
       const isActualOnlyBudget = item.isAnotherCategory || item.isAnotherMonth;
 
       if (!existingBudget) {
@@ -117,6 +141,7 @@ const getRecurrentBudgets = (
           categoryName: isActualOnlyBudget ? "" : category.categoryName,
           recurrent,
           plannedAmount: isActualOnlyBudget ? 0 : plannedAmount,
+          spentAmount: isActualOnlyBudget ? 0 : spentAmount,
           dates,
           budgetDate: representativeBudget.budgetDate,
           occurrences: dates.length,
@@ -130,6 +155,7 @@ const getRecurrentBudgets = (
         ...existingBudget,
         categoryName: isActualOnlyBudget ? existingBudget.categoryName : category.categoryName,
         plannedAmount: existingBudget.plannedAmount + (isActualOnlyBudget ? 0 : plannedAmount),
+        spentAmount: existingBudget.spentAmount + (isActualOnlyBudget ? 0 : spentAmount),
         dates: mergedDates,
         occurrences: mergedDates.length,
       });
@@ -209,6 +235,11 @@ const RecurrentBudgetCard: FC<{
           <div className="text-xl font-bold text-slate-900">
             {formatMoney(budget.plannedAmount)} {currencySign}
           </div>
+          {budget.spentAmount > 0 && (
+            <div className="mt-1 text-sm font-semibold text-red-500">
+              Spent {formatMoney(budget.spentAmount)} {currencySign}
+            </div>
+          )}
         </div>
       </div>
       <label className="text-muted-foreground mt-3 flex cursor-pointer items-center gap-2 text-sm">
@@ -235,9 +266,8 @@ const Container: FC<Types> = ({ user }) => {
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const [excludedBudgetIds, setExcludedBudgetIds] = useState<Set<string>>(() => new Set());
   const currency = useStore((state) => state.currency);
-  const {
-    data: { user: authUser },
-  } = useSession();
+  const { data: session } = useSession();
+  const authUsername = (session?.user as SessionUser | undefined)?.username;
   const { data: users = [] } = useUsers();
   const startDate = getStartOfMonth(selectedMonth);
   const endDate = getEndOfMonth(selectedMonth);
@@ -250,6 +280,10 @@ const Container: FC<Types> = ({ user }) => {
     weeklyIncludedCount,
     monthlyTotal,
     weeklyTotal,
+    monthlySpentTotal,
+    weeklySpentTotal,
+    recurrentTotal,
+    recurrentSpentTotal,
   } = useMemo(() => {
     const recurrentBudgets = getRecurrentBudgets(budget, currency.code);
     const monthlyBudgets = recurrentBudgets
@@ -271,6 +305,16 @@ const Container: FC<Types> = ({ user }) => {
       weeklyIncludedCount: includedWeeklyBudgets.length,
       monthlyTotal: includedMonthlyBudgets.reduce((acc, item) => acc + item.plannedAmount, 0),
       weeklyTotal: includedWeeklyBudgets.reduce((acc, item) => acc + item.plannedAmount, 0),
+      monthlySpentTotal: includedMonthlyBudgets.reduce((acc, item) => acc + item.spentAmount, 0),
+      weeklySpentTotal: includedWeeklyBudgets.reduce((acc, item) => acc + item.spentAmount, 0),
+      recurrentTotal: [...includedMonthlyBudgets, ...includedWeeklyBudgets].reduce(
+        (acc, item) => acc + item.plannedAmount,
+        0,
+      ),
+      recurrentSpentTotal: [...includedMonthlyBudgets, ...includedWeeklyBudgets].reduce(
+        (acc, item) => acc + item.spentAmount,
+        0,
+      ),
     };
   }, [budget, currency.code, excludedBudgetIds]);
 
@@ -291,7 +335,7 @@ const Container: FC<Types> = ({ user }) => {
   const getBudgetUser = (budgetUser: string) => users.find((item) => item.uuid === budgetUser);
 
   const shouldShowBudgetUser = (budgetUser?: UserResponse) => {
-    return budgetUser !== undefined && budgetUser.username !== authUser?.username;
+    return budgetUser !== undefined && budgetUser.username !== authUsername;
   };
 
   const currentMonth = new Date();
@@ -421,7 +465,7 @@ const Container: FC<Types> = ({ user }) => {
           <div />
         </div>
 
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
+        <div className="mt-5 grid gap-4 md:grid-cols-3">
           <div className="rounded-xl border border-r-cyan-400 border-b-cyan-400 bg-cyan-100 p-3">
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -434,8 +478,16 @@ const Container: FC<Types> = ({ user }) => {
                 {getIncludedBudgetCountLabel(monthlyIncludedCount, monthlyBudgets.length)}
               </Badge>
             </div>
-            <div className="mt-4 text-3xl font-bold tracking-tight text-slate-900">
-              {formatMoney(monthlyTotal)} {currency.sign}
+            <div className="mt-4 flex flex-wrap items-end gap-x-6 gap-y-2">
+              <div className="text-3xl font-bold tracking-tight text-slate-900">
+                {formatMoney(monthlyTotal)} {currency.sign}
+              </div>
+              {monthlySpentTotal > 0 && (
+                <div className="pb-1 text-sm font-semibold text-red-500">
+                  {getRemainingAmountLabel(monthlyTotal, monthlySpentTotal)}{" "}
+                  {formatMoney(getRemainingAmount(monthlyTotal, monthlySpentTotal))} {currency.sign}
+                </div>
+              )}
             </div>
           </div>
 
@@ -451,8 +503,45 @@ const Container: FC<Types> = ({ user }) => {
                 {getIncludedBudgetCountLabel(weeklyIncludedCount, weeklyBudgets.length)}
               </Badge>
             </div>
-            <div className="mt-4 text-3xl font-bold tracking-tight text-slate-900">
-              {formatMoney(weeklyTotal)} {currency.sign}
+            <div className="mt-4 flex flex-wrap items-end gap-x-6 gap-y-2">
+              <div className="text-3xl font-bold tracking-tight text-slate-900">
+                {formatMoney(weeklyTotal)} {currency.sign}
+              </div>
+              {weeklySpentTotal > 0 && (
+                <div className="pb-1 text-sm font-semibold text-red-500">
+                  {getRemainingAmountLabel(weeklyTotal, weeklySpentTotal)}{" "}
+                  {formatMoney(getRemainingAmount(weeklyTotal, weeklySpentTotal))} {currency.sign}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-r-blue-400 border-b-blue-400 bg-blue-100 p-3">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <div className="text-muted-foreground text-sm font-medium">
+                  Total recurrent planned
+                </div>
+                <div className="text-muted-foreground mt-1 text-xs">Monthly + weekly</div>
+              </div>
+              <Badge variant="outline" className="bg-white text-blue-700">
+                {getIncludedBudgetCountLabel(
+                  monthlyIncludedCount + weeklyIncludedCount,
+                  monthlyBudgets.length + weeklyBudgets.length,
+                )}
+              </Badge>
+            </div>
+            <div className="mt-4 flex flex-wrap items-end gap-x-6 gap-y-2">
+              <div className="text-3xl font-bold tracking-tight text-slate-900">
+                {formatMoney(recurrentTotal)} {currency.sign}
+              </div>
+              {recurrentSpentTotal > 0 && (
+                <div className="pb-1 text-sm font-semibold text-red-500">
+                  {getRemainingAmountLabel(recurrentTotal, recurrentSpentTotal)}{" "}
+                  {formatMoney(getRemainingAmount(recurrentTotal, recurrentSpentTotal))}{" "}
+                  {currency.sign}
+                </div>
+              )}
             </div>
           </div>
         </div>
